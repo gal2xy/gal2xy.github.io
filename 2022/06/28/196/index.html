@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="参考： SUSCTF2022_official_wp&#x2F;Ez_Pager_Tiper wp.md at main · susers&#x2F;SUSCTF2022_official_wp (github.com) SUSCTF-Crypto方向所有赛题 - Love_DengFeng’s Blog Ez_Pager_Tiper附件：Ez_Pager_Tiper  分析magic_box中的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SUSCTF - Ez_Pager_Tiper">
+<meta property="og:url" content="http://example.com/2022/06/28/196/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="参考： SUSCTF2022_official_wp&#x2F;Ez_Pager_Tiper wp.md at main · susers&#x2F;SUSCTF2022_official_wp (github.com) SUSCTF-Crypto方向所有赛题 - Love_DengFeng’s Blog Ez_Pager_Tiper附件：Ez_Pager_Tiper  分析magic_box中的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-06-28T04:11:43.000Z">
+<meta property="article:modified_time" content="2022-07-27T09:17:47.313Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Crypto">
+<meta property="article:tag" content="流密码">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>SUSCTF - Ez_Pager_Tiper - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gla2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SUSCTF - Ez_Pager_Tiper"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-28 12:11" pubdate>
+          2022年6月28日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          115 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SUSCTF - Ez_Pager_Tiper</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/susers/SUSCTF2022_official_wp/blob/main/crypto/Ez_Pager_Tiper/Ez_Pager_Tiper%20wp.md">SUSCTF2022_official_wp&#x2F;Ez_Pager_Tiper wp.md at main · susers&#x2F;SUSCTF2022_official_wp (github.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://love-deng-feng.top/2022/03/02/Writeup%20of%20SUSCTF/">SUSCTF-Crypto方向所有赛题 - Love_DengFeng’s Blog</a></p>
+<h1 id="Ez-Pager-Tiper"><a href="#Ez-Pager-Tiper" class="headerlink" title="Ez_Pager_Tiper"></a>Ez_Pager_Tiper</h1><p>附件：<a href="/wp-content/uploads/2022/06/Ez_Pager_Tiper.zip">Ez_Pager_Tiper</a></p>
+<hr>
+<p>分析<code>magic_box</code>中的代码，测试发现<code>malicious_magic</code>中的<code>now = (-magic &amp; magic)</code>的值取决于<code>magic</code>二进制末尾0的个数，即二进制末尾的个数​，进而每次执行该函数，<code>magic</code>的二进制中最后一个1改为0，故<code>confusion</code>函数中的循环次数为<code>magic</code>二进制中的1的个数。</p>
+<p>再来看看<code>confusion</code>循环中的<code>output</code>的值。由于每次<code>now</code>都等于<code>magic</code>二进制中最后一个1及后面部分，于是乎在循环结束后</p>
+<p>\[ \begin{align} output &amp;&#x3D; output \oplus now_1\oplus now_2\oplus …\oplus now_n \\&amp;&#x3D; output \oplus magic(最初始) \\&amp;&#x3D;magic(最初始) \oplus c1 \oplus c2 \oplus magic(最初始) \\&amp;&#x3D;c1 \oplus c2 \end{align} \]</p>
+<p>而每次循环中<code>cnt ^= 1</code>，故循环次数为偶数时（<code>magic</code>二进制中1的个数为偶数个）<code>cnt = 0</code>，反之则<code>cnt = 1</code>。</p>
+<p>循环完后<code>output ^= cnt * c1</code>，故循环次数为偶数时<code>output = c1^c2</code>，反之则<code>output = c2</code>。</p>
+<hr>
+<p>根据上述分析可得<code>problem1</code>的加密简化为<code>ch ^ c2</code>，<code>problem2</code>的加密简化为<code>ch ^ c1 ^ c2</code>。</p>
+<p>通过已知的部分文段可以分析文本格式以<code>Date: yyyy-mm-dd</code>作为开头，日期信息由文件名称b64decode得到。利用已知明文密文对，可以恢复lfsr的内部状态。</p>
+<hr>
+<h2 id="problem1"><a href="#problem1" class="headerlink" title="problem1"></a>problem1</h2><p>在<code>problem1</code>中由于<code>n2 = 12</code>，可以对<code>mask2</code>进行爆破，求出<code>mask2</code>后可以反推出（或爆破）<code>seed2</code>，于是就可以解密出对应的文本。</p>
+<p>from Crypto.Util.number import *<br>from magic_box import *<br>​<br>n1, n2 &#x3D; 64, 12<br>​<br>with open(‘MTk4NC0wNC0wMQ&#x3D;&#x3D;_6d30.enc’,’rb’) as f:<br> cipher1 &#x3D; f.read()<br>​<br>date1 &#x3D; ‘Date: 1984-04-01’#少了个空格，淦！一个晚上就这么没了<br>known_output &#x3D; ‘’<br>for i in range(len(date1)):<br> bit8 &#x3D; ord(date1[i]) ^ cipher1[i]<br> known_output +&#x3D; bin(bit8)[2:].zfill(8)<br>​<br>#爆破mask2(12位bit)<br>mask2 &#x3D; 0<br>for mask in range(4096):<br> output &#x3D; 0<br> lfsr2 &#x3D; lfsr(int(known_output[:n2],2), mask, n2)#known_output[:n2],否则就拿低位去&amp;了<br> for i in range(len(known_output) - n2):<br> output &#x3D; (output &lt;&lt; 1) ^ lfsr2.next()<br> if output &#x3D;&#x3D; int(known_output[n2:],2):<br> mask2 &#x3D; mask<br> print(f’mask2 &#x3D; {mask2}’)<br>#爆破seed(12位bit)<br>seed2 &#x3D; 0<br>for seed in range(4096):<br> output &#x3D; 0<br> lfsr2 &#x3D; lfsr(seed, mask2, n2)<br> for i in range(len(known_output)):<br> output &#x3D; (output &lt;&lt; 1) ^ lfsr2.next()<br> if output &#x3D;&#x3D; int(known_output,2):<br> seed2 &#x3D; seed<br> print(f’seed2 &#x3D; {seed2}’)<br>​<br>lfsr2 &#x3D; lfsr(seed2,mask2,n2)<br>​<br>txt1 &#x3D; ‘’<br>for i in range(len(cipher1)):<br> txt1 +&#x3D; chr(lfsr2.getrandbit(8) ^ cipher1[i])<br>​<br>print(txt1)</p>
+<p>结果如下</p>
+<p>mask2 &#x3D; 2053<br>seed2 &#x3D; 2989<br>Date: 1984-04-01<br>The pursuit was renewed, till the water was again muddied.  But he could not wait.  He unstrapped the tin bucket and began to bale the pool.  He baled wildly at first, splashing himself and flinging the water so short a distance that it ran back into the pool.  He worked more carefully, striving to be cool, though his heart was pounding against his chest and his hands were trembling.  At the end of half an hour the pool was nearly dry.  Not a cupful of water remained.  And there was no fish.  He found a hidden crevice among the stones through which it had escaped to the adjoining and larger poolâ••a pool which he could not empty in a night and a day.  Had he known of the crevice, he could have closed it with a rock at the beginning and the fish would have been his.<br>Thus he thought, and crumpled up and sank down upon the wet earth.  At first he cried softly to himself, then he cried loudly to the pitiless desolation that ringed him around; and for a long time after he was shaken by great dry sobs.<br>He built a fire and warmed himself by drinking quarts of hot water, and made camp on a rocky ledge in the same fashion he had the night before.  The last thing he did was to see that his matches were dry and to wind his watch.  The blankets were wet and clammy.  His ankle pulsed with pain.  But he knew only that he was hungry, and through his restless sleep he dreamed of feasts and banquets and of food served and spread in all imaginable ways.<br>He awoke chilled and sick.  There was no sun.  The gray of earth and sky had become deeper, more profound.  A raw wind was blowing, and the first flurries of snow were whitening the hilltops.  The air about him thickened and grew white while he made a fire and boiled more water.  It was wet snow, half rain, and the flakes were large and soggy.  At first they melted as soon as they came in contact with the earth, but ever more fell, covering the ground, putting out the fire, spoiling his supply of moss-fuel.</p>
+<h2 id="problem2"><a href="#problem2" class="headerlink" title="problem2"></a>problem2</h2><p>由于<code>lfsr2</code>中的<code>n2 = 12</code>，故对<code>seed3</code>进行爆破，根据得出的<code>lfsr2流</code>推出<code>lfsr1流</code>。进而恢复<code>seed1</code>和<code>mask1</code>。从而对加密文本解密，筛选出flag。</p>
+<p>（嗯！这个BM算法还没搞懂，贴一下别人的代码，from DengFeng）</p>
+<p>#sage<br>from base64 import *<br>import libnum<br>n1, n2 &#x3D; 64, 12<br>​<br>class lfsr():<br> def __init__(self, seed, mask, length):<br> self.length_mask &#x3D; 2 ** length - 1<br> self.mask &#x3D; mask &amp; self.length_mask<br> self.state &#x3D; seed &amp; self.length_mask<br>​<br> def next(self):<br> next_state &#x3D; (self.state &lt;&lt; 1) &amp; self.length_mask<br> i &#x3D; self.state &amp; self.mask &amp; self.length_mask<br> output &#x3D; 0<br> while i != 0:<br> output ^^&#x3D; (i &amp; 1)<br> i &#x3D; i &gt;&gt; 1<br> next_state ^^&#x3D; output<br> self.state &#x3D; next_state<br> return output<br>​<br> def getrandbit(self, nbit):<br> output &#x3D; 0<br> for _ in range(nbit):<br> output &#x3D; (output &lt;&lt; 1) ^^ self.next()<br> return output<br>​<br>def get_key(mask,key,degree):<br> R &#x3D; “”<br> index &#x3D; 0<br> key &#x3D; key[degree-1] + key[:degree]<br> while index &lt; degree:<br> tmp &#x3D; 0<br> for i in range(degree):<br> if mask &gt;&gt; i &amp; 1:<br> # tmp ^&#x3D; int(key[255 - i])<br> tmp &#x3D; (tmp+int(key[degree-1-i]))%2<br> R &#x3D; str(tmp) + R<br> index +&#x3D; 1<br> key &#x3D; key[degree-1] + str(tmp) + key[1:degree-1]<br> return int(R,2)<br>​<br>def get_int(x,degree):<br> m=‘’<br> for i in range(degree):<br> m +&#x3D; str(x[i])<br> return (int(m,2))<br>​<br>def BM(r,degree):<br> a=[]<br> for i in range(len(r)):<br> a.append(int(r[i]))       #将 r 转换成列表a &#x3D; [0,0,1,…,]格式<br> res &#x3D; []<br> for i in range(degree):<br> for j in range(degree):<br> if a[i+j]&#x3D;&#x3D;1:<br> res.append(1)<br> else:<br> res.append(0)<br> sn &#x3D; []<br> for i in range(degree):<br> if a[degree+i]&#x3D;&#x3D;1:<br> sn.append(1)<br> else:<br> sn.append(0)<br> MS &#x3D; MatrixSpace(GF(2),degree,degree)<br> MSS &#x3D; MatrixSpace(GF(2),1,degree)<br> A &#x3D; MS(res)<br> s &#x3D; MSS(sn)                       #将 res 和 sn 的值导入矩阵空间中<br> try:<br> inv &#x3D; A.inverse()            # 求A 的逆矩阵<br> except ZeroDivisionError as e:<br> return -1,-1<br> mask &#x3D; s*inv<br> return get_key(get_int(mask[0],degree),r[:degree],degree),get_int(mask[0],degree)<br>​<br>seed2 &#x3D; 2989<br>mask2 &#x3D; 2053<br>​<br>date2 &#x3D; b’Date: 1984-12-25’<br>cipher2 &#x3D; b’\x18\xff\xa57\xa65”\x00\xfd&#x2F;\x8d\x06\xe7z\xa4\xe6\t$\xec\x94$`\xaalB\xb6\x90`\x9e\‘7\x9f\xcca\xaa1\x96\x19\t\xa2\xb8U\xde\xc5\xa0\xc7\xd23\xcd\xa0\xafRHP\x90\x8a\xa9M\x17@\xef8:]\xe1\xdc\x10\xad\xdfI\x04&#x3D;\x01\x82\x1a\xec\x1e\x19\xdaV\x95\xc1K\x86\xfdZ\x90O7r\xeeZCewY8\xf1\x80\x81\x16NC\x94\xb0\xa0&lt;\xd5\xc9\x1a\xeb.\xf6\xaa\xbb\xa6\x9a&lt;t\xce\xdcQ$\xfdK\x89v\xee\xe0\x9dc\x9b6\xe6\xf0\xc9\xb6[l\xd3\xdc\xf8\n\xb7\xc6\xf9^\x0eIr\‘&gt;\x1dD!\x83\xfd\xc6Q\xf9\xce\xee%\xa7l\xb9\xfc\xcc\xf9;\x0b\x04\xce\x07\x97\xae\xf5C\xa5\x96\xfeU\xe8\xfb\x06\x96\xe3Dr\x8a\xc8\xb7\xa0\xe4s\xe3\xac\x9dT\t\x0eL*Vys\x03\xbb\xf2$\xa8pR\x8c\xa8h\xf6\x04&lt;I4@}\xe5\x12\x8d\x14\xbe\xe4\xb1\x86V`\xcf\x9bE\x8e\xf0m\xbd\xedP\xe3\xafo7\xbd\xb1\xb9R\x9a2*\xaabz@\xb2\xf9\xf59c\xf9\x13\xf12\x8b\xc2z\xda\xf4\x87\x130\xc2\x93\xf3\xce\x84\xe8q.\x01\xeec\xb1\x10X\xcd\x00\x91%\xb7yW\xf2\xc4\xb3\x997\xc1\xb45\xe5)K \xfc\x93\x04\xee-\xf9\xc3\x06Js\xe1\tZ\x86&#x3D;k8:\x17\x9e}\xb1$\xce\xaa\xbc\x05\x97d\x83c<del>\xf57\x02\x08\xa2\tHz\xecq\x07Y\xe6}\xf8\xf0\xaa\x00\x1e\x12f\xf5\xab\xf62u\x12\xf5\xcfx\xc3)B\xd4\xd1\x9dxX\x0b#\x9f\xf1\xa0”\xb9M\xe9\xcf\x17\xc9\\\xbf\xf3y\xb1E\xc0\xa1\x88\x83\x95\xa6\xc9\xde&#x3D;Md\xaf\xb4\x14\x815;\x18X\x9bQ2\x86\xa0`x{\x18\xde\xean\xcd\xc3*y\x82\x8c\xe4l\x88\x96\xb7\x0e\x03u\xe7\xe8.”!\xfb\xb1Bg\xea\xa2`\x99\xab\xa4d\xedA\x0e\x86\xd5\xaf5D\‘\xcd3\xbf\xcd5\xb4\xc3^\xfe\x14t\x90\xf9\x01\x98\xd5</del>s\xdc\xa7\xb1\x8d\xf6\xd9\x92\xb9\xe0\x996?\x8f\\\x1d\xb2\x12\x97\xf6\x07;\xfaTL\x92.\xaf\x16$\xfa\x94\xcb0\xbf\x8a\xad](\xc6}K\xc87\xfc\xc9\xc6\xdb\x08\x99\x9f(&lt;\x1e\x97\xe1\x00^\x13]\x16\xe13\xee\xebS1h\xdd\xe11n\x1a\xe6\x12\x01\xb5\x0c\xf5\x8a\xbd&#x3D;5S\xe4\xf9$\xf1\xedp\xce\x1f\x96.\x97\xe4;\x02 \x17&amp;\xd7\xd9*\x1f\xa4u\xe6\xad\xfd\xbaIR\x1f\x1a&#x3D;F\xbf\xf3\x07\x19!&#x3D;\xf7\xd8&#x2F;\xe4i\xc6+\x9c5^t\x7f\xb2\x06\xe8\xf2\xac&#x3D;\x16\x00r\xdd\x7f\xe34w\xde)\x86\x82\xb6gj\xf4\xfa\x18Pd\xd9\x82\xcd\xda\xee\x8bv\xd1NKu\\\x04\xe2\xbbt\x94\x82\x11\xc9\x1d\xdd\xb1\xb5\x8c\x86\xbfg\xa8L\x1eI\xb4\xddF\x8b\xa7\xd1\x16\x9c\x80\x94UXS\x13\x91\xf8\xe6&#x3D;\x15\x16\x9a,\x0b8\xd2\xfeE\xa04”\xaa1}\xc7\x93\x9f\xb2%p\xb4\x01\x17r*\xd5\xc6\xfd\xfb\xb0&lt;\x18j\x86\xab\xe0\x17\xf2R\xdfZ\xc3Ty\xe9\xd2j\x8b\x15\t\xabrHwi<del>1K\x89\xebVZ\xec}\x1av\xc5\x90\xb7\xa5$k\xd3”\x05\xfa\xc6\x1d\xfe\xb5\x9e;#ig\xdd\xa3\x9b.[\x96\xf1r\x01D\xe7\xdeqkj%\x9cvU\xec\x04\xb0\xab\x9e4\x13\xd7\x07\xa8\xcarK&lt;-\xd1x\xb7\xdf\xc5c\x13R\xd9\x1b\xd8\xa0&#x3D;F\xbc9\xf2\x8c\xfc\xe8KO\xb6bfv\xaf\xb3\x9c\xa4\x1f(\xc4O\xa9\x0f]x\x832\x89\xd9\xc77\x1fa0\xe4\xac\xa7AA\xc4\x14\x9cm\xd5\xf0\x02\xb4\x9c(ej\xdb\x88U\xa7!+\x83]N\xee\x8c\x87*\x84W\x12$\xfc\x0eEC\xcb\x14\x88\x1eEr\x12N\x8fY\xd6\x18\x8b^\x98z\xbf\x84\xc1\xc8!\x8a\x1a\xaaQ\x89aP\xadL\xa4w\xda\xb9WN\x90\xe1\x9e\xcf\x1fx\xc7\x84\xf4\x0f\x9a8Q\xcc-\xbasuc0\x988\xf8”\xecmFeI?\x13m1\x11D\xe3l\x0b\x16\xf7\xa4\x05[\xd0\xeac\x16\xc6\n`\xcf\xbcf\xda\xc6\xf8n\xbc\xea*\x857n\xb2\x91\x12#\xe0\xf9\x12\xc3\x83\x8f\xfb\x1b\xb2\xd8\xf6\x1fmwC\xaa\x8b\xaeV\xabQ\xd3\xe2\xd6\x1e\xf1u\xc5\xfd\x8a\xf7rw\‘\x12\x95\x9dl:o\r\r\x13\xf9\x02\xab\‘.{\xc0b\x9f\xc1.\xde\xeb\xce\xf1Cd\xbf\xdfOAMi\xc3\x96bhC\xc7\xa6\x1ch\x06X\xed\xafR\xda\x80\xee \x1c&#x3D;\x92\xf9&amp;\x8b\xbf\x7f\xf1^k[\x94\xd26C\xfe\x1fY16\xc8Q\x9f7`\xc1\xf8D_\xef\xbb$L&gt;R)\xef\xd7\xf5\r\x91\x17@\x8dZ\xa0\x81\x8a&lt;F+\x8d\xd5\n5&#x2F;\x10\x0ed\xb4\xc1\xc0\xb8a\xe5\x81\x85}\x0f2\x90\xa4\xaeg\xb7\xe8#\xe85h”?\x90\x99\x7f\xe46\xf7y\xe1o\x1e5\xe6o\xda?!\xeb\xc2\x98\xcf\x98\xb0\x15\x01]E\xa5V\x032\xaa\x16\x83K*\xe3$\xcb\xfc\xe6\xb4\x8f\xa2\xa7\x900\x04G\xd8\x95\x98$\x9fN</del>\xb1\xa7\x0c\x8bGd\xa6\xa7\xe0F\xdd\xa2\xfbU\x9bE\xdc\x025\x1e\xfe\xc5v#\xb1Ft\xc1\x9c\x909\xd9\xb8\xe1h\xc1G*\x02c\xe5\xc7\x91q\x86&#x2F;\xab\xfaS\xb9Tk\x90\xcc\x07\xb1\xa3E\x11e\x95fw\x02\xbfF\xb7j\x82\r\x92hD\x92\‘FD\xb9\x9b\x0c\xc4%\xb6&gt;:\x1cZ \xc7\x1b\xa9\x15h[\xff?\x88\xcd\xbb\xe5\xf6\xb3\xb6B\xac\xda\xcd\xa7h\x81 \xcd\xeeu@\xef\x92!\xe2Vr+\x1d\xa6\x83Z\xdb\xb7\x1a\xd7#$)\xf1\x1f\x82\xdd\x80A\x94W\xf4\xa1\xe7J$\xda\x02\xd4\xb6\xe5\x84\xbegH\xb9\xc2\xe3\x82\xc5\xfd\xb1\xe7!\xeb\xe0\xd1J\x94\x04\x7f\x81\xee\xafn\xe3\x0e;\x17\xb6\x18\x9e;\xca\xb6`\x89\xd0\‘\x87\xff\xcc \xf4yW#*j\x00ad\x9f.5&#x2F;\xfc\tx1\xa6\xf7V.]\xfa\xec\xc9\x93\x87\x9a;\xb4\xe0\x0eC\x98&lt;5\x14a\xb1c\xaa\x91\x08O\xbaIz*Y\xf0\t\x8e\x96\x92\xa8\x0b\xeb\xa7\xdep\xa2zl\xd6_\x05%\x96\xda\x9e”\x80\xeb\xf2bc\xfb\t\x1a\xe2h\xd1\x00tbM\xf6\xd7\xc4.\xb5\xb1\xe3a\xa1\x96\x08\x9f\xa6:\xa8\xccouN^#fq\x03\xcan\x8cRJD6&amp;\n\xda\xe0T\xf5\x18\xfcp\xcd\x8f`\xdcS\x10\x00;\xd2\xb2\x14\xbd\xe4xa\x88v\x03p\x83\xdeL\xb0\xa0\xe8D\x04\xdd<del>\xa0\xacR\xc6 \xe0\x83t\xbf\xbf\x1d#\xc4`\xbe\xc6\xd7\xf9Z\x08\x88Tm\x81\xd6f*\xdc\x13\x0e\xc7\xae-\xadSmQ\x02y\xa4.\xbe\x8b\xf4\xe7\x9c\xbd\xdc5\xc3\x98{Qw\xba\xeb\xf5\xc6jMy\xcaj\xd5\x01L8&lt;c\xf0k\xd6p\xe7\x1cz\xffW72\xd3&gt;Q\xe1\xab\xc3\x87tTW\xfdb\x88\x07Xu\xf8V\x92\x8e-\xffG\x80j\xd0&#x2F;\x0e\xe1?W\x8f\xe7\xd2A\x80L\x19d\xce\xd0\xd4]\x00\x92\xde\xb9\xb3\xda\x13mLQ_4\xbb1\xd3w\xa3f&amp;\xd4&#x3D;\xd6</del>&#x2F;&#x3D;\x83U\xb6W\xc7\x95\x95\x05\xcb\xe3\xde\xc1\x15\xc9\x9bB\xce\tH\\z\xc1\xf3c\xc1v\xca\xbd\x06,\xea\n\x03\x1b\x12!C\xefj\x97\x96K\x07O\xa9\x98\xca\t\x1e\xd9\xc5\x98&#x3D;\x9cq\x80\xd0\xba?`\x14\x91\x8c\xa9\xab\x83\\\xa6\xb5&gt;zq\xed\xc68\x0b\xba\xed\xda\xb2N\xfbI\xde\x8d\xb7\x1fu\xce\xf0[D\x9a\x8cW\xea\xd4\xebGz}\x81\xd4\xf4\‘N\\\xceW\x96:E\x06\xed\xd3\x06\xf8\x18d\x9e\x0edW\xdcb\xe1\xea\x1c+I\xf8\xdc\xd4\xda\\r<del>\x96\xb9?yd\xd9\xb7}\xfb\x9ek\x85\xa84h\xf9\x8b\‘(\xa9\xb4S\x87\xc7\x87\xa7\xf1\xdaIy\x95D\xfe\xe3\x90\xf0\x08\xf3\xfc\x00\x8e\x81\xc2k\xb8a3\xc1}@\x8d\\\xf9T\xfc\xb0J\xeb\x8f\x99\xc9</del>\x95_\x14\xdde\x1c\xaf\xbeG\xd8\xdc\x99))\xb5\x8f\xdd\xdc\x06O<del>(\x0c\xa1\x1d\xa5c4\xf9&#x3D;</del>Z\xc2\xea5G\xed\x10\x85S\x00<del>\x0c*\x14$\xcb\x0b\x08$0\x89\x1e\xd6Qq\x81\x18_\xb0\xc9o\x81,_\x9c\xcfi\xb7\x86\xf1\xbd\xa8\xa2N\x84@</del>\xaf.\x9f\x89\xbd&#x2F;\xc3n\xcd\xf1\xc0\x83\xbaQ\xe1,\x9c6”p]\xb5\xae\x835\xd1\xb6m\xe7M0&amp;q\xb3\x91S\xd0o\xdbF\xbc&lt;\x17{eP6\xc3c\x7fR\x9a\xacWd3?\xb6joQ\x1d\xb2_\xc1\x9d`\xb8\x08!\x97\xc3z3Y_\xb8@\x88\xecc\r\xc1\xb7y\x80’<br>bits &#x3D;’’<br>for i in range(len(date2)):<br> tmp &#x3D; bin(cipher2[:len(date2)][i]^^date2[i])[2:].zfill(8)<br> bits +&#x3D; tmp<br>​<br>for seed3 in range(1&lt;&lt;n2,0,-1):<br> lfsr2 &#x3D; lfsr(seed3,mask2,n2)<br> output2 &#x3D; ‘’<br> for j in range(len(date2)):<br> tmp &#x3D; lfsr2.getrandbit(8)<br> output2 +&#x3D; bin(tmp)[2:].zfill(8)<br> output1 &#x3D; int(bits,2)^^int(output2,2)<br> output1 &#x3D; bin(output1)[2:].zfill(128)<br> seed1, mask1 &#x3D; BM(output1,64)<br> if seed1 &#x3D;&#x3D; -1 and mask1 &#x3D;&#x3D; -1:<br> continue<br> lfsr1 &#x3D; lfsr(seed1,mask1,n1)<br> lfsr2 &#x3D; lfsr(seed3,mask2,n2)<br> flag &#x3D; ‘’<br> for i in cipher2:<br> temp &#x3D; i^^lfsr1.getrandbit(8)^^lfsr2.getrandbit(8)<br> #flag +&#x3D; libnum.n2s(int(temp))<br> flag +&#x3D; chr(temp)<br> print(seed3)<br> if ‘SUSCTF’ in flag or ‘CTF’ in flag or ‘ctf’ in flag:<br> print(flag)<br>​<br>‘’’<br>seed3 &#x3D; 3054<br>Date: 1984-12-25<br>Though the hunger pangs were no longer so exquisite, he realized that he was weak.  He was compelled to pause for frequent rests, when he attacked the muskeg berries and rush-grass patches.  His tongue felt dry and large, as though covered with a fine hairy growth, and it tasted bitter in his mouth.  His heart gave him a great deal of trouble.  When he had travelled a few minutes it would begin a remorseless thump, thump, thump, and then leap up and away in a painful flutter of beats that choked him and made him go faint and dizzy.<br>In the middle of the day he found two minnows in a large pool.  It was impossible to bale it, but he was calmer now and managed to catch them in his tin bucket.  They were no longer than his little finger, but he was not particularly hungry.  The dull ache in his stomach had been growing duller and fainter.  It seemed almost that his stomach was dozing.  He ate the fish raw, masticating with painstaking care, for the eating was an act of pure reason.  While he had no desire to eat, he knew that he must eat to live.<br>In the evening he caught three more minnows, eating two and saving the third for breakfast.  The sun had dried stray shreds of moss, and he was able to warm himself with hot water.  He had not covered more than ten miles that day; and the next day, travelling whenever his heart permitted him, he covered no more than five miles.  But his stomach did not give him the slightest uneasiness.  It had gone to sleep.  He was in a strange country, too, and the caribou were growing more plentiful, also the wolves.  Often their yelps drifted across the desolation, and once he saw three of them slinking away before his path.<br>The content is an excerpt from Love of Life, by Jack London. The problem is mainly about LFSR and I’ve tried not to make it hard (with the cost of some running time, actually). Your flag is SUSCTF{Thx_f0r_y0uR_P4ti3nce_:)_GoodLuck!_1bc9b80142c24fef610b8d770b500009} and I hope you will enjoy our game. You’ll find this problem so ez while solving other problems, which is created by –.<br>‘’’</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Crypto/">#Crypto</a>
+      
+        <a href="/tags/%E6%B5%81%E5%AF%86%E7%A0%81/">#流密码</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SUSCTF - Ez_Pager_Tiper</div>
+      <div>http://example.com/2022/06/28/196/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月28日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/29/actf2022-rsa-leak/" title="ACTF2022 - RSA LEAK">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ACTF2022 - RSA LEAK</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/27/actf2022/" title="ACTF2022 - impossible RSA">
+                        <span class="hidden-mobile">ACTF2022 - impossible RSA</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,661 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="参考： DASCTF｜2022DASCTF May出题人挑战赛官方Write – MD labs 循环移位异或加密 - Tf1shC4T - 博客园 (cnblogs.com) Yusa的密码学课堂——一见如故class Myrand(): def __init__(self,seed): self.index &#x3D; 0 self.isInit &#x3D; 1 self.MT &#x3D; [seed] + [0]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022DASCTF MAY 出题人挑战赛">
+<meta property="og:url" content="http://example.com/2022/07/13/2022dasctf-may-%E5%87%BA%E9%A2%98%E4%BA%BA%E6%8C%91%E6%88%98%E8%B5%9B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="参考： DASCTF｜2022DASCTF May出题人挑战赛官方Write – MD labs 循环移位异或加密 - Tf1shC4T - 博客园 (cnblogs.com) Yusa的密码学课堂——一见如故class Myrand(): def __init__(self,seed): self.index &#x3D; 0 self.isInit &#x3D; 1 self.MT &#x3D; [seed] + [0]">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-13T13:03:34.000Z">
+<meta property="article:modified_time" content="2022-07-27T09:17:47.329Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Crypto，MT19937">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>2022DASCTF MAY 出题人挑战赛 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gla2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2022DASCTF MAY 出题人挑战赛"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-13 21:03" pubdate>
+          2022年7月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          103 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2022DASCTF MAY 出题人挑战赛</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.mdlabs.cn/index.php/2022/05/24/dasctf%EF%BD%9C2022dasctf-may%E5%87%BA%E9%A2%98%E4%BA%BA%E6%8C%91%E6%88%98%E8%B5%9B%E5%AE%98%E6%96%B9write/">DASCTF｜2022DASCTF May出题人挑战赛官方Write – MD labs</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Tf1shC4T/p/15927062.html">循环移位异或加密 - Tf1shC4T - 博客园 (cnblogs.com)</a></p>
+<h1 id="Yusa的密码学课堂——一见如故"><a href="#Yusa的密码学课堂——一见如故" class="headerlink" title="Yusa的密码学课堂——一见如故"></a>Yusa的密码学课堂——一见如故</h1><p>class Myrand():<br> def __init__(self,seed):<br> self.index = 0<br> self.isInit = 1<br> self.MT = [seed] + [0] * 623<br>​<br> for i in range(1,624):<br> t = 1314433253 * (self.MT[i-1] ^ (self.MT[i-1] &gt;&gt; 30)) + 1<br> self.MT[i] = t &amp; 0xffffffff#32bit<br>​<br>​<br> def generate(self):<br> for i in range(624):<br> y = (self.MT[i] &amp; 0x80000000) + (self.MT[(i+1)%624] &amp; 0x7fffffff)<br> self.MT[i] = self.MT[(i+397)%624] ^ (y &gt;&gt; 1)<br> if y &amp; 1:<br> self.MT[i] ^&#x3D; 2567483520<br>​<br> def rand(self):<br> if self.index =&#x3D; 0:<br> self.generate()<br> y = self.MT[self.index]<br> y = y ^ self.cs2l(y, 11) ^ self.cs2l(y,15)<br> y = y ^ self.cs2r(y,7) ^ self.cs2r(y,19)<br> self.index = (self.index + 1) % 624<br> return y<br>​<br> def cs2l(self, y, shift):<br> return ((y &lt;&lt; shift) ^ (y &gt;&gt; (32 - shift))) &amp; 0xffffffff<br>​<br> def cs2r(self, y, shift):<br> return ((y &gt;&gt; shift) ^ (y &lt;&lt; (32 - shift))) &amp; 0xffffffff<br>​<br>import os<br>r = Myrand(int(os.urandom(4).hex(),16))<br>out = []<br>​<br>for i in range(624):<br> out.append(r.rand())<br>​<br>with open(“output.txt”,”w”) as f:<br> f.write(str(out))<br>​<br>from hashlib import md5<br>flag = ‘DASCTF{‘ + md5(str(r.rand()).encode()).hexdigest() + ‘}’<br>print(flag)</p>
+<p>（小声逼逼：之前遇到了类似的题，但是文章因个人原因丢失了）</p>
+<p>不难发现，关键之处在于如何破解 <code>cs2l</code> 和 <code>cs2r</code> ，破解了就可以求出 <code>MT</code> 序列，然后按题目中 <code>flag</code> 部分的操作就可以得出 <code>flag</code> 。</p>
+<p>观察 <code>cs2l</code> 和 <code>cs2r</code> ，发现其功能是循环移位。而且特征如下：</p>
+<p>\[ y &#x3D; x ⊕ (x⋘p) ⊕(x⋘q)\tag 1 \]</p>
+<p>网上觅得一篇文章：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Tf1shC4T/p/15927062.html">循环移位异或加密 - Tf1shC4T - 博客园 (cnblogs.com)</a></p>
+<p>在长度为 ​\( 2^n \)​ 的二进制串中，循环移位异或变换中，如果有奇数项，那么这个变换是可逆的，否则就是不可逆的。</p>
+<p>分析上式，两边同时 ⋘p 和 ⋘q ，得</p>
+<p>\[ y⋘p &#x3D; (x⋘p)⊕(x⋘2p)⊕(x⋘(p+q))\tag 2 \]</p>
+<p>\[ y⋘q &#x3D; (x⋘q)⊕(x⋘(p+q))⊕(x⋘2q)\tag 3 \]</p>
+<p>​\( (1)∗(2)∗(3) \)得 ​\[ y_1 &#x3D; y⊕(y⋘p) ⊕(y⋘q) &#x3D; x⊕(x⋘2p) ⊕(x⋘2q) \]</p>
+<p>同理</p>
+<p>\[ y_2 &#x3D; y_1⊕(y_1⋘2p) ⊕(y_1⋘2q) &#x3D; x⊕(x⋘4p) ⊕(x⋘4q) \\……\\ y_n &#x3D; y_{n-1}⊕(y_{n-1}⋘2^{n-1}p) ⊕(y2⋘2^{n-1}q) &#x3D; x⊕(x⋘2^np) ⊕(x⋘2^nq) &#x3D; x\quad (bitlen &#x3D; 2^n) \]</p>
+<p>如此就可以求出原来得 <code>x</code> 。</p>
+<p>from hashlib import md5<br>​<br>bitlen = 32<br>def mov(y,k):#循环左移<br> biny = bin(y)[2:].zfill(bitlen)<br> k = k % bitlen<br> biny = biny[k:] + biny[:k]<br> return int(biny,2)<br>​<br>def decrypt(y,ks):<br> for i in range(bitlen):<br> y = y ^ mov(y,ks[0]) ^ mov(y,ks[1])<br> ks = [ k&lt;&lt;1 for k in ks]<br> return y<br>​<br>class Myrand():<br> def __init__(self,MT):<br> self.index = 0<br> self.isInit = 1<br> self.MT = MT<br>​<br> def generate(self):<br> for i in range(624):<br> y = (self.MT[i] &amp; 0x80000000) + (self.MT[(i+1)%624] &amp; 0x7fffffff)<br> self.MT[i] = self.MT[(i+397)%624] ^ (y &gt;&gt; 1)<br> if y &amp; 1:<br> self.MT[i] ^&#x3D; 2567483520<br>​<br> def rand(self):<br> if self.index =&#x3D; 0:<br> self.generate()<br> y = self.MT[self.index]<br> y = y ^ self.cs2l(y, 11) ^ self.cs2l(y,15)<br> y = y ^ self.cs2r(y,7) ^ self.cs2r(y,19)<br> self.index = (self.index + 1) % 624<br> return y<br>​<br> def cs2l(self, y, shift):<br> return ((y &lt;&lt; shift) ^ (y &gt;&gt; (32 - shift))) &amp; 0xffffffff#循环移位<br>​<br> def cs2r(self, y, shift):<br> return ((y &gt;&gt; shift) ^ (y &lt;&lt; (32 - shift))) &amp; 0xffffffff#循环移位<br>​<br>out = [3417500333, 4091726338, 652603332, 4187304543, 4293795290, 1622245003, 3383443782, 2420250331, 322010852, 1604005753, 3137930218, 1074571824, 1566336258, 2754341076, 1059426660, 2461569360, 613134153, 860561774, 3003069274, 553387944, 1949778231, 249886857, 2322866121, 3685855175, 1977923546, 1887238269, 253812990, 2188417674, 2718707711, 1599975569, 3254935456, 3199641169, 362166522, 1378687155, 912036995, 3174049018, 780042016, 970421905, 3468971406, 801660807, 833926127, 473587885, 158979812, 405306558, 1363084996, 2023076543, 2069797730, 718155249, 1641186127, 3616747747, 1575693921, 3856591855, 223881884, 3002184567, 1666647440, 617661934, 2673101022, 885332395, 3391329168, 1640225363, 2565685644, 3892963352, 3034627488, 2415435183, 3648712566, 2140877952, 1303506086, 2455662362, 1720382700, 3970268445, 2579167586, 4117229324, 846645263, 3252991293, 79067029, 2756800392, 2212447526, 2203329967, 1270408703, 740176928, 3176125705, 166800854, 3327343902, 2079714725, 3702269956, 3659849279, 3658666909, 797535816, 600857570, 553836307, 2394740468, 1178393549, 2183765310, 4014432190, 652246726, 3693235932, 4046942361, 4105444828, 145386213, 1198390220, 3023119098, 663559283, 225958361, 3893000878, 1615631644, 1941951859, 471085675, 2164362049, 4274234562, 4127314557, 1833529303, 17668093, 3208743142, 3210135945, 1772990736, 3290157875, 3006334453, 3831748800, 1120411838, 690279329, 2436940844, 1440602808, 1552272917, 1321728089, 524486126, 3696307959, 1189129368, 28736041, 3143264315, 3050323849, 1458456612, 389869312, 2360130428, 854837117, 1270423403, 3471650414, 243573262, 3449929772, 2436299611, 420972940, 923873821, 3499748829, 2470333529, 3901870125, 3589884387, 3339475693, 1526947412, 1747516667, 2971536797, 273910310, 2185887289, 2723697010, 1973585459, 1166325256, 1360822059, 416514510, 4038763765, 1816380840, 940152644, 3918708431, 3410593321, 3358844522, 3678637784, 2412834780, 3052967117, 3672611162, 570069042, 95771608, 1210821251, 2163778365, 2739972546, 3094346015, 749719666, 1697477587, 986142486, 2591897292, 1234948693, 3659791160, 3990257960, 501199958, 3029961497, 578415668, 124517322, 1985205894, 3777347400, 1149995545, 290699775, 3399696193, 1062094395, 2896523484, 1562688856, 992098141, 3941170280, 262596967, 2585751001, 3682611205, 530523926, 1202322766, 3777439514, 3051700271, 261632458, 2736123960, 2786338595, 86310784, 2760191516, 1344514731, 350767781, 2858876127, 519088864, 3193340756, 3563489312, 3239917298, 161418824, 470724403, 3310407387, 1743713887, 3064036770, 1175434157, 3029464330, 116086349, 1652489862, 1176236897, 4139800383, 3758499033, 2961626313, 3064683859, 958478146, 596650527, 1000277312, 4102368994, 1480011430, 4001401502, 4004287177, 3202905309, 1754655955, 2064262245, 1840530874, 2284428117, 2281854453, 1023839768, 2166517711, 2709857675, 2005014414, 4161461001, 2932436148, 2411599350, 4267437788, 2132764972, 150665266, 286170947, 2249288787, 3953585886, 1231725143, 2479045931, 2377059462, 281316188, 379113422, 920019004, 163289886, 2210874762, 1578529538, 309521495, 3737017316, 88919917, 559742618, 978230553, 2154491496, 994913727, 498894258, 1355546448, 4023836881, 3014313787, 164044564, 2408825840, 2029992558, 3707778216, 86206872, 3576935874, 185356787, 1774175910, 3145237900, 3497547609, 841914878, 3425254534, 4264030778, 2348022032, 178331591, 943923822, 3384367749, 2806712599, 1178535099, 1251085540, 2410015803, 1480595408, 2732607876, 1579706357, 870791724, 2320512780, 2149666862, 3797999384, 3905363134, 3388169321, 851973359, 1418716205, 207581030, 1740441523, 1173839013, 4280610104, 1769134281, 1758916333, 4061069248, 2147554262, 2749007447, 909878569, 2054562584, 1515003000, 560286390, 2482663802, 2690882951, 3298162668, 2561737261, 167825221, 507375343, 2179952491, 795452860, 2877704207, 3243106071, 1633372043, 2152178033, 2993246714, 4176238981, 3828458887, 695369535, 2514762808, 2251430819, 2743651063, 783239046, 4036497041, 2175424426, 765021321, 897227922, 3192938155, 4173350810, 2290496185, 4215986056, 2448481441, 3114984799, 2920066349, 722868808, 594363801, 4012575088, 454547939, 3331771662, 1267229957, 3170277692, 2446344734, 3730529788, 2621611481, 2972284304, 2580290241, 486727007, 2727955445, 1457071884, 1053028185, 462301682, 3907840756, 1832398102, 3144685297, 3403964915, 4263570498, 792776003, 306771255, 1633688240, 2159479271, 942060576, 1311531808, 3145754189, 4142271069, 2844524541, 4082439147, 2847276716, 1374436698, 2601522390, 529644524, 206090172, 3015114937, 4137169373, 2600331537, 344659140, 155319271, 1724932164, 3187877676, 4020168431, 711431575, 4123955169, 2539963709, 2764832709, 3897838285, 2521203644, 2059212822, 1129046005, 3277260664, 2739869189, 1955591901, 2661672178, 2926355273, 28176978, 706409211, 1432061304, 26517996, 3180196905, 2178525849, 607854674, 3953350517, 3532394548, 4175940932, 626671309, 1273934270, 3481828801, 22643989, 2104739013, 4183577772, 3932721637, 3075788222, 2814353001, 4120869721, 2045506903, 603494333, 335162960, 2069261279, 2278614835, 210140447, 2012566692, 2345710126, 70390387, 457247932, 2764651800, 652766919, 555253440, 864036913, 1720142260, 453262569, 1113437101, 2576419688, 144008475, 1786881829, 2455128823, 2884922345, 4251332234, 58949785, 4206002785, 3374754553, 2976162198, 546450687, 1268444784, 4132330381, 3404894280, 2421962142, 212361299, 2526283704, 1656118437, 1249336298, 305885855, 1090758249, 3752057640, 3508190692, 3637428, 105102422, 2247418237, 1873609555, 1206760240, 3761689119, 3151616638, 1711308858, 1261541178, 1843103377, 3158893523, 1226253110, 3337577909, 126612372, 2239219657, 1415387229, 3657507305, 3330696118, 2304219467, 3782535397, 2523926865, 173770442, 469421316, 4068724979, 567442650, 1996215573, 2071307093, 778899724, 3534102235, 1001138889, 2821812427, 591691317, 1265763678, 2241915660, 3220601768, 653090205, 2367897867, 1393909319, 2691817329, 3098049768, 117121403, 1255294678, 2272844919, 788255921, 2333869622, 4052660679, 2407095869, 2636108242, 2204717619, 1672726444, 2250826426, 258706466, 2295454699, 337308034, 3703973770, 3133498524, 22718827, 3096937679, 2039003308, 1519854757, 568184976, 1986854118, 2888207511, 822307630, 3829301724, 3198527490, 3073739663, 3043580445, 3458239370, 802145890, 376901460, 1251103099, 1143003993, 1280321148, 661386076, 3708710489, 2237151715, 3928104641, 2975550516, 1087492088, 1504028830, 61927086, 3858242888, 1916136658, 2328550074, 3032032377, 2193802260, 3311627503, 3196945045, 3396801792, 806210594, 2449941623, 2514744466, 3922130206, 3245757763, 3128328446, 2335833206, 3205660364, 3527402441, 2174241644, 1262568556, 2360103007, 2490217737, 1485100950, 3407260, 3005226942, 1355314866, 3154763465, 619881867, 2409963438, 2422269402, 205756019, 3300644241, 1157501775, 1229058028, 161050869, 969496287, 3385825249, 2557284067, 4236642714, 169094727, 2698326774, 1863176242, 3532885426, 3046403588, 3869207867, 496104150, 353604631, 1054882225, 152711981, 1362131890, 76912113, 3052177189, 3932252092, 3834713905, 2338378436, 44417325, 117723195, 1089433566, 4166617161, 2848021308, 2229619096, 319957702, 3661655667, 2809620731, 482011930, 3983483016, 82362287, 1518135562, 3490996143, 510129461, 1400609584, 2646113779, 732457215, 3735585198, 3451194227, 959269510, 244188667]<br>ks_l = [11, 15]<br>ks_r = [bitlen - 7, bitlen - 19]#右移转换成左移<br>MT = []<br>for each in out:<br> MT.append(decrypt(decrypt(each,ks_r),ks_l))<br>​<br>r = Myrand(MT)<br>flag = ‘DASCTF{‘ + md5(str(r.rand()).encode()).hexdigest() + ‘}’<br>print(flag)<br>#DASCTF{49e225e5b1b57a1d3c9803b5ddfd38f9}</p>
+<h1 id="Yusa的密码学课堂——二眼深情"><a href="#Yusa的密码学课堂——二眼深情" class="headerlink" title="Yusa的密码学课堂——二眼深情"></a>Yusa的密码学课堂——二眼深情</h1><p>代码同上，额外有：<br>import os<br>secret = int(os.urandom(4).hex(),16)<br>r = Myrand(secret)<br>out = []<br>for i in range(624):<br> out.append(r.rand())<br>​<br>try:<br> for i in range(2):<br> a = int(input(“Your “+[‘first’,’second’][i]+ “ see: “))<br> print(out[a % len(out)])<br> guess = int(input(“You konw my secret? “))<br> if guess =&#x3D; secret:<br> print(“For you <del>“)<br> print(os.getenv(“DASFLAG”))<br> exit()<br> else:<br> print([“Try again</del> “,”Bye~”][i])<br>except Exception as e:<br> exit()</p>
+<ol>
+<li><p>也就是说要选取两个合适的 out 来反推出 seed 。因此，选取 out[395] 和 out[622] 。通过第一题的方法反推出<code>generate()</code>之后的 MT[395] 和 MT[622] 。</p>
+</li>
+<li><p>根据<code>generate</code>函数，猜测 bin(y) 的最低位(也就是 bin(MT[623]) )，这样就可以推出 bin(MT)[2:][1:] ，再次猜测它的最高位，这样就有四种情况。</p>
+</li>
+<li><p>根据<code>__init__()</code>中的</p>
+<p>for i in range(1,624):<br> t = 2037740385 * (self.MT[i-1] ^ (self.MT[i-1] &gt;&gt; 30)) + 1<br> self.MT[i] = t &amp; 0xffffffff</p>
+<p>可以推出最初始的 MT 。 ​\( t\ \&amp;\ 0xffffffff \)​相当于 ​\( t\%2^{32} \)​。这样， 求出 MT[i-1]只需要​\( (t-1)*inv(2037740385,2^{32}) \)​，在运行一遍上面这个异或操作就可以了。</p>
+</li>
+<li><p>四种情况，就需要筛选。用上面得出的 MT 运行一遍<code>generate()</code>，看是否匹配步骤(1)中的 MT[395] 和 MT[622] 。</p>
+</li>
+</ol>
+<p>（奇怪了！有时候运行能得出结果，有时候不能！是不是代码有问题？我检查了好久但没发现，希望师傅们能斧正一下！）</p>
+<p>from pwn import *<br>import gmpy2<br>​<br>s = remote(‘node4.buuoj.cn’,25122)<br>#第一轮<br>print(s.recv())<br>s.sendline(b’395’)<br>out395 = int(s.recvline()[:-1])<br>print(out395)<br>print(s.recv())<br>s.sendline(b’1’)<br>print(s.recvline())<br>#第二轮<br>print(s.recv())<br>s.sendline(b’622’)<br>out622 = int(s.recvline()[:-1])<br>print(out622)<br>print(s.recv())<br>​<br>#generate()之后的MT<br>bitlen = 32<br>def mov(y,k):#循环左移<br> biny = bin(y)[2:].zfill(bitlen)<br> k = k % bitlen<br> biny = biny[k:] + biny[:k]<br> return int(biny,2)<br>​<br>def decrypt(y,ks):<br> for i in range(bitlen):<br> y = y ^ mov(y,ks[0]) ^ mov(y,ks[1])<br> ks = [ k&lt;&lt;1 for k in ks]<br> return y<br>​<br>ks_l = [11, 15]<br>ks_r = [bitlen - 7, bitlen - 19]#右移转换成左移<br>out395 = decrypt(decrypt(out395,ks_r),ks_l)<br>out622 = decrypt(decrypt(out622,ks_r),ks_l)<br>print(f’out395 &#x3D; {out395}’)<br>print(f’out622 &#x3D; {out622}’)<br>​<br>#恢复所有初始MT<br>def recover(seed):<br> seed &amp;&#x3D; 0xffffffff<br> inv = int(gmpy2.invert(2037740385,0xffffffff+1))#<br> re_MT = [seed] + [0]*623<br> for i in range(1,624):<br> mt = ((re_MT[i-1] - 1)*inv) &amp; 0xffffffff<br> ‘’’<br> mt &#x3D; bin(mt)[2:].zfill(32)<br> tmp1 &#x3D; mt[:30]<br> tmp2 &#x3D; int(tmp1[:2],2) ^ int(mt[30:],2)<br> tmp &#x3D; (int(tmp1,2) &lt;&lt; 2) + tmp2<br> ‘’’<br> tmp = mt ^ (mt &gt;&gt; 30)<br> re_MT[i] = tmp<br>​<br> return re_MT[::-1]<br>​<br>#检验<br>def check(MT):<br> for i in range(624):<br> y = (MT[i] &amp; 0x80000000) + (MT[(i + 1) % 624] &amp; 0x7fffffff)<br> MT[i] = MT[(i + 397) % 624] ^ (y &gt;&gt; 1)<br> if y &amp; 1:<br> MT[i] ^&#x3D; 25674835200<br> #print(f’checkMT &#x3D; {MT}’)<br> #print(f’MT[395] &#x3D; {MT[395]},MT[622] &#x3D; {MT[622]}’)<br> if MT[395] =&#x3D; out395 and MT[622] =&#x3D; out622:<br> return True<br> else:<br> return False<br>​<br>​<br>#恢复MT[623]<br>def dec_generate(a,b):#a为out622,b为out395<br> maybe = []<br> #MT[623]最后一bit为1<br> tmp1 = a ^ 25674835200<br> y = tmp1 ^ b<br> y = (y &lt;&lt; 1) + 1<br> #猜高位0,1<br> mt1 = 0x80000000 + (y &amp; 0x7fffffff)<br> maybe.append(mt1)<br> mt2 = y &amp; 0x7fffffff<br> maybe.append(mt2)<br> # MT[623]最后一bit为0<br> y = a ^ b<br> y = (y &lt;&lt; 1) + 0<br> mt3 = 0x80000000 + (y &amp; 0x7fffffff)<br> maybe.append(mt3)<br> mt4 = y &amp; 0x7fffffff<br> maybe.append(mt4)<br> print(f’maybe &#x3D; {maybe}’)<br> for each in maybe:<br> MT = recover(each)<br> print(f’MT &#x3D; {MT}’)<br> if MT !&#x3D; -1:<br> isflag = check(MT.copy())<br> #print(‘3’,MT)<br> if isflag:<br> return MT[0]<br> return -1<br>​<br>​<br>seed = dec_generate(out622,out395)<br>print(f’seed &#x3D; {seed}’)<br>s.sendline(str(seed).encode())<br>print(s.recv())<br>#b’DASCTF{a448b996-140b-4b06-9bf0-b69c6cde067d}’</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Crypto%EF%BC%8CMT19937/">#Crypto，MT19937</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2022DASCTF MAY 出题人挑战赛</div>
+      <div>http://example.com/2022/07/13/2022dasctf-may-出题人挑战赛/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月13日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/17/%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%AD%A6%E3%80%8A%E8%BD%AF%E4%BB%B6%E5%88%86%E6%9E%90%E3%80%8B%E8%AF%BE%E7%A8%8B01%EF%BC%88introduction%EF%BC%89/" title="南京大学《软件分析》课程01（Introduction）——笔记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">南京大学《软件分析》课程01（Introduction）——笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/10/dest0g3-520%E8%BF%8E%E6%96%B0%E8%B5%9B/" title="Dest0g3 520迎新赛">
+                        <span class="hidden-mobile">Dest0g3 520迎新赛</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

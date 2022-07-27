@@ -1,0 +1,653 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="babysignimport hashlibimport ecdsafrom Crypto.Util.number import *import randomimport os​flag &#x3D; b”xxx”​assert flag.startswith(b’DASCTF{‘) and flag.endswith(b’}’)assert len(flag) &#x3D;&#x3D; 40​def init():">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DASCTF2022.07赋能赛">
+<meta property="og:url" content="http://example.com/2022/07/24/dasctf2022-07%E8%B5%8B%E8%83%BD%E8%B5%9B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="babysignimport hashlibimport ecdsafrom Crypto.Util.number import *import randomimport os​flag &#x3D; b”xxx”​assert flag.startswith(b’DASCTF{‘) and flag.endswith(b’}’)assert len(flag) &#x3D;&#x3D; 40​def init():">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/.com//uploads/2022/07/1-3-1024x815.png">
+<meta property="article:published_time" content="2022-07-24T11:27:01.000Z">
+<meta property="article:modified_time" content="2022-07-27T09:17:47.345Z">
+<meta property="article:author" content="gla2xy">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/.com//uploads/2022/07/1-3-1024x815.png">
+  
+  
+  
+  <title>DASCTF2022.07赋能赛 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gla2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DASCTF2022.07赋能赛"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-24 19:27" pubdate>
+          2022年7月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          142 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DASCTF2022.07赋能赛</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="babysign"><a href="#babysign" class="headerlink" title="babysign"></a>babysign</h1><p>import hashlib<br>import ecdsa<br>from Crypto.Util.number import *<br>import random<br>import os<br>​<br>flag = b”xxx”<br>​<br>assert flag.startswith(b’DASCTF{‘) and flag.endswith(b’}’)<br>assert len(flag) =&#x3D; 40<br>​<br>def init():<br> “””<br> initiation<br> “””<br> global pub_key, priv_key, order, base,secret<br> gen = ecdsa.NIST256p.generator<br> order = gen.order()<br> secret = bytes_to_long(flag[7:-1])</p>
+<p> pub_key = ecdsa.ecdsa.Public_key(gen, gen * secret)<br> priv_key = ecdsa.ecdsa.Private_key(pub_key, secret)<br>​<br>​<br>def sign(msg, nonce):<br> “””<br> sign msg<br> “””<br> msg = int(hashlib.sha256(msg).hexdigest(), 16)</p>
+<p> sign = priv_key.sign(msg, nonce)<br> print(“R:”, hex(sign.r)[2:])<br> print(“S:”, hex(sign.s)[2:])<br>​<br>init()<br>nonce = random.getrandbits(order.bit_length())<br>sign(b’welcome to ecdsa’, nonce)<br>print(nonce)<br>​<br>‘’’<br>R: 7b35712a50d463ac5acf7af1675b4b63ba0da23b6452023afddd58d4891ef6e5<br>S: a452fc44cc36fa6964d1b4f47392ff0a91350cfd58f11a4645c084d56e387e5c<br>57872441580840888721108499129165088876046881204464784483281653404168342111855<br>‘’’</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/11/07/crypto-ECC/">ECC Lazzaro (lazzzaro.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51999772/article/details/122626382">ECDSA算法_M3ng@L的博客-CSDN博客_ecdsa</a></p>
+<p>给定了曲线，可以直接知道它的阶(order或n)。给出了签名 (R,S)和msg，我们要求解的m是​\( d_A \)​。</p>
+<p>根据数字签名公式</p>
+<p>\[ S ≡ K^{-1}*(H(m)+d_A*r)\quad (mod\ n) \]</p>
+<p>推出</p>
+<p>\[ d_A ≡ r^{-1}(S*K-H(m))\quad (mod\ n) \]</p>
+<p>from gmpy2 import invert<br>import hashlib<br>from Crypto.Util.number import *<br>​<br>order = 115792089210356248762697446949407573529996955224135760342422259061068512044369<br>R = 0x7b35712a50d463ac5acf7af1675b4b63ba0da23b6452023afddd58d4891ef6e5<br>S = 0xa452fc44cc36fa6964d1b4f47392ff0a91350cfd58f11a4645c084d56e387e5c<br>k = 57872441580840888721108499129165088876046881204464784483281653404168342111855<br>msg = b’welcome to ecdsa’<br>msg = int(hashlib.sha256(msg).hexdigest(), 16)<br>da = (S*k-msg)*invert(R,order)%order<br>print(da)<br>print(long_to_bytes(da))</p>
+<h1 id="easyNTRU"><a href="#easyNTRU" class="headerlink" title="easyNTRU"></a>easyNTRU</h1><p>非预期，对m进行爆破。</p>
+<p>#sage<br>from Crypto.Hash import SHA3_256<br>from Crypto.Cipher import AES<br>from Crypto.Util.Padding import pad<br>​<br>N = 10<br>p = 3<br>q = 512<br>d = 3</p>
+<p>R.&lt;x&gt; = ZZ[]<br>may = [-1,0,1]<br>maykey = []<br>for a in may:<br> for b in may:<br> for c in may:<br> for d in may:<br> for e in may:<br> for f in may:<br> for g in may:<br> for h in may:<br> for i in may:<br> for j in may:<br> result = [a,b,c,d,e,f,g,h,i,j]<br> maykey.append(R(result))<br>​<br>c = b’\xb9W\x8c\x8b\x0cG\xde\x7fl\xf7\x03\xbb9m\x0c\xc4L\xfe\xe9Q\xad\xfd\xda!\x1a\xea@}U\x9ay4\x8a\xe3y\xdf\xd5BV\xa7\x06\xf9\x08\x96&#x3D;”f\xc1\x1b\xd7\xdb\xc1j\x82F\x0b\x16\x06\xbcJMB\xc8\x80’<br>for m in maykey:<br> sha3 = SHA3_256.new()<br> sha3.update(bytes(str(m).encode(‘utf-8’)))<br> key = sha3.digest()<br>​<br> cypher = AES.new(key, AES.MODE_ECB)<br> flag = cypher.decrypt(pad(c, 32))<br> if b’DASCTF’ in flag:<br> print(key)<br> print(flag)</p>
+<h1 id="NTRURSA"><a href="#NTRURSA" class="headerlink" title="NTRURSA"></a>NTRURSA</h1><p>from Crypto.Util.number import *<br>from gmpy2 import *<br>from secret import flag<br>​<br>​<br>def gen():<br> p1 = getPrime(256)<br> while True:<br> f = getRandomRange(1, iroot(p1 &#x2F;&#x2F; 2, 2)[0])<br> g = getRandomRange(iroot(p1 &#x2F;&#x2F; 4, 2)[0], iroot(p1 &#x2F;&#x2F; 2, 2)[0])<br> if gcd(f, p1) =&#x3D; 1 and gcd(f, g) =&#x3D; 1 and isPrime(g) =&#x3D; 1:<br> break<br> rand = getRandomRange(0, 2 ^ 20)<br> g1 = g ^^ rand<br> h = (inverse(f, p1) * g1) % p1<br> return h, p1, g, f, g1<br>​<br>​<br>def gen_irreducable_poly(deg):<br> while True:<br> out = R.random_element(degree=deg)<br> if out.is_irreducible():<br> return out<br>​<br>​<br>h, p1, g, f, g1 = gen()<br>q = getPrime(1024)<br>n = g * q<br>e = 0x10001<br>c1 = pow(bytes_to_long(flag), e, n)<br>​<br>hint = list(str(h))<br>length = len(hint)#len(h)<br>bits = 16<br>p2 = random_prime(2 ^ bits - 1, False, 2 ^ (bits - 1))<br>R.&lt;x&gt; = PolynomialRing(GF(p2))<br>P = gen_irreducable_poly(ZZ.random_element(length, 2 * length))<br>Q = gen_irreducable_poly(ZZ.random_element(length, 2 * length))<br>N = P * Q<br>S.&lt;x&gt; = R.quotient(N)#以N为模的商环<br>m = S(hint)#以hint为系数的多项式<br>c2 = m ^ e<br>print(“p1 &#x3D;”, p1)<br>print(“c1 &#x3D;”, c1)<br>print(“p2 &#x3D;”, p2)<br>print(“c2 &#x3D;”, c2)<br>print(“n &#x3D;”, n)<br>print(“N &#x3D;”, N)<br>​<br>​<br>‘’’<br>p1 &#x3D; 106472061241112922861460644342336453303928202010237284715354717630502168520267<br>c1 &#x3D; 20920247107738496784071050239422540936224577122721266141057957551603705972966457203177812404896852110975768315464852962210648535130235298413611598658659777108920014929632531307409885868941842921815735008981335582297975794108016151210394446009890312043259167806981442425505200141283138318269058818777636637375101005540308736021976559495266332357714<br>p2 &#x3D; 64621<br>c2 &#x3D; 19921*x^174 + 49192*x^173 + 18894*x^172 + 61121*x^171 + 50271*x^170 + 11860*x^169 + 53128*x^168 + 38658*x^167 + 14191*x^166 + 9671*x^165 + 40879*x^164 + 15187*x^163 + 33523*x^162 + 62270*x^161 + 64211*x^160 + 54518*x^159 + 50446*x^158 + 2597*x^157 + 32216*x^156 + 10500*x^155 + 63276*x^154 + 27916*x^153 + 55316*x^152 + 30898*x^151 + 43706*x^150 + 5734*x^149 + 35616*x^148 + 14288*x^147 + 18282*x^146 + 22788*x^145 + 48188*x^144 + 34176*x^143 + 55952*x^142 + 9578*x^141 + 9177*x^140 + 22083*x^139 + 14586*x^138 + 9748*x^137 + 21118*x^136 + 155*x^135 + 64224*x^134 + 18193*x^133 + 33732*x^132 + 38135*x^131 + 51992*x^130 + 8203*x^129 + 8538*x^128 + 55203*x^127 + 5003*x^126 + 2009*x^125 + 45023*x^124 + 12311*x^123 + 21428*x^122 + 24110*x^121 + 43537*x^120 + 21885*x^119 + 50212*x^118 + 40445*x^117 + 17768*x^116 + 46616*x^115 + 4771*x^114 + 20903*x^113 + 47764*x^112 + 13056*x^111 + 50837*x^110 + 22313*x^109 + 39698*x^108 + 60377*x^107 + 59357*x^106 + 24051*x^105 + 5888*x^104 + 29414*x^103 + 31726*x^102 + 4906*x^101 + 23968*x^100 + 52360*x^99 + 58063*x^98 + 706*x^97 + 31420*x^96 + 62468*x^95 + 18557*x^94 + 1498*x^93 + 17590*x^92 + 62990*x^91 + 27200*x^90 + 7052*x^89 + 39117*x^88 + 46944*x^87 + 45535*x^86 + 28092*x^85 + 1981*x^84 + 4377*x^83 + 34419*x^82 + 33754*x^81 + 2640*x^80 + 44427*x^79 + 32179*x^78 + 57721*x^77 + 9444*x^76 + 49374*x^75 + 21288*x^74 + 44098*x^73 + 57744*x^72 + 63457*x^71 + 43300*x^70 + 1508*x^69 + 13775*x^68 + 23197*x^67 + 43070*x^66 + 20751*x^65 + 47479*x^64 + 18496*x^63 + 53392*x^62 + 10387*x^61 + 2317*x^60 + 57492*x^59 + 25441*x^58 + 52532*x^57 + 27150*x^56 + 33788*x^55 + 43371*x^54 + 30972*x^53 + 39583*x^52 + 36407*x^51 + 35564*x^50 + 44564*x^49 + 1505*x^48 + 47519*x^47 + 38695*x^46 + 43107*x^45 + 1676*x^44 + 42057*x^43 + 49879*x^42 + 29083*x^41 + 42241*x^40 + 8853*x^39 + 33546*x^38 + 48954*x^37 + 30352*x^36 + 62020*x^35 + 39864*x^34 + 9519*x^33 + 24828*x^32 + 34696*x^31 + 2387*x^30 + 27413*x^29 + 55829*x^28 + 40217*x^27 + 30205*x^26 + 42328*x^25 + 6210*x^24 + 52442*x^23 + 58495*x^22 + 2014*x^21 + 26452*x^20 + 33547*x^19 + 19840*x^18 + 5995*x^17 + 16850*x^16 + 37855*x^15 + 7221*x^14 + 32200*x^13 + 8121*x^12 + 23767*x^11 + 46563*x^10 + 51673*x^9 + 19372*x^8 + 4157*x^7 + 48421*x^6 + 41096*x^5 + 45735*x^4 + 53022*x^3 + 35475*x^2 + 47521*x + 27544<br>n &#x3D; 31398174203566229210665534094126601315683074641013205440476552584312112883638278390105806127975406224783128340041129316782549009811196493319665336016690985557862367551545487842904828051293613836275987595871004601968935866634955528775536847402581734910742403788941725304146192149165731194199024154454952157531068881114411265538547462017207361362857<br>N &#x3D; 25081*x^175 + 8744*x^174 + 9823*x^173 + 9037*x^172 + 6343*x^171 + 42205*x^170 + 28573*x^169 + 55714*x^168 + 17287*x^167 + 11229*x^166 + 42630*x^165 + 64363*x^164 + 50759*x^163 + 3368*x^162 + 20900*x^161 + 55947*x^160 + 7082*x^159 + 23171*x^158 + 48510*x^157 + 20013*x^156 + 16798*x^155 + 60438*x^154 + 58779*x^153 + 9289*x^152 + 10623*x^151 + 1085*x^150 + 23473*x^149 + 13795*x^148 + 2071*x^147 + 31515*x^146 + 42832*x^145 + 38152*x^144 + 37559*x^143 + 47653*x^142 + 37371*x^141 + 39128*x^140 + 48750*x^139 + 16638*x^138 + 60320*x^137 + 56224*x^136 + 41870*x^135 + 63961*x^134 + 47574*x^133 + 63954*x^132 + 9668*x^131 + 62360*x^130 + 15244*x^129 + 20599*x^128 + 28704*x^127 + 26857*x^126 + 34885*x^125 + 33107*x^124 + 17693*x^123 + 52753*x^122 + 60744*x^121 + 21305*x^120 + 63785*x^119 + 54400*x^118 + 17812*x^117 + 64549*x^116 + 20035*x^115 + 37567*x^114 + 38607*x^113 + 32783*x^112 + 24385*x^111 + 5387*x^110 + 5134*x^109 + 45893*x^108 + 58307*x^107 + 33821*x^106 + 54902*x^105 + 14236*x^104 + 58044*x^103 + 41257*x^102 + 46881*x^101 + 42834*x^100 + 1693*x^99 + 46058*x^98 + 15636*x^97 + 27111*x^96 + 3158*x^95 + 41012*x^94 + 26028*x^93 + 3576*x^92 + 37958*x^91 + 33273*x^90 + 60228*x^89 + 41229*x^88 + 11232*x^87 + 12635*x^86 + 17942*x^85 + 4*x^84 + 25397*x^83 + 63526*x^82 + 54872*x^81 + 40318*x^80 + 37498*x^79 + 52182*x^78 + 48817*x^77 + 10763*x^76 + 46542*x^75 + 36060*x^74 + 49972*x^73 + 63603*x^72 + 46506*x^71 + 44788*x^70 + 44905*x^69 + 46112*x^68 + 5297*x^67 + 26440*x^66 + 28470*x^65 + 15525*x^64 + 11566*x^63 + 15781*x^62 + 36098*x^61 + 44402*x^60 + 55331*x^59 + 61583*x^58 + 16406*x^57 + 59089*x^56 + 53161*x^55 + 43695*x^54 + 49580*x^53 + 62685*x^52 + 31447*x^51 + 26755*x^50 + 14810*x^49 + 3281*x^48 + 27371*x^47 + 53392*x^46 + 2648*x^45 + 10095*x^44 + 25977*x^43 + 22912*x^42 + 41278*x^41 + 33236*x^40 + 57792*x^39 + 7169*x^38 + 29250*x^37 + 16906*x^36 + 4436*x^35 + 2729*x^34 + 29736*x^33 + 19383*x^32 + 11921*x^31 + 26075*x^30 + 54616*x^29 + 739*x^28 + 38509*x^27 + 19118*x^26 + 20062*x^25 + 21280*x^24 + 12594*x^23 + 14974*x^22 + 27795*x^21 + 54107*x^20 + 1890*x^19 + 13410*x^18 + 5381*x^17 + 19500*x^16 + 47481*x^15 + 58488*x^14 + 26433*x^13 + 37803*x^12 + 60232*x^11 + 34772*x^10 + 1505*x^9 + 63760*x^8 + 20890*x^7 + 41533*x^6 + 16130*x^5 + 29769*x^4 + 49142*x^3 + 64184*x^2 + 55443*x + 45925<br>‘’’</p>
+<p>NTRU + 多项式RSA</p>
+<h2 id="step1"><a href="#step1" class="headerlink" title="step1"></a>step1</h2><p>求解h。参考<a target="_blank" rel="noopener" href="https://4xwi11.github.io/posts/a0a0f5aa/">多项式RSA 4XWi11的博客</a></p>
+<p>p2 = 64621<br>e = 0x10001<br>R.&lt;x&gt; = PolynomialRing(GF(p2))<br>N = 25081*x^175 + 8744*x^174 + 9823*x^173 + 9037*x^172 + 6343*x^171 + 42205*x^170 + 28573*x^169 + 55714*x^168 + 17287*x^167 + 11229*x^166 + 42630*x^165 + 64363*x^164 + 50759*x^163 + 3368*x^162 + 20900*x^161 + 55947*x^160 + 7082*x^159 + 23171*x^158 + 48510*x^157 + 20013*x^156 + 16798*x^155 + 60438*x^154 + 58779*x^153 + 9289*x^152 + 10623*x^151 + 1085*x^150 + 23473*x^149 + 13795*x^148 + 2071*x^147 + 31515*x^146 + 42832*x^145 + 38152*x^144 + 37559*x^143 + 47653*x^142 + 37371*x^141 + 39128*x^140 + 48750*x^139 + 16638*x^138 + 60320*x^137 + 56224*x^136 + 41870*x^135 + 63961*x^134 + 47574*x^133 + 63954*x^132 + 9668*x^131 + 62360*x^130 + 15244*x^129 + 20599*x^128 + 28704*x^127 + 26857*x^126 + 34885*x^125 + 33107*x^124 + 17693*x^123 + 52753*x^122 + 60744*x^121 + 21305*x^120 + 63785*x^119 + 54400*x^118 + 17812*x^117 + 64549*x^116 + 20035*x^115 + 37567*x^114 + 38607*x^113 + 32783*x^112 + 24385*x^111 + 5387*x^110 + 5134*x^109 + 45893*x^108 + 58307*x^107 + 33821*x^106 + 54902*x^105 + 14236*x^104 + 58044*x^103 + 41257*x^102 + 46881*x^101 + 42834*x^100 + 1693*x^99 + 46058*x^98 + 15636*x^97 + 27111*x^96 + 3158*x^95 + 41012*x^94 + 26028*x^93 + 3576*x^92 + 37958*x^91 + 33273*x^90 + 60228*x^89 + 41229*x^88 + 11232*x^87 + 12635*x^86 + 17942*x^85 + 4*x^84 + 25397*x^83 + 63526*x^82 + 54872*x^81 + 40318*x^80 + 37498*x^79 + 52182*x^78 + 48817*x^77 + 10763*x^76 + 46542*x^75 + 36060*x^74 + 49972*x^73 + 63603*x^72 + 46506*x^71 + 44788*x^70 + 44905*x^69 + 46112*x^68 + 5297*x^67 + 26440*x^66 + 28470*x^65 + 15525*x^64 + 11566*x^63 + 15781*x^62 + 36098*x^61 + 44402*x^60 + 55331*x^59 + 61583*x^58 + 16406*x^57 + 59089*x^56 + 53161*x^55 + 43695*x^54 + 49580*x^53 + 62685*x^52 + 31447*x^51 + 26755*x^50 + 14810*x^49 + 3281*x^48 + 27371*x^47 + 53392*x^46 + 2648*x^45 + 10095*x^44 + 25977*x^43 + 22912*x^42 + 41278*x^41 + 33236*x^40 + 57792*x^39 + 7169*x^38 + 29250*x^37 + 16906*x^36 + 4436*x^35 + 2729*x^34 + 29736*x^33 + 19383*x^32 + 11921*x^31 + 26075*x^30 + 54616*x^29 + 739*x^28 + 38509*x^27 + 19118*x^26 + 20062*x^25 + 21280*x^24 + 12594*x^23 + 14974*x^22 + 27795*x^21 + 54107*x^20 + 1890*x^19 + 13410*x^18 + 5381*x^17 + 19500*x^16 + 47481*x^15 + 58488*x^14 + 26433*x^13 + 37803*x^12 + 60232*x^11 + 34772*x^10 + 1505*x^9 + 63760*x^8 + 20890*x^7 + 41533*x^6 + 16130*x^5 + 29769*x^4 + 49142*x^3 + 64184*x^2 + 55443*x + 45925<br>c2 = 19921*x^174 + 49192*x^173 + 18894*x^172 + 61121*x^171 + 50271*x^170 + 11860*x^169 + 53128*x^168 + 38658*x^167 + 14191*x^166 + 9671*x^165 + 40879*x^164 + 15187*x^163 + 33523*x^162 + 62270*x^161 + 64211*x^160 + 54518*x^159 + 50446*x^158 + 2597*x^157 + 32216*x^156 + 10500*x^155 + 63276*x^154 + 27916*x^153 + 55316*x^152 + 30898*x^151 + 43706*x^150 + 5734*x^149 + 35616*x^148 + 14288*x^147 + 18282*x^146 + 22788*x^145 + 48188*x^144 + 34176*x^143 + 55952*x^142 + 9578*x^141 + 9177*x^140 + 22083*x^139 + 14586*x^138 + 9748*x^137 + 21118*x^136 + 155*x^135 + 64224*x^134 + 18193*x^133 + 33732*x^132 + 38135*x^131 + 51992*x^130 + 8203*x^129 + 8538*x^128 + 55203*x^127 + 5003*x^126 + 2009*x^125 + 45023*x^124 + 12311*x^123 + 21428*x^122 + 24110*x^121 + 43537*x^120 + 21885*x^119 + 50212*x^118 + 40445*x^117 + 17768*x^116 + 46616*x^115 + 4771*x^114 + 20903*x^113 + 47764*x^112 + 13056*x^111 + 50837*x^110 + 22313*x^109 + 39698*x^108 + 60377*x^107 + 59357*x^106 + 24051*x^105 + 5888*x^104 + 29414*x^103 + 31726*x^102 + 4906*x^101 + 23968*x^100 + 52360*x^99 + 58063*x^98 + 706*x^97 + 31420*x^96 + 62468*x^95 + 18557*x^94 + 1498*x^93 + 17590*x^92 + 62990*x^91 + 27200*x^90 + 7052*x^89 + 39117*x^88 + 46944*x^87 + 45535*x^86 + 28092*x^85 + 1981*x^84 + 4377*x^83 + 34419*x^82 + 33754*x^81 + 2640*x^80 + 44427*x^79 + 32179*x^78 + 57721*x^77 + 9444*x^76 + 49374*x^75 + 21288*x^74 + 44098*x^73 + 57744*x^72 + 63457*x^71 + 43300*x^70 + 1508*x^69 + 13775*x^68 + 23197*x^67 + 43070*x^66 + 20751*x^65 + 47479*x^64 + 18496*x^63 + 53392*x^62 + 10387*x^61 + 2317*x^60 + 57492*x^59 + 25441*x^58 + 52532*x^57 + 27150*x^56 + 33788*x^55 + 43371*x^54 + 30972*x^53 + 39583*x^52 + 36407*x^51 + 35564*x^50 + 44564*x^49 + 1505*x^48 + 47519*x^47 + 38695*x^46 + 43107*x^45 + 1676*x^44 + 42057*x^43 + 49879*x^42 + 29083*x^41 + 42241*x^40 + 8853*x^39 + 33546*x^38 + 48954*x^37 + 30352*x^36 + 62020*x^35 + 39864*x^34 + 9519*x^33 + 24828*x^32 + 34696*x^31 + 2387*x^30 + 27413*x^29 + 55829*x^28 + 40217*x^27 + 30205*x^26 + 42328*x^25 + 6210*x^24 + 52442*x^23 + 58495*x^22 + 2014*x^21 + 26452*x^20 + 33547*x^19 + 19840*x^18 + 5995*x^17 + 16850*x^16 + 37855*x^15 + 7221*x^14 + 32200*x^13 + 8121*x^12 + 23767*x^11 + 46563*x^10 + 51673*x^9 + 19372*x^8 + 4157*x^7 + 48421*x^6 + 41096*x^5 + 45735*x^4 + 53022*x^3 + 35475*x^2 + 47521*x + 27544<br>S.&lt;x&gt; = R.quotient(N)<br>P,Q= N.factor()<br>P, Q = P[0], Q[0]<br>phi = (p2 ** P.degree() - 1) * (p2 ** Q.degree() - 1)<br>d = inverse_mod(e, phi)<br>m = pow(c2,d,N)<br>h = int(“”.join([str(i) for i in m.list()]))<br>print(h)<br>#88520242910362871448352317137540300262448941340486475602003226117035863930302</p>
+<h2 id="step2"><a href="#step2" class="headerlink" title="step2"></a>step2</h2><p>求解f，g。参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163#toc-4">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
+<p>构造格如下所示</p>
+<p><img src="/.com//uploads/2022/07/1-3-1024x815.png" srcset="/img/loading.gif" lazyload></p>
+<p>进行LLL()即可得到(f,g)。</p>
+<p>h = 88520242910362871448352317137540300262448941340486475602003226117035863930302<br>p1 = 106472061241112922861460644342336453303928202010237284715354717630502168520267<br>v1 = vector(ZZ, [1, h])<br>v2 = vector(ZZ, [0, p1])<br>m = matrix([v1,v2])<br>shortest_vector = m.LLL()[0]<br>f, g = shortest_vector<br>print(f,g)<br>#183610829622016944154542682943585488074 228679177303871981036829786447405151037</p>
+<h2 id="step3"><a href="#step3" class="headerlink" title="step3"></a>step3</h2><p>求g。对g的低20位爆破。</p>
+<p>from Crypto.Util.number import *<br>from gmpy2 import *<br>​<br>e = 0x10001<br>g1 = 228679177303871981036829786447405151037<br>c1 = 20920247107738496784071050239422540936224577122721266141057957551603705972966457203177812404896852110975768315464852962210648535130235298413611598658659777108920014929632531307409885868941842921815735008981335582297975794108016151210394446009890312043259167806981442425505200141283138318269058818777636637375101005540308736021976559495266332357714<br>n = 31398174203566229210665534094126601315683074641013205440476552584312112883638278390105806127975406224783128340041129316782549009811196493319665336016690985557862367551545487842904828051293613836275987595871004601968935866634955528775536847402581734910742403788941725304146192149165731194199024154454952157531068881114411265538547462017207361362857<br>g = (g1&gt;&gt;20)&lt;&lt;20<br>g = next_prime(g)<br>end = g ^ (2**20-1)<br>while g &lt;&#x3D; end:<br> if n%g =&#x3D; 0:<br> q = n&#x2F;&#x2F;g<br> d = invert(e,(q-1)*(g-1))<br> m = pow(c1,d,n)<br> print(long_to_bytes(m))<br> g = next_prime(g)</p>
+<h1 id="LWE"><a href="#LWE" class="headerlink" title="LWE?"></a>LWE?</h1><p>from secret import secret<br>assert len(secret)=&#x3D;66*3<br>sec = [ord(x) for x in secret]<br>​<br>DEBUG = False<br>m = 66<br>n = 200<br>p = 3<br>q = 2^20<br>​<br>def errorV():<br> return vector(ZZ, [1 - randrange(p) for _ in range(n)])<br>​<br>def matrixMn():<br> return matrix(ZZ, [[q&#x2F;&#x2F;2 - randrange(q) for _ in range(n)] for _ in range(m)])<br>​<br>A, B, C = matrixMn(), matrixMn(), matrixMn()<br>x = vector(ZZ, sec[0:m])<br>y = vector(ZZ, sec[m:2*m])<br>z = vector(ZZ, sec[2*m:3*m])<br>e = errorV()<br>b = x*A+y*B+z*C+e<br>​<br>if DEBUG:<br> print(‘x &#x3D; %s’ % x)<br> print(‘y &#x3D; %s’ % y)<br> print(‘z &#x3D; %s’ % z)<br> print(‘e &#x3D; %s’ % e)<br>print(‘A &#x3D; \n%s’ % A)<br>print(‘B &#x3D; \n%s’ % B)<br>print(‘C &#x3D; \n%s’ % C)<br>print(‘b &#x3D; %s’ % b)</p>
+<p>将b &#x3D; x*A+y*B+z*C+e改造一下，可以得到一个常见的式子：</p>
+<p>\[ b &#x3D; [x,y,z]* \left[\matrix{A \\B\\C}\right] + e \]</p>
+<p>误差e很小，按照常规解法就可以得到flag了。</p>
+<p>#sage<br>def str_to_int(s):<br> return [int(each) for each in s]<br>​<br>f=open(‘out’,’r’)<br>f.readline()<br>matA=[]<br>for _ in range(66):<br> s = f.readline()[1:-2].split()<br> row = str_to_int(s)<br> matA.append(row)<br>​<br>f.readline()<br>for _ in range(66):<br> s = f.readline()[1:-2].split()<br> row = str_to_int(s)<br> matA.append(row)<br>​<br>f.readline()<br>for _ in range(66):<br> s = f.readline()[1:-2].split()<br> row = str_to_int(s)<br> matA.append(row)<br>​<br>row= [-19786291, -713104590, 79700973, 23261288, 203038164, 430352288, 147848301, 633183638, 188651439, 243206160, -654830271, 335642059, -100511588, 180023362, 130607831, 227597861, 188424473, 175518170, -246987997, 180879649, 421934976, -227575274, -628937118, 5466646, -254939474, -438417079, 150434624, 327054986, 163561829, 816959939, -265298657, 82651050, 176899880, 174020455, -419656325, -101606182, 300413909, 237169571, -589213744, 121803611, -38080334, -255712509, -133782964, 106220001, 195767251, -397096116, -583305587, -182462561, -271478737, -32014717, 114385188, 437506115, -1165732, 179349265, -77761751, -233976783, 410153356, 476453640, 91892631, -242168750, 506769243, -384438362, 131852532, 586202810, 376719791, 578215353, 874304742, 163584566, 434260863, 98013671, 213627784, 59622886, -84912852, 156744856, 169652328, 178143615, 400046730, 408163110, -357990863, -269552089, -199410809, 187503858, -853206157, 134901027, 313984185, -162544217, -69722073, 43817388, -47389463, 210346729, -46516961, 72002967, 327714191, 45052266, 1010509210, 110937225, 448179404, 341448936, 446550865, 221914340, -804918424, -12007071, 151215468, 440279795, -73408566, -112121988, 40294376, 283179449, -193812410, -30061804, 20326854, 65412625, -260020045, -570090340, 1546454, 548030557, 618148316, 290333796, 665474379, 301709165, -104726821, -503111899, 480689642, -331192606, -518345784, -314602459, 25354403, 410995568, 179675848, -207010027, 400838662, 125916880, 501112567, 578261227, 24802586, 493171331, 383306766, -390093502, -389822626, -303615722, 20813851, -399678371, -566907567, -432647113, -280465568, 1002042393, -510901339, 316603766, -139701243, 211217523, 108545545, -12948109, -569199543, 37065919, -150542603, 417851006, -470173530, -628557669, -128339015, -427978763, 381402990, 205835334, -30976552, -357466556, -104985580, -115366372, 296031071, -8036087, 79340491, 650365147, 295521125, 885900267, 133049758, 217970062, 237420894, 358760095, -2684469, 475711698, 316770575, -25024622, -193442003, 200260606, 89183826, 567491985, 726371428, 222116554, 87397506, -29529094, 125968479, -50793004, 218035181, -210376687, 1025673749, -262390458, 467412984, -71097225, 259125517, -337232810, 143359550, 27115363]<br>matA.append(row)<br>L=Matrix(ZZ,matA)<br>e=vector(ZZ,L.LLL()[0])<br>print(e)<br>b=vector(ZZ,row)<br>s=b-e<br>m=L.solve_left(s)<br>print(bytes(list(m)))<br>‘’’<br>b”Oh, you get it?? Here is the flag: ‘DASCTF{uuid}’. What? You don’t know the uuid? The first part is ‘dcf41556’, second part-&gt; ‘c194’, and then ‘4c66’, ‘9092’. And finally, it’s ‘059e0bf8b84e’!!! 0v0\x00”<br>‘’’</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DASCTF2022.07赋能赛</div>
+      <div>http://example.com/2022/07/24/dasctf2022-07赋能赛/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/27/hello-world/" title="Hello World">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/23/%E5%8D%97%E4%BA%AC%E5%A4%A7%E5%AD%A6%E3%80%8A%E8%BD%AF%E4%BB%B6%E5%88%86%E6%9E%90%E3%80%8B%E8%AF%BE%E7%A8%8B04%EF%BC%88data-flow-analysis-ii%EF%BC%89-%E7%AC%94%E8%AE%B0/" title="南京大学《软件分析》课程04（Data Flow Analysis II）—— 笔记">
+                        <span class="hidden-mobile">南京大学《软件分析》课程04（Data Flow Analysis II）—— 笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
