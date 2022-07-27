@@ -16,15 +16,15 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="impossible RSAfrom Crypto.Util.number import *from Crypto.PublicKey import RSA​e &#x3D; 65537flag &#x3D; b’ACTF{…}’​while True: p &#x3D; getPrime(1024) q &#x3D; inverse(e, p) if not isPrime(q): contin">
+    <meta name="description" content="impossible RSA12345678910111213141516171819from Crypto.Util.number import *from Crypto.PublicKey import RSAe &#x3D; 65537flag &#x3D; b&amp;#x27;ACTF&amp;#123;...&amp;#125;&amp;#x27;while True:    p &#x3D; getPrime(1024)    q &#x3D; inve">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ACTF2022 - impossible RSA">
-<meta property="og:url" content="http://example.com/2022/06/27/actf2022/index.html">
+<meta property="og:url" content="http://example.com/2022/06/27/ACTF2022/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="impossible RSAfrom Crypto.Util.number import *from Crypto.PublicKey import RSA​e &#x3D; 65537flag &#x3D; b’ACTF{…}’​while True: p &#x3D; getPrime(1024) q &#x3D; inverse(e, p) if not isPrime(q): contin">
+<meta property="og:description" content="impossible RSA12345678910111213141516171819from Crypto.Util.number import *from Crypto.PublicKey import RSAe &#x3D; 65537flag &#x3D; b&amp;#x27;ACTF&amp;#123;...&amp;#125;&amp;#x27;while True:    p &#x3D; getPrime(1024)    q &#x3D; inve">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-06-27T04:00:55.000Z">
-<meta property="article:modified_time" content="2022-07-27T09:17:47.298Z">
+<meta property="article:modified_time" content="2022-07-27T11:19:42.771Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="RSA，Crypto">
 <meta name="twitter:card" content="summary_large_image">
@@ -234,7 +234,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.2k 字
+          1.3k 字
         
       </span>
     
@@ -245,7 +245,7 @@
         
         
         
-          10 分钟
+          12 分钟
         
       </span>
     
@@ -288,14 +288,11 @@
             
               <div class="markdown-body">
                 
-                <h1 id="impossible-RSA"><a href="#impossible-RSA" class="headerlink" title="impossible RSA"></a>impossible RSA</h1><p>from Crypto.Util.number import *<br>from Crypto.PublicKey import RSA<br>​<br>e &#x3D; 65537<br>flag &#x3D; b’ACTF{…}’<br>​<br>while True:<br> p &#x3D; getPrime(1024)<br> q &#x3D; inverse(e, p)<br> if not isPrime(q):<br> continue<br> n &#x3D; p * q;<br> public &#x3D; RSA.construct((n, e))<br> with open(“public.pem”, “wb”) as file:<br> file.write(public.exportKey(‘PEM’))<br> with open(“flag”, “wb”) as file:<br> file.write(long_to_bytes(pow(bytes_to_long(flag), e, n)))<br> break</p>
-<p>\[ e*q &#x3D; 1 \ mod\ p\\&#x3D;&#x3D;&gt;e*q &#x3D; 1 + k*p(可以知道k的值近似e)\\ &#x3D;&#x3D;&gt;e*q^2-q-k*n&#x3D;0\\解方程就行了 \]</p>
-<p>from Crypto.Util.number import *<br>import gmpy2<br>import rsa<br>from z3 import *</p>
-<p>with open(“public.pem”,’rb’) as f:<br>    keydata &#x3D; f.read()<br>    pubckey &#x3D; rsa.PublicKey.load_pkcs1_openssl_pem(keydata)<br>    pubckey.n<br>    pubckey.e</p>
-<p>n &#x3D; pubckey.n<br>e &#x3D; pubckey.e<br>print(f’n &#x3D; {n}’)<br>print(f’e &#x3D; {e}’)</p>
-<p>with open(“flag”, “rb”) as f:<br>    c &#x3D; bytes_to_long(f.read())</p>
-<p>print(f’c &#x3D; {c}’)</p>
-<p>for k in range(1,e):<br>    print(f”k &#x3D; {k}”)<br>    deta &#x3D; 1 + 4 * k * e * n<br>    if gmpy2.iroot(deta,2)[0] &gt;&#x3D; 0:<br>        #p &#x3D; int((gmpy2.iroot(deta,2)[0]+1)&#x2F;(2*e))<br>        p &#x3D; int(gmpy2.iroot(deta,2)[0]+1)&#x2F;&#x2F;(2*e)#前面需要int化，淦！<br>        q &#x3D; n&#x2F;&#x2F;p<br>        if p*q &#x3D;&#x3D; n:<br>            phi &#x3D; (p - 1) * (q - 1)<br>            d &#x3D; gmpy2.invert(e, phi)<br>            m &#x3D; pow(c, d, n)<br>            flag &#x3D; long_to_bytes(m)<br>            if b’ACTF’ in flag:<br>                print(flag)<br>                break</p>
+                <h1 id="impossible-RSA"><a href="#impossible-RSA" class="headerlink" title="impossible RSA"></a>impossible RSA</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.PublicKey <span class="hljs-keyword">import</span> RSA<br><br>e = <span class="hljs-number">65537</span><br>flag = <span class="hljs-string">b&#x27;ACTF&#123;...&#125;&#x27;</span><br><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    p = getPrime(<span class="hljs-number">1024</span>)<br>    q = inverse(e, p)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> isPrime(q):<br>        <span class="hljs-keyword">continue</span><br>    n = p * q;<br>    public = RSA.construct((n, e))<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;public.pem&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> file:<br>        file.write(public.exportKey(<span class="hljs-string">&#x27;PEM&#x27;</span>))<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;flag&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> file:<br>        file.write(long_to_bytes(<span class="hljs-built_in">pow</span>(bytes_to_long(flag), e, n)))<br>    <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+
+<p>$$<br>e<em>q &#x3D; 1 \ mod\ p\&#x3D;&#x3D;&gt;e</em>q &#x3D; 1 + k<em>p(可以知道k的值近似e)\ &#x3D;&#x3D;&gt;e</em>q^2-q-k*n&#x3D;0\解方程就行了<br>$$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">import</span> rsa<br><span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;public.pem&quot;</span>,<span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>    keydata = f.read()<br>    pubckey = rsa.PublicKey.load_pkcs1_openssl_pem(keydata)<br>    pubckey.n<br>    pubckey.e<br><br>n = pubckey.n<br>e = pubckey.e<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;n = <span class="hljs-subst">&#123;n&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;e = <span class="hljs-subst">&#123;e&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;flag&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    c = bytes_to_long(f.read())<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;c = <span class="hljs-subst">&#123;c&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>,e):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;k = <span class="hljs-subst">&#123;k&#125;</span>&quot;</span>)<br>    deta = <span class="hljs-number">1</span> + <span class="hljs-number">4</span> * k * e * n<br>    <span class="hljs-keyword">if</span> gmpy2.iroot(deta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>] &gt;= <span class="hljs-number">0</span>:<br>        <span class="hljs-comment">#p = int((gmpy2.iroot(deta,2)[0]+1)/(2*e))</span><br>        p = <span class="hljs-built_in">int</span>(gmpy2.iroot(deta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]+<span class="hljs-number">1</span>)//(<span class="hljs-number">2</span>*e)<span class="hljs-comment">#前面需要int化，淦！</span><br>        q = n//p<br>        <span class="hljs-keyword">if</span> p*q == n:<br>            phi = (p - <span class="hljs-number">1</span>) * (q - <span class="hljs-number">1</span>)<br>            d = gmpy2.invert(e, phi)<br>            m = <span class="hljs-built_in">pow</span>(c, d, n)<br>            flag = long_to_bytes(m)<br>            <span class="hljs-keyword">if</span> <span class="hljs-string">b&#x27;ACTF&#x27;</span> <span class="hljs-keyword">in</span> flag:<br>                <span class="hljs-built_in">print</span>(flag)<br>                <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -342,7 +339,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>ACTF2022 - impossible RSA</div>
-      <div>http://example.com/2022/06/27/actf2022/</div>
+      <div>http://example.com/2022/06/27/ACTF2022/</div>
     </div>
     <div class="license-meta">
       
@@ -384,7 +381,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/06/28/196/" title="SUSCTF - Ez_Pager_Tiper">
+                      <a href="/2022/06/28/Ez_Pager_Tiper/" title="SUSCTF - Ez_Pager_Tiper">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">SUSCTF - Ez_Pager_Tiper</span>
                         <span class="visible-mobile">上一篇</span>
@@ -394,8 +391,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/05/28/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E5%A4%B1%E8%B4%A5%E7%BB%8F%E5%8E%86/" title="Hexo博客搭建失败经历">
-                        <span class="hidden-mobile">Hexo博客搭建失败经历</span>
+                      <a href="/2022/05/16/%E5%AE%81%E6%B3%A2%E5%B8%82%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9B2022/" title="宁波市网络安全大赛2022-Crypto-WP">
+                        <span class="hidden-mobile">宁波市网络安全大赛2022-Crypto-WP</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -449,6 +446,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -615,6 +618,40 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 

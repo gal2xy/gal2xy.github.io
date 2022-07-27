@@ -16,21 +16,23 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="参考： 从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com) 格密码 Lazzaro (lazzzaro.github.io) Lattices and Cryptography（格理论与密码学）  本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数​\( (N,p,q) \)​和四个次数为​\( N-1 \)​得整数多项式集合​\( L_f,L_g">
+    <meta name="description" content="本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数$$(N,p,q)$$和四个次数为$$N-1$$得整数多项式集合$$L_f,L_g,L_φ,L_m$$。$N$为素数，$p,q$可以是合数，但要求$$gcd(p,q) &#x3D; 1$$，且$$q$$远大于$$p$$。 NTRU工作于多项式整数环$$R &#x3D; Z[x]&#x2F;(x^N-1)$$，当$F∈R$">
 <meta property="og:type" content="article">
 <meta property="og:title" content="格密码学习（二）">
 <meta property="og:url" content="http://example.com/2022/04/19/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="参考： 从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com) 格密码 Lazzaro (lazzzaro.github.io) Lattices and Cryptography（格理论与密码学）  本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数​\( (N,p,q) \)​和四个次数为​\( N-1 \)​得整数多项式集合​\( L_f,L_g">
+<meta property="og:description" content="本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数$$(N,p,q)$$和四个次数为$$N-1$$得整数多项式集合$$L_f,L_g,L_φ,L_m$$。$N$为素数，$p,q$可以是合数，但要求$$gcd(p,q) &#x3D; 1$$，且$$q$$远大于$$p$$。 NTRU工作于多项式整数环$$R &#x3D; Z[x]&#x2F;(x^N-1)$$，当$F∈R$">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/.com//uploads/2022/04/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE337.png">
-<meta property="og:image" content="http://example.com/.com//uploads/2022/04/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE340.png">
-<meta property="og:image" content="http://example.com/.com//uploads/2022/04/QQ%E5%9B%BE%E7%89%8720220416083524.png">
+<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
+<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png">
+<meta property="og:image" content="http://example.com/.com//24.png">
 <meta property="article:published_time" content="2022-04-19T11:25:37.000Z">
-<meta property="article:modified_time" content="2022-07-27T09:17:47.298Z">
+<meta property="article:modified_time" content="2022-07-27T11:56:38.423Z">
 <meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="NTRU">
+<meta property="article:tag" content="格密码">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/.com//uploads/2022/04/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE337.png">
+<meta name="twitter:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
   
   
   
@@ -237,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.9k 字
+          4.8k 字
         
       </span>
     
@@ -291,90 +293,67 @@
             
               <div class="markdown-body">
                 
-                <p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/11/07/crypto-%E6%A0%BC%E5%AF%86%E7%A0%81/">格密码 Lazzaro (lazzzaro.github.io)</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33458986/article/details/104366177">Lattices and Cryptography（格理论与密码学）</a></p>
-<hr>
-<p>本文主要通过分析一些例题来学习格。</p>
+                <p>本文主要通过分析一些例题来学习格。</p>
 <hr>
 <h1 id="NTRU"><a href="#NTRU" class="headerlink" title="NTRU"></a>NTRU</h1><p>摘自Lazzaro</p>
-<p>三个整数参数​\( (N,p,q) \)​和四个次数为​\( N-1 \)​得整数多项式集合​\( L_f,L_g,L_φ,L_m \)​。​\( N \)​为素数，​\( p,q \)​可以是合数，但要求​\( gcd(p,q) &#x3D; 1 \)​，且​\( q \)​远大于​\( p \)​。</p>
-<p>NTRU工作于多项式整数环​\( R &#x3D; Z[x]&#x2F;(x^N-1) \)​，当​\( F∈R \)​时，可以把​\( F \)​表示为多项式或向量形式：</p>
-<p>\[ F&#x3D;\sum_{i&#x3D;0}^{N-1}{F_ix^i}&#x3D;[F_0,F_1,…,F_{N-1}] \]</p>
-<p> </p>
-<p>选取三个确定的整数\( d_f,d_g,d_φ \)，多项式集合​\( L_f&#x3D;L(d_f,d_{f-1}),L_g&#x3D;L(d_g,d_g),L_φ&#x3D;L(d_φ,d_φ) \)​，而</p>
-<p>\[ L_m&#x3D;\{m∈Rm的系数位于区间[-\dfrac{p-1}{2},\dfrac{p-1}{2}],其中p为素数\} \]。</p>
+<p>三个整数参数$$(N,p,q)$$和四个次数为$$N-1$$得整数多项式集合$$L_f,L_g,L_φ,L_m$$。$N$为素数，$p,q$可以是合数，但要求$$gcd(p,q) &#x3D; 1$$，且$$q$$远大于$$p$$。</p>
+<p>NTRU工作于多项式整数环$$R &#x3D; Z[x]&#x2F;(x^N-1)$$，当$F∈R$时，可以把$F$表示为多项式或向量形式：<br>$$<br>F&#x3D;\sum_{i&#x3D;0}^{N-1}{F_ix^i}&#x3D;[F_0,F_1,…,F_{N-1}]<br>$$<br>选取三个确定的整数$d_f,d_g,d_φ$，多项式集合$L_f&#x3D;L(d_f,d_{f-1}),L_g&#x3D;L(d_g,d_g),L_φ&#x3D;L(d_φ,d_φ)$，而$L_m&#x3D;{m∈R|m的系数位于区间[-\dfrac{p-1}{2},\dfrac{p-1}{2}],其中p为素数}$。</p>
 <ul>
 <li><p>密钥生成</p>
-<p>选择多项式f和g，​\( f∈L_f \)​，​\( g∈L_g \)​。要求​\( f \)​关于模​\( p \)​和模​\( q \)​的逆元​\( F_p \)​，​\( F_q \)​都存在，否则重新选取​\( f \)​。</p>
+<p>选择多项式$$f$$和$$g$$，$$f∈L_f$$，$$g∈L_g$$。要求$$f$$关于模$p$和模$q$的逆元$F_p$，$F_q$都存在，否则重新选取$f$。</p>
 </li>
 <li><p>加密</p>
-<p>A发送的消息​\( m∈L_m \)​，根据参数​\( d_φ \)​随机选取一个​\( φ∈L_φ \)​，利用公钥​\( h \)​计算</p>
-<p>​\( c ≡ φ*h+m\quad(mod\ q) \)​</p>
-<p>A把密文c发给了B。</p>
+<p>A发送的消息$m∈L_m$，根据参数$d_φ$随机选取一个$φ∈L_φ$，利用公钥$h$计算<br>$$<br>c ≡ φ*h+m\quad(mod\ q)<br>$$<br>A把密文c发给了B。</p>
 </li>
 <li><p>解密</p>
-<p>B收到密文c后，利用私钥f计算</p>
-<p>​\( a≡f*c\quad(mod\ q) \)​</p>
-<p>选择a的系数位于​\( [-\dfrac{p-1}{2},\dfrac{p-1}{2}] \)​之间，计算</p>
-<p>​\( b≡a\quad(mod\ p)\\ m≡F_p*b\quad(mod\ p) \)​</p>
-<p>多项式m即是明文。</p>
+<p>B收到密文c后，利用私钥$f$计算<br>$$<br>a≡f<em>c\quad(mod\ q)<br>$$<br>选择a的系数位于$[-\dfrac{p-1}{2},\dfrac{p-1}{2}]$之间，计算<br>$$<br>b≡a\quad(mod\ p)\<br>m≡F_p</em>b\quad(mod\ p)<br>$$<br>多项式m即是明文。</p>
 </li>
 </ul>
 <p>例题：</p>
 <p>巅峰极客线上赛的一道密码题NTURE。</p>
-<p>from Crypto.Util.number import *<br>import gmpy2<br>from flag import flag<br>​<br>​<br>def generate():<br> p &#x3D; getStrongPrime(2048)<br> while True:<br> f &#x3D; getRandomNBitInteger(1024)<br> g &#x3D; getStrongPrime(768)<br> h &#x3D; gmpy2.invert(f, p) * g % p<br> return (p, f, g, h)<br>​<br>​<br>def encrypt(plaintext, p, h):<br> m &#x3D; bytes_to_long(plaintext)<br> r &#x3D; getRandomNBitInteger(1024)<br> c &#x3D; (r * h + m) % p<br> return c<br>​<br>​<br>p, f, g, h &#x3D; generate()<br>c &#x3D; encrypt(flag, p, h)<br>with open(“cipher.txt”, “w”) as f:<br> f.write(“h &#x3D; “ + str(h) + “\n”)<br> f.write(“p &#x3D; “ + str(p) + “\n”)<br> f.write(“c &#x3D; “ + str(c) + “\n”)</p>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a>中有非常详细的解析。</p>
-<p>（大可不必继续往下翻）</p>
-<p>   </p>
-<p>根据题目有</p>
-<p>\[ h &#x3D; f_p*g\quad (mod\ p)—–(1)\\ c &#x3D; r*h+m\quad (mod\ p)—–(2) \]</p>
-<p> </p>
-<p>(2)式等式两边同×f，得</p>
-<p>\[ c*f &#x3D; r*g + m*f\quad (mod\ p)—–(3) \]</p>
-<p> </p>
-<p>分析各个数的bit：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">from</span> flag <span class="hljs-keyword">import</span> flag<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate</span>():<br>    p = getStrongPrime(<span class="hljs-number">2048</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        f = getRandomNBitInteger(<span class="hljs-number">1024</span>)<br>        g = getStrongPrime(<span class="hljs-number">768</span>)<br>        h = gmpy2.invert(f, p) * g % p<br>        <span class="hljs-keyword">return</span> (p, f, g, h)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypt</span>(<span class="hljs-params">plaintext, p, h</span>):<br>    m = bytes_to_long(plaintext)<br>    r = getRandomNBitInteger(<span class="hljs-number">1024</span>)<br>    c = (r * h + m) % p<br>    <span class="hljs-keyword">return</span> c<br><br><br>p, f, g, h = generate()<br>c = encrypt(flag, p, h)<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;cipher.txt&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    f.write(<span class="hljs-string">&quot;h = &quot;</span> + <span class="hljs-built_in">str</span>(h) + <span class="hljs-string">&quot;\n&quot;</span>)<br>    f.write(<span class="hljs-string">&quot;p = &quot;</span> + <span class="hljs-built_in">str</span>(p) + <span class="hljs-string">&quot;\n&quot;</span>)<br>    f.write(<span class="hljs-string">&quot;c = &quot;</span> + <span class="hljs-built_in">str</span>(c) + <span class="hljs-string">&quot;\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a>中有非常详细的解析。（大可不必继续往下翻）</p>
+<p>根据题目有<br>$$<br>h &#x3D; f_p<em>g\quad (mod\ p)&amp;&amp;&amp;(1)\<br>c &#x3D; r</em>h+m\quad (mod\ p)&amp;&amp;&amp;(2)<br>$$<br>(2)式等式两边同$×f$，得<br>$$<br>c<em>f &#x3D; r</em>g + m*f\quad (mod\ p)&amp;&amp;&amp;(3)\<br>$$<br>分析各个数的bit：</p>
 <p>(贴过来)</p>
-<p>r：1024bit<br>g：768bit<br>m：flag字符串转成数字，一个字符8bit，一般来说flag不会太长，所以基本上是小1000bit的。<br>f：1024bit<br>p：2048bit</p>
-<p>发现​\( r*g + m*f \)​小于p，故令​\( a &#x3D; c*f\%p \)​，则有等式</p>
-<p>\[ a &#x3D; r*g+m*f—–(4) \]</p>
-<p> </p>
-<p>(4)式对g取模得</p>
-<p>\[ a &#x3D; m*f\quad(mod\ g)—–(5) \]</p>
-<p> </p>
-<p>很可惜，我们并不知道f,g。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">r</span>：<span class="hljs-number">1024</span>bit<br><span class="hljs-attribute">g</span>：<span class="hljs-number">768</span>bit<br><span class="hljs-attribute">m</span>：flag字符串转成数字，一个字符<span class="hljs-number">8</span>bit，一般来说flag不会太长，所以基本上是小<span class="hljs-number">1000</span>bit的。<br><span class="hljs-attribute">f</span>：<span class="hljs-number">1024</span>bit<br><span class="hljs-attribute">p</span>：<span class="hljs-number">2048</span>bit<br></code></pre></td></tr></table></figure>
+
+<p>发现$r<em>g + m</em>f$小于$p$，故令$a &#x3D; c<em>f%p$，则有等式<br>$$<br>a &#x3D; r</em>g+m<em>f&amp;&amp;&amp;(4)\<br>$$<br>(4)式对g取模得<br>$$<br>a &#x3D; m</em>f\quad(mod\ g)&amp;&amp;&amp;(5)\<br>$$<br>很可惜，我们并不知道$f,g$。</p>
 <p>这里就需要用到格了。</p>
-<p>我们已知h,p,c，要求f,g。</p>
+<p>我们已知$h,p,c$，要求$f,g$。</p>
 <p>如何构造呢？以下是我的初步理解（可能有误）：</p>
-<p>利用关系等式、已知量以及常量构造格（矩阵），通过矩阵变化求出含f,g的矩阵。<br>求解未知数的个数一般是矩阵的行和列。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">利用关系等式、已知量以及常量构造格（矩阵），通过矩阵变化求出含f,g的矩阵。<br>求解未知数的个数一般是矩阵的行和列。<br></code></pre></td></tr></table></figure>
+
 <p>那么就有：</p>
-<p>构造2×2的矩阵M<br>矩阵B &#x3D; [f,g]为我们的最终结果</p>
-<p>根据关系等式(1)，改写得​\( f*h &#x3D; g\quad(mod\ p) \)​，进一步有​\( f*h &#x3D; g + k*p \)​，将​\( k*p \)​移至等式左边得​\( g &#x3D; f*h-k*p \)​。</p>
-<p>很显然，​\( f,g,p \)​之间存在关系，将矩阵​\( B &#x3D; [f,g] \)​化成​\( [f,f*h-k*p] \)​，讨论它是由怎样一个2×2的矩阵M得来的以及如何得到的。</p>
-<p>易知[f,g]是由一个1×2的矩阵A乘一个2×2的矩阵M得来的。反推一下，就有​\( A &#x3D; [f,-k] \)​，​\( M&#x3D;\left[ \begin{array}{ccc}1&amp;h\\0&amp;p\end{array}\right] \)​。</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs armasm">构造<span class="hljs-number">2</span>×<span class="hljs-number">2</span>的矩阵M<br>矩阵<span class="hljs-keyword">B</span> = [f,g]为我们的最终结果<br></code></pre></td></tr></table></figure>
+
+<p>根据关系等式(1)，改写得$f<em>h &#x3D; g\quad(mod\ p)$，进一步有$f</em>h &#x3D; g + k<em>p$，将$k</em>p$移至等式左边得$g &#x3D; f<em>h-k</em>p$。</p>
+<p>很显然，$f,g,p$之间存在关系，将矩阵$B &#x3D; [f,g]$化成$[f,f<em>h-k</em>p]$，讨论它是由怎样一个2×2的矩阵$M$得来的以及如何得到的。</p>
+<p>易知$[f,g]$是由一个1×2的矩阵$A$乘一个2×2的矩阵$M$得来的。反推一下，就有$A &#x3D; [f,-k]$，$M&#x3D;\left[\matrix{1&amp;h\0&amp;p}\right]$。</p>
 <ol>
-<li><p>因为与f有关的关系等式已经用来代换g了，所以推出​\( A&#x3D;[f，？] \)​</p>
-</li>
-<li><p>然后可以推出​\( M&#x3D;\left[ \begin{array}{ccc}1&amp;?\\0&amp;?\end{array}\right] \)​</p>
-</li>
-<li><p>根据​\( B&#x3D;[f,f*h-k*p] \)​第二个数，可知​\( A &#x3D; [f,-k] \)​，​\( M&#x3D;\left[ \begin{array}{ccc}1&amp;h\\0&amp;p\end{array}\right] \)​。</p>
-</li>
+<li>因为与$f$有关的关系等式已经用来代换$g$了，所以推出$A&#x3D;[f，？]$</li>
+<li>然后可以推出$M&#x3D;\left[\matrix{1&amp;?\0&amp;?}\right]$</li>
+<li>根据$B&#x3D;[f,f<em>h-k</em>p]$第二个数，可知$A &#x3D; [f,-k]$，$M&#x3D;\left[\matrix{1&amp;h\0&amp;p}\right]$。</li>
 </ol>
 <p>（可能向量维度一高，逆向分析就很难了）</p>
 <p>但好在接这类题目有通用矩阵</p>
-<p><img src="/.com//uploads/2022/04/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE337.png" srcset="/img/loading.gif" lazyload></p>
-<p>继续分析，求出的矩阵​\( B &#x3D; [f,g] \)​为什么就是最短向量呢？</p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png" srcset="/img/loading.gif" lazyload alt="屏幕截图(337)"></p>
+<p>继续分析，求出的矩阵$B &#x3D; [f,g]$为什么就是最短向量呢？</p>
 <p><code>Gaussian heurstic</code>：</p>
-<p><img src="/.com//uploads/2022/04/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE340.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png" srcset="/img/loading.gif" lazyload alt="屏幕截图(340)"></p>
 <p>以及</p>
-<p><img src="/.com//uploads/2022/04/QQ%E5%9B%BE%E7%89%8720220416083524.png" srcset="/img/loading.gif" lazyload></p>
-<p>可知，在这个M中最短向量的长度大概在​\( sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024} \)​左右。</p>
-<p>而​\( sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024} \)​。</p>
-<p>因此，很大概率上，这个​\( [f, g] \)​就是这个lattice的最短向量。</p>
+<p><img src="/.com//24.png" srcset="/img/loading.gif" lazyload alt="QQ图片20220416083524"></p>
+<p>可知，在这个M中最短向量的长度大概在$sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024}$左右。</p>
+<p>而$sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024}$。</p>
+<p>因此，很大概率上，这个$[f, g]$就是这个lattice的最短向量。</p>
 <p>代码：</p>
-<p>#sage<br>h &#x3D; 7257231567493321493497732423756001924698993879741072696808433246581786362611889417289029671240997843541696187487722285762633068287623369923457879458577466240950224087015909821079480431797917376609839097610864517760515986973340148901898582075413756737310797402537478388864632901178463429574227279668004092519322204990617969134092793157225082977967228366838748193084097651575835471869030934527383379794480007872562067799484905159381690179011192017159985260435844246766711550315143517066359521598424992244464723490166447105679062078049379153154659732304112563255058750656946353654402824529058734270363154894216317570784<br>p &#x3D; 23969137365202547728693945383611572667294904799854243194734466236017441545927679469239814785947383727854265554138290421827510545078908517696536495567625593439996528098119344504866817224169113920532528233185011693829122447604993468817512696036673804626830507903206709121383065701222707251053362179946170981868061834734684494881504724254812067180384269711822738708203454131838741703416329765575995359232573740932069147491776326045743679105041246906081872936901848272288949389026129761726749334006319072981386763830897454245553866145620689939497868469730297795063648030738668273210516497399954626983672357236110363894081<br>c &#x3D; 6388077150013017095358415295704360631706672647932184267739118115740221804173068089559645506533240372483689997499821300861865955720630884024099415936433339512125910973936154713306915269365877588850574948033131161679256849814325373882706559635563285860782658950169507940368219930971600522754831612134153314448445006958300840618894359885321144158064446236744722180819829183828290798747455324761671198097712539900569386477647697973195787663298318786718012522378981137877863153067057280649127202971806609339007027052518049995341356359016898069863799529357397514218249272201695539181908803360181347114492616706419618151757<br>​<br>m &#x3D; matrix([[1,h],[0,p]])<br>shortest_vector &#x3D; m.LLL()[0]<br>f,g &#x3D; shortest_vector<br>print(f’f &#x3D; {f}’)<br>print(f’g &#x3D; {g}’)<br>​<br>a &#x3D; c*f%p%g<br>m &#x3D; a*inverse_mod(f,g)%g<br>print(f’m &#x3D; {m}’)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#sage</span><br>h = <span class="hljs-number">7257231567493321493497732423756001924698993879741072696808433246581786362611889417289029671240997843541696187487722285762633068287623369923457879458577466240950224087015909821079480431797917376609839097610864517760515986973340148901898582075413756737310797402537478388864632901178463429574227279668004092519322204990617969134092793157225082977967228366838748193084097651575835471869030934527383379794480007872562067799484905159381690179011192017159985260435844246766711550315143517066359521598424992244464723490166447105679062078049379153154659732304112563255058750656946353654402824529058734270363154894216317570784</span><br>p = <span class="hljs-number">23969137365202547728693945383611572667294904799854243194734466236017441545927679469239814785947383727854265554138290421827510545078908517696536495567625593439996528098119344504866817224169113920532528233185011693829122447604993468817512696036673804626830507903206709121383065701222707251053362179946170981868061834734684494881504724254812067180384269711822738708203454131838741703416329765575995359232573740932069147491776326045743679105041246906081872936901848272288949389026129761726749334006319072981386763830897454245553866145620689939497868469730297795063648030738668273210516497399954626983672357236110363894081</span><br>c = <span class="hljs-number">6388077150013017095358415295704360631706672647932184267739118115740221804173068089559645506533240372483689997499821300861865955720630884024099415936433339512125910973936154713306915269365877588850574948033131161679256849814325373882706559635563285860782658950169507940368219930971600522754831612134153314448445006958300840618894359885321144158064446236744722180819829183828290798747455324761671198097712539900569386477647697973195787663298318786718012522378981137877863153067057280649127202971806609339007027052518049995341356359016898069863799529357397514218249272201695539181908803360181347114492616706419618151757</span><br><br>m = matrix([[<span class="hljs-number">1</span>,h],[<span class="hljs-number">0</span>,p]])<br>shortest_vector = m.LLL()[<span class="hljs-number">0</span>]<br>f,g = shortest_vector<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;f = <span class="hljs-subst">&#123;f&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;g = <span class="hljs-subst">&#123;g&#125;</span>&#x27;</span>)<br><br>a = c*f%p%g<br>m = a*inverse_mod(f,g)%g<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;m = <span class="hljs-subst">&#123;m&#125;</span>&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
 <p>最后long_to_bytes(m)就行了。</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/11/07/crypto-%E6%A0%BC%E5%AF%86%E7%A0%81/">格密码 Lazzaro (lazzzaro.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33458986/article/details/104366177">Lattices and Cryptography（格理论与密码学）</a></p>
 
                 
               </div>
@@ -404,6 +383,15 @@
 
     </div>
   
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/NTRU/">#NTRU</a>
+      
+        <a href="/tags/%E6%A0%BC%E5%AF%86%E7%A0%81/">#格密码</a>
+      
+    </div>
   
 </div>
 
@@ -456,7 +444,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/04/20/83/" title="starctf2022">
+                      <a href="/2022/04/20/starctf2022/" title="starctf2022">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">starctf2022</span>
                         <span class="visible-mobile">上一篇</span>
@@ -521,6 +509,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -687,6 +681,40 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 
