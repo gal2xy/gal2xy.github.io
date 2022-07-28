@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -299,7 +299,7 @@
                 <p>昨天也是学习了一下如何使用WireShark抓包，并分析了帧的格式。</p>
 <hr>
 <h1 id="WireShark界面"><a href="#WireShark界面" class="headerlink" title="WireShark界面"></a>WireShark界面</h1><p>WireShark大致分为三部分：</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(315).png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(315).png"></p>
 <ul>
 <li><p>过滤栏</p>
 <p>可以过滤出你想要的一些帧，具体过滤格式可参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/92993778">WireShark使用教程 - 知乎 (zhihu.com)</a></p>
@@ -307,36 +307,36 @@
 </ul>
 <h1 id="抓包"><a href="#抓包" class="headerlink" title="抓包"></a>抓包</h1><p>通过cmd窗口使用ping命令，在WireShark端的帧列表栏中可以看到它们之间的通信。</p>
 <p>例如：</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(316).png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(316).png"></p>
 <p>ping完之后，通过过滤栏筛选出我们需要的帧（比如筛选出ip地址为220.181.38.251的帧），点击其中的帧即可在第二三栏中查看到具体信息。</p>
 <h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>假设以ICMP协议进行分析。随便选取一帧进行分析。</p>
 <p>(这段帧是服务器回复本机的帧)</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(318).png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(318).png"></p>
 <ul>
 <li><p>第一行</p>
 <p>帧的整体框架。主要信息如下：</p>
 <p>Frame 62表示该帧的序号为62，帧的长度为74bytes，捕获长度为74bytes，帧内协议为 eth:ethertype:icmp:data。</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(320).png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(320).png"></p>
 </li>
 <li><p>第二行</p>
 <p>以太网，属于数据链路层。主要信息如下：</p>
 <p>目标地址MAC为34:cf:f6:6d : de:63，源地址MAC为00:00:5e:00:01:c9；上层（网络层）使用的协议为IPv4。</p>
 <p>（因为是回复帧，所以目标地址是本机，源地址是baidu的服务器）</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(321).png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(321).png"></p>
 <p>对应数据字节在蓝框中。对应格式为</p>
-<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413231035.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413231035.png"></p>
 </li>
 <li><p>第三行</p>
 <p>IPV4协议。主要信息如下：</p>
 <p>源IP为220.181.38.251，目标IP为10.128.119.165；首部长度20bytes（首部长度字段所表示数的单位为4bytes）；总长度为60bytes。</p>
 <p>具体数据字节段在粉框中。相应格式为：</p>
-<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413232736.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413232736.png"></p>
 </li>
 <li><p>第四行</p>
 <p>ICMP协议。IP数据报中的数据部分。主要信息如下：</p>
 <p>代码为0，表示ICMP报文格式为回送请求或回送回答；校验和为0x4d46；数据部分32bytes。</p>
 <p>相应数据字节在橙框中。相应格式如下：</p>
-<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413234231.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//QQ%E5%9B%BE%E7%89%8720220413234231.png"></p>
 </li>
 </ul>
 
@@ -585,10 +585,6 @@
 
 
 
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
 
 
 
@@ -666,7 +662,7 @@
               inlineMath: { '[+]': [['$', '$']] }
             },
             loader : {
-              load: ['ui/lazy']
+              
             },
             options: {
               renderActions: {

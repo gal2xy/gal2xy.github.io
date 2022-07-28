@@ -74,7 +74,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -337,12 +337,12 @@
 </ol>
 <p>（可能向量维度一高，逆向分析就很难了）</p>
 <p>但好在接这类题目有通用矩阵</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png" srcset="/img/loading.gif" lazyload alt="屏幕截图(337)"></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png" alt="屏幕截图(337)"></p>
 <p>继续分析，求出的矩阵$B &#x3D; [f,g]$为什么就是最短向量呢？</p>
 <p><code>Gaussian heurstic</code>：</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png" srcset="/img/loading.gif" lazyload alt="屏幕截图(340)"></p>
+<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png" alt="屏幕截图(340)"></p>
 <p>以及</p>
-<p><img src="/.com//24.png" srcset="/img/loading.gif" lazyload alt="QQ图片20220416083524"></p>
+<p><img src="/.com//24.png" alt="QQ图片20220416083524"></p>
 <p>可知，在这个M中最短向量的长度大概在$sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024}$左右。</p>
 <p>而$sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024}$。</p>
 <p>因此，很大概率上，这个$[f, g]$就是这个lattice的最短向量。</p>
@@ -610,10 +610,6 @@
 
 
 
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
 
 
 
@@ -691,7 +687,7 @@
               inlineMath: { '[+]': [['$', '$']] }
             },
             loader : {
-              load: ['ui/lazy']
+              
             },
             options: {
               renderActions: {
