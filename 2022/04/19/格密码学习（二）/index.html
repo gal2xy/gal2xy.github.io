@@ -23,16 +23,16 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数$$(N,p,q)$$和四个次数为$$N-1$$得整数多项式集合$$L_f,L_g,L_φ,L_m$$。$N$为素数，$p,q$可以是合数，但要求$$gcd(p,q) &#x3D; 1$$，且$$q$$远大于$$p$$。 NTRU工作于多项式整数环$$R &#x3D; Z[x]&#x2F;(x^N-1)$$，当$F∈R$">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
-<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png">
-<meta property="og:image" content="http://example.com/.com//24.png">
+<meta property="og:image" content="http://example.com/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
+<meta property="og:image" content="http://example.com/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png">
+<meta property="og:image" content="http://example.com/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/24.png">
 <meta property="article:published_time" content="2022-04-19T11:25:37.000Z">
 <meta property="article:modified_time" content="2022-07-27T13:45:54.872Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="NTRU">
 <meta property="article:tag" content="格密码">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
+<meta name="twitter:image" content="http://example.com/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png">
   
   
   
@@ -337,12 +337,12 @@
 </ol>
 <p>（可能向量维度一高，逆向分析就很难了）</p>
 <p>但好在接这类题目有通用矩阵</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png" alt="屏幕截图(337)"></p>
+<p><img src="/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(337).png" alt="屏幕截图(337)"></p>
 <p>继续分析，求出的矩阵$B &#x3D; [f,g]$为什么就是最短向量呢？</p>
 <p><code>Gaussian heurstic</code>：</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png" alt="屏幕截图(340)"></p>
+<p><img src="/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(340).png" alt="屏幕截图(340)"></p>
 <p>以及</p>
-<p><img src="/.com//24.png" alt="QQ图片20220416083524"></p>
+<p><img src="/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/24.png" alt="QQ图片20220416083524"></p>
 <p>可知，在这个M中最短向量的长度大概在$sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024}$左右。</p>
 <p>而$sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024}$。</p>
 <p>因此，很大概率上，这个$[f, g]$就是这个lattice的最短向量。</p>
