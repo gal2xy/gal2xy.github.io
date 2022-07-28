@@ -23,13 +23,13 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="ezRSA附件： ezRSA.zip  1234567891011121314151617from Crypto.Util.number import getStrongPrimefrom gmpy import next_primefrom random import getrandbitsfrom flag import flagp&#x3D;getStrongPrime(1024)q&#x3D;next_pri">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/starctf2022/bit_analyse.png">
-<meta property="og:image" content="http://example.com/starctf2022/%E5%9D%90%E6%A0%87%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/.com//bit_analyse.png">
+<meta property="og:image" content="http://example.com/.com//%E5%9D%90%E6%A0%87%E5%9B%BE.png">
 <meta property="article:published_time" content="2022-04-20T07:06:13.000Z">
 <meta property="article:modified_time" content="2022-07-27T13:45:31.350Z">
 <meta property="article:author" content="gla2xy">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/starctf2022/bit_analyse.png">
+<meta name="twitter:image" content="http://example.com/.com//bit_analyse.png">
   
   
   
@@ -297,7 +297,7 @@
 <p><a target="_blank" rel="noopener" href="https://www.nevi.dev/2022/03/20/writeup-zer0pts-ctf-2022/#anti-fermat-crypto-warmup">Writeup: zer0pts CTF 2022 - nevi.dev</a></p>
 <p>分析一下题目，有用的关键信息是<code>q=next_prime(p^((1&lt;&lt;900)-1)^getrandbits(300))</code>。</p>
 <p>从中我们可以知道解题的方向是从bit出发并且目的是分解$n$。通过上式将$p,q$分为三部分，高124bits相同，中间600bits相反，低300bits是无法预测的。</p>
-<p><img src="/starctf2022/bit_analyse.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/.com//bit_analyse.png" srcset="/img/loading.gif" lazyload></p>
 <p>所以我们将求解$p,q$的步骤分为3步：</p>
 <ol>
 <li><p>求$p,q$的高124bits。</p>
@@ -311,7 +311,7 @@
 <p>之后我们对$p,q$的中间600bits的从高到低同时与1进行异或，这样可以保证中间600bits仍是相反的。期间对得到的$p,q$之积与$n$进行比较，小的话就更新$p,q$的值，最终得到中间600bits。</p>
 <p>那为什么这样做呢？</p>
 <p>我们知道两个数在和不变的情况下，只有当这两个数相等时乘积才能最大化。</p>
-<p><img src="/starctf2022/%E5%9D%90%E6%A0%87%E5%9B%BE.png" srcset="/img/loading.gif" lazyload alt="坐标图"></p>
+<p><img src="/.com//%E5%9D%90%E6%A0%87%E5%9B%BE.png" srcset="/img/loading.gif" lazyload alt="坐标图"></p>
 <p>现在$p$是最大的，$q$是最小的，$p+q$是固定的，$p*q&lt;n$说明$p$太大了，$q$太小了，于是更改$p,q$的对应bit位（做到了$p$增加了相应的量，$q$减少了相应的量）。大于的情况就不说明了。（感觉有点废话了，说的有点过于详细以至于有点……）</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">ph = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">bin</span>(gmpy2.iroot(n,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>])[<span class="hljs-number">2</span>:<span class="hljs-number">126</span>],<span class="hljs-number">2</span>)<br>p = (ph&lt;&lt;<span class="hljs-number">900</span>)^((<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">900</span>)-<span class="hljs-number">1</span>)^((<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">300</span>)-<span class="hljs-number">1</span>)<br>q = ph&lt;&lt;<span class="hljs-number">900</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">899</span>, <span class="hljs-number">300</span>, -<span class="hljs-number">1</span>):<br>    cur = <span class="hljs-number">1</span>&lt;&lt;i<br>    <span class="hljs-keyword">if</span> (p ^ cur) * (q ^ cur) &lt; n:<br>        p ^= cur<br>        q ^= cur<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;highp = <span class="hljs-subst">&#123;p&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;highq = <span class="hljs-subst">&#123;q&#125;</span>&#x27;</span>)<br></code></pre></td></tr></table></figure>
 
