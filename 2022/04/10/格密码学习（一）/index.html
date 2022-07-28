@@ -23,16 +23,16 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="最近几天学习了格密码，于是写篇博客记录一下，当然其中不乏一些本人的错误理解，还望多多指正，感谢！  在讲格之前，先了解一下基向量和矩阵。 基学过线性代数应该知道，一组基是由各个线性无关向量组成。 例如在直角坐标系中，任何一个向量都可以由(1，0)和（0，1）这两个向量任意组合而成，那么称这两个向量为基底向量。 三维空间中，基底向量为（1，0，0）和（0，1，0）和（0，0，1）。 扩展到n维空间，">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png">
-<meta property="og:image" content="http://example.com/.com//009.png">
-<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(309).png">
-<meta property="og:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(311).png">
+<meta property="og:image" content="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png">
+<meta property="og:image" content="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/009.png">
+<meta property="og:image" content="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(309).png">
+<meta property="og:image" content="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(311).png">
 <meta property="article:published_time" content="2022-04-10T15:07:39.000Z">
 <meta property="article:modified_time" content="2022-07-27T13:46:04.157Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="格密码">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png">
+<meta name="twitter:image" content="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png">
   
   
   
@@ -307,20 +307,20 @@
 <p>格$$L&#x3D;{a_1\vec{r_1}+a_2\vec{r_2}+…+a_n\vec{r_n}|a_i∈Z}$$，可表示为</p>
 <p>$$<br>L &#x3D;\left[\matrix{a_{1}&amp;a_{2}&amp;…&amp;a_{n}\}\right]<br>\left[\matrix{\vec{i_1}\\vec{i_2}\…\\vec{i_n} }\right]<br>&#x3D;\left[<br>\matrix{a_1\vec{r_1}+a_2\vec{r_2}+…+a_n\vec{r_n}}\right]<br>$$<br><strong>但是</strong>，并不是所有的向量都是格。（这个有点不好表述）</p>
 <p>例如，整数格如下所示：</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png" alt="屏幕截图(306)"></p>
+<p><img src="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(306).png" alt="屏幕截图(306)"></p>
 <p>$$\vec{AC}$$是整数格，但$$\vec{AB}$$不是整数格。</p>
 <p>可以把格理解为某空间中特定的点，例如只能是下图当中已标好的离散的点：</p>
-<p><img src="/.com//009.png" alt="QQ图片20220408223009"></p>
+<p><img src="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/009.png" alt="QQ图片20220408223009"></p>
 <h1 id="格的Determinant"><a href="#格的Determinant" class="headerlink" title="格的Determinant"></a>格的Determinant</h1><p>格可以写成矩阵的形式，于是它的Determinant（行列式）代表其行列式的值，但一般不叫作行列式，而是组成格的向量所围成图形的面积或者体积。</p>
 <h1 id="最短距离"><a href="#最短距离" class="headerlink" title="最短距离"></a>最短距离</h1><p>最短距离$$λ$$表示格中点与点之间的最短距离。<br>$$<br>λ_1 &#x3D; min||\vec{x}-\vec{y}||,\vec{x},\vec{y}∈格L,\vec{x}≠\vec{y}<br>\&#x3D;min||\vec{x}||,\vec{x}∈格L,\vec{x}≠\vec{0},\vec{y}为原点o<br>$$<br>记$$λ_i$$为第i短的距离，则有$$λ_1≤λ_2≤…≤λ_n$$。</p>
 <h1 id="距离函数"><a href="#距离函数" class="headerlink" title="距离函数"></a>距离函数</h1><p>任意一个点t（可以不在格L上）到最近的格点的最短距离的函数，记作$$μ(t，L)$$。</p>
 <h1 id="覆盖半径"><a href="#覆盖半径" class="headerlink" title="覆盖半径"></a>覆盖半径</h1><p>以格L中所有的格点为圆心，逐渐扩大其半径，使得能覆盖整个空间，此时的半径就是覆盖半径$$μ$$。</p>
-<h1 id="格密码中的一些难题"><a href="#格密码中的一些难题" class="headerlink" title="格密码中的一些难题"></a>格密码中的一些难题</h1><h2 id="最短向量问题（SVP）"><a href="#最短向量问题（SVP）" class="headerlink" title="最短向量问题（SVP）"></a>最短向量问题（SVP）</h2><p>给定格$$L$$中的一组基$$B$$，找到这组基构成的一个格点$$Bx:x$$，使得该格点到0坐标点的距离最近，即<br>$$<br>||\vec{Bx}|| &#x3D; λ_1<br>$$<br><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(309).png" alt="屏幕截图(309)"></p>
+<h1 id="格密码中的一些难题"><a href="#格密码中的一些难题" class="headerlink" title="格密码中的一些难题"></a>格密码中的一些难题</h1><h2 id="最短向量问题（SVP）"><a href="#最短向量问题（SVP）" class="headerlink" title="最短向量问题（SVP）"></a>最短向量问题（SVP）</h2><p>给定格$$L$$中的一组基$$B$$，找到这组基构成的一个格点$$Bx:x$$，使得该格点到0坐标点的距离最近，即<br>$$<br>||\vec{Bx}|| &#x3D; λ_1<br>$$<br><img src="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(309).png" alt="屏幕截图(309)"></p>
 <p>可以理解为找到一组整数$$[x,y]$$，使得新构成的向量<br>$$<br>\vec{Bx} &#x3D;\left[\matrix{x&amp;y\}\right]\left[\matrix{\vec{a}\\vec{b}\}\right]&#x3D;x\vec{a}+y\vec{b}<br>$$<br>满足$$||\vec{Bx}-\vec{0}|| &#x3D; ||\vec{Bx}||&#x3D;λ_1$$。</p>
 <h2 id="最近向量问题（CVP）"><a href="#最近向量问题（CVP）" class="headerlink" title="最近向量问题（CVP）"></a>最近向量问题（CVP）</h2><p>给定<u>连续空间</u>中的任意一个点$$\vec{t}$$，在格空间$$L$$中找到一个格点$$\vec{Bx}$$，两点距离最短，即$$||\vec{Bx}-\vec{t}||$$最小，由覆盖半径定义可知，$$||\vec{Bx}-\vec{t}||≤μ$$。</p>
 <h1 id="利用格进行通信"><a href="#利用格进行通信" class="headerlink" title="利用格进行通信"></a>利用格进行通信</h1><p>根据CVP，假设我们信息加密后是格点$$\vec{Bx}$$，然后进行噪音干扰（可以理解为加了一个向量），变成了$$\vec{t}$$。这样别人就很难从$$\vec{t}$$破解出明文。</p>
 <h1 id="尝试分析CVP问题"><a href="#尝试分析CVP问题" class="headerlink" title="尝试分析CVP问题"></a>尝试分析CVP问题</h1><p>由于CVP在笛卡尔坐标系整数格中很好求解，只需要向上或向下取整即可，因为该空间中的基向量都是互相垂直的。故在解决没有正交基的格中，我们将其基正交化，构造出正交基，并利用正交基划分格空间，使得每个格点都在长方形的正中心，</p>
-<p><img src="/.com//%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(311).png" alt="屏幕截图(311)"></p>
+<p><img src="http://example.com/2022/04/10/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE(311).png" alt="屏幕截图(311)"></p>
 <p>那么对任意一个非格点$$\vec{t}$$，求其最近向量为格点$$\vec{Bx}$$，它们之间的距离一定不会超过长方形对角线的一半。</p>
 <p>从图中可以看出，在内圈中的非格点，其最近向量都在圆心处，但对于外圈中的非格点，可能存在多解问题（例如黄线上的某些点）</p>
 <hr>
