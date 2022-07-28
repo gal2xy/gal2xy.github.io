@@ -24,7 +24,7 @@
 <meta property="og:description" content="Pelle’s Rotor-Supported Arithmetic解析：  求n 取c &#x3D; -1，rot &#x3D; 0。有如下公式（根据e * d &#x3D; 1+k * φ(n)可知d为奇数）$$r &#x3D; -1^d\ mod\ n \\r &#x3D; -1\ mod\ n\\n-1 &#x3D; -1\ mod\ n\\n &#x3D; r+1$$  求d 注意到or">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-04-05T07:47:27.000Z">
-<meta property="article:modified_time" content="2022-07-28T12:36:19.654Z">
+<meta property="article:modified_time" content="2022-07-28T13:08:41.060Z">
 <meta property="article:author" content="gla2xy">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -290,7 +290,7 @@
                 <h1 id="Pelle’s-Rotor-Supported-Arithmetic"><a href="#Pelle’s-Rotor-Supported-Arithmetic" class="headerlink" title="Pelle’s Rotor-Supported Arithmetic"></a>Pelle’s Rotor-Supported Arithmetic</h1><p>解析：</p>
 <ul>
 <li><p>求n</p>
-<p>取c &#x3D; -1，rot &#x3D; 0。有如下公式（根据e * d &#x3D; 1+k * φ(n)可知d为奇数）<br>$$<br>r &#x3D; -1^d\ mod\ n \\r &#x3D; -1\ mod\ n\\n-1 &#x3D; -1\ mod\ n\\n &#x3D; r+1<br>$$</p>
+<p>取c &#x3D; -1，rot &#x3D; 0。有如下公式（根据e * d &#x3D; 1+k * φ(n)可知d为奇数）<br>$$<br>r &#x3D; -1^d\ mod\ n \\<br>r &#x3D; -1\ mod\ n\\<br>n-1 &#x3D; -1\ mod\ n\\<br>n &#x3D; r+1<br>$$</p>
 </li>
 <li><p>求d</p>
 <p>注意到<code>oracle()</code>主要是对d进行循环移位，故可以依次求出d的每一位。</p>
