@@ -4,11 +4,24 @@
   
   
   <entry>
+    <title>图片</title>
+    <link href="/2022/07/28/%E5%9B%BE%E7%89%87/"/>
+    <url>/2022/07/28/%E5%9B%BE%E7%89%87/</url>
+    
+    <content type="html"><![CDATA[<p><img src="/.com//%E6%B0%B4%E6%89%87.png"></p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>图片测试</title>
     <link href="/2022/07/28/%E5%9B%BE%E7%89%87%E6%B5%8B%E8%AF%95/"/>
     <url>/2022/07/28/%E5%9B%BE%E7%89%87%E6%B5%8B%E8%AF%95/</url>
     
-    <content type="html"><![CDATA[<p>picture test </p><p><img src="/.com//yc.jpg"> </p>]]></content>
+    <content type="html"><![CDATA[<p>picture test </p><p><img src="/.com//yc.jpg" alt="yc"> </p>]]></content>
     
     
     
