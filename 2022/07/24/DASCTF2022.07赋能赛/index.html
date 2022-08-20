@@ -317,7 +317,7 @@
 
 <h2 id="step2"><a href="#step2" class="headerlink" title="step2"></a>step2</h2><p>求解f，g。参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163#toc-4">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
 <p>构造格如下所示</p>
-<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJGVS"><img src="https://s1.ax1x.com/2022/07/28/vCJGVS.png" srcset="/img/loading.gif" lazyload alt="vCJGVS.png" border="0"></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJGVS"><img src="https://s1.ax1x.com/2022/07/28/vCJGVS.png" srcset="/img/loading.gif" lazyload alt="vCJGVS.png" border="0" /></a></p>
 <p>进行LLL()即可得到(f,g)。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">h = <span class="hljs-number">88520242910362871448352317137540300262448941340486475602003226117035863930302</span><br>p1 = <span class="hljs-number">106472061241112922861460644342336453303928202010237284715354717630502168520267</span><br>v1 = vector(ZZ, [<span class="hljs-number">1</span>, h])<br>v2 = vector(ZZ, [<span class="hljs-number">0</span>, p1])<br>m = matrix([v1,v2])<br>shortest_vector = m.LLL()[<span class="hljs-number">0</span>]<br>f, g = shortest_vector<br><span class="hljs-built_in">print</span>(f,g)<br><span class="hljs-comment">#183610829622016944154542682943585488074 228679177303871981036829786447405151037</span><br></code></pre></td></tr></table></figure>
 

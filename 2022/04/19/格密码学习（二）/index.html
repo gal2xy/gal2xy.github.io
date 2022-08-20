@@ -337,12 +337,12 @@
 </ol>
 <p>（可能向量维度一高，逆向分析就很难了）</p>
 <p>但好在接这类题目有通用矩阵</p>
-<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJ4r6"><img src="https://s1.ax1x.com/2022/07/28/vCJ4r6.png" srcset="/img/loading.gif" lazyload alt="vCJ4r6.png" border="0"></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJ4r6"><img src="https://s1.ax1x.com/2022/07/28/vCJ4r6.png" srcset="/img/loading.gif" lazyload alt="vCJ4r6.png" border="0" /></a></p>
 <p>继续分析，求出的矩阵$B &#x3D; [f,g]$为什么就是最短向量呢？</p>
 <p><code>Gaussian heurstic</code>：</p>
-<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJTaD"><img src="https://s1.ax1x.com/2022/07/28/vCJTaD.png" srcset="/img/loading.gif" lazyload alt="vCJTaD.png" border="0"></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJTaD"><img src="https://s1.ax1x.com/2022/07/28/vCJTaD.png" srcset="/img/loading.gif" lazyload alt="vCJTaD.png" border="0" /></a></p>
 <p>以及</p>
-<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJoVO"><img src="https://s1.ax1x.com/2022/07/28/vCJoVO.png" srcset="/img/loading.gif" lazyload alt="vCJoVO.png" border="0"></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJoVO"><img src="https://s1.ax1x.com/2022/07/28/vCJoVO.png" srcset="/img/loading.gif" lazyload alt="vCJoVO.png" border="0" /></a></p>
 <p>可知，在这个M中最短向量的长度大概在$sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024}$左右。</p>
 <p>而$sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024}$。</p>
 <p>因此，很大概率上，这个$[f, g]$就是这个lattice的最短向量。</p>
