@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="crypto4051234567891011121314from Crypto.Util.number import *from random import randrangefrom grassfield import flagp &#x3D; getPrime(16)k &#x3D; [randrange(1,p) for i in range(5)]for i in range(len(flag)):    g">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s1.ax1x.com/2022/08/26/vRSbod.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/08/26/vRimC9.png">
 <meta property="og:image" content="https://s1.ax1x.com/2022/08/26/vRSHdH.png">
 <meta property="article:published_time" content="2022-08-26T09:27:14.000Z">
-<meta property="article:modified_time" content="2022-08-26T09:35:53.560Z">
+<meta property="article:modified_time" content="2022-08-26T10:57:13.664Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="线代">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s1.ax1x.com/2022/08/26/vRSbod.png">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/08/26/vRimC9.png">
   
   
   
@@ -295,7 +295,7 @@
 
 <p>利用好flag的格式进行分析。</p>
 <p>将前5个<code>grasshopper</code>的产生过程列出公式来，有：</p>
-<p><a target="_blank" rel="noopener" href="https://imgse.com/i/vRSbod"><img src="https://s1.ax1x.com/2022/08/26/vRSbod.png" srcset="/img/loading.gif" lazyload alt="vRSbod.png" border="0" /></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/vRimC9"><img src="https://s1.ax1x.com/2022/08/26/vRimC9.png" srcset="/img/loading.gif" lazyload alt="vRimC9.png" border="0" /></a></p>
 <p>我们已知$k_{14},k_{24},k_{34},k_{44},k_{54}$，就可以推出$k_{23},k_{33},k_{43},k_{53}$，如$k_{23}&#x3D;k_{24}*invert(k_{14},p)\%p$，同理可以求出$k_{32},k_{42},k_{52}$，继续有$k_{41},k_{51}$，最后求出$k_{50}$，这样一来，我们就求出了$k_{50},k_{51},k_{52},k_{53},k_{54}$，即加密 ‘{‘ 之后的密钥<code>k</code>。</p>
 <p>知道密钥<code>k</code>，通过<code>g_i*invert(k0*k1*k2*k3*k4,p)%p</code>求得明文字符，然后重复一遍加密过程可以得到下一轮的密钥<code>k</code>。</p>
 <p>p的值可以进行爆破。</p>
