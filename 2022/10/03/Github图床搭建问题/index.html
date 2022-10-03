@@ -16,27 +16,25 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="large case12345678910111213141516171819202122from Crypto.Util.number import *from secret import e,messagedef pad(s):    if len(s)&lt;3*L:        s+&#x3D;bytes(3*L-len(s))    return sL&#x3D;128p&#x3D;q&#x3D;r&#x3D;n&#x3D;p*q*rasser">
+    <meta name="description" content="我所遇见的问题是这样的。使用PicGo+Github搭建图床，虽然PicGo上传图片成功了，但是在相册和网站上都无法显示，尝试过网上的一些方法（重复的文章真的多！），无一例外都没有效果。后经自己的猜想和实践，将问题解决了。  一开始PicGo上的Github配置我是按照网上配置的。（主要是改了我也不记得之前的配置了） 将上传成功的图片在浏览器中打开，其url为   但是在Github的仓库里，将图">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SUSCTF2022">
-<meta property="og:url" content="http://example.com/2022/03/18/SUSCTF2022/index.html">
+<meta property="og:title" content="Github图床搭建问题">
+<meta property="og:url" content="http://example.com/2022/10/03/Github%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="large case12345678910111213141516171819202122from Crypto.Util.number import *from secret import e,messagedef pad(s):    if len(s)&lt;3*L:        s+&#x3D;bytes(3*L-len(s))    return sL&#x3D;128p&#x3D;q&#x3D;r&#x3D;n&#x3D;p*q*rasser">
+<meta property="og:description" content="我所遇见的问题是这样的。使用PicGo+Github搭建图床，虽然PicGo上传图片成功了，但是在相册和网站上都无法显示，尝试过网上的一些方法（重复的文章真的多！），无一例外都没有效果。后经自己的猜想和实践，将问题解决了。  一开始PicGo上的Github配置我是按照网上配置的。（主要是改了我也不记得之前的配置了） 将上传成功的图片在浏览器中打开，其url为   但是在Github的仓库里，将图">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031028950.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029653.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029505.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029045.png">
-<meta property="article:published_time" content="2022-03-18T04:01:06.000Z">
-<meta property="article:modified_time" content="2022-10-03T02:29:39.978Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031052750.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031055720.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031102486.png">
+<meta property="article:published_time" content="2022-10-03T03:03:45.000Z">
+<meta property="article:modified_time" content="2022-10-03T03:05:25.821Z">
 <meta property="article:author" content="gla2xy">
-<meta property="article:tag" content="RSA">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031028950.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031052750.png">
   
   
   
-  <title>SUSCTF2022 - gla2xy&#39;s blog</title>
+  <title>Github图床搭建问题 - gla2xy&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -216,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="SUSCTF2022"></span>
+            <span id="subtitle" data-typed-text="Github图床搭建问题"></span>
           
         </div>
 
@@ -227,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-03-18 12:01" pubdate>
-          2022年3月18日 中午
+        <time datetime="2022-10-03 11:03" pubdate>
+          2022年10月3日 上午
         </time>
       </span>
     
@@ -239,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4k 字
+          367 字
         
       </span>
     
@@ -250,7 +248,7 @@
         
         
         
-          34 分钟
+          4 分钟
         
       </span>
     
@@ -288,44 +286,27 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">SUSCTF2022</h1>
+            <h1 style="display: none">Github图床搭建问题</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="large-case"><a href="#large-case" class="headerlink" title="large case"></a>large case</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> secret <span class="hljs-keyword">import</span> e,message<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">pad</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(s)&lt;<span class="hljs-number">3</span>*L:<br>        s+=<span class="hljs-built_in">bytes</span>(<span class="hljs-number">3</span>*L-<span class="hljs-built_in">len</span>(s))<br>    <span class="hljs-keyword">return</span> s<br><br>L=<span class="hljs-number">128</span><br>p=<br>q=<br>r=<br>n=p*q*r<br><br><span class="hljs-keyword">assert</span> isPrime(GCD(e,p-<span class="hljs-number">1</span>)) <span class="hljs-keyword">and</span> isPrime(GCD(e,q-<span class="hljs-number">1</span>)) <span class="hljs-keyword">and</span> isPrime(GCD(e,r-<span class="hljs-number">1</span>)) <span class="hljs-keyword">and</span> e==GCD(e,p-<span class="hljs-number">1</span>)*GCD(e,q-<span class="hljs-number">1</span>)*GCD(e,r-<span class="hljs-number">1</span>)<br><span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(message)&gt;L <span class="hljs-keyword">and</span> <span class="hljs-built_in">len</span>(message)&lt;<span class="hljs-number">2</span>*L<br><span class="hljs-keyword">assert</span> <span class="hljs-string">b&#x27;SUSCTF&#x27;</span> <span class="hljs-keyword">in</span> message<br>m=bytes_to_long(pad(message))<br><br>c=<span class="hljs-built_in">pow</span>(m,e,n)<br><span class="hljs-built_in">print</span>(c)<br></code></pre></td></tr></table></figure>
-
-<p>根据$e&#x3D;&#x3D;GCD(e,p-1)*GCD(e,q-1)*GCD(e,r-1)$，设$e &#x3D; e_pe_qe_r$。<br>$$<br>c≡m^{e_pe_qe_r}≡(m^{e_pe_q})^{e_r}\ mod\ n<br>$$<br>继而<br>$$<br>c≡(m^{e_pe_q})^{e_r}\ mod\ (r-1)<br>$$<br>根据费马小定理有：<br>$$<br>c^{(r-1)&#x2F;e_r}≡(m^{e_pe_q})^{r-1}≡1\ mod\ (r-1)<br>$$<br>于是求得$e_r$，同理$e_p,e_q$也如此。</p>
-<p>现在，我们求得了e，但gcd(e,(p-1)<em>(q-1)</em>(r-1)) &#x3D; e，并不能直接解密，可以用AMM算法求解。</p>
-<p>但这里根据官方题解用一个更快的方法。（算法来源：<a target="_blank" rel="noopener" href="https://eprint.iacr.org/2020/1059.pdf">1059.pdf (iacr.org)</a>）（稀里糊涂，英语水平有限，看不懂）</p>
-<p>但满足如下条件：</p>
-<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031028950.png" srcset="/img/loading.gif" lazyload/>
-
-<p>由于该算法的时间复杂度为O(e)，即与e成线性关系，因此我们可以通过缩短e来缩短时间。</p>
-<p>根据题目中$len(message)&gt;L\ and\ len(message)&lt;2*L$，而通过$pad$函数可以发现，message的填充部分&gt;1024bit。因此可以将n缩小为pq，e缩小为$e_pe_q$。<br>$$<br>c ≡ m^{e} ≡ (m*2^{1024})^e\ mod\ n<br>$$<br>于是<br>$$<br>c_1 &#x3D; c*2^{-1024e}≡m^e\ mod\ n<br>$$<br>简化模数<br>$$<br>c_1 ≡ m^e\ mod\ (p*q)<br>$$<br>这时候再将 $e_r$ 消除<br>$$<br>e_rd_r ≡ 1\ mod\ (p-1)*(q-1)\<br>c_0 &#x3D; c_1^{d_r} ≡ m^{ed_r} ≡ m^{e_pe_q}\ mod\ (p*q)<br>$$<br>根据算法描述写出脚本：</p>
-<p>第一步：寻找$g_E$。</p>
-<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029653.png" srcset="/img/loading.gif" lazyload/>
-
-<p>第二步：找符合的明文</p>
-<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029505.png" srcset="/img/loading.gif" lazyload/>
-
-<p>其中的$l$为$l&#x3D;g_E^i$。</p>
-<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031029045.png" srcset="/img/loading.gif" lazyload/>
-
-
-
-<p>代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> primefac<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">import</span> tqdm<br><br>p=<span class="hljs-number">127846753573603084140032502367311687577517286192893830888210505400863747960458410091624928485398237221748639465569360357083610343901195273740653100259873512668015324620239720302434418836556626441491996755736644886234427063508445212117628827393696641594389475794455769831224080974098671804484986257952189021223</span><br>q=<span class="hljs-number">145855456487495382044171198958191111759614682359121667762539436558951453420409098978730659224765186993202647878416602503196995715156477020462357271957894750950465766809623184979464111968346235929375202282811814079958258215558862385475337911665725569669510022344713444067774094112542265293776098223712339100693</span><br>r=<span class="hljs-number">165967627827619421909025667485886197280531070386062799707570138462960892786375448755168117226002965841166040777799690060003514218907279202146293715568618421507166624010447447835500614000601643150187327886055136468260391127675012777934049855029499330117864969171026445847229725440665179150874362143944727374907</span><br>c=<span class="hljs-number">2832775557487418816663494645849097066925967799754895979829784499040437385450603537732862576495758207240632734290947928291961063611897822688909447511260639429367768479378599532712621774918733304857247099714044615691877995534173849302353620399896455615474093581673774297730056975663792651743809514320379189748228186812362112753688073161375690508818356712739795492736743994105438575736577194329751372142329306630950863097761601196849158280502041616545429586870751042908365507050717385205371671658706357669408813112610215766159761927196639404951251535622349916877296956767883165696947955379829079278948514755758174884809479690995427980775293393456403529481055942899970158049070109142310832516606657100119207595631431023336544432679282722485978175459551109374822024850128128796213791820270973849303929674648894135672365776376696816104314090776423931007123128977218361110636927878232444348690591774581974226318856099862175526133892</span><br><br><span class="hljs-keyword">for</span> ep <span class="hljs-keyword">in</span> primefac.primefac(p-<span class="hljs-number">1</span>):<span class="hljs-comment">#分解出p-1的所有因数</span><br>    <span class="hljs-keyword">if</span> ep&gt;<span class="hljs-number">2</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">pow</span>(c%p,(p-<span class="hljs-number">1</span>)//ep,p)==<span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">break</span><br><span class="hljs-keyword">for</span> eq <span class="hljs-keyword">in</span> primefac.primefac(q-<span class="hljs-number">1</span>):<br>    <span class="hljs-keyword">if</span> eq&gt;<span class="hljs-number">2</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">pow</span>(c%q,(q-<span class="hljs-number">1</span>)//eq,q)==<span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">break</span><br><span class="hljs-keyword">for</span> er <span class="hljs-keyword">in</span> primefac.primefac(r-<span class="hljs-number">1</span>):<br>    <span class="hljs-keyword">if</span> er&gt;<span class="hljs-number">2</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">pow</span>(c%r,(r-<span class="hljs-number">1</span>)//er,r)==<span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">break</span><br><br>e=ep*eq*er<br>n=p*q*r<br>e0=ep*eq<br>n0=p*q<br>phi0=(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>)<br>d1=gmpy2.invert(er,phi0)<br>c1=c*gmpy2.invert(<span class="hljs-built_in">pow</span>(<span class="hljs-number">256</span>,<span class="hljs-number">128</span>*e,n),n)%n<br>c0=<span class="hljs-built_in">pow</span>(c1,d1,n0)<br><br>g = <span class="hljs-number">1</span><br><span class="hljs-keyword">while</span> <span class="hljs-number">1</span>:<br>    g+=<span class="hljs-number">1</span><br>    gE = <span class="hljs-built_in">pow</span>(g,(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>)//e0,n0)<br>    <span class="hljs-keyword">if</span> gE != <span class="hljs-number">1</span>:<br>        <span class="hljs-keyword">break</span><br><br><span class="hljs-comment">#gE=pow(2,phi0//e0,n0)</span><br>d0=gmpy2.invert(e0,phi0//e0)<br>a0=<span class="hljs-built_in">pow</span>(c0,d0,n0)<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> tqdm.tqdm(<span class="hljs-built_in">range</span>(e0)):<br>    m=long_to_bytes(a0)<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">b&#x27;SUSCTF&#x27;</span> <span class="hljs-keyword">in</span> m:<br>        flag=m.decode()<br>        <span class="hljs-built_in">print</span>(flag)<br>        <span class="hljs-keyword">break</span><br>    a0=a0*gE%n0<br></code></pre></td></tr></table></figure>
-
-
-
+                <p>我所遇见的问题是这样的。使用PicGo+Github搭建图床，虽然PicGo上传图片成功了，但是在相册和网站上都无法显示，尝试过网上的一些方法（重复的文章真的多！），无一例外都没有效果。后经自己的猜想和实践，将问题解决了。</p>
 <hr>
-<p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/susers/SUSCTF2022_official_wp/tree/main/crypto">SUSCTF2022_official_wp&#x2F;crypto at main · susers&#x2F;SUSCTF2022_official_wp (github.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://eprint.iacr.org/2020/1059.pdf">1059.pdf (iacr.org)</a></p>
-<p><a target="_blank" rel="noopener" href="https://team-su.github.io/passages/2022-2-28-SUSCTF/">2022 SUSCTF SU Writeup | TEAM-SU</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.wm-team.cn/index.php/archives/8/#large+case">SUSCTF 2022 By W&amp;M - W&amp;M Team (wm-team.cn)</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51999772/article/details/123273510">SUSCTF_Crypto_large case_复现_M3ng@L的博客-CSDN博客</a></p>
+<p>一开始PicGo上的Github配置我是按照网上配置的。（主要是改了我也不记得之前的配置了）</p>
+<p>将上传成功的图片在浏览器中打开，其url为</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031052750.png" srcset="/img/loading.gif" lazyload/>
+
+<p>但是在Github的仓库里，将图片拖出来查看，其url却是这样的</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031055720.png" srcset="/img/loading.gif" lazyload/>
+
+<p>按道理两者url应该一致才对，所以PicGo上的Github的域名应该改为能成功看到的域名（即将&#x2F;img前面的复制粘贴过来就可以了）</p>
+<p>我这里的配置如下</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>raw.githubusercontent.com<span class="hljs-regexp">/gal2xy/</span>blog_img<span class="hljs-regexp">/main/</span><br></code></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031102486.png" srcset="/img/loading.gif" lazyload/>
+
+<p>于是就可以在相册中查看，博客上也能正常显示。</p>
 
                 
               </div>
@@ -334,34 +315,6 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/RSA/">#RSA</a>
-      
-    </div>
   
 </div>
 
@@ -371,8 +324,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>SUSCTF2022</div>
-      <div>http://example.com/2022/03/18/SUSCTF2022/</div>
+      <div>Github图床搭建问题</div>
+      <div>http://example.com/2022/10/03/Github图床搭建问题/</div>
     </div>
     <div class="license-meta">
       
@@ -384,7 +337,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年3月18日</div>
+          <div>2022年10月3日</div>
         </div>
       
       
@@ -414,15 +367,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/03/18/D%5E3CTF%202022/" title="D^3CTF2022">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">D^3CTF2022</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2022/10/02/2022ByteCTF/" title="2022ByteCTF">
+                        <span class="hidden-mobile">2022ByteCTF</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
