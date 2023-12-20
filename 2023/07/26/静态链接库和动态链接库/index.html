@@ -1,0 +1,765 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言在跟着滴水学习PE结构的时候，接触到了静态链接和动态链接的知识。但是那时并没有做笔记，有也只是杂乱的（是啊！为什么不写博客啊？？？）。如今学习Android逆向时，也需要了解这方面的知识，趁着这个机会写一篇文章记录一下。  1.1 编译过程先来了解一下程序的编译过程（借用菜鸟教程的图片）：  从我们编写好的源文件开始，先经过预编译、编译、汇编，得到了.o文件（或.obj文件），这类文件是二">
+<meta property="og:type" content="article">
+<meta property="og:title" content="静态链接库和动态链接库">
+<meta property="og:url" content="http://example.com/2023/07/26/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言在跟着滴水学习PE结构的时候，接触到了静态链接和动态链接的知识。但是那时并没有做笔记，有也只是杂乱的（是啊！为什么不写博客啊？？？）。如今学习Android逆向时，也需要了解这方面的知识，趁着这个机会写一篇文章记录一下。  1.1 编译过程先来了解一下程序的编译过程（借用菜鸟教程的图片）：  从我们编写好的源文件开始，先经过预编译、编译、汇编，得到了.o文件（或.obj文件），这类文件是二">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549265.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549818.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549930.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550027.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550538.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550945.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261552596.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551736.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551693.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551601.jpg">
+<meta property="article:published_time" content="2023-07-26T07:48:03.000Z">
+<meta property="article:modified_time" content="2023-07-26T07:57:30.678Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="静态库">
+<meta property="article:tag" content="动态库">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549265.png">
+  
+  
+  
+  <title>静态链接库和动态链接库 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="静态链接库和动态链接库"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-26 15:48" pubdate>
+          2023年7月26日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">静态链接库和动态链接库</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在跟着滴水学习PE结构的时候，接触到了静态链接和动态链接的知识。但是那时并没有做笔记，有也只是杂乱的（是啊！为什么不写博客啊？？？）。如今学习Android逆向时，也需要了解这方面的知识，趁着这个机会写一篇文章记录一下。</p>
+<hr>
+<h2 id="1-1-编译过程"><a href="#1-1-编译过程" class="headerlink" title="1.1 编译过程"></a>1.1 编译过程</h2><p>先来了解一下程序的编译过程（借用菜鸟教程的图片）：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549265.png" srcset="/img/loading.gif" lazyload></p>
+<p>从我们编写好的源文件开始，先经过预编译、编译、汇编，得到了<code>.o</code>文件（或<code>.obj</code>文件），这类文件是二进制文件。之后在链接过程，会将我们源文件对应的<code>.obj</code>文件与源文件所需要的静态链接库（<code>.lib</code>、<code>.o</code>）或动态链接库（<code>.dll</code>、<code>.so</code>）合并，形成了我们常见的可执行文件（如<code>.exe</code>、<code>.elf</code>文件）。静态链接库和动态链接库的区别就在于链接过程中是如何合并的。</p>
+<h1 id="二、静态链接库"><a href="#二、静态链接库" class="headerlink" title="二、静态链接库"></a>二、静态链接库</h1><h2 id="2-1-概念"><a href="#2-1-概念" class="headerlink" title="2.1 概念"></a>2.1 概念</h2><p>静态链接库在Windows平台下是<code>.lib</code>文件，在Linux平台下是<code>.a</code>文件。</p>
+<p>静态链接库是一种资源的集合，包括函数、变量、类等，程序通过与其链接，调用库中的资源。在链接的时候，静态链接库会将自身完整复制到程序中，这样就使得程序可以独立运行，无需依赖外部库文件。但这样做也导致了一些问题，比如最终的可执行文件非常大、静态链接库更新则依赖于该库的所有程序都需要重新编译、多个程序使用同一个静态库会在内存中重复加载等。</p>
+<h2 id="2-2-Windows平台下创建与使用静态链接库"><a href="#2-2-Windows平台下创建与使用静态链接库" class="headerlink" title="2.2 Windows平台下创建与使用静态链接库"></a>2.2 Windows平台下创建与使用静态链接库</h2><p><code>lib</code>项目的编写比较简单，参照<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-static-library-cpp?view=msvc-170">官方文档</a>来就是了。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549818.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后是使用<code>lib</code>时的一些配置。这部分在<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-static-library-cpp?view=msvc-170#UseLibInApp">官方文档</a>的<strong>在应用中使用静态库的功能</strong>处。官方用的是比较简单的方法，一个添加引用，一个添加引用库的路径就可以了。</p>
+<p>我这里改变了一下方法，并没有使用“添加引用”，这个想法是基于后面的使用动态库的配置，步骤如下：</p>
+<ol>
+<li><p>首先将 <code>lib</code> 的<code>.h</code>头文件的所在路径添加到使用该<code>lib</code>项目的属性页 -&gt; C&#x2F;C++ -&gt; 常规 -&gt; 附加包含目录。这一步是为了能够使用头文件（库函数）。</p>
+</li>
+<li><p>然后是将<code>lib</code>文件的文件名添加到使用该<code>lib</code>项目的属性页 -&gt; 链接器 -&gt; 输入 -&gt; 附加依赖项。</p>
+<p>接下来需要在使用该<code>lib</code>项目的属性页 -&gt; 链接器 -&gt; 常规 -&gt; 附加库目录处，添加<code>lib</code>文件的所在路径。</p>
+</li>
+</ol>
+<p>（因为是写完<code>dll</code>配置后尝试的，图片的话就参考后面的<strong>3.2 Windows平台下创建与使用动态链接库</strong>吧）</p>
+<p>以上完成后，就可以成功的使用<code>lib</code>文件了。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261549930.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-3-Linux平台下创建与使用静态链接库"><a href="#2-3-Linux平台下创建与使用静态链接库" class="headerlink" title="2.3 Linux平台下创建与使用静态链接库"></a>2.3 Linux平台下创建与使用静态链接库</h2><p>代码同上，编写好后执行指令生成<code>.o</code>文件。</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs brainfuck"><span class="hljs-comment">g</span><span class="hljs-literal">++</span> <span class="hljs-literal">-</span><span class="hljs-comment">c StaticMath</span><span class="hljs-string">.</span><span class="hljs-comment">cpp(cpp文件名)</span><br></code></pre></td></tr></table></figure>
+
+<p>注意带参数<code>-c</code>，否则直接编译为可执行文件。然后，通过<code>ar</code>工具将目标文件打包成<code>.a</code>静态库文件</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gcode">ar -crv libstaticmath.a<span class="hljs-comment">(.a文件名任意)</span> StaticMath.o<span class="hljs-comment">(生成的.o文件名)</span><br></code></pre></td></tr></table></figure>
+
+<p>这一步就会生成我们所需要的静态库。接下来是编写使用案例（代码同上），编写好了之后执行以下命令</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">g++ TestStaticLibrary.cpp -I .<span class="hljs-regexp">/StaticLibrary -L ./</span>StaticLibrary -lstaticmath -o TestStaticLibrary.out<br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>-I</code> 用于指定头文件搜索路径，<code>-L</code> 用于指定库文件搜索路径，<code>-l</code> 用于指定静态库或共享库文件（不需要<code>lib</code>前缀和<code>.a</code>后缀，编译器查找动态连接库时有隐含的命名规则，即在给出的名字前面加上lib，后面加上.a或.so来确定库的名称），<code>-o</code>用于指定生成的可执行文件的名称，默认情况下会生成一个名为 <code>a.out</code> 的可执行文件。</p>
+<p>因为我在测试的时候，<code>TestStaticLibrary.cpp</code>和静态库项目并没有放在同一个目录下，如果不加<code>-I</code>参数，可能会报错</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stata">TestStaticLibrary.cpp:1:10: fatal <span class="hljs-keyword">error</span>: StaticMath.<span class="hljs-keyword">h</span>: <span class="hljs-keyword">No</span> such <span class="hljs-keyword">file</span> or directory<br>    1 | #<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;StaticMath.h&quot;</span><br>      |          ^~~~~~~~~~~~~~<br>compilation terminated.<br></code></pre></td></tr></table></figure>
+
+<p>最后执行生成的<code>.out</code>文件，结果如下</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550027.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、动态链接库"><a href="#三、动态链接库" class="headerlink" title="三、动态链接库"></a>三、动态链接库</h1><h2 id="3-1-概念"><a href="#3-1-概念" class="headerlink" title="3.1 概念"></a>3.1 概念</h2><p>动态链接库在Windows平台下是<code>.dll</code>文件，在Linux平台下是<code>.so</code>文件。</p>
+<p>与静态链接库相同的是，动态链接库也是一种资源的集合，包括函数、变量和类等资源。</p>
+<p>但是动态链接库在链接的时候，并不会把自身复制到可执行程序中，而是把对动态链接库的引用信息放在可执行文件中，以指示程序在运行时需要加载的动态链接库。在程序运行时，操作系统会根据这些引用信息来动态加载并链接动态链接库，使得程序可以调用其中的函数和使用其中的数据。</p>
+<p>这样做的优点，比如动态链接库的代码在内存中是共享的，可以被多个程序同时使用。但也有缺点，如果缺少所需的<code>.dll</code>文件，则可执行文件无法运行。</p>
+<h2 id="3-2-Windows平台下创建与使用动态链接库"><a href="#3-2-Windows平台下创建与使用动态链接库" class="headerlink" title="3.2 Windows平台下创建与使用动态链接库"></a>3.2 Windows平台下创建与使用动态链接库</h2><p><code>dll</code>项目编译后，会生成<code>.lib</code>、<code>.dll</code>文件。<code>.lib</code>文件是一个辅助文件，它包含了与动态链接库相关的一些信息，包括函数名、符号名以及函数在<code>dll</code>中的偏移等，主要作用是在编译期间提供引用信息，以便编译器能够正确地解析和链接动态链接库。</p>
+<p>创建<code>dll</code>文件比较简单，但需要注意在函数名前面加上<code>extern &quot;C&quot; __declspec(dllimport)</code>。</p>
+<ul>
+<li><p><code>extern &quot;C&quot;</code>用于告诉编译器将代码按照 C 语言的规则进行链接。因为 C++ 在编译过程中会对函数名进行重载和名称修饰，导致函数名在编译后变成了不同的形式。而动态链接库对外暴露的函数名通常是使用 C 语言的命名规则，为了确保正确链接，需要使用<code>extern &quot;C&quot;</code>来告诉编译器使用 C 语言的链接规则。</p>
+</li>
+<li><p><code>__declspec(dllimport)</code>用于显式地指示编译器该函数是从<code>dll </code>文件中导入的。使用<code>__declspec(dllimport)</code>修饰的函数表示该函数在编译时是从外部的<code>dll </code>文件中引入的，而不是当前编译的源文件中定义的。这样，在链接阶段，编译器会根据该关键字生成正确的导入表，并在运行时动态加载对应的 DLL 文件。</p>
+</li>
+</ul>
+<p>这一部分的编写跟着官方文档走就行了。</p>
+<p>这里主要说一下使用<code>.dll</code>文件时所需要的设置。</p>
+<ol>
+<li><p>首先将 <code>dll</code> 的<code>.h</code>头文件的所在路径添加到使用该<code>dll</code>项目的属性页 -&gt; C&#x2F;C++ -&gt; 常规 -&gt; 附加包含目录，这一步的设置跟静态链接库一样。是为了能够使用头文件（库函数）。（这一步在<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170#to-add-the-dll-header-to-your-include-path">官方文档</a>的<strong>将 DLL 标头添加到包含路径</strong>处）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550538.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>然后是将<code>lib</code>文件的文件名（以项目名命名的，我还傻乎乎的填<code>.c</code>的文件名）添加到使用该<code>dll</code>项目的属性页 -&gt; 链接器 -&gt; 输入 -&gt; 附加依赖项，</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261550945.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>现在只是告诉链接器在编译时需要使用到这个<code>lib</code>文件，但是还没有告诉链接器去哪里找这个<code>lib</code>文件，所以接下来需要在使用该<code>dll</code>项目的属性页 -&gt; 链接器 -&gt; 常规 -&gt; 附加库目录处，添加<code>lib</code>文件的所在路径（奇怪，这个<code>lib</code>文件怎么在使用<code>dll</code>项目的路径下？？？）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261552596.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>（以上在<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170#to-add-the-dll-import-library-to-your-project">官方文档</a>的<strong>将 DLL 导入库添加到项目中</strong>处）</p>
+</li>
+<li><p>最后是将<code>dll</code>文件复制到使用该<code>dll</code>的项目中，在该项目的属性页 -&gt; 生成事件 -&gt; 生成后事件 -&gt; 命令行中添加指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">xcopy /y /d dll所在路径 <span class="hljs-string">&quot;<span class="hljs-subst">$(OutDir)</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>（这一步在<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170#to-add-the-dll-import-library-to-your-project">官方文档</a>的<strong>在生成后事件中复制 DLL</strong>处）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551736.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ol>
+<p>以上完成后，就可以愉快地使用自己写的<code>dll</code>了。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551693.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-3-Linux平台下创建与使用动态链接库"><a href="#3-3-Linux平台下创建与使用动态链接库" class="headerlink" title="3.3 Linux平台下创建与使用动态链接库"></a>3.3 Linux平台下创建与使用动态链接库</h2><p>编写好<code>so</code>项目后，执行命令生成<code>.o</code>文件。</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs brainfuck"><span class="hljs-comment">g</span><span class="hljs-literal">++</span> <span class="hljs-literal">-</span><span class="hljs-comment">fPIC</span> <span class="hljs-literal">-</span><span class="hljs-comment">c DynamicMath</span><span class="hljs-string">.</span><span class="hljs-comment">cpp(cpp文件名)</span><br></code></pre></td></tr></table></figure>
+
+<p>其中<code>-fPIC</code>用于创建与地址无关的编译程序，是为了能够在多个应用程序间共享。</p>
+<p>之后，执行命令生成动态库</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scss">g++ -shared -o libdynmath<span class="hljs-selector-class">.so</span>(.a文件名任意) DynamicMath<span class="hljs-selector-class">.o</span>(生成的.o文件名)<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>-shared</code>用于生成动态链接库。</p>
+<p>编写使用案例，执行下列命令，引用动态库编译成可执行文件（跟静态库方式一样）。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">g++ TestDynamicLibrary.cpp -I .<span class="hljs-regexp">/DynamicLibrary -L ./</span>DynamicLibrary -ldynmath -o TestDynamicLibrary<br></code></pre></td></tr></table></figure>
+
+<p>接下来需要将生成的<code>so</code>文件复制到<code>/usr/lib</code>目录下（在<code>root</code>模式下）。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo cp .<span class="hljs-regexp">/DynamicLibrary/</span>libdynmath.so <span class="hljs-regexp">/usr/</span>lib<br></code></pre></td></tr></table></figure>
+
+<p>否者报错如下</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stata">./TestDynamicLibrary: <span class="hljs-keyword">error</span> <span class="hljs-keyword">while</span> loading shared libraries: libdynmath.<span class="hljs-keyword">so</span>: <br>cannotopen shared object <span class="hljs-keyword">file</span>: <span class="hljs-keyword">No</span> such <span class="hljs-keyword">file</span> or directory<br></code></pre></td></tr></table></figure>
+
+<p>找不到<code>libdynmath.so</code>，那为什么会这样呢？</p>
+<p>原因是在<code>Linux</code>系统下，程序通过以下方式定位<code>so</code>文件：</p>
+<ol>
+<li>默认搜索路径：系统会在一组默认的目录中搜索动态共享库，包括 <code>/lib</code>, <code>/usr/lib</code>, <code>/lib64</code>, <code>/usr/lib64</code> 等等。</li>
+<li>环境变量<code>LD_LIBRARY_PATH</code>：程序可以通过设置环境变量 <code>LD_LIBRARY_PATH</code> 来指定额外的动态共享库搜索路径。系统会在该环境变量所指定的路径中搜索动态共享库。</li>
+<li><code>rpath/rpath-link</code>：程序可以在编译时通过 <code>-Wl,-rpath</code> 或 <code>-Wl,-rpath-link</code> 选项指定运行时搜索动态共享库的路径。这些路径会被保存在可执行文件的 <code>ELF</code> 头部中，并在程序运行时生效。</li>
+<li>缓存文件：<code>Linux</code>系统还维护了一个动态共享库的缓存文件，通常是 <code>/etc/ld.so.cache</code>。该文件记录了系统中可用的动态共享库的位置，加快了库的搜索速度。</li>
+</ol>
+<p>所以最简单的方式是将<code>so</code>文件复制 <code>/lib</code>, <code>/usr/lib</code>等目录下。最终执行效果如下</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307261551601.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>库是一种资源的集合，包括函数、变量、类等，程序可以通过与其链接来调用库中的资源。由于链接的方式的不同，可以分为静态链接库和动态链接库，静态链接库在编译阶段将自身复制到可执行文件中，这样一来可执行文件就可以独立运行；而动态链接库则是将引用信息复制到可执行文件中，可执行文件通过这些引用信息来动态加载动态链接库，这样一来可执行文件就不能独立运行。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-static-library-cpp?view=msvc-170">演练：创建并使用静态库 (C++) | Microsoft Learn</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=msvc-170">演练：创建和使用自己的动态链接库 (C++) | Microsoft Learn</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dive668/article/details/120372718">【Visual Studio】创建并使用静态库(.lib) 松库本库的博客-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dive668/article/details/120388534?ops_request_misc=&request_id=ce1e4f5606d441d3b092bc80b29b56ed&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-120388534-null-null.268%5Ev1%5Econtrol&utm_term=%E5%8A%A8%E6%80%81&spm=1018.2226.3001.4450">【Visual Studio】创建并使用动态链接库(C++)_松库本库的博客-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/cpp-static-library-and-dynamic-library.html">C++静态库与动态库 | 菜鸟教程 (runoob.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%9D%99%E6%80%81%E5%BA%93/">#静态库</a>
+      
+        <a href="/tags/%E5%8A%A8%E6%80%81%E5%BA%93/">#动态库</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>静态链接库和动态链接库</div>
+      <div>http://example.com/2023/07/26/静态链接库和动态链接库/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月26日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%80)%20%E2%80%94%E2%80%94%20%E5%88%86%E6%9E%90Android%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84/" title="Android开发学习笔记(一) —— 分析Android项目结构">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android开发学习笔记(一) —— 分析Android项目结构</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/24/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%BA%8C)/" title="Android应用程序启动流程(二)">
+                        <span class="hidden-mobile">Android应用程序启动流程(二)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

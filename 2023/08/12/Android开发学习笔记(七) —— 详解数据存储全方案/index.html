@@ -1,0 +1,965 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、什么是数据持久化数据持久化就是指将那些内存中的瞬时数据保存到存储设备中，保证即使在手机或电脑关机的情况下，这些数据仍然不会丢失。保存在内存中的数据是处于瞬时状态的，而保存在存储设备中的数据是处于持久状态的，持久化技术则提供了一种机制可以让数据在瞬时状态和持久状态之间进行转换。Android系统中主要提供了3种方式用于简单地实现数据持久化功能，即文件存储、SharedPreference存储以及">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发学习笔记(七) —— 详解数据存储全方案">
+<meta property="og:url" content="http://example.com/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、什么是数据持久化数据持久化就是指将那些内存中的瞬时数据保存到存储设备中，保证即使在手机或电脑关机的情况下，这些数据仍然不会丢失。保存在内存中的数据是处于瞬时状态的，而保存在存储设备中的数据是处于持久状态的，持久化技术则提供了一种机制可以让数据在瞬时状态和持久状态之间进行转换。Android系统中主要提供了3种方式用于简单地实现数据持久化功能，即文件存储、SharedPreference存储以及">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131922376.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131923336.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131923945.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131924801.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131924266.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131925366.jpg">
+<meta property="article:published_time" content="2023-08-12T06:33:32.000Z">
+<meta property="article:modified_time" content="2023-08-13T13:40:53.590Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android开发">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131922376.jpg">
+  
+  
+  
+  <title>Android开发学习笔记(七) —— 详解数据存储全方案 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android开发学习笔记(七) —— 详解数据存储全方案"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-12 14:33" pubdate>
+          2023年8月12日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          30k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          255 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android开发学习笔记(七) —— 详解数据存储全方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、什么是数据持久化"><a href="#一、什么是数据持久化" class="headerlink" title="一、什么是数据持久化"></a>一、什么是数据持久化</h1><p>数据持久化就是指将那些内存中的瞬时数据保存到存储设备中，保证即使在手机或电脑关机的情况下，这些数据仍然不会丢失。保存在内存中的数据是处于瞬时状态的，而保存在存储设备中的数据是处于持久状态的，持久化技术则提供了一种机制可以让数据在瞬时状态和持久状态之间进行转换。<br>Android系统中主要提供了3种方式用于简单地实现数据持久化功能，即文件存储、SharedPreference存储以及数据库存储。</p>
+<h1 id="二、文件存储"><a href="#二、文件存储" class="headerlink" title="二、文件存储"></a>二、文件存储</h1><h2 id="2-1-概念"><a href="#2-1-概念" class="headerlink" title="2.1 概念"></a>2.1 概念</h2><p>文件存储是Android中最基本的一种数据存储方式，它不对存储的内容进行任何的格式化处理，所有数据都是原封不动地保存到文件当中的，因而它比较适合用于存储一些简单的文本数据或二进制数据。</p>
+<h2 id="2-2-将数据存储到文件中"><a href="#2-2-将数据存储到文件中" class="headerlink" title="2.2 将数据存储到文件中"></a>2.2 将数据存储到文件中</h2><p>Context类中提供了一个<code>openFileOutput()</code>方法，可以用于将数据存储到指定的文件中。这个方法接收两个参数，第一个参数是文件名，这里指定的文件名不可以包含路径，因为所有的文件都是默认存储到<code>/data/data/&lt;package name&gt;/fles/</code>目录下的。第二个参数是文件的操作模式，主要有两种模式可选：</p>
+<ul>
+<li><code>MODE_PRIVATE</code>：默认操作模式，表示当指定同样文件名的时候，所写入的内容将会覆盖原文件中的内容。</li>
+<li><code>MODE_APPEND</code>：表示如果该文件已存在，就往文件里面追加内容，不存在就创建新文件。</li>
+<li><code>MODE WORLD READABLE</code>和<code>MODE WORLD WRITEABLE</code>：这两种模式表示允许其他的应用程序对我们程序中的文件进行读写操作，不过由于这两种模式过于危险，很容易引起应用的安全性漏洞，已在Android4.2版本中被废弃。</li>
+</ul>
+<p>实现小案例：活动销毁时，将输入框中的数据存储到文件中。</p>
+<p>首先主活动的布局，一个输入框即可。在输入框中输入的数据只是瞬时数据，在活动被销毁后就会被回收。我们需要做的就是在数据被回收之前，将它存储到文件当中。</p>
+<p>修改 MainActivity 中的代码，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> EditText edittext;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">FileName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;account&quot;</span>;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        initView();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> edittext.getText().toString();<br>        saveData(s);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initView</span><span class="hljs-params">()</span> &#123;<br>        edittext = findViewById(R.id.id_edittext);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">saveData</span><span class="hljs-params">(String string)</span>&#123;<br>        <span class="hljs-type">FileOutputStream</span> <span class="hljs-variable">out</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">BufferedWriter</span> <span class="hljs-variable">writer</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">try</span> &#123;<br>            out = openFileOutput(FileName, Context.MODE_PRIVATE);<br>            writer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedWriter</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">OutputStreamWriter</span>(out));<br>            writer.write(string);<br>        &#125;<span class="hljs-keyword">catch</span> (Exception e)&#123;<br>            e.printStackTrace();<br>        &#125;<span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">if</span> (writer != <span class="hljs-literal">null</span>)&#123;<br>                    writer.close();<br>                &#125;<br>            &#125;<span class="hljs-keyword">catch</span> (Exception e)&#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br>    &#125;<br>    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>saveData()</code>方法主要是文件流写入的基本操作，然后重写了<code>onDestroy()</code>方法，这样就可以保证在活动销毁之前一定会调用<code>saveData()</code>方法。</p>
+<p>然后关闭程序，这时我们输入的内容就已经保存到文件中了。那么如何才能证实数据确实已经保存成功了呢？我们可以借助<code>Device File Explorer</code>工具来查看一下。点击Android Studio导航栏中的Tools →Tool Windows →Device File Explorer，然后找到相应目录即可。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131922376.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-3-从文件中读取数据"><a href="#2-3-从文件中读取数据" class="headerlink" title="2.3 从文件中读取数据"></a>2.3 从文件中读取数据</h2><p>既然存储了数据，那肯定在某个时间段需要拿出来使用。因此我们来学习一下如何从文件中读取数据。</p>
+<p>同样的，Context类中也提供了一个<code>openFileInput()</code>方法，用于从文件中读取数据。该方法只接收一个参数，即要读取的文件名，然后系统会自动到<code>/data/data/&lt;package name&gt;/files/</code>目录下去加载这个文件。</p>
+<p>实现小案例：基于 2.2 的案例，活动创建时，从文件中读取数据到输入框。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> EditText edittext;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">FileName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;account&quot;</span>;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        initView();<br>        <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> loadData();<br>        <span class="hljs-keyword">if</span> (!TextUtils.isEmpty(content))&#123;<br>            edittext.setText(content);<br>        &#125;<br>    &#125;<br><br>	......<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">loadData</span><span class="hljs-params">()</span>&#123;<br><br>        <span class="hljs-type">FileInputStream</span> <span class="hljs-variable">in</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">reader</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>        <span class="hljs-keyword">try</span> &#123;<br>            in = openFileInput(FileName);<br>            reader = <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(in));<br>            <span class="hljs-type">String</span> <span class="hljs-variable">line</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>            <span class="hljs-keyword">while</span>((line = reader.readLine()) != <span class="hljs-literal">null</span>)&#123;<br>                content.append(line);<br>            &#125;<br><br>        &#125;<span class="hljs-keyword">catch</span> (Exception e)&#123;<br>            e.printStackTrace();<br>        &#125;<br>        <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">if</span> (reader != <span class="hljs-literal">null</span>)&#123;<br>                    reader.close();<br>                &#125;<br>            &#125;<span class="hljs-keyword">catch</span> (Exception e)&#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> content.toString();<br><br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>loadData()</code>方法主要是文件流读取的基本操作，然后重写了<code>onCreate()</code>方法，这样就可以保证在活动创建时一定会调用<code>loadData()</code>方法。在<code>onCreate()</code>方法中调用了<code>TextUtils,isEmpty()</code>方法来对读取到的字符串进行非空判断。<code>TextUtils,isEmpty()</code>方法可以一次性进行两种空值的判断。当传入的字符串等于null或者等于空字符串的时候，这个方法都会返回true，从而使得我们不需要先单独判断这两种空值再使用逻辑运算符连接起来了。</p>
+<h1 id="三、SharedPreferences存储"><a href="#三、SharedPreferences存储" class="headerlink" title="三、SharedPreferences存储"></a>三、SharedPreferences存储</h1><p>不同于文件的存储方式，SharedPreferences 是使用键值对的方式来存储数据的。也就是说，当保存一条数据的时候，需要给这条数据提供一个对应的键，这样在读取数据的时候就可以通过这个键把相应的值取出来。而且SharedPreferences还支持多种不同的数据类型存储。</p>
+<h2 id="3-1-将数据存储到SharedPreferences中"><a href="#3-1-将数据存储到SharedPreferences中" class="headerlink" title="3.1 将数据存储到SharedPreferences中"></a>3.1 将数据存储到SharedPreferences中</h2><p>要想使用SharedPreferences来存储数据，首先需要获取到SharedPreferences对象。Android中主要提供了3种方法用于得到SharedPreferences对象。</p>
+<ol>
+<li><p>Context类中的<code>getSharedPreferences()</code>方法</p>
+<p>此方法接收两个参数：</p>
+<ul>
+<li>第一个参数用于指定SharedPreferences文件的名称，如果指定的文件不存在则会创建一个，SharedPreferences文件都是存放在<code>/data/data/&lt;package name&gt;/shared prefs/</code>目录下的。</li>
+<li>第二个参数用于指定操作模式，目前只有<code>MODE PRIVATE</code>这一种模式可选，它是默认的操作模式，和直接传入0效果是相同的，表示只有当前的应用程序才可以对这个SharedPreferences文件进行读写。其他几种操作模式均已被废弃。</li>
+</ul>
+</li>
+<li><p>Activity类中的<code>getPreferences()</code>方法</p>
+<p>这个方法和Context中的<code>getSharedPreferences()</code>方法很相似，不过它只接收一个操作模式参数，因为使用这个方法时会自动将当前活动的类名作为SharedPreferences的文件名。</p>
+</li>
+<li><p>PreferenceManager类中的<code>getDefaultSharedPreferences()</code>方法</p>
+<p>这是一个静态方法，它接收一个Context参数，并自动使用当前应用程序的包名作为前缀来命名SharedPreferences文件。</p>
+</li>
+</ol>
+<p>得到了SharedPreferences对象之后，就可以开始向SharedPreferences文件中存储数据了，主要可以分为3步实现。</p>
+<ol>
+<li>调用SharedPreferences对象的<code>edit()</code>方法来获取一个SharedPreferences.Editor对象。</li>
+<li>使用<code>putXXX()</code>方法向SharedPreferences.Editor对象中添加数据，比如添加字符串使用<code>putString()</code>方法。</li>
+<li>调用<code>apply()</code>方法将添加的数据提交，从而完成数据存储操作。</li>
+</ol>
+<p>了解完之后，开始实操。</p>
+<p><del>和文件存储的案例一样，只不过使用的是不同的存储方法。</del>（试了一下，并不可以！）</p>
+<p>主活动布局改成一个按钮就行。</p>
+<p> MainActivity 的代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">FileName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;account&quot;</span>;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br>	<span class="hljs-comment">//按钮的点击事件</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktosaveData</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">SharedPreferences</span> <span class="hljs-variable">sharedPreferences</span> <span class="hljs-operator">=</span> getSharedPreferences(FileName, Context.MODE_PRIVATE);<br>        SharedPreferences.<span class="hljs-type">Editor</span> <span class="hljs-variable">edit</span> <span class="hljs-operator">=</span> sharedPreferences.edit();<br>        edit.putString(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;Jack&quot;</span>);<br>        edit.putInt(<span class="hljs-string">&quot;age&quot;</span>,<span class="hljs-number">28</span>);<br>        edit.putBoolean(<span class="hljs-string">&quot;married&quot;</span>,<span class="hljs-literal">true</span>);<br>        edit.apply();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们同样依靠<code>Device File Explorer</code>进行查看，情况如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131923336.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-2-从SharedPreferences中读取数据"><a href="#3-2-从SharedPreferences中读取数据" class="headerlink" title="3.2 从SharedPreferences中读取数据"></a>3.2 从SharedPreferences中读取数据</h2><p>在3.1中，我们通过一系列put方法将数据存储到SharedPreferences中，类似的，我们也可以通过一系列的get方法读取存储的数据。这些get方法都接收两个参数，第一个参数是键，传入存储数据时使用的键就可以得到相应的值了；第二个参数是默认值，即表示当传入的键找不到对应的值时会以什么样的默认值进行返回。</p>
+<p>与存储数据不同，读取数据不需要获取SharedPreferences.Editor对象，只需要SharedPreferences对象即可，步骤如下：</p>
+<ol>
+<li>获取SharedPreferences对象</li>
+<li>通过get方法获取存储的数据</li>
+</ol>
+<p>开始实操，将我们刚刚存入的数据读取出来。</p>
+<p>主活动布局不变，只不过按钮功能从存储数据变成了还原数据。</p>
+<p>主要修改的是MainActivity的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">FileName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;account&quot;</span>;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoRestoreData</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">SharedPreferences</span> <span class="hljs-variable">sharedPreferences</span> <span class="hljs-operator">=</span> getSharedPreferences(FileName, MODE_PRIVATE);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> sharedPreferences.getString(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;&quot;</span>);<br>        <span class="hljs-type">int</span> <span class="hljs-variable">age</span> <span class="hljs-operator">=</span> sharedPreferences.getInt(<span class="hljs-string">&quot;age&quot;</span>,<span class="hljs-number">0</span>);<br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">married</span> <span class="hljs-operator">=</span> sharedPreferences.getBoolean(<span class="hljs-string">&quot;married&quot;</span>,<span class="hljs-literal">false</span>);<br>        Log.d(<span class="hljs-string">&quot;aaa&quot;</span>,<span class="hljs-string">&quot;name: &quot;</span> + name);<br>        Log.d(<span class="hljs-string">&quot;aaa&quot;</span>,<span class="hljs-string">&quot;age: &quot;</span> + age);<br>        Log.d(<span class="hljs-string">&quot;aaa&quot;</span>,<span class="hljs-string">&quot;married: &quot;</span> + married);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-3-实现记住密码功能"><a href="#3-3-实现记住密码功能" class="headerlink" title="3.3 实现记住密码功能"></a>3.3 实现记住密码功能</h2><p>首先我们需要实现一个登陆界面的布局（activity_login.xml）以及活动（LoginActivity.java）。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">LinearLayout</span> <span class="hljs-attr">xmlns:android</span>=<span class="hljs-string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:orientation</span>=<span class="hljs-string">&quot;vertical&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:gravity</span>=<span class="hljs-string">&quot;center&quot;</span>&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">EditText</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;50dp&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:hint</span>=<span class="hljs-string">&quot;账号&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:id</span>=<span class="hljs-string">&quot;@+id/zhanghao&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">EditText</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;50dp&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:hint</span>=<span class="hljs-string">&quot;密码&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:id</span>=<span class="hljs-string">&quot;@+id/mima&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">CheckBox</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:id</span>=<span class="hljs-string">&quot;@+id/remeber&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:text</span>=<span class="hljs-string">&quot;记住密码&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Button</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:text</span>=<span class="hljs-string">&quot;登入&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:onClick</span>=<span class="hljs-string">&quot;ClicktoLogin&quot;</span>/&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">LinearLayout</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里需要使用到CheckBox控件，以代表用户是否需要记住密码。</p>
+<p>然后是LoginActivity.java代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoginActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> EditText accountEdit;<br>    <span class="hljs-keyword">private</span> EditText passwordEdit;<br>    <span class="hljs-keyword">private</span> CheckBox remeberCheckBox;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">FileName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;loginData&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">Arg1</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;account&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">Arg2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;password&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">Arg3</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;isRemeber&quot;</span>;<br>    <br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_login);<br>        initView();<br>        <br>        isRestoreData();<br>        <br>    &#125;<br>	<span class="hljs-comment">//获取控件对象</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initView</span><span class="hljs-params">()</span> &#123;<br>        accountEdit = findViewById(R.id.zhanghao);<br>        passwordEdit = findViewById(R.id.mima);<br>        remeberCheckBox = findViewById(R.id.remeber);<br>    &#125;<br>	<span class="hljs-comment">//登入按钮的点击事件</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoLogin</span><span class="hljs-params">(View view)</span>&#123;<br>        <br>        isSaveData();<br>        <br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(<span class="hljs-built_in">this</span>, MainActivity.class);<br>        startActivity(intent);<br>        finish();<br>    &#125;<br>	<span class="hljs-comment">//存储数据</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">isSaveData</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">SharedPreferences</span> <span class="hljs-variable">loginData</span> <span class="hljs-operator">=</span> getSharedPreferences(FileName, MODE_PRIVATE);<br>        SharedPreferences.<span class="hljs-type">Editor</span> <span class="hljs-variable">loginEdit</span> <span class="hljs-operator">=</span> loginData.edit();<br>        <span class="hljs-comment">//如果点击了记住密码的选框</span><br>        <span class="hljs-keyword">if</span> (remeberCheckBox.isChecked())&#123;<br>            loginEdit.putString(Arg1, accountEdit.getText().toString());<br>            loginEdit.putString(Arg2, passwordEdit.getText().toString());<br>            loginEdit.putBoolean(Arg3, remeberCheckBox.isChecked());<br>        &#125;<span class="hljs-keyword">else</span>&#123;<span class="hljs-comment">//没有记住密码，就将存储的数据擦除</span><br>            loginEdit.clear();<br>        &#125;<br>        loginEdit.apply();<br>    &#125;<br>	<span class="hljs-comment">//恢复数据</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">isRestoreData</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">SharedPreferences</span> <span class="hljs-variable">sharedPreferences</span> <span class="hljs-operator">=</span> getSharedPreferences(FileName, MODE_PRIVATE);<br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">isremeber</span> <span class="hljs-operator">=</span> sharedPreferences.getBoolean(Arg3, <span class="hljs-literal">false</span>);<br>        <span class="hljs-keyword">if</span> (isremeber)&#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">account</span> <span class="hljs-operator">=</span> sharedPreferences.getString(Arg1,<span class="hljs-string">&quot;&quot;</span>);<br>            <span class="hljs-type">String</span> <span class="hljs-variable">password</span> <span class="hljs-operator">=</span> sharedPreferences.getString(Arg2, <span class="hljs-string">&quot;&quot;</span>);<br>            accountEdit.setText(account);<br>            passwordEdit.setText(password);<br>            remeberCheckBox.setChecked(isremeber);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>首先在<code>ClicktoLogin()</code>方法中调用<code>isSaveData()</code>方法，在里面判断是否要保存密码，如果CheckBox被选中，则表示用户想要记住密码，那么就把account和password以及CheckBox的选择状态的值都存入到SharedPreferences文件当中并提交。如果没有被选中，就简单地调用一下clear()方法，将SharedPreferences文件中之前存储的数据全部清除掉。</p>
+<p>当用户选中了记住密码复选框，并成功登录一次之后，这个时候如果再重新启动登录界面，就会从SharedPreferences文件中将保存的账号和密码都读取出来，并填充到文本输入框中，然后把记住密码复选框选中，这样就完成记住密码的功能了。</p>
+<p>当然，这功能还是有缺陷的，因为不记住密码并不意味着账号也跟着清楚掉，总之还可以在这个基础上进行扩展。</p>
+<p>MainActivity的代码和布局这里就不放出来，就是一个退出按钮，点击回到登入界面，可以说是很简单的功能。</p>
+<h1 id="四、SQLite数据库存储"><a href="#四、SQLite数据库存储" class="headerlink" title="四、SQLite数据库存储"></a>四、SQLite数据库存储</h1><p>论谁的数据存储的功能强大，那我只能说还得是数据库更厉害，前两者与之比较简直是相形见绌！Android系统内置了SQLite数据库，它是一款轻量级的关系型数据库，运算速度非常快，占用资源很少，通常只需要几百KB的内存就足够了，因而特别适合在移动设备上使用。</p>
+<h2 id="4-1-创建数据库"><a href="#4-1-创建数据库" class="headerlink" title="4.1 创建数据库"></a>4.1 创建数据库</h2><p>Android提供了SQLiteOpenHelper帮助类，它让我们能够更加方便地管理数据库，借助这个类就可以非常简单地对数据库进行创建和升级。</p>
+<p>我们需要创建一个类来继承SQLiteOpenHelper帮助类，它有两个抽象方法，分别是<code>onCreate()</code>和<code>onUpgrade()</code>，我们必须在自己的类里面重写这两个方法，然后分别在这两个方法中去实现创建、升级数据库的逻辑。</p>
+<p>SQLiteOpenHelper中还有两个非常重要的实例方法：<code>getReadableDatabase()</code>和<code>getWritableDatabase()</code>。这两个方法都可以创建或打开一个现有的数据库（如果数据库已存在则直接打开，否则创建一个新的数据库)，并返回一个可对数据库进行读写操作的对象。不同的是，当数据库不可写人的时候（如磁盘空间已满），<code>getReadableDatabase()</code>方法返回的对象将以只读的方式去打开数据库，而<code>getWritableDatabase()</code>方法则将出现异常。</p>
+<p>SQLiteOpenHelper中有两个构造方法可供重写，一般使用参数少一点的那个构造方法即可。这个构造方法中接收4个参数：</p>
+<ul>
+<li>第一个参数是Context，必须要有它才能对数据库进行操作。</li>
+<li>第二个参数是数据库名，创建数据库时使用的就是这里指定的名称。</li>
+<li>第三个参数允许我们在查询数据的时候返回一个自定义的Cursor，一般都是传人nulL。</li>
+<li>第四个参数表示当前数据库的版本号，可用于对数据库进行升级操作。</li>
+</ul>
+<p><strong>构建出SQLiteOpenHelper的实例之后，再调用它的<code>getReadableDatabase()</code>或<code>getWritableDatabase()</code>方法就能够创建数据库了</strong>，数据库文件会存放在<code>/data/data/&lt;package name&gt;/databases/</code>目录下。<strong>此时，重写的<code>onCreate()</code>方法也会得到执行</strong>，所以通常会在这里去处理一些创建表的逻辑。</p>
+<p>下面我们例子来学会如何使用SQLiteOpenHelper。</p>
+<p>假设我们要创建一个名为BookStore的数据库，并在里面创建一个名为Book的表，那么如果学过SQL的话，建表语句应该是这样的：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> Book(<br>	id <span class="hljs-type">integer</span> <span class="hljs-keyword">primary</span> key autoincrement,<br>    author text,<br>    price <span class="hljs-type">real</span>,<br>    pages <span class="hljs-type">integer</span>,<br>    name text<br>)<br></code></pre></td></tr></table></figure>
+
+<p>该表包含有关书的属性，如作者、价格、页数、书名，id作为主键存在（唯一性）。</p>
+<p>接下来我们应该利用SQLiteOpenHelper类来创建数据库并建表，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyDatabaseHelper</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">SQLiteOpenHelper</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span>  <span class="hljs-variable">CreateBookTable</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;create table Book(\n&quot;</span> +<br>            <span class="hljs-string">&quot;   id integer primary key autoincrement,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   author text,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   price real,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   pages integer,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   name text\n&quot;</span> +<br>            <span class="hljs-string">&quot;)&quot;</span>;<br>    <span class="hljs-keyword">private</span> Context mContext;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyDatabaseHelper</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Context context, <span class="hljs-meta">@Nullable</span> String name, <span class="hljs-meta">@Nullable</span> SQLiteDatabase.CursorFactory factory, <span class="hljs-type">int</span> version)</span> &#123;<br>        <span class="hljs-built_in">super</span>(context, name, factory, version);<br>        mContext= context;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(SQLiteDatabase sqLiteDatabase)</span> &#123;<br>        <span class="hljs-comment">//执行建表语句</span><br>        sqLiteDatabase.execSQL(CreateBookTable);<br>        Toast.makeText(mContext, <span class="hljs-string">&quot;create table succeeded&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUpgrade</span><span class="hljs-params">(SQLiteDatabase sqLiteDatabase, <span class="hljs-type">int</span> i, <span class="hljs-type">int</span> i1)</span> &#123;<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后是主活动的布局和代码。布局的话，一个按钮就足够了，然后是代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateDataBase</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">1</span>);<br>        myDatabaseHelper.getWritableDatabase();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>很简单是不是？只需要创建一个MyDatabaseHelper对象，通过构造函数的参数将数据库名指定为BookStore.db，版本号指定为1，然后调用了<code>getWritableDatabase()</code>方法来创建数据库。</p>
+<p>好！那我们怎么验证确实创建成功了呢？尝试使用Device File Explorer进行查看，发现只能看到databases目录下出现了一个<br>BookStore.db文件，Book表是无法通过File Explorer看到的。因此我们需要换另一种方式查看，使用adb shell来对数据库和表的创建情况进行检查。相关指令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">//打开数据库<br>sqlite3 BookStore.db<br>//查看所有表<br>.table<br>//查看建表语句<br>.schema<br>//退出编辑<br>.exit或.quit<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-2-升级数据库"><a href="#4-2-升级数据库" class="headerlink" title="4.2 升级数据库"></a>4.2 升级数据库</h2><p>如果我们之后又想创建一个Category表用于记录图书的分类，那应该怎么办呢？</p>
+<p>我们先来试试将写入onCreate()方法中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyDatabaseHelper</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">SQLiteOpenHelper</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span>  <span class="hljs-variable">CreateBookTable</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;create table Book(\n&quot;</span> +<br>            <span class="hljs-string">&quot;   id integer primary key autoincrement,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   author text,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   price real,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   pages integer,\n&quot;</span> +<br>            <span class="hljs-string">&quot;   name text\n&quot;</span> +<br>            <span class="hljs-string">&quot;)&quot;</span>;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">CreateCategoryTable</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;create table Category(\n&quot;</span> +<br>            <span class="hljs-string">&quot;\tid integer primary key autoincrement,\n&quot;</span> +<br>            <span class="hljs-string">&quot;    category_name text,\n&quot;</span> +<br>            <span class="hljs-string">&quot;    category_code integer\n&quot;</span> +<br>            <span class="hljs-string">&quot;)&quot;</span>;<br><br>    <span class="hljs-keyword">private</span> Context mContext;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MyDatabaseHelper</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Context context, <span class="hljs-meta">@Nullable</span> String name, <span class="hljs-meta">@Nullable</span> SQLiteDatabase.CursorFactory factory, <span class="hljs-type">int</span> version)</span> &#123;<br>        <span class="hljs-built_in">super</span>(context, name, factory, version);<br>        mContext= context;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(SQLiteDatabase sqLiteDatabase)</span> &#123;<br>        <span class="hljs-comment">//执行建表语句</span><br>        sqLiteDatabase.execSQL(CreateBookTable);<br>        sqLiteDatabase.execSQL(CreateCategoryTable);<br>        Toast.makeText(mContext, <span class="hljs-string">&quot;create table succeeded&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUpgrade</span><span class="hljs-params">(SQLiteDatabase sqLiteDatabase, <span class="hljs-type">int</span> i, <span class="hljs-type">int</span> i1)</span> &#123;<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>尝试了一下，发现并没有成功创建Category表，原因是BookStore.db已经存在，之后不管我们怎么点击创建按钮（即执行<code>getWritableDatabase()</code>方法），MyDatabaseHelper中的<code>onCreate()</code>方法都不会再次执行，因此也就无法新增表。</p>
+<p>但是我们可以重写<code>onUpgrade()</code>方法来实现添加新表！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyDatabaseHelper</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">SQLiteOpenHelper</span> &#123;<br><br> 	......<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onUpgrade</span><span class="hljs-params">(SQLiteDatabase sqLiteDatabase, <span class="hljs-type">int</span> i, <span class="hljs-type">int</span> i1)</span> &#123;<br>        sqLiteDatabase.execSQL(<span class="hljs-string">&quot;drop table if exists Book&quot;</span>);<br>        sqLiteDatabase.execSQL(<span class="hljs-string">&quot;drop table if exists Category&quot;</span>);<br>        onCreate(sqLiteDatabase);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，我们在<code>onUpgrade()</code>方法中执行了两条drop语句，如果发现数据库中已经存在Book表或Category表了，就将这两张表删除掉，然后再调用onCreate()方法重新创建。这里先将已经存在的表删除掉，因为如果在创建表时发现这张表已经存在了，就会直接报错。</p>
+<p>接下来的问题就是如何让<code>onUpgrade()</code>方法能够执行了，还记得SQLiteOpenHelper的构造方法里接收的第四个参数吗？它表示当前数据库的版本号，之前我们传入的是1，现在只要传入一个比1大的数，就可以让<code>onUpgrade()</code>方法得到执行了。修改MainActivity中的代码，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateDataBase</span><span class="hljs-params">(View view)</span> &#123;<br>    	<span class="hljs-comment">//版本改为2</span><br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">2</span>);<br>        myDatabaseHelper.getWritableDatabase();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在重新运行程序，并点击创建按钮，这时就会再次弹出创建成功的提示。当然，我们也可以通过adb shell来验证。</p>
+<p>（但是这有个问题，这把之前的数据库给删了，那数据岂不是丢失了！！！）</p>
+<h2 id="4-3-添加数据"><a href="#4-3-添加数据" class="headerlink" title="4.3 添加数据"></a>4.3 添加数据</h2><p>在数据库中，我们对数据进行的操作无非就是增删改查这四种。相比于在学习数据库时不断编写insert、delete、update、select语句，Android提供了一系列的辅助性方法，使得在Android中即使不去编写SQL语句，也能轻松完成所有的增删改查操作。</p>
+<p>在前面有一点我们没有注意到，就是SQLiteOpenHelper的<code>getReadableDatabase()</code>和<code>getwritableDatabase()</code>方法都会返回一个SQLiteDatabase对象，借助这个对象就可以对数据进行增删改查操作了。</p>
+<p>那我们先来学习一下如何添加数据。SQLiteDatabase中提供了一个<code>insert()</code>方法，这个方法就是专门用于添加数据的。它接收3个参数：</p>
+<ol>
+<li>第一个参数是表名。</li>
+<li>第二个参数用于在未指定添加数据的情况下给某些可为空的列自动赋值NULL,一般我们用不到这个功能，直接传入null即可。</li>
+<li>第三个参数是一个ContentValues对象，它提供了一系列的put()方法重载，用于向ContentValues中添加数据，只需要将表中的每个列名以及相应的待添加数据传入即可。</li>
+</ol>
+<p>那么就开始实操吧。同样还是一个按钮实现添加数据，那么它的布局就不多说了。</p>
+<p>MainActivity中的代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoInsertData</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">2</span>);<br>        <span class="hljs-type">SQLiteDatabase</span> <span class="hljs-variable">BookDatabase</span> <span class="hljs-operator">=</span> myDatabaseHelper.getWritableDatabase();<br>        <span class="hljs-type">ContentValues</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ContentValues</span>();<br>        <span class="hljs-comment">//组装第一条记录</span><br>        book.put(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;The Da Vinci Code&quot;</span>);<br>        book.put(<span class="hljs-string">&quot;author&quot;</span>,<span class="hljs-string">&quot;Dan Brown&quot;</span>);<br>        book.put(<span class="hljs-string">&quot;pages&quot;</span>,<span class="hljs-number">454</span>);<br>        book.put(<span class="hljs-string">&quot;price&quot;</span>,<span class="hljs-number">16.53</span>);<br>        BookDatabase.insert(<span class="hljs-string">&quot;Book&quot;</span>,<span class="hljs-literal">null</span>,book);<br>        book.clear();<br>        <span class="hljs-comment">//组装第二条记录</span><br>        book.put(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;The Lost Symbol&quot;</span>);<br>        book.put(<span class="hljs-string">&quot;author&quot;</span>,<span class="hljs-string">&quot;Dan Brown&quot;</span>);<br>        book.put(<span class="hljs-string">&quot;pages&quot;</span>,<span class="hljs-number">510</span>);<br>        book.put(<span class="hljs-string">&quot;price&quot;</span>,<span class="hljs-number">17.16</span>);<br>        BookDatabase.insert(<span class="hljs-string">&quot;Book&quot;</span>,<span class="hljs-literal">null</span>,book);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>将上面的操作转成SQL语句就是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> Book(name, author, pages, price) <span class="hljs-keyword">values</span>(&quot;The Da Vinci Code&quot;, &quot;Dan Brown&quot;, <span class="hljs-number">454</span>, <span class="hljs-number">16.53</span>);<br>......<br></code></pre></td></tr></table></figure>
+
+<p>由于id被指定为自增长，所以不需要设置id的值。然后我们可以打开BookStore数据库，执行<code>select * from Book; </code>语句（<strong>不要忘记最后添加分号</strong>）来验证是否添加成功。</p>
+<h2 id="4-4-更新数据"><a href="#4-4-更新数据" class="headerlink" title="4.4 更新数据"></a>4.4 更新数据</h2><p>更新数据使用<code>update()</code>方法，该方法接收4个参数：</p>
+<ol>
+<li>第一个参数是表名。</li>
+<li>第三个参数是一个ContentValues对象，把要更新的数据在这里组装进去。</li>
+<li>第三、第四个参数用于约束更新某一行或某几行中的数据，不指定的话默认更新所有行。</li>
+</ol>
+<p>只需要稍微修改MainActivity中的代码就行了，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br>	......<br>	<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoUpDate</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">2</span>);<br>        <span class="hljs-type">SQLiteDatabase</span> <span class="hljs-variable">BookDatabase</span> <span class="hljs-operator">=</span> myDatabaseHelper.getWritableDatabase();<br><br>        <span class="hljs-type">ContentValues</span> <span class="hljs-variable">values</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ContentValues</span>();<br>        values.put(<span class="hljs-string">&quot;price&quot;</span>,<span class="hljs-number">9.99</span>);<br>        <br>        BookDatabase.update(<span class="hljs-string">&quot;Book&quot;</span>,values,<span class="hljs-string">&quot;name = ?&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;<span class="hljs-string">&quot;The Da Vinci Code&quot;</span>&#125;);<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从这里可以看出SQLiteDatabase的<code>update()</code>的第三、第四个参数的具体作用。第三个参数对应的是SQL语句的where部分，表示更新有name等于？的行，而？是一个占位符，可以通过第四个参数提供的一个字符串数组为第三个参数中的每个占位符指定相应的内容，相当于SQL代码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">update</span> Book <span class="hljs-keyword">set</span> price <span class="hljs-operator">=</span> <span class="hljs-number">9.99</span> <span class="hljs-keyword">where</span> name <span class="hljs-operator">=</span> &quot;The Da Vinci Code&quot;;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-5-删除数据"><a href="#4-5-删除数据" class="headerlink" title="4.5 删除数据"></a>4.5 删除数据</h2><p>更新数据使用<code>delete()</code>方法，该方法接收3个参数：</p>
+<ol>
+<li>第一个参数是表名。</li>
+<li>第二、三个参数用于约束删除某一行或某几行中的数据，不指定的话默认删除所有行。</li>
+</ol>
+<p>同样的，只需要把MainActivity中的操作换成删除操作就行了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br>	......<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateupDate</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">2</span>);<br>        <span class="hljs-type">SQLiteDatabase</span> <span class="hljs-variable">BookDatabase</span> <span class="hljs-operator">=</span> myDatabaseHelper.getWritableDatabase();<br>        BookDatabase.delete(<span class="hljs-string">&quot;Book&quot;</span>,<span class="hljs-string">&quot;pages &gt; ?&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;<span class="hljs-string">&quot;500&quot;</span>&#125;);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对应的SQL语句为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">delete</span> <span class="hljs-keyword">from</span> Book <span class="hljs-keyword">where</span> pages <span class="hljs-operator">&gt;</span> <span class="hljs-number">500</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-6-查询语句"><a href="#4-6-查询语句" class="headerlink" title="4.6 查询语句"></a>4.6 查询语句</h2><p>学过数据库的都知道，查询语句是最复杂的一种操作，因为它往往会伴随一些复杂的限制条件，以及多个表结合查询等等。</p>
+<p>查询语句使用<code>query()</code>方法，因为它的复杂性，所以参数有很多。最短的一个方法也需要传入7个参数，分别如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131923945.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>拿个简单的例子试试手。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br>    ......<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateupDate</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">MyDatabaseHelper</span> <span class="hljs-variable">myDatabaseHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyDatabaseHelper</span>(<span class="hljs-built_in">this</span>,<span class="hljs-string">&quot;BookStore.db&quot;</span>,<span class="hljs-literal">null</span>,<span class="hljs-number">3</span>);<br>        <span class="hljs-type">SQLiteDatabase</span> <span class="hljs-variable">BookDatabase</span> <span class="hljs-operator">=</span> myDatabaseHelper.getWritableDatabase();<br>        <span class="hljs-type">Cursor</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> BookDatabase.query(<span class="hljs-string">&quot;Book&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;author = ?&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;<span class="hljs-string">&quot;Dan Brown&quot;</span>&#125;, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>        <span class="hljs-keyword">if</span> (book.moveToFirst())&#123;<br>            <span class="hljs-keyword">do</span> &#123;<br>                <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> book.getString(book.getColumnIndex(<span class="hljs-string">&quot;name&quot;</span>));<br>                <span class="hljs-type">String</span> <span class="hljs-variable">author</span> <span class="hljs-operator">=</span> book.getString(book.getColumnIndex(<span class="hljs-string">&quot;author&quot;</span>));<br>                <span class="hljs-type">int</span> <span class="hljs-variable">pages</span> <span class="hljs-operator">=</span> book.getInt(book.getColumnIndex(<span class="hljs-string">&quot;pages&quot;</span>));<br>                <span class="hljs-type">double</span> <span class="hljs-variable">price</span> <span class="hljs-operator">=</span> book.getDouble(book.getColumnIndex(<span class="hljs-string">&quot;price&quot;</span>));<br>                Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;name: &quot;</span> + name);<br>                Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;author: &quot;</span> + author);<br>                Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;pages: &quot;</span> + pages);<br>                Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;price: &quot;</span> + price);<br>            &#125;<span class="hljs-keyword">while</span> (book.moveToNext());<br>        &#125;<br>        book.close();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>相当于SQL语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> Book <span class="hljs-keyword">where</span> author <span class="hljs-operator">=</span> &quot;Dan Brown&quot;;<br></code></pre></td></tr></table></figure>
+
+<p><code>moveToFirst()</code>方法将数据的指针移动到第一行的位置，然后进入了一个循环当中，去遍历查询到的每一行数据。在这个循环中可以<br>通过Cursor的<code>getColumnIndex()</code>方法获取到某一列在表中对应的位置索引，然后将这个索引传入到相应的取值方法中，就可以得到从数据库中读取到的数据了。</p>
+<h2 id="4-7-使用SQL操作数据库"><a href="#4-7-使用SQL操作数据库" class="headerlink" title="4.7 使用SQL操作数据库"></a>4.7 使用SQL操作数据库</h2><p>如果我们不习惯使用Android提供的方法来对数据进行操作时，我们也可以直接执行SQL语句来实现对数据的操作。</p>
+<p>现在对这四种操作举一些例子来理解如何使用（假定数据库对象为db）。</p>
+<ul>
+<li><p>添加数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">db.execSQL(&quot;insert into Book (name,author,pages,price) values(?,?,?,?)&quot;, <span class="hljs-keyword">new</span> String[]&#123;&quot;The Da Vinci Code&quot;,&quot;Dan Brown&quot;,&quot;454&quot;,&quot;16.96&quot;&#125;)<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>跟新数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">db.execSQL(&quot;update Book set price = ? where name = ?&quot;, <span class="hljs-keyword">new</span> string[]&#123;&quot;10.99&quot;, &quot;The Da Vinci Code&quot;&#125;);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>删除数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">db.execSQL(&quot;delete from Book where pages &gt; ?&quot;, <span class="hljs-keyword">new</span> String[]&#123;&quot;500&quot;&#125;);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>查询数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql">db.rawQuery(&quot;select * from Book&quot;,<span class="hljs-keyword">null</span>);<br>rawQuery(&quot;select * from Book where author = ?&quot;, <span class="hljs-keyword">new</span> String[]&#123;&quot;Dan Brown&quot;&#125;)<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>简而言之，第一个参数是通配SQL语句，第二个参数是填充通配符的值（按顺序填写）。</p>
+<h1 id="五、使用LitePal操作数据库"><a href="#五、使用LitePal操作数据库" class="headerlink" title="五、使用LitePal操作数据库"></a>五、使用LitePal操作数据库</h1><p>LitePal是一款开源的Android数据库框架，它采用了对象关系映射（ORM）的模式，并将我们平时开发最常用到的一些数据库功能进行了封装，使得不用编写一行SQL语句就可以完成各种建表和增删改查的操作。LitePal的项目主页上也有详细的使用文档，地址是：<a target="_blank" rel="noopener" href="https://github.com/guolindev/LitePal">https://github.com/guolindev/LitePal</a>。</p>
+<h2 id="5-1-配置LitePal"><a href="#5-1-配置LitePal" class="headerlink" title="5.1 配置LitePal"></a>5.1 配置LitePal</h2><p>那么怎样才能在项目中使用开源库呢？过去的方式比较复杂，通常需要下载开源库的 Jar 包或者源码，然后再集成到我们的项目当中。而现在就简单得多了，大多数的开源项目都会将版本提交到 jcenter 上，我们只需要在 <code>app/build.gradle </code>文件中声明该开源库的引用就可以了。</p>
+<p>因此，要使用LitePal的第一步，就是编辑<code>app/build.gradle</code>文件，在dependencies闭包中添加如下内容：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs clean">dependencies &#123;<br>    <span class="hljs-keyword">implementation</span> <span class="hljs-string">&#x27;org.litepal.guolindev:core:3.2.3&#x27;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>添加的这一行声明中，前面部分是固定的，最后的3.2.3是版本号的意思，最新的版本号可以到LitePal的项目主页上去查看。</p>
+<p>接下来就可以开始build了。但是会报错：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs awk">Execution failed <span class="hljs-keyword">for</span> task <span class="hljs-string">&#x27;:app:mergeDebugNativeLibs&#x27;</span>.<br>&gt; Could not resolve all files <span class="hljs-keyword">for</span> configuration <span class="hljs-string">&#x27;:app:debugRuntimeClasspath&#x27;</span>.<br>   &gt; Could not find org.litepal.guolindev:core:<span class="hljs-number">3.2</span>.<span class="hljs-number">3</span>.<br>     Searched <span class="hljs-keyword">in</span> the following locations:<br>       - https:<span class="hljs-regexp">//</span>dl.google.com<span class="hljs-regexp">/dl/</span>android<span class="hljs-regexp">/maven2/</span>org<span class="hljs-regexp">/litepal/gu</span>olindev<span class="hljs-regexp">/core/</span><span class="hljs-number">3.2</span>.<span class="hljs-number">3</span>/core-<span class="hljs-number">3.2</span>.<span class="hljs-number">3</span>.pom<br>       - https:<span class="hljs-regexp">//</span>repo.maven.apache.org<span class="hljs-regexp">/maven2/</span>org<span class="hljs-regexp">/litepal/gu</span>olindev<span class="hljs-regexp">/core/</span><span class="hljs-number">3.2</span>.<span class="hljs-number">3</span>/core-<span class="hljs-number">3.2</span>.<span class="hljs-number">3</span>.pom<br>     Required by:<br>         project :app<br></code></pre></td></tr></table></figure>
+
+<p>这个报错告诉我们在<a target="_blank" rel="noopener" href="https://dl.google.com/dl/android/maven2%E5%92%8Chttps://repo.maven.apache.org/maven2%E7%BD%91%E7%AB%99%E4%B8%8A%E6%89%BE%E4%B8%8D%E5%88%B0LitePal%E3%80%82%E4%BD%86%E9%97%AE%E9%A2%98%E6%98%AF%E6%88%91%E4%BB%AC%E6%98%8E%E6%98%8E%E7%9F%A5%E9%81%93LitePal%E5%9C%A8Github%E4%B8%8A%EF%BC%8C%E4%BD%86%E5%AE%83%E5%8D%B4%E5%9C%A8%E8%BF%99%E4%B8%A4%E4%B8%AA%E7%BD%91%E7%AB%99%E4%B8%8A%E6%9F%A5%E6%89%BE%E3%80%82%E4%B8%BA%E4%BA%86%E4%BF%AE%E6%94%B9%E5%AE%83%E7%9A%84%E4%B8%8B%E8%BD%BD%E8%B7%AF%E5%BE%84%EF%BC%8C%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%9C%A8%E5%A4%96%E5%B1%82%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%60settings.gradle%60%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84">https://dl.google.com/dl/android/maven2和https://repo.maven.apache.org/maven2网站上找不到LitePal。但问题是我们明明知道LitePal在Github上，但它却在这两个网站上查找。为了修改它的下载路径，我们需要在外层目录下的`settings.gradle`文件中的</a> <code>repositories</code> 块中添加以下代码：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">jcenter</span><span class="hljs-params">()</span></span><br>maven &#123; url <span class="hljs-string">&#x27;https://jitpack.io&#x27;</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>再次build就把LitePal成功引入到当前项目中了，接下来需要配置litepal.xml文件。在<code>app/src/main</code>目录下创建一个assets目录，然后在assets目录下再新建一个<code>litepal.xml</code>文件（选择File，命名的时候加文件后缀），接着编辑<code>litepal.xml</code>文件中的内容，如下所示：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">litepal</span>&gt;</span><br>    <span class="hljs-comment">&lt;!--</span><br><span class="hljs-comment">    	Define the database name of your application.</span><br><span class="hljs-comment">    	By default each database name should be end with .db.</span><br><span class="hljs-comment">    	If you didn&#x27;t name your database end with .db,</span><br><span class="hljs-comment">    	LitePal would plus the suffix automatically for you.</span><br><span class="hljs-comment">    	For example:</span><br><span class="hljs-comment">    	&lt;dbname value=&quot;demo&quot; /&gt;</span><br><span class="hljs-comment">    --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dbname</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;BookStore&quot;</span> /&gt;</span><br><br>    <span class="hljs-comment">&lt;!--</span><br><span class="hljs-comment">    	Define the version of your database. Each time you want</span><br><span class="hljs-comment">    	to upgrade your database, the version tag would helps.</span><br><span class="hljs-comment">    	Modify the models you defined in the mapping tag, and just</span><br><span class="hljs-comment">    	make the version value plus one, the upgrade of database</span><br><span class="hljs-comment">    	will be processed automatically without concern.</span><br><span class="hljs-comment">			For example:</span><br><span class="hljs-comment">    	&lt;version value=&quot;1&quot; /&gt;</span><br><span class="hljs-comment">    --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;3&quot;</span> /&gt;</span><br><br>    <span class="hljs-comment">&lt;!--</span><br><span class="hljs-comment">    	Define your models in the list with mapping tag, LitePal will</span><br><span class="hljs-comment">    	create tables for each mapping class. The supported fields</span><br><span class="hljs-comment">    	defined in models will be mapped into columns.</span><br><span class="hljs-comment">    	For example:</span><br><span class="hljs-comment">    	&lt;list&gt;</span><br><span class="hljs-comment">    		&lt;mapping class=&quot;com.test.model.Reader&quot; /&gt;</span><br><span class="hljs-comment">    		&lt;mapping class=&quot;com.test.model.Magazine&quot; /&gt;</span><br><span class="hljs-comment">    	&lt;/list&gt;</span><br><span class="hljs-comment">    --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">list</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">list</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!--</span><br><span class="hljs-comment">        Define where the .db file should be. &quot;internal&quot; means the .db file</span><br><span class="hljs-comment">        will be stored in the database folder of internal storage which no</span><br><span class="hljs-comment">        one can access. &quot;external&quot; means the .db file will be stored in the</span><br><span class="hljs-comment">        path to the directory on the primary external storage device where</span><br><span class="hljs-comment">        the application can place persistent files it owns which everyone</span><br><span class="hljs-comment">        can access. &quot;internal&quot; will act as default.</span><br><span class="hljs-comment">        For example:</span><br><span class="hljs-comment">        &lt;storage value=&quot;external&quot; /&gt;</span><br><span class="hljs-comment">    --&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">litepal</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>&lt;dbname&gt;</code>标签用于指定数据库名，<code>&lt;version&gt;</code>标签用于指定数据库版本号，<code>&lt;List&gt;</code>标签用于指定所有的映射模型，我们稍后就会用到。</p>
+<p>最后在<code>AndroidManifest.xml</code>文件中添加：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">manifest</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">application</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;org.litepal.LitePalApplication&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">...</span></span><br><span class="hljs-tag">    &gt;</span><br>        ...<br>    <span class="hljs-tag">&lt;/<span class="hljs-name">application</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">manifest</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>至此，我们就完成了LitePal的环境搭建！</p>
+<h2 id="5-2-创建和升级数据库"><a href="#5-2-创建和升级数据库" class="headerlink" title="5.2 创建和升级数据库"></a>5.2 创建和升级数据库</h2><p>刚才在介绍的时候已经说过，LitePal采取的是对象关系映射（ORM)的模式，那么什么是对象关系映射呢？简单点说，我们使用的编程语言是面向对象语言，而使用的数据库则是关系型数据库，那么将面向对象的语言和面向关系的数据库之间建立一种映射关系，这就是对象关系映射了。</p>
+<p>之前为了创建一张Book表，需要先分析表中应该包含哪些列，然后再编写出一条建表语句，最后在自定义的SQLiteOpenHelper中去执行这条建表语句。但是使用LitePal就可以用面向对象的思维来实现同样的功能了，定义一个Book类，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Book</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">LitePalSupport</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> id;<br>    <span class="hljs-keyword">private</span> String author;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> price;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> pages;<br>    <span class="hljs-keyword">private</span> String name;<br>	<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Book</span><span class="hljs-params">(<span class="hljs-type">int</span> id, String author, <span class="hljs-type">double</span> price, <span class="hljs-type">int</span> pages, String name)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = id;<br>        <span class="hljs-built_in">this</span>.author = author;<br>        <span class="hljs-built_in">this</span>.price = price;<br>        <span class="hljs-built_in">this</span>.pages = pages;<br>        <span class="hljs-built_in">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Book</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getId</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> id;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setId</span><span class="hljs-params">(<span class="hljs-type">int</span> id)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = id;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getAuthor</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> author;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAuthor</span><span class="hljs-params">(String author)</span> &#123;<br>        <span class="hljs-built_in">this</span>.author = author;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">getPrice</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> price;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setPrice</span><span class="hljs-params">(<span class="hljs-type">double</span> price)</span> &#123;<br>        <span class="hljs-built_in">this</span>.price = price;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getPages</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> pages;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setPages</span><span class="hljs-params">(<span class="hljs-type">int</span> pages)</span> &#123;<br>        <span class="hljs-built_in">this</span>.pages = pages;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这是一个典型的Java bean，在Book类中我们定义了id、author、price、pages、name这几个字段，并生成了相应的getter和setter方法。学过java web的应该知道，Book类对应的是数据库中的Book表，而类中的每一个字段分别对应了表中的每一个列，这就是对象关系映射最直观的体验。</p>
+<p>接下来我们还需要将Book类添加到映射模型列表当中，修改<code>litepal.xml</code>中的代码，如下所示：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">litepal</span>&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dbname</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;BookStore&quot;</span> /&gt;</span><br>    <br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;1&quot;</span> /&gt;</span><br>    <br>    <span class="hljs-tag">&lt;<span class="hljs-name">list</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">mapping</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.example.testlitepal.Book&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">list</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">litepal</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里使用<code>&lt;mapping/&gt;</code>标签来声明我们要配置的映射模型类，<strong>注意一定要使用完整的类名</strong>。不管有多少模型类需要映射，都使用同样的方式配置在<code>&lt;list&gt;</code>标签下即可。<br>到这里我们就已经把所有工作都完成了，现在只要进行任意一次数据库的操作，BookStore.db数据库应该就会自动创建出来。那么我们修改MainActivity中的代码，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateDataBase</span><span class="hljs-params">(View view)</span> &#123;<br>        LitePal.getDatabase();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>Connector.getDatabase()</code>方法是一次最简单的数据库操作，只要点击一下按钮，数据库就会自动创建完成了。运行一下程序，然后点击Create database按钮，通过adb shell查看，如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131924801.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>（一直在查看BookStore文件，以为没创建出表，最后才发现应该查看BookStore.db文件！！！）</p>
+<h2 id="5-3-升级数据库"><a href="#5-3-升级数据库" class="headerlink" title="5.3 升级数据库"></a>5.3 升级数据库</h2><p>在 4.2 的最后，我留了个疑问，就是删除之前的数据库可能会造成数据丢失的问题。然而在LitePal中，我们并不需要担心这个问题，我们只需要添加或者修改目标内容，然后将版本号 +1 就行了。</p>
+<p>比如我们想要向Book表中添加一个press（出版社）列，那么直接在Book类中添加一个press字段即可并设置好get和set方法即可（如果有带参的构造函数，记得在参数中添加新属性），代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Book</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">LitePalSupport</span> &#123;<br><br>	......<br>    <span class="hljs-keyword">private</span> String press;<br><br>	......<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getPress</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> press;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setPress</span><span class="hljs-params">(String press)</span> &#123;<br>        <span class="hljs-built_in">this</span>.press = press;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与此同时，我们再添加一张Category表，那么只需要创建一个Category类即可，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Category</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">LitePalSupport</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> id;<br>    <span class="hljs-keyword">private</span> String categoryName;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> categoryCode;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getId</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> id;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setId</span><span class="hljs-params">(<span class="hljs-type">int</span> id)</span> &#123;<br>        <span class="hljs-built_in">this</span>.id = id;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getCategoryName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> categoryName;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setCategoryName</span><span class="hljs-params">(String categoryName)</span> &#123;<br>        <span class="hljs-built_in">this</span>.categoryName = categoryName;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getCategoryCode</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> categoryCode;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setCategoryCode</span><span class="hljs-params">(<span class="hljs-type">int</span> categoryCode)</span> &#123;<br>        <span class="hljs-built_in">this</span>.categoryCode = categoryCode;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>改完了所有我们想改的东西，只需要记得将版本号 +1 就行了。当然由于这里还添加了一个新的模型类，因此也需要将它添加到映射模型列表中。修改litepal.xml中的代码，如下所示：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">litepal</span>&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dbname</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;BookStore&quot;</span> /&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;2&quot;</span> /&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">list</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">mapping</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.example.testlitepal.Book&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">mapping</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;com.example.testlitepal.Category&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">list</span>&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">litepal</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>重新运行程序，点击按钮，通过查看可以确认成功了。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131924266.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>（这里是安装了一个插件，感觉更加方便，可以查看表的结构和数据。双击文件的时候会有弹窗，然后那个插件就在里面，专门用来打开数据库的）</p>
+<h2 id="5-4-添加数据"><a href="#5-4-添加数据" class="headerlink" title="5.4 添加数据"></a>5.4 添加数据</h2><p><strong>对于增删改操作，模型类必须要继承LitePalSupport类才行。</strong>之后我们只需要创建出模型类的实例，再将所有要存储的数据设置好，最后调用一下<code>save()</code>方法就可以了。</p>
+<p>好在我们写的代码已经继承了，所以代码直接复用就行。因此我们只需要修改MainActivity代码，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br>	......<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoAddData</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-comment">//创建实体类</span><br>        <span class="hljs-type">Book</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Book</span>();<br>        <span class="hljs-comment">//设置属性值</span><br>        book.setName(<span class="hljs-string">&quot;The Da Vinci Code&quot;</span>);<br>        book.setAuthor(<span class="hljs-string">&quot;Dan Brown&quot;</span>);<br>        book.setPages(<span class="hljs-number">454</span>);<br>        book.setPrice(<span class="hljs-number">16.92</span>);<br>        book.setPress(<span class="hljs-string">&quot;Unknow&quot;</span>);<br>        <span class="hljs-comment">//向Book表中添加数据</span><br>        book.save();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当然也可以直接使用构造函数设置属性值。重新运行程序，可以发现数据添加成功。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131925366.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-5-更新数据"><a href="#5-5-更新数据" class="headerlink" title="5.5 更新数据"></a>5.5 更新数据</h2><p>更新数据要比添加数据稍微复杂一点，因为它的API接口比较多，这里我们只介绍最常用的几种更新方式。</p>
+<p>首先，最简单的一种更新方式就是对数据库中<strong>已存储的对象</strong>重新设值，然后重新调用<code>save()</code>方法即可。例子如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoUpData</span><span class="hljs-params">(View view)</span> &#123;<br>		<span class="hljs-comment">//在Book表中找到id为1的记录</span><br>        <span class="hljs-type">Book</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> LitePal.find(Book.class,<span class="hljs-number">1</span>)<br>		<span class="hljs-comment">//设置要修改的值</span><br>        book.setPrice(<span class="hljs-number">10.99</span>);<br>    	<span class="hljs-comment">//提交</span><br>        book.save();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>LitePal.find(model.class,id)</code>方法的第一个参数为表对应的类，第二个为要更新的记录的id。</p>
+<p>第二种方法是使用<code>model.update(id)</code>或<code>model.updateAll(conditions)</code>方法，示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoUpData</span><span class="hljs-params">(View view)</span> &#123;<br><br>        <span class="hljs-type">Book</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Book</span>();<br><br>        book.setPrice(<span class="hljs-number">9.99</span>);<br>        book.setPress(<span class="hljs-string">&quot;Anchor&quot;</span>);<br>		<span class="hljs-comment">//更新id=1的记录</span><br>        book.update(<span class="hljs-number">1</span>);<br>		<span class="hljs-comment">//更新页数为510页的记录</span><br>		book.updateAll(<span class="hljs-string">&quot;pages = ?&quot;</span>,<span class="hljs-string">&quot;510&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>update()</code>方法指定id即可，<code>updateAll()</code>方法可以指定一个或多个约束条件，如果不指定条件语句的话，就表示更新所有数据。</p>
+<p>当你想把一个字段的值更新成默认值时，是不可以使用上面的方式来设置数据的。在Java中任何一种数据类型的字段都会有默认值，当我们new出一个Book对象时，其实所有字段都已经被初识化成默认值了，比如pages默认为0，因此，如果我们想把数据库表中的pages列更新成0，直接调用<code>book.setPages(0)</code>是不可以的，因为即使不调用这行代码，pages字段本身也是0，LitePal此时是不会对这个列进行更新的。</p>
+<p>对于将数据更新成默认值的操作，LitePal统一提供了一个<code>setToDefault()</code>方法，然后传入相应的列名就可以了实现了。<br>比如我们可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Book</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Book</span>();<br>book.setToDefault(<span class="hljs-string">&quot;pages&quot;</span>);<br>book.updateAll();<br></code></pre></td></tr></table></figure>
+
+<p>这段代码的意思是，将所有书的页数都更新为0，因为<code>updateAll()</code>方法中没有指定约束条件，因此更新操作对所有数据都生效了。</p>
+<h2 id="5-6-删除数据"><a href="#5-6-删除数据" class="headerlink" title="5.6 删除数据"></a>5.6 删除数据</h2><p>删除数据有两种方法：<code>LitePal.delete(model.class,id)</code>方法和<code>LitePal.deleteAll(model.class,conditions)</code>方法。示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoCreateDataBase</span><span class="hljs-params">(View view)</span> &#123;<br>	<span class="hljs-comment">//删除Book表中id=1的记录</span><br>    LitePal.delete(Book.class, <span class="hljs-number">1</span>);<br>    <span class="hljs-comment">//删除Book表中name = &quot;Dan Brown&quot;的记录</span><br>    LitePal.deleteAll(Book.class, <span class="hljs-string">&quot;name = ?&quot;</span> , <span class="hljs-string">&quot;Dan Brown&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-7查询数据"><a href="#5-7查询数据" class="headerlink" title="5.7查询数据"></a>5.7查询数据</h2><p>对于查询数据，LitePal提供了<code>find()</code>、<code>findAll()</code>、<code>select()</code>、<code>where()</code>、<code>order()</code>、<code>limit()</code>、<code>offset()</code>方法进行组合查询，</p>
+<ul>
+<li><p><code>select()</code>：用于指定查询哪几列的数据，对应了SQL当中的select关键字。比如只查name和author这两列的数据，就可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Book&gt; books = LitePal.select(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;author&quot;</span>).find(Book.class); <br></code></pre></td></tr></table></figure>
+</li>
+<li><p><code>where()</code>方法：用于指定查询的约束条件，对应了SQL当中的where关键字。比如只查页数大于400的数据，就可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Book&gt; books = LitePal.where(<span class="hljs-string">&quot;pages &gt; ?&quot;</span>,<span class="hljs-string">&quot;400&quot;</span>).find(Book.class);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><code>order()</code>方法：用于指定结果的排序方式，对应了SQL当中的order by关键字。比如将查询结果按照书价从高到低排序，就可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Book&gt; books = LitePal.order(<span class="hljs-string">&quot;price desc&quot;</span>).find(Book.class);<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>desc</code>表示降序排列，<code>asc</code>或者不写表示升序排列。</p>
+</li>
+<li><p><code>limit()</code>方法：用于指定查询结果的数量，比如只查表中的前3条数据，就可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Book&gt; books = LitePal.limit(<span class="hljs-number">3</span>).find(Book.class);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><code>offset()</code>方法：用于指定查询结果的偏移量，比如查询表中的第2条、第3条、第4条数据，就可以这样写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Book&gt; books = LitePal.limit(<span class="hljs-number">3</span>).offset(<span class="hljs-number">1</span>).find(Book.class);<br></code></pre></td></tr></table></figure>
+
+<p>由于<code>limit(3)</code>查询到的是前3条数据，这里我们再加上<code>offset(1)</code>进行一个位置的偏移，就能实现查询第2条、第3条、第4条数据的功能了。<code>limit()</code>和<code>offset()</code>方法共同对应了SQL当中的limit关键字。</p>
+</li>
+</ul>
+<p>当然，我们还可以对这5个方法进行任意的连缀组合，来完成一个比较复杂的查询操作，示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//查找单条记录</span><br><span class="hljs-type">Book</span> <span class="hljs-variable">book</span> <span class="hljs-operator">=</span> LitePal.find(Book.class, <span class="hljs-number">1</span>);<br><span class="hljs-comment">//查找所有记录</span><br>List&lt;Book&gt; booklist = LitePal.findAll(Book.class);<br><span class="hljs-comment">//查询Book表中第11~20条满足页数大于400这个条件的name、author和pages这3列数据，并将查询结果按照页数升序排列。</span><br>List&lt;Book&gt; booklist = LitePal.select(<span class="hljs-string">&quot;name&quot;</span>,<span class="hljs-string">&quot;author&quot;</span>,<span class="hljs-string">&quot;pages&quot;</span>)<br>    					.where(<span class="hljs-string">&quot;pages &gt; ?&quot;</span>, <span class="hljs-string">&quot;400&quot;</span>)<br>                    	.order(<span class="hljs-string">&quot;pages&quot;</span>)<br>                    	.limit(<span class="hljs-number">10</span>)<br>           				.offset(<span class="hljs-number">10</span>)<br>           				.find(Book.class);<br></code></pre></td></tr></table></figure>
+
+<p>除此之外，LitePal仍然支持使用原生的SQL来进行查询：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Cursor</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> LitePal.findBySQL(<span class="hljs-string">&quot;select * from Book where pages &gt; ? and price &lt; ?&quot;</span>,<span class="hljs-string">&quot;400&quot;</span>,<span class="hljs-string">&quot;20&quot;</span>）;<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>LitePal.findBySQL()</code>方法的第一个参数用于指定SQL语句，后面的参数用于指定占位符的值。注意<code>findBySQL()</code>方法返回的是一个Cursor对象，接下来还需要通过之前所学的老方式将数据一一取出才行。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android开发学习笔记(七) —— 详解数据存储全方案</div>
+      <div>http://example.com/2023/08/12/Android开发学习笔记(七) —— 详解数据存储全方案/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月12日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" title="Android开发学习笔记(八) —— 探究ContentProvider">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android开发学习笔记(八) —— 探究ContentProvider</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" title="Android开发学习笔记(六) —— 重温BroadcastReceiver">
+                        <span class="hidden-mobile">Android开发学习笔记(六) —— 重温BroadcastReceiver</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

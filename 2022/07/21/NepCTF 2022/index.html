@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="signinp,q极其近似，对n开根号取前后素数求出p,q 123456789101112131415161718192021from Crypto.Util.number import *import gmpy2import sympyn &#x3D; 19955580242010925349026385826277356862322608500430230515928936214328341334162">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NepCTF 2022">
+<meta property="og:url" content="http://example.com/2022/07/21/NepCTF%202022/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="signinp,q极其近似，对n开根号取前后素数求出p,q 123456789101112131415161718192021from Crypto.Util.number import *import gmpy2import sympyn &#x3D; 19955580242010925349026385826277356862322608500430230515928936214328341334162">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-21T14:21:06.000Z">
+<meta property="article:modified_time" content="2022-07-28T11:50:29.794Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Dual_EC">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>NepCTF 2022 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="NepCTF 2022"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-21 22:21" pubdate>
+          2022年7月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          76 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">NepCTF 2022</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="signin"><a href="#signin" class="headerlink" title="signin"></a>signin</h1><p>p,q极其近似，对n开根号取前后素数求出p,q</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">import</span> sympy<br><br>n = <span class="hljs-number">19955580242010925349026385826277356862322608500430230515928936214328341334162349408990409245298441768036250429913772953915537485025323789254947881868366911379717813713406996010824562645958646441589124825897348626601466594149743648589703323284919806371555688798726766034226044561171215392728880842964598154362131942585577722616354074267803330013886538511795383890371097812191816934883393255463554256887559394146851379087386846398690114807642170885445050850978579391063585254346364297374019309370189128443081285875218288166996242359495992824824109894071316525623741755423467173894812627595135675814789191820979950786791</span><br>e = <span class="hljs-number">65537</span><br>c_mod_p = <span class="hljs-number">32087476819370469840242617415402189007173583393431940289526096277088796498999849060235750455260897143027010566292541554247738211165214410052782944239055659645055068913404216441100218886028415095562520911677409842046139862877354601487378542714918065194110094824176055917454013488494374453496445104680546085816</span><br>c_mod_q = <span class="hljs-number">59525076096565721328350936302014853798695106815890830036017737946936659488345231377005951566231961079087016626410792549096788255680730275579842963019533111895111371299157077454009624496993522735647049730706272867590368692485377454608513865895352910757518148630781337674813729235453169946609851250274688614922</span><br>tmp = gmpy2.iroot(n,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]<br>q = sympy.nextprime(tmp)<br>p = n // q<br>d = gmpy2.invert(e,(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>))<br><span class="hljs-string">&#x27;&#x27;&#x27;m一般都不会很长，完全可以用p,q作为模数</span><br><span class="hljs-string">m = pow(c_mod_p,gmpy2.invert(e,p-1),p)</span><br><span class="hljs-string">print(long_to_bytes(m))</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>invq = gmpy2.invert(q,p)<br>invp = gmpy2.invert(p,q)<br>c = (c_mod_p*invq*q + c_mod_q*invp*p)%n<br>m = <span class="hljs-built_in">pow</span>(c,d,n)<br><span class="hljs-built_in">print</span>(long_to_bytes(m))<br></code></pre></td></tr></table></figure>
+
+<h1 id="中学数学"><a href="#中学数学" class="headerlink" title="中学数学"></a>中学数学</h1><p>已知$q&#x3D;next_prime(p+(p&gt;&gt;500))$，则<br>$$<br>q&#x3D;\lfloor (1+\frac{1}{2^{500}})p\rfloor+r<br>$$<br>其中r是满足q为素数的最小整数，<br>$$<br>n&#x3D;pq&#x3D;\lfloor (1+\dfrac{1}{2^{500}})p^2\rfloor+rp<br>$$<br>于是<br>$$<br>⌊(1+\dfrac{1}{2^{500}})n⌋&#x3D;⌊(1+\dfrac{1}{2^{500}})p⌋^2+⌊(1+\dfrac{1}{2^{500}})rp⌋&gt;⌊(1+\dfrac{1}{2^{500}})p⌋^2<br>$$<br>又有<br>$$<br>⌊(1+\dfrac{1}{2^{500}})n⌋&#x3D;⌊(1+\dfrac{1}{2^{500}})p⌋^2+⌊(1+\dfrac{1}{2^{500}})rp⌋&lt;⌊(1+\dfrac{1}{2^{500}})p⌋^2+2⌊(1+\dfrac{1}{2^{500}})rp⌋+r^2 &#x3D; q^2<br>$$<br>所以<br>$$<br>⌊(1+\dfrac{1}{2^{500}})p⌋&lt;\sqrt{\lfloor(1+\frac{1}{2^{500}})n\rfloor}&lt;\lfloor(1+\frac{1}{2^{500}})p\rfloor+r<br>$$<br>即<br>$$<br>q−r&lt;\sqrt{⌊(1+\dfrac{1}{2^{500}})n⌋}<br>$$<br>所以<br>$$<br>\lfloor(1+\frac{1}{2^{500}})p\rfloor&lt;\sqrt{\lfloor(1+\frac{1}{2^{500}})n\rfloor}&lt;\lfloor(1+\frac{1}{2^{500}})p\rfloor+r<br>$$<br>得到了无需爆破的形式。</p>
+<p>但注意到next_prime算法的本质逻辑即是通过不断枚举奇数判断是否为素数，而这里n的分解保证了其必为素数，再判断素数的话属于是多此一举（浪费计算资源），所以我们可以根据素数分布公式或next_prime的方案向下枚举，得到唯一分解即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> next_prime,iroot,invert<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><br>n= <span class="hljs-number">13776679754786305830793674359562910178503525293501875259698297791987196248336062506951151345232816992904634767521007443634017633687862289928715870204388479258679577315915061740028494078672493226329115247979108035669870651598111762906959057540508657823948600824548819666985698501483261504641066030188603032714383272686110228221709062681957025702835354151145335986966796484545336983392388743498515384930244837403932600464428196236533563039992819408281355416477094656741439388971695931526610641826910750926961557362454734732247864647404836037293509009829775634926600458845832805085222154851310850740227722601054242115507</span><br>c= <span class="hljs-number">6253975396639688013947622483271226838902346034187241970785550830715516801386404802832796746428068354515287579293520381463797045055114065533348514688044281004266071342722261719304097175009672596062130939189624163728328429608123325223000160428261082507446604698345173189268359115612698883860396660563679801383563588818099088505120717238037463747828729693649297904035253985982099474025883550074375828799938384533606092448272306356003096283602697757642323962299153853559914553690456801745940925602411053578841756504799815771173679267389055390097241148454899265156705442028845650177138185876173539754631720573266723359186</span><br>e = <span class="hljs-number">0x10001</span><br><br>q = iroot((n + (n &gt;&gt; <span class="hljs-number">500</span>)),<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]<br><span class="hljs-built_in">print</span>(isPrime(q))<span class="hljs-comment">#False</span><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    q = next_prime(q)<br>    <span class="hljs-keyword">if</span> n % q == <span class="hljs-number">0</span>:<br>        p = n//q<br>        d = invert(e, (p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>))<br>        m = <span class="hljs-built_in">pow</span>(c, d, n)<br>        flag = long_to_bytes(m)<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">b&#x27;flag&#x27;</span> <span class="hljs-keyword">in</span> flag <span class="hljs-keyword">or</span> <span class="hljs-string">b&#x27;NepCTF&#x27;</span> <span class="hljs-keyword">in</span> flag:<br>            <span class="hljs-built_in">print</span>(flag)<br>            <span class="hljs-keyword">break</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="bd-key"><a href="#bd-key" class="headerlink" title="bd_key"></a>bd_key</h1><p><a target="_blank" rel="noopener" href="https://eprint.iacr.org/2015/767.pdf">767.pdf (iacr.org)</a></p>
+<p><a target="_blank" rel="noopener" href="https://asecuritysite.com/encryption/dualec">Dual EC (asecuritysite.com)</a></p>
+<p>比赛时思路:</p>
+<hr>
+<p>分析代码发现，<code>do_schnorr_identification()</code>能影响（或有作用）的是<code>challenge()</code>，分析<code>getRandomNBytes()</code>，发现给出的<code>c = __Dual_EC_DRBG(0)  </code>。</p>
+<p>在忽略<code>s_i</code>等其他变量的，通过<code>getRandomNBytes()</code>分析<code>key</code>和<code>c</code>的获取：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">c = <span class="hljs-constructor">__Dual_EC_DRBG(<span class="hljs-params">self</span>.<span class="hljs-params">h_adin</span>)</span><br>key = <span class="hljs-constructor">__Dual_EC_DRBG(<span class="hljs-params">self</span>.<span class="hljs-params">h_adin</span>)</span> &gt;&gt; <span class="hljs-number">128</span><br></code></pre></td></tr></table></figure>
+
+<p>虽然看上去可以通过<code>c</code>求<code>key</code>，但是在执行上面两个函数时会影响<code>s_i</code>,进而影响到<code>key</code>。</p>
+<p>于是乎大致思路就是通过<code>c</code>来求出<code>r_i</code>之前的<code>s_i</code>，然后走一遍流程就可以得到<code>key</code>。</p>
+<p>分析<code>__Dual_EC_DRBG()</code>，得出以下公式</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">s_i <span class="hljs-operator">=</span> (s_i*P)[<span class="hljs-number">0</span>]<br><span class="hljs-attribute">c</span> <span class="hljs-operator">=</span> r_i <span class="hljs-operator">=</span> (s_i*Q)[<span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
+
+<p>我们知道<code>P,Q,c</code>，利用P,Q和生成的点都在椭圆曲线上，兴许可以联立方程求出<code>s_i</code>？</p>
+<p> 利用椭圆曲线方程，已知<code>x</code>求<code>y</code>，求出生成点，然后利用ECDLP求解<code>s_i</code>（好像跑不出来）</p>
+<hr>
+<p>注意类名，放网上一搜就有相关内容！！！</p>
+<hr>
+<p><code>Dual_EC_DBRG</code>问题，有兴趣的可以搜一搜其背后的故事，真有点魔幻。</p>
+<p>整合一下上面的分析，生成<code>c</code>的过程有方程如下：</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gcode"><span class="hljs-comment">(1)</span>s_i = <span class="hljs-comment">(s_i*P)</span>[<span class="hljs-number">0</span>]<br><span class="hljs-comment">(2)</span>c = r_i = <span class="hljs-comment">(s_i*Q)</span>[<span class="hljs-number">0</span>]<br><span class="hljs-comment">(3)</span>s_i = <span class="hljs-comment">(s_i*P)</span>[<span class="hljs-number">0</span>]<br></code></pre></td></tr></table></figure>
+
+<p>我们知道<code>d</code>，这就相当于给了个后门。</p>
+<p>假设横坐标为<code>c</code>的点为<code>R = (c,y)</code>，根据上面的(1)(2)(3)公式以及$P&#x3D;d*Q$，有<br>$$<br>d*R &#x3D; d*(s_i*Q) &#x3D; s_i*(d*Q) &#x3D; s_i*P<br>$$<br>于是可以直接得到(3)的$s_i$ ，再走一遍流程就可以得到<code>key</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># sagemath</span><br><br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.Cipher <span class="hljs-keyword">import</span> AES<br><br>p = <span class="hljs-number">115792089210356248762697446949407573530086143415290314195533631308867097853951</span><br>n = <span class="hljs-number">115792089210356248762697446949407573529996955224135760342422259061068512044369</span><br>b = <span class="hljs-number">0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b</span><br>E = EllipticCurve(GF(p), [-<span class="hljs-number">3</span>, b])<br>Qx = <span class="hljs-number">0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296</span><br>Qy = <span class="hljs-number">0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5</span><br>Q = E(Qx, Qy)<br>d = <span class="hljs-number">66604141534275704476445937214374130642068729921454877238730830814793201802544</span><br>P = d * Q<br>c = <span class="hljs-number">59100197418944667413449341413044666843726352095054393072750502893110293231642</span><br>ct = <span class="hljs-number">25645992443585671366815910836517434170297823176311632150463962979581372384075859802765045877741181123347569267185176</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">dec_flag</span>(<span class="hljs-params">ct, key</span>):<br>    cipher = AES.new(key, AES.MODE_ECB)<br>    ct = long_to_bytes(ct)<br>    flag = cipher.decrypt(ct)<br>    <span class="hljs-built_in">print</span>(flag)<br><br><span class="hljs-keyword">assert</span> E.is_x_coord(c)<span class="hljs-comment">#检测c是否是x坐标，即存在点，x坐标为c</span><br>s1_Q = E.lift_x(c)<span class="hljs-comment">#找点</span><br>s2 = (d * s1_Q)[<span class="hljs-number">0</span>].lift()<br>s3 = (s2 * P)[<span class="hljs-number">0</span>].lift()<br>r3 = (s3 * Q)[<span class="hljs-number">0</span>].lift()<br>k = r3 &gt;&gt; ((<span class="hljs-number">32</span> - <span class="hljs-number">16</span>) * <span class="hljs-number">8</span>)<br>key = long_to_bytes(k)<br>dec_flag(ct, key)  <br></code></pre></td></tr></table></figure>
+
+<h1 id="P-or-S"><a href="#P-or-S" class="headerlink" title="P or S"></a>P or S</h1><p>分析<code>enc()</code>函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">enc</span>(<span class="hljs-params">v</span>):<br>    t = v<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> keys:<br>        q = []<br>        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> Pbox:<br>            q.append(<span class="hljs-built_in">sum</span>([t[k] <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> j]) % <span class="hljs-number">2</span>)<br>        t = [<span class="hljs-built_in">int</span>(q[j]) ^ <span class="hljs-built_in">int</span>(i[j]) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>)]<br>    <span class="hljs-keyword">return</span> t<br></code></pre></td></tr></table></figure>
+
+<p>细心点可以发现 $q$ 的生成可以看成 $GF(2)$ 上的矩阵运算（行乘列，很像吧），假设 $Pbox$ 的矩阵为 $P$ (32×32)，传入的明文的矩阵为 $M$ (32×1)，则中间生成矩阵为 $T&#x3D;P*M$ ，$t$ 这一步就是额外加一个矩阵 $K_i$(32×1)，于是6次循环有如下公式<br>$$<br>c &#x3D; P*(P*(P*(P*(P*(P*M+K_1)+K_2)+K_3)+K_4)+K_5)+K_6 &#x3D; P^6*M+\sum_{i&#x3D;0}^{n&#x3D;6}P^{6-i}K_i<br>$$<br>通过已知一组明密文可以计算出对应的$\sum_{i&#x3D;0}^{n&#x3D;6}P^{6-i}K_i$ 。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#sage</span><br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><br>Pbox = [<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">22</span>, <span class="hljs-number">25</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>],<br>    [<span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">27</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">2</span>, <span class="hljs-number">10</span>, <span class="hljs-number">13</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">29</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">8</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">17</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">19</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">27</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">10</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">21</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">15</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">22</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">29</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">17</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">11</span>, <span class="hljs-number">17</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">2</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">24</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">29</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">17</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">24</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">21</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">23</span>, <span class="hljs-number">26</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">25</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">10</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">29</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">23</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">8</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">21</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">28</span>],<br>    [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>, <span class="hljs-number">14</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">25</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">11</span>, <span class="hljs-number">13</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">13</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">19</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">27</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">12</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">26</span>, <span class="hljs-number">30</span>]<br>]<br><br><span class="hljs-comment">#get Matrix P</span><br>P = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">32</span>):<br>    t = [<span class="hljs-number">0</span>]*<span class="hljs-number">32</span><br>    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(Pbox[i])):<br>        t[Pbox[i][j]] = <span class="hljs-number">1</span><br>    P.append(t)<br>P = Matrix(GF(<span class="hljs-number">2</span>),P)<br>P6 = P^<span class="hljs-number">6</span><br>inv_P6 = P6^(-<span class="hljs-number">1</span>)<br><br><span class="hljs-comment">#get sum of key_i*P^j</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getsum</span>(<span class="hljs-params">data,cipher</span>):<br>    A = [[<span class="hljs-built_in">int</span>(i)] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> data]<span class="hljs-comment">#A = matrix(32,1,A)</span><br>    A = Matrix(GF(<span class="hljs-number">2</span>),A)<br>    C = [[<span class="hljs-built_in">int</span>(i)] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> cipher]<br>    C = Matrix(GF(<span class="hljs-number">2</span>),C)<br>    <span class="hljs-built_in">sum</span> = C - P6*A<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">sum</span><br><br><span class="hljs-comment">#to decrypto</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">solve</span>(<span class="hljs-params">B,C</span>):<span class="hljs-comment">#B is key_sum,C is cipher</span><br>    C = Matrix(GF(<span class="hljs-number">2</span>),C)<br>    f = inv_P6*(C-B)<br>    <span class="hljs-keyword">return</span> f.<span class="hljs-built_in">list</span>()<br><br><br>ciphertext = <span class="hljs-string">&#x27;0111110000100101000001101011110111101100000010110011101111000101111110111111100100100010001011000101000110110011111101000001001000000101111000001110001111001001100100111000011011101111111101001011100000100100110011111101100111001100111111110001111011101100&#x27;</span><br><span class="hljs-built_in">format</span> = <span class="hljs-built_in">bin</span>(bytes_to_long(<span class="hljs-string">b&#x27;flag&#x27;</span>))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">32</span>)<br><span class="hljs-built_in">sum</span> = getsum(<span class="hljs-built_in">format</span>,ciphertext[:<span class="hljs-number">32</span>])<br><br>fb = <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(ciphertext), <span class="hljs-number">32</span>):<br>    t = solve(<span class="hljs-built_in">sum</span>,[[<span class="hljs-built_in">int</span>(j)] <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> ciphertext[i:i + <span class="hljs-number">32</span>]])<br>    fb += <span class="hljs-string">&quot;&quot;</span>.join(<span class="hljs-built_in">str</span>(j) <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> t)<br><br>flag = long_to_bytes(<span class="hljs-built_in">int</span>(fb,<span class="hljs-number">2</span>))<br><span class="hljs-built_in">print</span>(flag)<br></code></pre></td></tr></table></figure>
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.wolai.com/nepnep/g2DTj6mRtBk2mikVuCyaE6">NepCTF 2022 (wolai.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Dual-EC/">#Dual_EC</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>NepCTF 2022</div>
+      <div>http://example.com/2022/07/21/NepCTF 2022/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/24/DASCTF2022.07%E8%B5%8B%E8%83%BD%E8%B5%9B/" title="DASCTF2022.07赋能赛">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DASCTF2022.07赋能赛</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/19/2022-dsctf/" title="2022 DSCTF">
+                        <span class="hidden-mobile">2022 DSCTF</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

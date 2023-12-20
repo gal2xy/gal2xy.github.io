@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言刷机前建议先看看这个视频（玩机必看！带你入坑安卓刷机，小白也能看懂的ROOT基础指南来啦！_哔哩哔哩_bilibili），了解刷机的一些基础知识。pixle刷LineageOS系统的话可以参考：两条命令教你刷入LineageOS，小白也能上手！_哔哩哔哩_bilibili。 二、Pixel4刷LineageOS系统及MindTheGapps2.1 准备工作 在官网中找对应设备的总页面：De">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pixel4刷Lineage OS和root">
+<meta property="og:url" content="http://example.com/2023/07/15/Pixel4%E5%88%B7Lineage%20OS/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言刷机前建议先看看这个视频（玩机必看！带你入坑安卓刷机，小白也能看懂的ROOT基础指南来啦！_哔哩哔哩_bilibili），了解刷机的一些基础知识。pixle刷LineageOS系统的话可以参考：两条命令教你刷入LineageOS，小白也能上手！_哔哩哔哩_bilibili。 二、Pixel4刷LineageOS系统及MindTheGapps2.1 准备工作 在官网中找对应设备的总页面：De">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152231613.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152231549.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232080.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232488.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232204.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233262.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233793.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233803.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233855.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233622.png">
+<meta property="article:published_time" content="2023-07-15T14:29:06.000Z">
+<meta property="article:modified_time" content="2023-09-06T06:41:47.104Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="刷机">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152231613.png">
+  
+  
+  
+  <title>Pixel4刷Lineage OS和root - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Pixel4刷Lineage OS和root"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-15 22:29" pubdate>
+          2023年7月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Pixel4刷Lineage OS和root</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>刷机前建议先看看这个视频（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1BY4y1H7Mc/?buvid=XX71D2975B6460DDA13ACF6C397DF2E78AA3B&is_story_h5=false&mid=rVd4HoESkEBG2mkNA+9sTQ==&p=1&plat_id=116&share_from=ugc&share_medium=android&share_plat=android&share_session_id=b77b1884-2159-47d3-8b5d-7094160a3811&share_source=QQ&share_tag=s_i&timestamp=1689348675&unique_k=AJdJ9pW&up_id=25876945&vd_source=93c3d93ed7e80c0e051905699e1c294f">玩机必看！带你入坑安卓刷机，小白也能看懂的ROOT基础指南来啦！_哔哩哔哩_bilibili</a>），了解刷机的一些基础知识。<code>pixle</code>刷<code>LineageOS</code>系统的话可以参考：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1fR4y1v7qf/?buvid=XX71D2975B6460DDA13ACF6C397DF2E78AA3B&is_story_h5=false&mid=rVd4HoESkEBG2mkNA+9sTQ==&p=1&plat_id=116&share_from=ugc&share_medium=android&share_plat=android&share_session_id=ec2eeed6-587f-4461-a521-457392a009ec&share_source=QQ&share_tag=s_i&timestamp=1689396221&unique_k=3rdkpc7&up_id=3493094532057146&vd_source=93c3d93ed7e80c0e051905699e1c294f">两条命令教你刷入LineageOS，小白也能上手！_哔哩哔哩_bilibili</a>。</p>
+<h1 id="二、Pixel4刷LineageOS系统及MindTheGapps"><a href="#二、Pixel4刷LineageOS系统及MindTheGapps" class="headerlink" title="二、Pixel4刷LineageOS系统及MindTheGapps"></a>二、Pixel4刷LineageOS系统及MindTheGapps</h1><h2 id="2-1-准备工作"><a href="#2-1-准备工作" class="headerlink" title="2.1 准备工作"></a>2.1 准备工作</h2><ol>
+<li><p>在官网中找对应设备的总页面：<a target="_blank" rel="noopener" href="https://wiki.lineageos.org/devices/">Devices | LineageOS Wiki</a>，判断设备是否与页面中手机展示信息相符。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152231613.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>下载<code>LineageOS</code>的<code>zip</code>和<code>boot.img</code>：<a target="_blank" rel="noopener" href="https://download.lineageos.org/devices/flame/builds">LineageOS Downloads</a>下载最新的配套的<code>boot.img</code>和<code>lineage-xxxxxxx-nightly-flame-signed.zip</code>（因为只有最新的🤣）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152231549.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>下载Google apps（MindTheGapps）：<a target="_blank" rel="noopener" href="https://wiki.lineageos.org/gapps">Google apps | LineageOS Wiki</a>，选择移动版。根据你下的LineageOS的包下对应的（例如Lineage 20安卓版本是13，所以选择MindTheGapps-13xxxx）,至于是<code>arm</code>还是<code>arm64</code>则根据你的手机的<code>CPU</code>架构来选择。</p>
+<p>在<code>cmd</code>中使用下列指令查看设备的CPU架构：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">adb shell getprop ro<span class="hljs-selector-class">.product</span><span class="hljs-selector-class">.cpu</span>.abi<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232080.png" srcset="/img/loading.gif" lazyload></p>
+<p>选择镜像网站下载比较快（另一个网站尝试点击下载是无反应的）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232488.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>确保电脑端下载了<code>platform-tools</code>，即在命令窗口中能够使用<code>adb</code>和<code>fastboot</code>指令。</p>
+</li>
+<li><p>手机端开启USB调试模式</p>
+</li>
+</ol>
+<p><strong>在开始操作前，请先阅读一遍官网给的刷机教程（<a target="_blank" rel="noopener" href="https://wiki.lineageos.org/devices/flame/install">Install LineageOS on flame | LineageOS Wiki</a>）！！！</strong></p>
+<p><strong>在开始操作前，请先阅读一遍官网给的刷机教程（<a target="_blank" rel="noopener" href="https://wiki.lineageos.org/devices/flame/install">Install LineageOS on flame | LineageOS Wiki</a>）！！！</strong></p>
+<p><strong>在开始操作前，请先阅读一遍官网给的刷机教程（<a target="_blank" rel="noopener" href="https://wiki.lineageos.org/devices/flame/install">Install LineageOS on flame | LineageOS Wiki</a>）！！！</strong></p>
+<h2 id="2-2-刷入LineageOS"><a href="#2-2-刷入LineageOS" class="headerlink" title="2.2 刷入LineageOS"></a>2.2 刷入LineageOS</h2><p>首先在手机端解<code>OEM</code>锁（在开发者选项里），然后电脑端执行下列命令即可解<code>BootLoader</code>锁：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">adb reboot bootloader</span><br><span class="hljs-attribute">fastboot devices</span><br><span class="hljs-attribute">fastboot flashing unlock</span><br></code></pre></td></tr></table></figure>
+
+<p>解完<code>BootLoader</code>锁之后应该还是在<code>fastboot</code>模式下（没记错的话，如果不是就执行<code>fastboot reboot bootloader</code>），执行下列命令刷入<code>boot.img</code>：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">fastboot flash boot <span class="hljs-attr">--slot</span> <span class="hljs-attribute">all</span> boot<span class="hljs-selector-class">.img</span>所在路径<br></code></pre></td></tr></table></figure>
+
+<p>这是使用<code>--slot all</code>是因为下面这个原因，当然也可以不添加，倘若报<code>no valid slot to boot</code>，请添加该参数并重新执行该指令（参考：<a target="_blank" rel="noopener" href="https://forum.xda-developers.com/t/no-valid-slot-to-boot-any-way-to-back-up-data.4193883/">No valid slot to boot - any way to back up data? | XDA Forums (xda-developers.com)</a>）。</p>
+<blockquote>
+<p>从Android7开始，引入了新的OTA升级方式A&#x2F;B System Updates，这种升级方式将boot、system等分区为两套，叫做slot A和slot B。在fastboot模式下可以看到当前使用的是哪个分区。</p>
+</blockquote>
+<p>然后执行下列指令清除用户数据：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">fastboot <span class="hljs-built_in">erase</span> userdata<br></code></pre></td></tr></table></figure>
+
+<p>执行下列指令进入<code>fastbootd</code>模式:</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">fastboot reboot fastboot</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152232204.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>选择<code>Enter recovery</code>进入到<code>recovery</code>模式，然后选择<code>Apply update</code>，继续选择<code>Apply from ADB</code>，在手机底部看到<code>ADB Sideload</code>后，就可以输入下列命令刷入<code>lineage</code>系统：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">adb</span> sideload lineagexxx.zip所在路径<br></code></pre></td></tr></table></figure>
+
+<p>这个会卡在47%，不要急，执行完后手机底部会有命令显示<code>Install completed</code>。</p>
+<p>刷入<code>lineag</code>系统后，同样的方式进入到<code>Apply from ADB</code>，执行下列命令刷入<code>MindTheGapps</code>：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">adb</span> sideload MindTheGappsxxx.zip所在路径<br></code></pre></td></tr></table></figure>
+
+<p>关键的来了！它会报错，如图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233262.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>不要管它，点击<code>Yes</code>继续安装，可以参考官方文档，如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233793.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>安装成功如图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233803.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>最后选择<code>reboot system now</code>就大功告成了。</p>
+<p><code>MindTheGapps</code>安装和没有安装的区别如图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233855.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、Pixel4刷root"><a href="#三、Pixel4刷root" class="headerlink" title="三、Pixel4刷root"></a>三、Pixel4刷root</h1><h2 id="3-1-准备工作"><a href="#3-1-准备工作" class="headerlink" title="3.1 准备工作"></a>3.1 准备工作</h2><ol>
+<li>下载<code>Magisk</code>（<a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk/releases%EF%BC%89">https://github.com/topjohnwu/Magisk/releases）</a></li>
+<li>刷<code>LineageOS</code>时的<code>boot.img</code></li>
+</ol>
+<h2 id="3-2-刷入root"><a href="#3-2-刷入root" class="headerlink" title="3.2 刷入root"></a>3.2 刷入root</h2><p>先通过指令在手机端安装<code>Magisk</code></p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">adb <span class="hljs-keyword">install</span> Magisk路径(电脑端)<br></code></pre></td></tr></table></figure>
+
+<p>然后将<code>boot.img</code>导入手机端，指令如下：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gradle">adb <span class="hljs-keyword">push</span> boot.img路径(电脑端) <span class="hljs-regexp">/storage/</span>emulated<span class="hljs-regexp">/0/</span>Download(手机端，这里选择的是Magisk的下载路径，可以随意)<br></code></pre></td></tr></table></figure>
+
+<p>手机端打开<code>Magisk</code>，点击安装，选择<code>修补boot镜像中的vbmeta</code>，再选择<code>选择并修补一个文件</code>，选择刚才传入的<code>boot.img</code>。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307152233622.png" srcset="/img/loading.gif" lazyload></p>
+<p>修补后会在<code>boot.img</code>的同文件夹下生成一个<code>magisk_patched_xxx.img</code>文件，把<code>magisk_patched.img</code>传到电脑端，使用下列指令：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">adb pull <span class="hljs-regexp">/storage/</span>emulated<span class="hljs-regexp">/0/</span>Download/xxx(手机端) \xxx(电脑端)<br></code></pre></td></tr></table></figure>
+
+<p>然后使用下列指令使手机进入<code>bootloader</code>：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">adb reboot bootloader</span><br></code></pre></td></tr></table></figure>
+
+<p>将修补的<code>boot.img</code>写回<code>boot</code>分区并重启手机：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css">fastboot flash boot (<span class="hljs-attr">--slot</span> <span class="hljs-attribute">all</span>) magisk_patchedxxx<span class="hljs-selector-class">.img</span>所在路径<br>fastboot reboot<br></code></pre></td></tr></table></figure>
+
+<p>打开<code>Magisk</code>可以发现超级用户和模块可以使用了，即<code>root</code>成功。</p>
+<h1 id="四、添加BurpSuite证书"><a href="#四、添加BurpSuite证书" class="headerlink" title="四、添加BurpSuite证书"></a>四、添加BurpSuite证书</h1><p>直接安装证书只能安装进用户里，而有些 app 只信任系统的根证书，所以需要将 Burp 的 CA 证书添加到系统根证书里。</p>
+<p>首先导出 Burp 的证书，然后执行下面指令：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs llvm">openssl <span class="hljs-keyword">x</span><span class="hljs-number">509</span> -inform DER -subject_hash_old -in 证书路径<br></code></pre></td></tr></table></figure>
+
+<p>第一行的数字就是哈希值。然后执行</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">openssl</span> x509 -inform DER -in burp.cer -text &gt; 所得到的哈希值.<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>用记事本编辑证书，将<code>-----BEGIN CERTIFICATE-----</code>到<code>-----END CERTIFICATE-----</code>的部分（也就是证书部分）放到文件最前面。</p>
+<p>执行</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">adb remount										<span class="hljs-regexp">//</span>重新挂载设备的文件系统，将文件系统从只读模式切换为可读写模式<br><span class="hljs-regexp">//</span>如果adb remount失败，请先adb root再尝试<br>adb push cert<span class="hljs-regexp">/xxxx.0 /</span>sdcard<span class="hljs-regexp">/Download/</span>			<span class="hljs-regexp">//</span>将得到的.<span class="hljs-number">0</span>文件推入手机中<br></code></pre></td></tr></table></figure>
+
+<p>adb root无效的话，可能是你所刷的系统带有Google API，所以不完全开放root权限，详细可参考<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio/run/managing-avds?hl=zh-cn">创建和管理虚拟设备  | Android Studio  | Android Developers (google.cn)</a>，关键说明如下：</p>
+<blockquote>
+<p>为确保应用安全并且与实体设备的体验一致，包含 Google Play 商店的系统映像已使用发布密钥签名，这意味着，您无法获得这些映像的提升权限 (root)。</p>
+<p>如果您需要使用提升权限 (root) 来帮助您排查应用问题，您可以使用不包含 Google 应用或服务的 Android 开源项目 (AOSP) 系统映像。然后，您可以使用 <code>adb root</code> 和 <code>adb unroot</code> 命令在普通权限和提升权限之间切换：</p>
+</blockquote>
+<p>如果想要完全获取root权限，可以寻找其他工具（暂时没找到能用的），如果只是为了让证书装在系统根证书目录下，可以使用<a target="_blank" rel="noopener" href="https://github.com/NVISOsecurity/MagiskTrustUserCerts">AlwaysTurstUserCerts</a>插件。</p>
+<p>接着执行下列命令</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">adb shell  															<span class="hljs-regexp">//</span>进入shell模式<br>cp <span class="hljs-regexp">/sdcard/</span>Download<span class="hljs-regexp">/xxxx.0 /</span>system<span class="hljs-regexp">/etc/</span>security<span class="hljs-regexp">/cacerts/</span> 			<span class="hljs-regexp">//</span>将证书复制到系统根证书目录下<br>chmod <span class="hljs-number">644</span> <span class="hljs-regexp">/system/</span>etc<span class="hljs-regexp">/security/</span>cacerts<span class="hljs-regexp">/xxxx.0						/</span><span class="hljs-regexp">/设置文件权限</span><br></code></pre></td></tr></table></figure>
+
+<p>现在burp的证书就在系统根证书下了。我试了下，重启后这个文件并没有消失，如果消失了就 adb remount, adb shell, cp 与 chmod 四步就行了。</p>
+<p><strong>注意！！！在抓包前，先把手机时间调到当前时间，否则可能会出现抓包异常！！！（稀里糊涂的我再次刷机了）</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+        <a href="/tags/%E5%88%B7%E6%9C%BA/">#刷机</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Pixel4刷Lineage OS和root</div>
+      <div>http://example.com/2023/07/15/Pixel4刷Lineage OS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月15日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/17/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)/" title="Android应用程序启动流程(一)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android应用程序启动流程(一)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/04/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Android系统启动流程">
+                        <span class="hidden-mobile">Android系统启动流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

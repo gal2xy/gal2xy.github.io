@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言System进程和App进程都运行着一个或多个App，每个App都会有一个对应的Application对象(该对象跟LoadedApk一一对应)。下面分别解析以下两种进程创建Application的过程：  System Server进程 App进程  二、System Server进程在Android系统启动流程一文中，讲到过Zygote通过回调函数进入到System Server阶段，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中Application的创建流程">
+<meta property="og:url" content="http://example.com/2023/11/27/Android%E4%B8%ADApplication%E7%9A%84%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言System进程和App进程都运行着一个或多个App，每个App都会有一个对应的Application对象(该对象跟LoadedApk一一对应)。下面分别解析以下两种进程创建Application的过程：  System Server进程 App进程  二、System Server进程在Android系统启动流程一文中，讲到过Zygote通过回调函数进入到System Server阶段，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gityuan.com/images/application/system_application.jpg">
+<meta property="og:image" content="https://gityuan.com/images/application/app_application.jpg">
+<meta property="article:published_time" content="2023-11-27T09:50:43.000Z">
+<meta property="article:modified_time" content="2023-12-01T14:14:56.532Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Application">
+<meta property="article:tag" content="Android源码解析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gityuan.com/images/application/system_application.jpg">
+  
+  
+  
+  <title>Android中Application的创建流程 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android中Application的创建流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-27 17:50" pubdate>
+          2023年11月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          27k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          226 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android中Application的创建流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>System进程和App进程都运行着一个或多个App，每个App都会有一个对应的Application对象(该对象跟LoadedApk一一对应)。下面分别解析以下两种进程创建Application的过程：</p>
+<ul>
+<li>System Server进程</li>
+<li>App进程</li>
+</ul>
+<h1 id="二、System-Server进程"><a href="#二、System-Server进程" class="headerlink" title="二、System Server进程"></a>二、System Server进程</h1><p>在<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/07/04/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Android系统启动流程</a>一文中，讲到过Zygote通过回调函数进入到System Server阶段，也就是调用了System Server的<code>main()</code>方法中，该方法中会调用<code>run()</code>方法，具体代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/services/java/com/android/server/SystemServer.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemServer</span>().run();<span class="hljs-comment">//见2.1 </span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-1-SystemServer-run"><a href="#2-1-SystemServer-run" class="headerlink" title="2.1 SystemServer.run()"></a>2.1 SystemServer.run()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/services/java/com/android/server/SystemServer.java  </span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        ......<br>        <span class="hljs-comment">//创建消息Looper</span><br>        Looper.prepareMainLooper();<br>        <span class="hljs-comment">//加载动态库libandroid_servers.so</span><br>        System.loadLibrary(<span class="hljs-string">&quot;android_servers&quot;</span>);<br>        performPendingShutdown();<br>        <span class="hljs-comment">//创建系统的Context</span><br>        createSystemContext();<span class="hljs-comment">//见2.2</span><br>        <span class="hljs-comment">//创建SystemServiceManager</span><br>        mSystemServiceManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemServiceManager</span>(mSystemContext);<br>        mSystemServiceManager.setRuntimeRestarted(mRuntimeRestart);<br>        LocalServices.addService(SystemServiceManager.class, mSystemServiceManager);<br>        <span class="hljs-comment">// Prepare the thread pool for init tasks that can be parallelized</span><br>        SystemServerInitThreadPool.get();<br>    &#125;<br>    ...<br>    <span class="hljs-keyword">try</span> &#123;<br>        traceBeginAndSlog(<span class="hljs-string">&quot;StartServices&quot;</span>);<br>        <span class="hljs-comment">//启动引导服务</span><br>        startBootstrapServices();<br>        <span class="hljs-comment">//启动核心服务</span><br>        startCoreServices();<br>        <span class="hljs-comment">//启动其他服务</span><br>        startOtherServices();<br>        SystemServerInitThreadPool.shutdown();<br>    &#125; <br>	......<br>    Looper.loop();<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;Main thread loop unexpectedly exited&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在System Server的<code>run()</code>方法中，会调用<code>createSystemContext()</code>来创建系统的上下文。</p>
+<h2 id="2-2-createSystemContext"><a href="#2-2-createSystemContext" class="headerlink" title="2.2 createSystemContext()"></a>2.2 createSystemContext()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/services/java/com/android/server/SystemServer.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createSystemContext</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">ActivityThread</span> <span class="hljs-variable">activityThread</span> <span class="hljs-operator">=</span> ActivityThread.systemMain();<span class="hljs-comment">//见[2.3]</span><br>    mSystemContext = activityThread.getSystemContext();<span class="hljs-comment">//获取系统上下文</span><br>    mSystemContext.setTheme(DEFAULT_SYSTEM_THEME);<br><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">Context</span> <span class="hljs-variable">systemUiContext</span> <span class="hljs-operator">=</span> activityThread.getSystemUiContext();<span class="hljs-comment">//获取系统UI上下文</span><br>    systemUiContext.setTheme(DEFAULT_SYSTEM_THEME);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用了<code>ActivityThread.systemMain()</code>方法，以及<code>getSystemContext()</code>获取系统上下文、<code>getSystemUiContext()</code>获取系统UI上下文。</p>
+<h2 id="2-3-ActivityThread-systemMain"><a href="#2-3-ActivityThread-systemMain" class="headerlink" title="2.3 ActivityThread.systemMain()"></a>2.3 ActivityThread.systemMain()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ActivityThread <span class="hljs-title function_">systemMain</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-comment">// 高内存设备进行硬件加速绘图</span><br>    <span class="hljs-keyword">if</span> (!ActivityManager.isHighEndGfx()) &#123;<br>        ThreadedRenderer.disable(<span class="hljs-literal">true</span>);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        ThreadedRenderer.enableForegroundTrimming();<br>    &#125;<br>    <span class="hljs-type">ActivityThread</span> <span class="hljs-variable">thread</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActivityThread</span>();<span class="hljs-comment">//见2.4</span><br>    thread.attach(<span class="hljs-literal">true</span>);<span class="hljs-comment">//见2.5</span><br>    <span class="hljs-keyword">return</span> thread;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-4-ActivityThread初始化"><a href="#2-4-ActivityThread初始化" class="headerlink" title="2.4 ActivityThread初始化"></a>2.4 ActivityThread初始化</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ActivityThread</span> &#123;<br>	<span class="hljs-keyword">private</span> ContextImpl mSystemContext;<span class="hljs-comment">//记录system进程的ContextImpl对象</span><br>    <span class="hljs-keyword">private</span> ContextImpl mSystemUiContext;<span class="hljs-comment">//系统 UI 的上下文对象</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">ApplicationThread</span> <span class="hljs-variable">mAppThread</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ApplicationThread</span>();<span class="hljs-comment">//创建ApplicationThread对象</span><br>    AppBindData mBoundApplication;<span class="hljs-comment">//用于绑定应用程序的相关信息</span><br>    Application mInitialApplication;<span class="hljs-comment">//当前进程中首次初始化的app对象</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> ActivityThread sCurrentActivityThread;<span class="hljs-comment">//记录当前ActivityThread</span><br>    Instrumentation mInstrumentation;<span class="hljs-comment">//用于监控和管理应用程序的执行环境。它提供了一种机制，可以向应用程序注入代码，监视和控制应用程序的行为</span><br>	<span class="hljs-type">boolean</span> <span class="hljs-variable">mSystemThread</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<span class="hljs-comment">//标记当前进程是否为system进程</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Handler sMainThreadHandler;<span class="hljs-comment">//处理主线程消息的句柄</span><br>    ...<br>    ActivityThread() &#123;<br>        mResourcesManager = ResourcesManager.getInstance();<span class="hljs-comment">//获取资源管理实例</span><br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>创建ActivityThread实例时，会初始化很多变量，其中有一个Application类的mInitialApplication对象，它的初始化分为两种情况：</p>
+<ol>
+<li>System Server进程则是由<code>ActivityThread.attach()</code>过程赋值。</li>
+<li>普通App进程则是由<code>ActivityThread.handleBindApplication()</code>过程赋值。</li>
+</ol>
+<h2 id="2-5-ActivityThread-attach"><a href="#2-5-ActivityThread-attach" class="headerlink" title="2.5 ActivityThread.attach()"></a>2.5 ActivityThread.attach()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attach</span><span class="hljs-params">(<span class="hljs-type">boolean</span> system)</span> &#123;<br>    sCurrentActivityThread = <span class="hljs-built_in">this</span>;<br>    mSystemThread = system;<span class="hljs-comment">//传入的参数为true,即设置mSystemThread为true，这意味着当前进程是系统进程</span><br>    <span class="hljs-keyword">if</span> (!system) &#123;<span class="hljs-comment">//非系统进程执行该分支</span><br>        ...<br>    &#125; <span class="hljs-keyword">else</span> &#123;<span class="hljs-comment">//系统进程执行该分支</span><br>        ...<br>        <span class="hljs-keyword">try</span> &#123;<br>            mInstrumentation = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Instrumentation</span>();<span class="hljs-comment">//创建Instrumentation对像</span><br>            <span class="hljs-comment">//getSystemContext见[2.6]</span><br>            <span class="hljs-comment">//createAppContext见[2.7]</span><br>            <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> ContextImpl.createAppContext(<span class="hljs-built_in">this</span>, getSystemContext().mPackageInfo);<br>            <span class="hljs-comment">//makeApplication见[2.8]</span><br>            mInitialApplication = context.mPackageInfo.makeApplication(<span class="hljs-literal">true</span>, <span class="hljs-literal">null</span>);<br>            mInitialApplication.onCreate();<span class="hljs-comment">//创建Application对象</span><br>        &#125; <br>        ...<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>传入的system参数为true，这意味着当前进程是系统进程，对应进入else分支，会实例化mInstrumentation和mInitialApplication对象。</p>
+<h2 id="2-6-getSystemContext"><a href="#2-6-getSystemContext" class="headerlink" title="2.6 getSystemContext()"></a>2.6 getSystemContext()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> ContextImpl <span class="hljs-title function_">getSystemContext</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-keyword">if</span> (mSystemContext == <span class="hljs-literal">null</span>) &#123;<br>            mSystemContext = ContextImpl.createSystemContext(<span class="hljs-built_in">this</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> mSystemContext;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用<code>createSystemContext()</code>创建系统上下文。</p>
+<h3 id="2-6-1-createSystemContext"><a href="#2-6-1-createSystemContext" class="headerlink" title="2.6.1 createSystemContext()"></a>2.6.1 createSystemContext()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ContextImpl.java</span><br><span class="hljs-keyword">static</span> ContextImpl <span class="hljs-title function_">createSystemContext</span><span class="hljs-params">(ActivityThread mainThread)</span> &#123;<br>	<span class="hljs-comment">//创建LoadedApk对象，见[2.6.1.1]</span><br>    <span class="hljs-type">LoadedApk</span> <span class="hljs-variable">packageInfo</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LoadedApk</span>(mainThread);<br>    <span class="hljs-comment">//创建ContextImpl对象，见[2.6.1.2]</span><br>    <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ContextImpl</span>(<span class="hljs-literal">null</span>, mainThread, packageInfo, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">null</span>);<br>	<span class="hljs-comment">//设置资源并更新资源配置</span><br>    context.setResources(packageInfo.getResources());<br>    context.mResources.updateConfiguration(context.mResourcesManager.getConfiguration(),<br>                                           context.mResourcesManager.getDisplayMetrics());<br>    <span class="hljs-keyword">return</span> context;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>创建LoadedApk对象和ContextImpl对象，并设置资源、更新资源配置。</p>
+<h4 id="2-6-1-1-LoadedApk初始化"><a href="#2-6-1-1-LoadedApk初始化" class="headerlink" title="2.6.1.1 LoadedApk初始化"></a>2.6.1.1 LoadedApk初始化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LoadedApk</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ActivityThread mActivityThread;<br>    <span class="hljs-keyword">final</span> String mPackageName;<br>    <span class="hljs-keyword">private</span> ApplicationInfo mApplicationInfo;<br>    <span class="hljs-keyword">private</span> String mAppDir;<br>    <span class="hljs-keyword">private</span> String mResDir;<br>    <span class="hljs-keyword">private</span> String[] mOverlayDirs;<br>    <span class="hljs-keyword">private</span> String[] mSharedLibraries;<br>    <span class="hljs-keyword">private</span> String mDataDir;<br>    <span class="hljs-keyword">private</span> String mLibDir;<br>    <span class="hljs-keyword">private</span> File mDataDirFile;<br>    <span class="hljs-keyword">private</span> File mDeviceProtectedDataDirFile;<br>    <span class="hljs-keyword">private</span> File mCredentialProtectedDataDirFile;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ClassLoader mBaseClassLoader;<br>    ...<br>    Resources mResources;<br>    <span class="hljs-keyword">private</span> ClassLoader mClassLoader;<br>    <span class="hljs-keyword">private</span> Application mApplication;<br>    ...<br>    <span class="hljs-comment">// Create information about a new .apk</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">LoadedApk</span><span class="hljs-params">(ActivityThread activityThread, ApplicationInfo aInfo,</span><br><span class="hljs-params">            CompatibilityInfo compatInfo, ClassLoader baseLoader,</span><br><span class="hljs-params">            <span class="hljs-type">boolean</span> securityViolation, <span class="hljs-type">boolean</span> includeCode, <span class="hljs-type">boolean</span> registerPackage)</span> &#123;<br>        mActivityThread = activityThread;<br>        setApplicationInfo(aInfo);<br>        mPackageName = aInfo.packageName;<br>        mBaseClassLoader = baseLoader;<br>        mSecurityViolation = securityViolation;<br>        mIncludeCode = includeCode;<br>        mRegisterPackage = registerPackage;<br>        mDisplayAdjustments.setCompatibilityInfo(compatInfo);<br>    &#125;<br>    <br>    LoadedApk(ActivityThread activityThread) &#123;<br>        mActivityThread = activityThread;<span class="hljs-comment">//对应ActivityThread实例</span><br>        mApplicationInfo = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ApplicationInfo</span>();<span class="hljs-comment">//创建ApplicationInfo对象，里面啥也没干</span><br>        mApplicationInfo.packageName = <span class="hljs-string">&quot;android&quot;</span>;<span class="hljs-comment">//默认包名为&quot;android&quot;</span><br>        mPackageName = <span class="hljs-string">&quot;android&quot;</span>;<br>        ...<br>        mClassLoader = ClassLoader.getSystemClassLoader();<span class="hljs-comment">//见https://gal2xy.github.io/2023/11/25/Android中的ClassLoader/</span><br>        mResources = Resources.getSystem();<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>LoadedApk主要是用来创建apk的相关信息，并集合成一个LoadedApk对象，其中相关信息包括：活动线程、包名、资源目录、共享库目录、类加载器等等。System Server进程走的是带一个参数的LoadedApk构造函数，其中比较重要的是将之前创建的ActivityThread实例赋值mActivityThread字段、创建ApplicationInfo对象、获取类加载器。</p>
+<h4 id="2-6-1-2-ContextImpl初始化"><a href="#2-6-1-2-ContextImpl初始化" class="headerlink" title="2.6.1.2 ContextImpl初始化"></a>2.6.1.2 ContextImpl初始化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ContextImpl.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-title function_">ContextImpl</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> ContextImpl container, <span class="hljs-meta">@NonNull</span> ActivityThread mainThread,</span><br><span class="hljs-params">                    <span class="hljs-meta">@NonNull</span> LoadedApk packageInfo, <span class="hljs-meta">@Nullable</span> String splitName,</span><br><span class="hljs-params">                    <span class="hljs-meta">@Nullable</span> IBinder activityToken, <span class="hljs-meta">@Nullable</span> UserHandle user, <span class="hljs-type">int</span> flags,</span><br><span class="hljs-params">                    <span class="hljs-meta">@Nullable</span> ClassLoader classLoader)</span> &#123;<br>    mOuterContext = <span class="hljs-built_in">this</span>;<br>    <span class="hljs-keyword">if</span> ((flags &amp; (Context.CONTEXT_CREDENTIAL_PROTECTED_STORAGE<br>                  | Context.CONTEXT_DEVICE_PROTECTED_STORAGE)) == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">File</span> <span class="hljs-variable">dataDir</span> <span class="hljs-operator">=</span> packageInfo.getDataDirFile();<br>        <span class="hljs-keyword">if</span> (Objects.equals(dataDir, packageInfo.getCredentialProtectedDataDirFile())) &#123;<br>            flags |= Context.CONTEXT_CREDENTIAL_PROTECTED_STORAGE;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (Objects.equals(dataDir, packageInfo.getDeviceProtectedDataDirFile())) &#123;<br>            flags |= Context.CONTEXT_DEVICE_PROTECTED_STORAGE;<br>        &#125;<br>    &#125;<br>    mMainThread = mainThread;<br>    mActivityToken = activityToken;<br>    mFlags = flags;<br>	<span class="hljs-comment">//设置当前进程的用户</span><br>    <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span>) &#123;<br>        user = Process.myUserHandle();<br>    &#125;<br>    mUser = user;<br>	<span class="hljs-comment">//将刚刚创建的LoadedApk实例赋给mPackageInfo</span><br>    mPackageInfo = packageInfo;<br>    mSplitName = splitName;<br>    mClassLoader = classLoader;<br>    mResourcesManager = ResourcesManager.getInstance();<br>	<span class="hljs-comment">//根据传入的上下文对象container是否为空来进行不同操作</span><br>    <span class="hljs-keyword">if</span> (container != <span class="hljs-literal">null</span>) &#123;<br>        mBasePackageName = container.mBasePackageName;<br>        mOpPackageName = container.mOpPackageName;<br>        setResources(container.mResources);<br>        mDisplay = container.mDisplay;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<span class="hljs-comment">//将刚刚创建的LoadedApk实例的信息赋值某些字段</span><br>        mBasePackageName = packageInfo.mPackageName;<br>        <span class="hljs-type">ApplicationInfo</span> <span class="hljs-variable">ainfo</span> <span class="hljs-operator">=</span> packageInfo.getApplicationInfo();<span class="hljs-comment">//实际上是空的对象</span><br>        <span class="hljs-keyword">if</span> (ainfo.uid == Process.SYSTEM_UID &amp;&amp; ainfo.uid != Process.myUid()) &#123;<br>            mOpPackageName = ActivityThread.currentPackageName();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            mOpPackageName = mBasePackageName;<br>        &#125;<br>    &#125;<br>    mContentResolver = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ApplicationContentResolver</span>(<span class="hljs-built_in">this</span>, mainThread, user);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>传入的参数mainThread为之前创建的ActivityThread实例、参数packageInfo为刚刚创建的LoadedApk实例。</p>
+<p>整个代码实际上是利用刚刚创建的LoadedApk实例来创建ContextImpl实例。</p>
+<h2 id="2-7-ContextImpl-createAppContext"><a href="#2-7-ContextImpl-createAppContext" class="headerlink" title="2.7 ContextImpl.createAppContext()"></a>2.7 ContextImpl.createAppContext()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ContextImpl.java</span><br><span class="hljs-keyword">static</span> ContextImpl <span class="hljs-title function_">createAppContext</span><span class="hljs-params">(ActivityThread mainThread, LoadedApk packageInfo)</span> &#123;<br>    <span class="hljs-keyword">if</span> (packageInfo == <span class="hljs-literal">null</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;packageInfo&quot;</span>);<br>    <span class="hljs-comment">//见[2.6.1.2]</span><br>    <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ContextImpl</span>(<span class="hljs-literal">null</span>, mainThread, packageInfo, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">null</span>);<br>    context.setResources(packageInfo.getResources());<span class="hljs-comment">//设置app资源</span><br>    <span class="hljs-keyword">return</span> context;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意，传入的参数mainThread为之前创建的ActivityThread实例，参数packageInfo是ContextImpl实例（在2.6.1.2中创建的）中的mpackageInfo（在2.6.1.1中创建的）。</p>
+<p>调用ContextImpl的构造函数再创建一次ContextImpl实例！？是因为一个是SystemContext一个是AppContext的缘故？</p>
+<h2 id="2-8-makeApplication"><a href="#2-8-makeApplication" class="headerlink" title="2.8 makeApplication()"></a>2.8 makeApplication()</h2><p>在2.5中通过<code>context.mPackageInfo.makeApplication(true, null)</code>调用该方法，context.mPackageInfo是刚刚创建的LoadedApk实例（在2.6.1.1中创建的）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">public</span> Application <span class="hljs-title function_">makeApplication</span><span class="hljs-params">(<span class="hljs-type">boolean</span> forceDefaultAppClass,</span><br><span class="hljs-params">                                   Instrumentation instrumentation)</span> &#123;<br>    <span class="hljs-comment">//保证一个LoadedApk对象只创建一个对应的Application对象</span><br>    <span class="hljs-keyword">if</span> (mApplication != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">return</span> mApplication;<br>    &#125;<br>	...<br>    <span class="hljs-type">Application</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">appClass</span> <span class="hljs-operator">=</span> mApplicationInfo.className;<br>    <span class="hljs-keyword">if</span> (forceDefaultAppClass || (appClass == <span class="hljs-literal">null</span>)) &#123;<span class="hljs-comment">//传入的参数为true，进入该分支</span><br>        appClass = <span class="hljs-string">&quot;android.app.Application&quot;</span>;<span class="hljs-comment">//system_server进程进入该分支</span><br>    &#125;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//获取类加载器，见[2.9]</span><br>        java.lang.<span class="hljs-type">ClassLoader</span> <span class="hljs-variable">cl</span> <span class="hljs-operator">=</span> getClassLoader();<br>        <span class="hljs-keyword">if</span> (!mPackageName.equals(<span class="hljs-string">&quot;android&quot;</span>)) &#123;<span class="hljs-comment">//在之前流程可知默认android，显然不进入此分支</span><br>            initializeJavaContextClassLoader();<br>        &#125;<br>        <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">appContext</span> <span class="hljs-operator">=</span> ContextImpl.createAppContext(mActivityThread, <span class="hljs-built_in">this</span>);<br>        <span class="hljs-comment">//创建Application对象，见[2.10]</span><br>        app = mActivityThread.mInstrumentation.newApplication(cl, appClass, appContext);<br>        appContext.setOuterContext(app);<br>    &#125; <br>    ...<br>    mActivityThread.mAllApplications.add(app);<span class="hljs-comment">//加入到Application列表中，之前说个一个进程可以有多个app</span><br>    mApplication = app;<span class="hljs-comment">//将刚刚创建的Application对象app赋值给mApplication</span><br>    <span class="hljs-keyword">if</span> (instrumentation != <span class="hljs-literal">null</span>) &#123;<span class="hljs-comment">//传入的instrumentation为null，不进入此分支</span><br>        <span class="hljs-keyword">try</span> &#123;<br>            instrumentation.callApplicationOnCreate(app);<br>        &#125; <br>        ...<br>    &#125;<br>    ...<br>    <span class="hljs-keyword">return</span> app;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是获取appClass、创建类加载器和appContext，利用这些来创建Application对象。</p>
+<h2 id="2-9-getClassLoader"><a href="#2-9-getClassLoader" class="headerlink" title="2.9 getClassLoader()"></a>2.9 getClassLoader()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">public</span> ClassLoader <span class="hljs-title function_">getClassLoader</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-keyword">if</span> (mClassLoader == <span class="hljs-literal">null</span>) &#123;<br>            createOrUpdateClassLoaderLocked(<span class="hljs-literal">null</span> <span class="hljs-comment">/*addedPaths*/</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> mClassLoader;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果类加载器不为空则调用<code>createOrUpdateClassLoaderLocked()</code>方法。</p>
+<h3 id="2-9-1-createOrUpdateClassLoaderLocked"><a href="#2-9-1-createOrUpdateClassLoaderLocked" class="headerlink" title="2.9.1 createOrUpdateClassLoaderLocked()"></a>2.9.1 createOrUpdateClassLoaderLocked()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrUpdateClassLoaderLocked</span><span class="hljs-params">(List&lt;String&gt; addedPaths)</span> &#123;<br>        <span class="hljs-keyword">if</span> (mPackageName.equals(<span class="hljs-string">&quot;android&quot;</span>)) &#123;<span class="hljs-comment">//System Server进程进入该分支</span><br>            <span class="hljs-keyword">if</span> (mClassLoader != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (mBaseClassLoader != <span class="hljs-literal">null</span>) &#123;<br>                mClassLoader = mBaseClassLoader;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                mClassLoader = ClassLoader.getSystemClassLoader();<span class="hljs-comment">//如果是System Server进程则到这</span><br>            &#125;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>    	<span class="hljs-comment">//mPackageName不为&quot;android&quot;</span><br>        ...<br>        <span class="hljs-keyword">if</span> (mRegisterPackage) &#123;<br>            ...<br>                <span class="hljs-comment">//添加包依赖，见[2.9.2]</span><br>                ActivityManager.getService().addPackageDependency(mPackageName);<br>            ...<br>        &#125;<br>        <span class="hljs-comment">// Lists for the elements of zip/code and native libraries.</span><br>        <span class="hljs-keyword">final</span> List&lt;String&gt; zipPaths = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(<span class="hljs-number">10</span>);<br>        <span class="hljs-keyword">final</span> List&lt;String&gt; libPaths = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(<span class="hljs-number">10</span>);<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">isBundledApp</span> <span class="hljs-operator">=</span> mApplicationInfo.isSystemApp() &amp;&amp; !mApplicationInfo.isUpdatedSystemApp();<br>        <span class="hljs-comment">//构建路径，见[2.9.3]</span><br>    	makePaths(mActivityThread, isBundledApp, mApplicationInfo, zipPaths, libPaths);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">libraryPermittedPath</span> <span class="hljs-operator">=</span> mDataDir;<br>        <span class="hljs-keyword">if</span> (isBundledApp) &#123;<br>            libraryPermittedPath += File.pathSeparator + System.getProperty(<span class="hljs-string">&quot;java.library.path&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">librarySearchPath</span> <span class="hljs-operator">=</span> TextUtils.join(File.pathSeparator, libPaths);<br>        <span class="hljs-keyword">if</span> (!mIncludeCode) &#123;<span class="hljs-comment">//构造函数中mIncludeCode为true</span><br>            ...<br>        &#125;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">zip</span> <span class="hljs-operator">=</span> (zipPaths.size() == <span class="hljs-number">1</span>) ? zipPaths.get(<span class="hljs-number">0</span>) : TextUtils.join(File.pathSeparator, zipPaths);<br>		...<br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">needToSetupJitProfiles</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">if</span> (mClassLoader == <span class="hljs-literal">null</span>) &#123;<br>            ...<br>            <span class="hljs-comment">////见[2.9.4]</span><br>            mClassLoader = ApplicationLoaders.getDefault().getClassLoader(zip,<br>                    mApplicationInfo.targetSdkVersion, isBundledApp, librarySearchPath,<br>                    libraryPermittedPath, mBaseClassLoader);<br>            ...<br>        &#125;<br>    	...<br>        <span class="hljs-comment">// Setup jit profile support.</span><br>        ...<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-9-2-ActivityManagerService-addPackageDependency"><a href="#2-9-2-ActivityManagerService-addPackageDependency" class="headerlink" title="2.9.2 ActivityManagerService.addPackageDependency()"></a>2.9.2 ActivityManagerService.addPackageDependency()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addPackageDependency</span><span class="hljs-params">(String packageName)</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-comment">//获取调用该方法的进程id</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">callingPid</span> <span class="hljs-operator">=</span> Binder.getCallingPid();<br>        <span class="hljs-comment">//调用该方法的进程的 PID 和当前进程的 PID 相同，说明是在当前进程内部调用该方法，直接返回</span><br>        <span class="hljs-keyword">if</span> (callingPid == myPid()) &#123;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        ProcessRecord proc;<br>        <span class="hljs-keyword">synchronized</span> (mPidsSelfLocked) &#123;<br>            <span class="hljs-comment">//根据调用该方法的进程id获取对应进程记录</span><br>            proc = mPidsSelfLocked.get(Binder.getCallingPid());<br>        &#125;<br>        <span class="hljs-keyword">if</span> (proc != <span class="hljs-literal">null</span>) &#123;<span class="hljs-comment">//成功获取到该进程的记录</span><br>            <span class="hljs-keyword">if</span> (proc.pkgDeps == <span class="hljs-literal">null</span>) &#123;<span class="hljs-comment">//该进程的包名依赖为空</span><br>                proc.pkgDeps = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArraySet</span>&lt;String&gt;(<span class="hljs-number">1</span>);<br>            &#125;<br>            proc.pkgDeps.add(packageName);<span class="hljs-comment">//添加包名依赖</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-9-3-makePaths"><a href="#2-9-3-makePaths" class="headerlink" title="2.9.3 makePaths()"></a>2.9.3 makePaths()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">makePaths</span><span class="hljs-params">(ActivityThread activityThread,</span><br><span class="hljs-params">                             <span class="hljs-type">boolean</span> isBundledApp,</span><br><span class="hljs-params">                             ApplicationInfo aInfo,</span><br><span class="hljs-params">                             List&lt;String&gt; outZipPaths,</span><br><span class="hljs-params">                             List&lt;String&gt; outLibPaths)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">appDir</span> <span class="hljs-operator">=</span> aInfo.sourceDir;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">libDir</span> <span class="hljs-operator">=</span> aInfo.nativeLibraryDir;<br>    <span class="hljs-keyword">final</span> String[] sharedLibraries = aInfo.sharedLibraryFiles;<br><br>    outZipPaths.clear();<br>    outZipPaths.add(appDir);<br><br>    <span class="hljs-comment">// Do not load all available splits if the app requested isolated split loading.</span><br>    <span class="hljs-keyword">if</span> (aInfo.splitSourceDirs != <span class="hljs-literal">null</span> &amp;&amp; !aInfo.requestsIsolatedSplitLoading()) &#123;<br>        Collections.addAll(outZipPaths, aInfo.splitSourceDirs);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (outLibPaths != <span class="hljs-literal">null</span>) &#123;<br>        outLibPaths.clear();<br>    &#125;<br><br>    String[] instrumentationLibs = <span class="hljs-literal">null</span>;<br>    <span class="hljs-comment">// activityThread will be null when called from the WebView zygote; just assume</span><br>    <span class="hljs-comment">// no instrumentation applies in this case.</span><br>    <span class="hljs-keyword">if</span> (activityThread != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">instrumentationPackageName</span> <span class="hljs-operator">=</span> activityThread.mInstrumentationPackageName;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">instrumentationAppDir</span> <span class="hljs-operator">=</span> activityThread.mInstrumentationAppDir;<br>        String[] instrumentationSplitAppDirs = activityThread.mInstrumentationSplitAppDirs;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">instrumentationLibDir</span> <span class="hljs-operator">=</span> activityThread.mInstrumentationLibDir;<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">instrumentedAppDir</span> <span class="hljs-operator">=</span> activityThread.mInstrumentedAppDir;<br>        String[] instrumentedSplitAppDirs = activityThread.mInstrumentedSplitAppDirs;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">instrumentedLibDir</span> <span class="hljs-operator">=</span> activityThread.mInstrumentedLibDir;<br><br>        <span class="hljs-keyword">if</span> (appDir.equals(instrumentationAppDir)<br>            || appDir.equals(instrumentedAppDir)) &#123;<br>            outZipPaths.clear();<br>            outZipPaths.add(instrumentationAppDir);<br><br>            <span class="hljs-comment">// Only add splits if the app did not request isolated split loading.</span><br>            <span class="hljs-keyword">if</span> (!aInfo.requestsIsolatedSplitLoading()) &#123;<br>                <span class="hljs-keyword">if</span> (instrumentationSplitAppDirs != <span class="hljs-literal">null</span>) &#123;<br>                    Collections.addAll(outZipPaths, instrumentationSplitAppDirs);<br>                &#125;<br><br>                <span class="hljs-keyword">if</span> (!instrumentationAppDir.equals(instrumentedAppDir)) &#123;<br>                    outZipPaths.add(instrumentedAppDir);<br>                    <span class="hljs-keyword">if</span> (instrumentedSplitAppDirs != <span class="hljs-literal">null</span>) &#123;<br>                        Collections.addAll(outZipPaths, instrumentedSplitAppDirs);<br>                    &#125;<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (outLibPaths != <span class="hljs-literal">null</span>) &#123;<br>                outLibPaths.add(instrumentationLibDir);<br>                <span class="hljs-keyword">if</span> (!instrumentationLibDir.equals(instrumentedLibDir)) &#123;<br>                    outLibPaths.add(instrumentedLibDir);<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (!instrumentedAppDir.equals(instrumentationAppDir)) &#123;<br>                instrumentationLibs = getLibrariesFor(instrumentationPackageName);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (outLibPaths != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">if</span> (outLibPaths.isEmpty()) &#123;<br>            outLibPaths.add(libDir);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (aInfo.primaryCpuAbi != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">//目标sdk版本 &lt; Android 7的sdk版本</span><br>            <span class="hljs-keyword">if</span> (aInfo.targetSdkVersion &lt; Build.VERSION_CODES.N) &#123;<br>                outLibPaths.add(<span class="hljs-string">&quot;/system/fake-libs&quot;</span> + (VMRuntime.is64BitAbi(aInfo.primaryCpuAbi) ? <span class="hljs-string">&quot;64&quot;</span> : <span class="hljs-string">&quot;&quot;</span>));<br>            &#125;<br>            <span class="hljs-keyword">for</span> (String apk : outZipPaths) &#123;<br>                outLibPaths.add(apk + <span class="hljs-string">&quot;!/lib/&quot;</span> + aInfo.primaryCpuAbi);<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (isBundledApp) &#123;<br>            outLibPaths.add(System.getProperty(<span class="hljs-string">&quot;java.library.path&quot;</span>));<br>        &#125;<br>    &#125;<br>	<span class="hljs-comment">//遍历sharedLibraries的Lib库，未包含在其中的则添加到outZipPaths中，如果需要还可以添加到outLibPaths</span><br>    <span class="hljs-keyword">if</span> (sharedLibraries != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">for</span> (String lib : sharedLibraries) &#123;<br>            <span class="hljs-keyword">if</span> (!outZipPaths.contains(lib)) &#123;<br>                outZipPaths.add(<span class="hljs-number">0</span>, lib);<br>                appendApkLibPathIfNeeded(lib, aInfo, outLibPaths);<br>            &#125;<br>        &#125;<br>    &#125;<br>	<span class="hljs-comment">//遍历instrumentation的Lib库，未包含在其中的则添加到outZipPaths中，如果需要还可以添加到outLibPaths</span><br>    ...逻辑同上<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-9-4-ApplicationLoader-getClassLoader"><a href="#2-9-4-ApplicationLoader-getClassLoader" class="headerlink" title="2.9.4 ApplicationLoader.getClassLoader()"></a>2.9.4 ApplicationLoader.getClassLoader()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ApplicationLoaders.java</span><br>ClassLoader <span class="hljs-title function_">getClassLoader</span><span class="hljs-params">(String zip, <span class="hljs-type">int</span> targetSdkVersion, <span class="hljs-type">boolean</span> isBundled, String librarySearchPath, String libraryPermittedPath, ClassLoader parent)</span> &#123;<br>    <span class="hljs-keyword">return</span> getClassLoader(zip, targetSdkVersion, isBundled, librarySearchPath, libraryPermittedPath, parent, zip);<br>&#125;<br><br><span class="hljs-keyword">private</span> ClassLoader <span class="hljs-title function_">getClassLoader</span><span class="hljs-params">(String zip, <span class="hljs-type">int</span> targetSdkVersion, <span class="hljs-type">boolean</span> isBundled,</span><br><span class="hljs-params">                                   String librarySearchPath, String libraryPermittedPath,</span><br><span class="hljs-params">                                   ClassLoader parent, String cacheKey)</span> &#123;<br>	<span class="hljs-comment">//获取父加载器</span><br>    <span class="hljs-type">ClassLoader</span> <span class="hljs-variable">baseParent</span> <span class="hljs-operator">=</span> ClassLoader.getSystemClassLoader().getParent();<br><br>    <span class="hljs-keyword">synchronized</span> (mLoaders) &#123;<br>        <span class="hljs-keyword">if</span> (parent == <span class="hljs-literal">null</span>) &#123;<span class="hljs-comment">//走这</span><br>            parent = baseParent;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (parent == baseParent) &#123;<span class="hljs-comment">//进而走这</span><br>            <span class="hljs-type">ClassLoader</span> <span class="hljs-variable">loader</span> <span class="hljs-operator">=</span> mLoaders.get(cacheKey);<br>            <span class="hljs-keyword">if</span> (loader != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">return</span> loader;<br>            &#125;<br>            <span class="hljs-comment">//创建pathClassloader对象</span><br>            <span class="hljs-type">PathClassLoader</span> <span class="hljs-variable">pathClassloader</span> <span class="hljs-operator">=</span> PathClassLoaderFactory.createClassLoader(<br>                zip,<br>                librarySearchPath,<br>                libraryPermittedPath,<br>                parent,<br>                targetSdkVersion,<br>                isBundled);<br>            <span class="hljs-comment">//native方法</span><br>            setupVulkanLayerPath(pathClassloader, librarySearchPath);<br>            mLoaders.put(cacheKey, pathClassloader);<br>            <span class="hljs-keyword">return</span> pathClassloader;<br>        &#125;<br>        <span class="hljs-type">PathClassLoader</span> <span class="hljs-variable">pathClassloader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PathClassLoader</span>(zip, parent);<br>        <span class="hljs-keyword">return</span> pathClassloader;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>传入的参数parent（ClassLoader对象）为mBaseClassLoader，在SystemServer进程中LoadedApk初始化时是为null的，所以走<code>if (parent == null) </code>分支，进而走<code>if (parent == baseParent) </code>分支。</p>
+<h2 id="2-10-newApplication"><a href="#2-10-newApplication" class="headerlink" title="2.10 newApplication()"></a>2.10 newApplication()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Instrumentation.java</span><br><span class="hljs-keyword">public</span> Application <span class="hljs-title function_">newApplication</span><span class="hljs-params">(ClassLoader cl, String className, Context context)</span> <span class="hljs-keyword">throws</span> InstantiationException, IllegalAccessException, ClassNotFoundException &#123;<br>    <span class="hljs-keyword">return</span> newApplication(cl.loadClass(className), context);<br>&#125;<br><br><span class="hljs-keyword">static</span> <span class="hljs-keyword">public</span> Application <span class="hljs-title function_">newApplication</span><span class="hljs-params">(Class&lt;?&gt; clazz, Context context)</span> <span class="hljs-keyword">throws</span> InstantiationException, IllegalAccessException, ClassNotFoundException &#123;<br>    <span class="hljs-type">Application</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> (Application)clazz.newInstance();<br>    app.attach(context);<br>    <span class="hljs-keyword">return</span> app;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>传入的参数cl是在 2.9 处获得的PathClassLoader对象，参数className对应要加载的Application类（”android.app.Application”），最后通过反射获取到该类，然后调用<code>newInstance()</code>方法实例化Application。</p>
+<h3 id="2-10-1-Application-attach"><a href="#2-10-1-Application-attach" class="headerlink" title="2.10.1 Application.attach()"></a>2.10.1 Application.attach()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Application.java</span><br><span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attach</span><span class="hljs-params">(Context context)</span> &#123;<br>    attachBaseContext(context);<br>    mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;<br>&#125;<br><br><span class="hljs-comment">//路径：/frameworks/base/core/java/android/content/ContextWrapper.java</span><br><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attachBaseContext</span><span class="hljs-params">(Context base)</span> &#123;<br>    <span class="hljs-keyword">if</span> (mBase != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;Base context already set&quot;</span>);<br>    &#125;<br>    mBase = base;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该方法主要功能:</p>
+<ol>
+<li>将新创建的ContextImpl对象（2.8中创建的appContext）保存到Application的父类成员变量mBase;</li>
+<li>将新创建的LoadedApk对象（2.8中创建的appContext中的mPackageInfo对象）保存到Application的父员变量mLoadedApk;</li>
+</ol>
+<h1 id="三、App进程"><a href="#三、App进程" class="headerlink" title="三、App进程"></a>三、App进程</h1><p>在<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/07/17/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)/">Android应用程序启动流程(一)</a>一文中，应用程序同样也通过回调函数<code>Zygote.MethodAndArgsCaller()</code>进入到App运行阶段，即回调<code>ActivityThread.main()</code>方法。</p>
+<h2 id="3-1-ActivityThread-main"><a href="#3-1-ActivityThread-main" class="headerlink" title="3.1 ActivityThread.main()"></a>3.1 ActivityThread.main()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    ...<br>	<span class="hljs-comment">//创建线程并将当前线程附加到ActivityThread，参数false表示不使用新线程</span><br>    <span class="hljs-type">ActivityThread</span> <span class="hljs-variable">thread</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActivityThread</span>();<br>    thread.attach(<span class="hljs-literal">false</span>);<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在该方法中调用了<code>thread.attach()</code>方法。</p>
+<h2 id="3-2-ActivityThread-attach"><a href="#3-2-ActivityThread-attach" class="headerlink" title="3.2 ActivityThread.attach()"></a>3.2 ActivityThread.attach()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attach</span><span class="hljs-params">(<span class="hljs-type">boolean</span> system)</span> &#123;<br>    sCurrentActivityThread = <span class="hljs-built_in">this</span>;<br>    mSystemThread = system;<br>    <span class="hljs-keyword">if</span> (!system) &#123;<span class="hljs-comment">//非系统进程进入此分支</span><br>        <span class="hljs-comment">//初始化RuntimeInit.mApplicationObject值</span><br>        RuntimeInit.setApplicationObject(mAppThread.asBinder());<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">IActivityManager</span> <span class="hljs-variable">mgr</span> <span class="hljs-operator">=</span> ActivityManager.getService();<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">//见[3.3]</span><br>            mgr.attachApplication(mAppThread);<br>        &#125; <br>        ...<br>    &#125; <span class="hljs-keyword">else</span> &#123;<span class="hljs-comment">//系统进程进入此分支</span><br>        ...<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>重点是<code>mgr.attachApplication(mAppThread)</code>。</p>
+<h2 id="3-3-ActivityManagerService-attachApplication"><a href="#3-3-ActivityManagerService-attachApplication" class="headerlink" title="3.3 ActivityManagerService.attachApplication()"></a>3.3 ActivityManagerService.attachApplication()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attachApplication</span><span class="hljs-params">(IApplicationThread thread)</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-comment">//获取调用该方法的进程的pid</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">callingPid</span> <span class="hljs-operator">=</span> Binder.getCallingPid();<br>        <span class="hljs-comment">//临时清除调用者的身份信息,返回唯一标识符以便后续恢复调用者身份</span><br>        <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">origId</span> <span class="hljs-operator">=</span> Binder.clearCallingIdentity();<br>        <span class="hljs-comment">//给进程附加Application，见[3.4]</span><br>        attachApplicationLocked(thread, callingPid);<br>        <span class="hljs-comment">//恢复之前清除的调用者身份</span><br>        Binder.restoreCallingIdentity(origId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接着调用<code>attachApplicationLocked()</code>方法给进程附加Application。</p>
+<h2 id="3-4-attachApplicationLocked"><a href="#3-4-attachApplicationLocked" class="headerlink" title="3.4 attachApplicationLocked()"></a>3.4 attachApplicationLocked()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">attachApplicationLocked</span><span class="hljs-params">(IApplicationThread thread, <span class="hljs-type">int</span> pid)</span> &#123;<br>    ProcessRecord app;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">startTime</span> <span class="hljs-operator">=</span> SystemClock.uptimeMillis();<br>    <span class="hljs-keyword">if</span> (pid != MY_PID &amp;&amp; pid &gt;= <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">synchronized</span> (mPidsSelfLocked) &#123;<br>            app = mPidsSelfLocked.get(pid);<span class="hljs-comment">//根据pid获取application record</span><br>        &#125;<br>    &#125;<br>    ...<br>    <span class="hljs-keyword">try</span> &#123;<br>        ...<br>        <span class="hljs-type">ApplicationInfo</span> <span class="hljs-variable">appInfo</span> <span class="hljs-operator">=</span> app.instr != <span class="hljs-literal">null</span> ? app.instr.mTargetInfo : app.info;<br>        ...<br>        <span class="hljs-keyword">if</span> (app.instr != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">//见[3.5]</span><br>            thread.bindApplication(processName, appInfo, providers,<br>                                   app.instr.mClass,<br>                                   profilerInfo, app.instr.mArguments,<br>                                   app.instr.mWatcher,<br>                                   app.instr.mUiAutomationConnection, testMode,<br>                                   mBinderTransactionTrackingEnabled, enableTrackAllocation,<br>                                   isRestrictedBackupMode || !normalMode, app.persistent,<br>                                   <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>(getGlobalConfiguration()), app.compat,<br>                                   getCommonServicesLocked(app.isolated),<br>                                   mCoreSettingsObserver.getCoreSettingsLocked(),<br>                                   buildSerial);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">//也是调用thread.bindApplication(),只不过参数不同</span><br>            ...<br>        &#125;<br><br>        ...<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>代码很长，这里只关注<code>thread.bindApplication()</code>方法。</p>
+<h2 id="3-5-ActivityThread-bindApplication"><a href="#3-5-ActivityThread-bindApplication" class="headerlink" title="3.5 ActivityThread.bindApplication()"></a>3.5 ActivityThread.bindApplication()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bindApplication</span><span class="hljs-params">(String processName, ApplicationInfo appInfo,</span><br><span class="hljs-params">                                  List&lt;ProviderInfo&gt; providers, ComponentName instrumentationName,</span><br><span class="hljs-params">                                  ProfilerInfo profilerInfo, Bundle instrumentationArgs,</span><br><span class="hljs-params">                                  IInstrumentationWatcher instrumentationWatcher,</span><br><span class="hljs-params">                                  IUiAutomationConnection instrumentationUiConnection, <span class="hljs-type">int</span> debugMode,</span><br><span class="hljs-params">                                  <span class="hljs-type">boolean</span> enableBinderTracking, <span class="hljs-type">boolean</span> trackAllocation,</span><br><span class="hljs-params">                                  <span class="hljs-type">boolean</span> isRestrictedBackupMode, <span class="hljs-type">boolean</span> persistent, Configuration config,</span><br><span class="hljs-params">                                  CompatibilityInfo compatInfo, Map services, Bundle coreSettings,</span><br><span class="hljs-params">                                  String buildSerial)</span> &#123;<br><br>    <span class="hljs-comment">//给AppBindData实例（data）进行一系列赋值</span><br>    ...<br>    <br>    sendMessage(H.BIND_APPLICATION, data);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对data对象进行了一系列的赋值，最终调用<code>sendMessage()</code>方法将<code>BIND_APPLICATION</code>消息添加到消息队列中，接着我们就需要看ActivityThread的<code>handleMessage()</code>方法了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleMessage</span><span class="hljs-params">(Message msg)</span> &#123;<br>    <span class="hljs-keyword">switch</span> (msg.what) &#123;<br>        ...<br>        <span class="hljs-keyword">case</span> BIND_APPLICATION:<br>			<span class="hljs-type">AppBindData</span> <span class="hljs-variable">data</span> <span class="hljs-operator">=</span> (AppBindData)msg.obj;<br>            <span class="hljs-comment">//见[3.6]</span><br>            handleBindApplication(data);<br>            <span class="hljs-keyword">break</span>;<br>        ...<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主线程接收到<code>BIND_APPLICATION</code>消息，执行<code>handleBindApplication()</code>方法。</p>
+<h2 id="3-6-handleBindApplication"><a href="#3-6-handleBindApplication" class="headerlink" title="3.6 handleBindApplication()"></a>3.6 handleBindApplication()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleBindApplication</span><span class="hljs-params">(AppBindData data)</span> &#123;<br>    ...<br>    mBoundApplication = data;<br>    ...<br>    <span class="hljs-comment">//获取LoadedApk对象,见[3.7]</span><br>    data.info = getPackageInfoNoCheck(data.appInfo, data.compatInfo);<br>	...<br>    <span class="hljs-comment">//创建appContext，见[2.7]</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">appContext</span> <span class="hljs-operator">=</span> ContextImpl.createAppContext(<span class="hljs-built_in">this</span>, data.info);<br>    ...<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//此处data.info指LoadedApk, 通过反射创建目标应用Application对象，见[2.8]</span><br>        <span class="hljs-type">Application</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> data.info.makeApplication(data.restrictedBackupMode, <span class="hljs-literal">null</span>);<br>        mInitialApplication = app;<br>        ...<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">//调用的是空方法，啥也没干,见[3.6.1]</span><br>            mInstrumentation.onCreate(data.instrumentationArgs);<br>        &#125;<br>        ...<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">//见[3.6.1]</span><br>            mInstrumentation.callApplicationOnCreate(app);<br>        &#125; <br>        ...<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        StrictMode.setThreadPolicy(savedPolicy);<br>    &#125;<br>    <span class="hljs-comment">// Preload fonts resources</span><br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是获取LoadedApk对象，借此创建ContextImpl对象（appContext）以及Application对象（app），并将创建好的app赋值给ActivityThread的mInitialApplication字段。</p>
+<h3 id="3-6-1-callApplicationOnCreate"><a href="#3-6-1-callApplicationOnCreate" class="headerlink" title="3.6.1 callApplicationOnCreate()"></a>3.6.1 callApplicationOnCreate()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java">/frameworks/base/core/java/android/app/Instrumentation.java<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">callApplicationOnCreate</span><span class="hljs-params">(Application app)</span> &#123;<br>    app.onCreate();<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle arguments)</span> &#123;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-7-getPackageInfoNoCheck"><a href="#3-7-getPackageInfoNoCheck" class="headerlink" title="3.7 getPackageInfoNoCheck()"></a>3.7 getPackageInfoNoCheck()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> LoadedApk <span class="hljs-title function_">getPackageInfoNoCheck</span><span class="hljs-params">(ApplicationInfo ai, CompatibilityInfo compatInfo)</span> &#123;<br>    <span class="hljs-keyword">return</span> getPackageInfo(ai, compatInfo, <span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>);<br>&#125;<br><br><span class="hljs-keyword">private</span> LoadedApk <span class="hljs-title function_">getPackageInfo</span><span class="hljs-params">(ApplicationInfo aInfo, CompatibilityInfo compatInfo,</span><br><span class="hljs-params">                                 ClassLoader baseLoader, <span class="hljs-type">boolean</span> securityViolation, <span class="hljs-type">boolean</span> includeCode,</span><br><span class="hljs-params">                                 <span class="hljs-type">boolean</span> registerPackage)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">differentUser</span> <span class="hljs-operator">=</span> (UserHandle.myUserId() != UserHandle.getUserId(aInfo.uid));<br>    <span class="hljs-keyword">synchronized</span> (mResourcesManager) &#123;<br>        WeakReference&lt;LoadedApk&gt; ref;<br>        <span class="hljs-comment">// 根据不同的情况获取缓存的LoadedApk对象</span><br>        <span class="hljs-keyword">if</span> (differentUser) &#123;<br>            <span class="hljs-comment">// Caching not supported across users</span><br>            ref = <span class="hljs-literal">null</span>;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (includeCode) &#123;<br>            ref = mPackages.get(aInfo.packageName);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            ref = mResourcePackages.get(aInfo.packageName);<br>        &#125;<br><br>        <span class="hljs-type">LoadedApk</span> <span class="hljs-variable">packageInfo</span> <span class="hljs-operator">=</span> ref != <span class="hljs-literal">null</span> ? ref.get() : <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">if</span> (packageInfo == <span class="hljs-literal">null</span> || (packageInfo.mResources != <span class="hljs-literal">null</span><br>                                    &amp;&amp; !packageInfo.mResources.getAssets().isUpToDate())) &#123;<br>            ...<br>            <span class="hljs-comment">//创建LoadedApk对象</span><br>            packageInfo = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LoadedApk</span>(<span class="hljs-built_in">this</span>, aInfo, compatInfo, baseLoader,<br>                              securityViolation, includeCode &amp;&amp;<br>                              (aInfo.flags&amp;ApplicationInfo.FLAG_HAS_CODE) != <span class="hljs-number">0</span>, registerPackage);<br><br>            <span class="hljs-keyword">if</span> (mSystemThread &amp;&amp; <span class="hljs-string">&quot;android&quot;</span>.equals(aInfo.packageName)) &#123;<br>               	<span class="hljs-comment">//见[3.7.1]</span><br>                packageInfo.installSystemApplicationInfo(aInfo,<br>                                                         getSystemContext().mPackageInfo.getClassLoader());<br>            &#125;<br><br>            <span class="hljs-keyword">if</span> (differentUser) &#123;<br>                <span class="hljs-comment">// Caching not supported across users</span><br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (includeCode) &#123;<br>                <span class="hljs-comment">//更新mPackages，即将刚创建的packageInfo加入</span><br>                mPackages.put(aInfo.packageName,<br>                              <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakReference</span>&lt;LoadedApk&gt;(packageInfo));<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                mResourcePackages.put(aInfo.packageName,<br>                                      <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakReference</span>&lt;LoadedApk&gt;(packageInfo));<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> packageInfo;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>创建LoadedApk对象，并将将新创建的LoadedApk加入到mPackages。也就是说每个app都会创建唯一的LoadedApk对象。此处aInfo来源于ProcessRecord.info变量，也就是进程中的第一个app。</p>
+<h3 id="3-7-1-installSystemApplicationInfo"><a href="#3-7-1-installSystemApplicationInfo" class="headerlink" title="3.7.1 installSystemApplicationInfo()"></a>3.7.1 installSystemApplicationInfo()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/LoadedApk.java</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">installSystemApplicationInfo</span><span class="hljs-params">(ApplicationInfo info, ClassLoader classLoader)</span> &#123;<br>    <span class="hljs-keyword">assert</span> info.packageName.equals(<span class="hljs-string">&quot;android&quot;</span>);<br>    mApplicationInfo = info;<br>    mClassLoader = classLoader;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第二个参数通过<code>getSystemContext().mPackageInfo.getClassLoader()</code>获取的，对应LoadedApk对象中的ClassLoader。代码中很明显的一个特征就是比对packageName是否为”android”，而在System Server进程中创建的LoadedApk对象默认packageName为”android”。</p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>LoadedApk与Application一一对应，Application借助LoadedApk创建的，并存放在LoadedApk的mApplication字段，而在创建Application的过程中，也将LoadedApk存放在Application的mLoadedApk字段（互相包含！？）。最后返回Application的时候，也将Application存放在ActivityThread中的mInitialApplication字段。</p>
+<p>接下来借用gityuan的两种流程图：</p>
+<ul>
+<li><p>System Server进程创建Application</p>
+<p><img src="https://gityuan.com/images/application/system_application.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>App进程创建Application</p>
+<p><img src="https://gityuan.com/images/application/app_application.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ul>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://androidxref.com/8.0.0_r4/xref/">http://androidxref.com/8.0.0_r4/xref/</a></p>
+<p><a target="_blank" rel="noopener" href="https://gityuan.com/2017/04/02/android-application/">https://gityuan.com/2017/04/02/android-application/</a></p>
+<p><a target="_blank" rel="noopener" href="https://phantomvk.github.io/2019/07/23/Android_Application_class/">https://phantomvk.github.io/2019/07/23/Android_Application_class/</a></p>
+<p><a target="_blank" rel="noopener" href="https://ljd1996.github.io/2019/12/16/Android-Application/">https://ljd1996.github.io/2019/12/16/Android-Application/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Application/">#Application</a>
+      
+        <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android中Application的创建流程</div>
+      <div>http://example.com/2023/11/27/Android中Application的创建流程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/01/Android%E4%B8%AD%E7%9A%84Application%E7%B1%BB/" title="Android中的Application类">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android中的Application类</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/25/Android%E4%B8%AD%E7%9A%84ClassLoader/" title="Android中的ClassLoader">
+                        <span class="hidden-mobile">Android中的ClassLoader</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

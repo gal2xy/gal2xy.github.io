@@ -1,0 +1,716 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="babysign1234567891011121314151617181920212223242526272829303132333435363738394041424344import hashlibimport ecdsafrom Crypto.Util.number import *import randomimport osflag &#x3D; b&quot;xxx&quot;assert fla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DASCTF2022.07赋能赛">
+<meta property="og:url" content="http://example.com/2022/07/24/DASCTF2022.07%E8%B5%8B%E8%83%BD%E8%B5%9B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="babysign1234567891011121314151617181920212223242526272829303132333435363738394041424344import hashlibimport ecdsafrom Crypto.Util.number import *import randomimport osflag &#x3D; b&quot;xxx&quot;assert fla">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031022463.png">
+<meta property="article:published_time" content="2022-07-24T11:27:01.000Z">
+<meta property="article:modified_time" content="2022-10-03T02:23:27.274Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="ECDSA">
+<meta property="article:tag" content="NTRU">
+<meta property="article:tag" content="多项式RSA">
+<meta property="article:tag" content="LWE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031022463.png">
+  
+  
+  
+  <title>DASCTF2022.07赋能赛 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DASCTF2022.07赋能赛"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-24 19:27" pubdate>
+          2022年7月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          149 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DASCTF2022.07赋能赛</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="babysign"><a href="#babysign" class="headerlink" title="babysign"></a>babysign</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> hashlib<br><span class="hljs-keyword">import</span> ecdsa<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">import</span> os<br><br>flag = <span class="hljs-string">b&quot;xxx&quot;</span><br><br><span class="hljs-keyword">assert</span> flag.startswith(<span class="hljs-string">b&#x27;DASCTF&#123;&#x27;</span>) <span class="hljs-keyword">and</span> flag.endswith(<span class="hljs-string">b&#x27;&#125;&#x27;</span>)<br><span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(flag) == <span class="hljs-number">40</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">init</span>():<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    initiation</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">global</span> pub_key, priv_key, order, base,secret<br>    gen = ecdsa.NIST256p.generator<br>    order = gen.order()<br>    secret = bytes_to_long(flag[<span class="hljs-number">7</span>:-<span class="hljs-number">1</span>])<br>    <br>    pub_key = ecdsa.ecdsa.Public_key(gen, gen * secret)<br>    priv_key = ecdsa.ecdsa.Private_key(pub_key, secret)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sign</span>(<span class="hljs-params">msg, nonce</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    sign msg</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    msg = <span class="hljs-built_in">int</span>(hashlib.sha256(msg).hexdigest(), <span class="hljs-number">16</span>)<br>    <br>    sign = priv_key.sign(msg, nonce)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;R:&quot;</span>, <span class="hljs-built_in">hex</span>(sign.r)[<span class="hljs-number">2</span>:])<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;S:&quot;</span>, <span class="hljs-built_in">hex</span>(sign.s)[<span class="hljs-number">2</span>:])<br><br>init()<br>nonce = random.getrandbits(order.bit_length())<br>sign(<span class="hljs-string">b&#x27;welcome to ecdsa&#x27;</span>, nonce)<br><span class="hljs-built_in">print</span>(nonce)<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">R: 7b35712a50d463ac5acf7af1675b4b63ba0da23b6452023afddd58d4891ef6e5</span><br><span class="hljs-string">S: a452fc44cc36fa6964d1b4f47392ff0a91350cfd58f11a4645c084d56e387e5c</span><br><span class="hljs-string">57872441580840888721108499129165088876046881204464784483281653404168342111855</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/11/07/crypto-ECC/">ECC | Lazzaro (lazzzaro.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51999772/article/details/122626382">ECDSA算法_M3ng@L的博客-CSDN博客_ecdsa</a></p>
+<p>给定了曲线，可以直接知道它的阶(order或n)。给出了签名 (R,S)和msg，我们要求解的m是$d_A$。</p>
+<p>根据数字签名公式<br>$$<br>S ≡ K^{-1}*(H(m)+d_A*R)\quad (mod\ n)<br>$$<br>推出<br>$$<br>d_A ≡ R^{ -1 }*( S*K - H( m ) )\quad ( mod\ n )<br>$$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> invert<br><span class="hljs-keyword">import</span> hashlib<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><br>order = <span class="hljs-number">115792089210356248762697446949407573529996955224135760342422259061068512044369</span><br>R = <span class="hljs-number">0x7b35712a50d463ac5acf7af1675b4b63ba0da23b6452023afddd58d4891ef6e5</span><br>S = <span class="hljs-number">0xa452fc44cc36fa6964d1b4f47392ff0a91350cfd58f11a4645c084d56e387e5c</span><br>k = <span class="hljs-number">57872441580840888721108499129165088876046881204464784483281653404168342111855</span><br>msg = <span class="hljs-string">b&#x27;welcome to ecdsa&#x27;</span><br>msg = <span class="hljs-built_in">int</span>(hashlib.sha256(msg).hexdigest(), <span class="hljs-number">16</span>)<br>da = (S*k-msg)*invert(R,order)%order<br><span class="hljs-built_in">print</span>(da)<br><span class="hljs-built_in">print</span>(long_to_bytes(da))<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="easyNTRU"><a href="#easyNTRU" class="headerlink" title="easyNTRU"></a>easyNTRU</h1><p>非预期，对m进行爆破。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#sage</span><br><span class="hljs-keyword">from</span> Crypto.Hash <span class="hljs-keyword">import</span> SHA3_256<br><span class="hljs-keyword">from</span> Crypto.Cipher <span class="hljs-keyword">import</span> AES<br><span class="hljs-keyword">from</span> Crypto.Util.Padding <span class="hljs-keyword">import</span> pad<br><br>N = <span class="hljs-number">10</span><br>p = <span class="hljs-number">3</span><br>q = <span class="hljs-number">512</span><br>d = <span class="hljs-number">3</span><br>     <br>R.&lt;x&gt; = ZZ[]<br>may = [-<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>]<br>maykey = []<br><span class="hljs-keyword">for</span> a <span class="hljs-keyword">in</span> may:<br>    <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> may:<br>        <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> may:<br>            <span class="hljs-keyword">for</span> d <span class="hljs-keyword">in</span> may:<br>                <span class="hljs-keyword">for</span> e <span class="hljs-keyword">in</span> may:<br>                    <span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> may:<br>                        <span class="hljs-keyword">for</span> g <span class="hljs-keyword">in</span> may:<br>                            <span class="hljs-keyword">for</span> h <span class="hljs-keyword">in</span> may:<br>                                <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> may:<br>                                    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> may:<br>                                        result = [a,b,c,d,e,f,g,h,i,j]<br>                                        maykey.append(R(result))<br><br>c = <span class="hljs-string">b&#x27;\xb9W\x8c\x8b\x0cG\xde\x7fl\xf7\x03\xbb9m\x0c\xc4L\xfe\xe9Q\xad\xfd\xda!\x1a\xea@&#125;U\x9ay4\x8a\xe3y\xdf\xd5BV\xa7\x06\xf9\x08\x96=&quot;f\xc1\x1b\xd7\xdb\xc1j\x82F\x0b\x16\x06\xbcJMB\xc8\x80&#x27;</span><br><span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> maykey:<br>    sha3 = SHA3_256.new()<br>    sha3.update(<span class="hljs-built_in">bytes</span>(<span class="hljs-built_in">str</span>(m).encode(<span class="hljs-string">&#x27;utf-8&#x27;</span>)))<br>    key = sha3.digest()<br><br>    cypher = AES.new(key, AES.MODE_ECB)<br>    flag = cypher.decrypt(pad(c, <span class="hljs-number">32</span>))<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">b&#x27;DASCTF&#x27;</span> <span class="hljs-keyword">in</span> flag:<br>        <span class="hljs-built_in">print</span>(key)<br>        <span class="hljs-built_in">print</span>(flag)<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="NTRURSA"><a href="#NTRURSA" class="headerlink" title="NTRURSA"></a>NTRURSA</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> secret <span class="hljs-keyword">import</span> flag<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gen</span>():<br>    p1 = getPrime(<span class="hljs-number">256</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        f = getRandomRange(<span class="hljs-number">1</span>, iroot(p1 // <span class="hljs-number">2</span>, <span class="hljs-number">2</span>)[<span class="hljs-number">0</span>])<br>        g = getRandomRange(iroot(p1 // <span class="hljs-number">4</span>, <span class="hljs-number">2</span>)[<span class="hljs-number">0</span>], iroot(p1 // <span class="hljs-number">2</span>, <span class="hljs-number">2</span>)[<span class="hljs-number">0</span>])<br>        <span class="hljs-keyword">if</span> gcd(f, p1) == <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> gcd(f, g) == <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> isPrime(g) == <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">break</span><br>    rand = getRandomRange(<span class="hljs-number">0</span>, <span class="hljs-number">2</span> ^ <span class="hljs-number">20</span>)<br>    g1 = g ^^ rand<br>    h = (inverse(f, p1) * g1) % p1<br>    <span class="hljs-keyword">return</span> h, p1, g, f, g1<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gen_irreducable_poly</span>(<span class="hljs-params">deg</span>):<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        out = R.random_element(degree=deg)<br>        <span class="hljs-keyword">if</span> out.is_irreducible():<br>            <span class="hljs-keyword">return</span> out<br><br><br>h, p1, g, f, g1 = gen()<br>q = getPrime(<span class="hljs-number">1024</span>)<br>n = g * q <br>e = <span class="hljs-number">0x10001</span><br>c1 = <span class="hljs-built_in">pow</span>(bytes_to_long(flag), e, n)<br><br>hint = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">str</span>(h))<br>length = <span class="hljs-built_in">len</span>(hint)<span class="hljs-comment">#len(h)</span><br>bits = <span class="hljs-number">16</span><br>p2 = random_prime(<span class="hljs-number">2</span> ^ bits - <span class="hljs-number">1</span>, <span class="hljs-literal">False</span>, <span class="hljs-number">2</span> ^ (bits - <span class="hljs-number">1</span>))<br>R.&lt;x&gt; = PolynomialRing(GF(p2))<br>P = gen_irreducable_poly(ZZ.random_element(length, <span class="hljs-number">2</span> * length))<br>Q = gen_irreducable_poly(ZZ.random_element(length, <span class="hljs-number">2</span> * length))<br>N = P * Q<br>S.&lt;x&gt; = R.quotient(N)<span class="hljs-comment">#以N为模的商环</span><br>m = S(hint)<span class="hljs-comment">#以hint为系数的多项式</span><br>c2 = m ^ e<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;p1 =&quot;</span>, p1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;c1 =&quot;</span>, c1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;p2 =&quot;</span>, p2)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;c2 =&quot;</span>, c2)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;n =&quot;</span>, n)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;N =&quot;</span>, N)<br><br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">p1 = 106472061241112922861460644342336453303928202010237284715354717630502168520267</span><br><span class="hljs-string">c1 = 20920247107738496784071050239422540936224577122721266141057957551603705972966457203177812404896852110975768315464852962210648535130235298413611598658659777108920014929632531307409885868941842921815735008981335582297975794108016151210394446009890312043259167806981442425505200141283138318269058818777636637375101005540308736021976559495266332357714</span><br><span class="hljs-string">p2 = 64621</span><br><span class="hljs-string">c2 = 19921*x^174 + 49192*x^173 + 18894*x^172 + 61121*x^171 + 50271*x^170 + 11860*x^169 + 53128*x^168 + 38658*x^167 + 14191*x^166 + 9671*x^165 + 40879*x^164 + 15187*x^163 + 33523*x^162 + 62270*x^161 + 64211*x^160 + 54518*x^159 + 50446*x^158 + 2597*x^157 + 32216*x^156 + 10500*x^155 + 63276*x^154 + 27916*x^153 + 55316*x^152 + 30898*x^151 + 43706*x^150 + 5734*x^149 + 35616*x^148 + 14288*x^147 + 18282*x^146 + 22788*x^145 + 48188*x^144 + 34176*x^143 + 55952*x^142 + 9578*x^141 + 9177*x^140 + 22083*x^139 + 14586*x^138 + 9748*x^137 + 21118*x^136 + 155*x^135 + 64224*x^134 + 18193*x^133 + 33732*x^132 + 38135*x^131 + 51992*x^130 + 8203*x^129 + 8538*x^128 + 55203*x^127 + 5003*x^126 + 2009*x^125 + 45023*x^124 + 12311*x^123 + 21428*x^122 + 24110*x^121 + 43537*x^120 + 21885*x^119 + 50212*x^118 + 40445*x^117 + 17768*x^116 + 46616*x^115 + 4771*x^114 + 20903*x^113 + 47764*x^112 + 13056*x^111 + 50837*x^110 + 22313*x^109 + 39698*x^108 + 60377*x^107 + 59357*x^106 + 24051*x^105 + 5888*x^104 + 29414*x^103 + 31726*x^102 + 4906*x^101 + 23968*x^100 + 52360*x^99 + 58063*x^98 + 706*x^97 + 31420*x^96 + 62468*x^95 + 18557*x^94 + 1498*x^93 + 17590*x^92 + 62990*x^91 + 27200*x^90 + 7052*x^89 + 39117*x^88 + 46944*x^87 + 45535*x^86 + 28092*x^85 + 1981*x^84 + 4377*x^83 + 34419*x^82 + 33754*x^81 + 2640*x^80 + 44427*x^79 + 32179*x^78 + 57721*x^77 + 9444*x^76 + 49374*x^75 + 21288*x^74 + 44098*x^73 + 57744*x^72 + 63457*x^71 + 43300*x^70 + 1508*x^69 + 13775*x^68 + 23197*x^67 + 43070*x^66 + 20751*x^65 + 47479*x^64 + 18496*x^63 + 53392*x^62 + 10387*x^61 + 2317*x^60 + 57492*x^59 + 25441*x^58 + 52532*x^57 + 27150*x^56 + 33788*x^55 + 43371*x^54 + 30972*x^53 + 39583*x^52 + 36407*x^51 + 35564*x^50 + 44564*x^49 + 1505*x^48 + 47519*x^47 + 38695*x^46 + 43107*x^45 + 1676*x^44 + 42057*x^43 + 49879*x^42 + 29083*x^41 + 42241*x^40 + 8853*x^39 + 33546*x^38 + 48954*x^37 + 30352*x^36 + 62020*x^35 + 39864*x^34 + 9519*x^33 + 24828*x^32 + 34696*x^31 + 2387*x^30 + 27413*x^29 + 55829*x^28 + 40217*x^27 + 30205*x^26 + 42328*x^25 + 6210*x^24 + 52442*x^23 + 58495*x^22 + 2014*x^21 + 26452*x^20 + 33547*x^19 + 19840*x^18 + 5995*x^17 + 16850*x^16 + 37855*x^15 + 7221*x^14 + 32200*x^13 + 8121*x^12 + 23767*x^11 + 46563*x^10 + 51673*x^9 + 19372*x^8 + 4157*x^7 + 48421*x^6 + 41096*x^5 + 45735*x^4 + 53022*x^3 + 35475*x^2 + 47521*x + 27544</span><br><span class="hljs-string">n = 31398174203566229210665534094126601315683074641013205440476552584312112883638278390105806127975406224783128340041129316782549009811196493319665336016690985557862367551545487842904828051293613836275987595871004601968935866634955528775536847402581734910742403788941725304146192149165731194199024154454952157531068881114411265538547462017207361362857</span><br><span class="hljs-string">N = 25081*x^175 + 8744*x^174 + 9823*x^173 + 9037*x^172 + 6343*x^171 + 42205*x^170 + 28573*x^169 + 55714*x^168 + 17287*x^167 + 11229*x^166 + 42630*x^165 + 64363*x^164 + 50759*x^163 + 3368*x^162 + 20900*x^161 + 55947*x^160 + 7082*x^159 + 23171*x^158 + 48510*x^157 + 20013*x^156 + 16798*x^155 + 60438*x^154 + 58779*x^153 + 9289*x^152 + 10623*x^151 + 1085*x^150 + 23473*x^149 + 13795*x^148 + 2071*x^147 + 31515*x^146 + 42832*x^145 + 38152*x^144 + 37559*x^143 + 47653*x^142 + 37371*x^141 + 39128*x^140 + 48750*x^139 + 16638*x^138 + 60320*x^137 + 56224*x^136 + 41870*x^135 + 63961*x^134 + 47574*x^133 + 63954*x^132 + 9668*x^131 + 62360*x^130 + 15244*x^129 + 20599*x^128 + 28704*x^127 + 26857*x^126 + 34885*x^125 + 33107*x^124 + 17693*x^123 + 52753*x^122 + 60744*x^121 + 21305*x^120 + 63785*x^119 + 54400*x^118 + 17812*x^117 + 64549*x^116 + 20035*x^115 + 37567*x^114 + 38607*x^113 + 32783*x^112 + 24385*x^111 + 5387*x^110 + 5134*x^109 + 45893*x^108 + 58307*x^107 + 33821*x^106 + 54902*x^105 + 14236*x^104 + 58044*x^103 + 41257*x^102 + 46881*x^101 + 42834*x^100 + 1693*x^99 + 46058*x^98 + 15636*x^97 + 27111*x^96 + 3158*x^95 + 41012*x^94 + 26028*x^93 + 3576*x^92 + 37958*x^91 + 33273*x^90 + 60228*x^89 + 41229*x^88 + 11232*x^87 + 12635*x^86 + 17942*x^85 + 4*x^84 + 25397*x^83 + 63526*x^82 + 54872*x^81 + 40318*x^80 + 37498*x^79 + 52182*x^78 + 48817*x^77 + 10763*x^76 + 46542*x^75 + 36060*x^74 + 49972*x^73 + 63603*x^72 + 46506*x^71 + 44788*x^70 + 44905*x^69 + 46112*x^68 + 5297*x^67 + 26440*x^66 + 28470*x^65 + 15525*x^64 + 11566*x^63 + 15781*x^62 + 36098*x^61 + 44402*x^60 + 55331*x^59 + 61583*x^58 + 16406*x^57 + 59089*x^56 + 53161*x^55 + 43695*x^54 + 49580*x^53 + 62685*x^52 + 31447*x^51 + 26755*x^50 + 14810*x^49 + 3281*x^48 + 27371*x^47 + 53392*x^46 + 2648*x^45 + 10095*x^44 + 25977*x^43 + 22912*x^42 + 41278*x^41 + 33236*x^40 + 57792*x^39 + 7169*x^38 + 29250*x^37 + 16906*x^36 + 4436*x^35 + 2729*x^34 + 29736*x^33 + 19383*x^32 + 11921*x^31 + 26075*x^30 + 54616*x^29 + 739*x^28 + 38509*x^27 + 19118*x^26 + 20062*x^25 + 21280*x^24 + 12594*x^23 + 14974*x^22 + 27795*x^21 + 54107*x^20 + 1890*x^19 + 13410*x^18 + 5381*x^17 + 19500*x^16 + 47481*x^15 + 58488*x^14 + 26433*x^13 + 37803*x^12 + 60232*x^11 + 34772*x^10 + 1505*x^9 + 63760*x^8 + 20890*x^7 + 41533*x^6 + 16130*x^5 + 29769*x^4 + 49142*x^3 + 64184*x^2 + 55443*x + 45925</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>NTRU + 多项式RSA</p>
+<h2 id="step1"><a href="#step1" class="headerlink" title="step1"></a>step1</h2><p>求解h。参考<a target="_blank" rel="noopener" href="https://4xwi11.github.io/posts/a0a0f5aa/">多项式RSA | 4XWi11的博客</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python">p2 = <span class="hljs-number">64621</span><br>e = <span class="hljs-number">0x10001</span><br>R.&lt;x&gt; = PolynomialRing(GF(p2))<br>N = <span class="hljs-number">25081</span>*x^<span class="hljs-number">175</span> + <span class="hljs-number">8744</span>*x^<span class="hljs-number">174</span> + <span class="hljs-number">9823</span>*x^<span class="hljs-number">173</span> + <span class="hljs-number">9037</span>*x^<span class="hljs-number">172</span> + <span class="hljs-number">6343</span>*x^<span class="hljs-number">171</span> + <span class="hljs-number">42205</span>*x^<span class="hljs-number">170</span> + <span class="hljs-number">28573</span>*x^<span class="hljs-number">169</span> + <span class="hljs-number">55714</span>*x^<span class="hljs-number">168</span> + <span class="hljs-number">17287</span>*x^<span class="hljs-number">167</span> + <span class="hljs-number">11229</span>*x^<span class="hljs-number">166</span> + <span class="hljs-number">42630</span>*x^<span class="hljs-number">165</span> + <span class="hljs-number">64363</span>*x^<span class="hljs-number">164</span> + <span class="hljs-number">50759</span>*x^<span class="hljs-number">163</span> + <span class="hljs-number">3368</span>*x^<span class="hljs-number">162</span> + <span class="hljs-number">20900</span>*x^<span class="hljs-number">161</span> + <span class="hljs-number">55947</span>*x^<span class="hljs-number">160</span> + <span class="hljs-number">7082</span>*x^<span class="hljs-number">159</span> + <span class="hljs-number">23171</span>*x^<span class="hljs-number">158</span> + <span class="hljs-number">48510</span>*x^<span class="hljs-number">157</span> + <span class="hljs-number">20013</span>*x^<span class="hljs-number">156</span> + <span class="hljs-number">16798</span>*x^<span class="hljs-number">155</span> + <span class="hljs-number">60438</span>*x^<span class="hljs-number">154</span> + <span class="hljs-number">58779</span>*x^<span class="hljs-number">153</span> + <span class="hljs-number">9289</span>*x^<span class="hljs-number">152</span> + <span class="hljs-number">10623</span>*x^<span class="hljs-number">151</span> + <span class="hljs-number">1085</span>*x^<span class="hljs-number">150</span> + <span class="hljs-number">23473</span>*x^<span class="hljs-number">149</span> + <span class="hljs-number">13795</span>*x^<span class="hljs-number">148</span> + <span class="hljs-number">2071</span>*x^<span class="hljs-number">147</span> + <span class="hljs-number">31515</span>*x^<span class="hljs-number">146</span> + <span class="hljs-number">42832</span>*x^<span class="hljs-number">145</span> + <span class="hljs-number">38152</span>*x^<span class="hljs-number">144</span> + <span class="hljs-number">37559</span>*x^<span class="hljs-number">143</span> + <span class="hljs-number">47653</span>*x^<span class="hljs-number">142</span> + <span class="hljs-number">37371</span>*x^<span class="hljs-number">141</span> + <span class="hljs-number">39128</span>*x^<span class="hljs-number">140</span> + <span class="hljs-number">48750</span>*x^<span class="hljs-number">139</span> + <span class="hljs-number">16638</span>*x^<span class="hljs-number">138</span> + <span class="hljs-number">60320</span>*x^<span class="hljs-number">137</span> + <span class="hljs-number">56224</span>*x^<span class="hljs-number">136</span> + <span class="hljs-number">41870</span>*x^<span class="hljs-number">135</span> + <span class="hljs-number">63961</span>*x^<span class="hljs-number">134</span> + <span class="hljs-number">47574</span>*x^<span class="hljs-number">133</span> + <span class="hljs-number">63954</span>*x^<span class="hljs-number">132</span> + <span class="hljs-number">9668</span>*x^<span class="hljs-number">131</span> + <span class="hljs-number">62360</span>*x^<span class="hljs-number">130</span> + <span class="hljs-number">15244</span>*x^<span class="hljs-number">129</span> + <span class="hljs-number">20599</span>*x^<span class="hljs-number">128</span> + <span class="hljs-number">28704</span>*x^<span class="hljs-number">127</span> + <span class="hljs-number">26857</span>*x^<span class="hljs-number">126</span> + <span class="hljs-number">34885</span>*x^<span class="hljs-number">125</span> + <span class="hljs-number">33107</span>*x^<span class="hljs-number">124</span> + <span class="hljs-number">17693</span>*x^<span class="hljs-number">123</span> + <span class="hljs-number">52753</span>*x^<span class="hljs-number">122</span> + <span class="hljs-number">60744</span>*x^<span class="hljs-number">121</span> + <span class="hljs-number">21305</span>*x^<span class="hljs-number">120</span> + <span class="hljs-number">63785</span>*x^<span class="hljs-number">119</span> + <span class="hljs-number">54400</span>*x^<span class="hljs-number">118</span> + <span class="hljs-number">17812</span>*x^<span class="hljs-number">117</span> + <span class="hljs-number">64549</span>*x^<span class="hljs-number">116</span> + <span class="hljs-number">20035</span>*x^<span class="hljs-number">115</span> + <span class="hljs-number">37567</span>*x^<span class="hljs-number">114</span> + <span class="hljs-number">38607</span>*x^<span class="hljs-number">113</span> + <span class="hljs-number">32783</span>*x^<span class="hljs-number">112</span> + <span class="hljs-number">24385</span>*x^<span class="hljs-number">111</span> + <span class="hljs-number">5387</span>*x^<span class="hljs-number">110</span> + <span class="hljs-number">5134</span>*x^<span class="hljs-number">109</span> + <span class="hljs-number">45893</span>*x^<span class="hljs-number">108</span> + <span class="hljs-number">58307</span>*x^<span class="hljs-number">107</span> + <span class="hljs-number">33821</span>*x^<span class="hljs-number">106</span> + <span class="hljs-number">54902</span>*x^<span class="hljs-number">105</span> + <span class="hljs-number">14236</span>*x^<span class="hljs-number">104</span> + <span class="hljs-number">58044</span>*x^<span class="hljs-number">103</span> + <span class="hljs-number">41257</span>*x^<span class="hljs-number">102</span> + <span class="hljs-number">46881</span>*x^<span class="hljs-number">101</span> + <span class="hljs-number">42834</span>*x^<span class="hljs-number">100</span> + <span class="hljs-number">1693</span>*x^<span class="hljs-number">99</span> + <span class="hljs-number">46058</span>*x^<span class="hljs-number">98</span> + <span class="hljs-number">15636</span>*x^<span class="hljs-number">97</span> + <span class="hljs-number">27111</span>*x^<span class="hljs-number">96</span> + <span class="hljs-number">3158</span>*x^<span class="hljs-number">95</span> + <span class="hljs-number">41012</span>*x^<span class="hljs-number">94</span> + <span class="hljs-number">26028</span>*x^<span class="hljs-number">93</span> + <span class="hljs-number">3576</span>*x^<span class="hljs-number">92</span> + <span class="hljs-number">37958</span>*x^<span class="hljs-number">91</span> + <span class="hljs-number">33273</span>*x^<span class="hljs-number">90</span> + <span class="hljs-number">60228</span>*x^<span class="hljs-number">89</span> + <span class="hljs-number">41229</span>*x^<span class="hljs-number">88</span> + <span class="hljs-number">11232</span>*x^<span class="hljs-number">87</span> + <span class="hljs-number">12635</span>*x^<span class="hljs-number">86</span> + <span class="hljs-number">17942</span>*x^<span class="hljs-number">85</span> + <span class="hljs-number">4</span>*x^<span class="hljs-number">84</span> + <span class="hljs-number">25397</span>*x^<span class="hljs-number">83</span> + <span class="hljs-number">63526</span>*x^<span class="hljs-number">82</span> + <span class="hljs-number">54872</span>*x^<span class="hljs-number">81</span> + <span class="hljs-number">40318</span>*x^<span class="hljs-number">80</span> + <span class="hljs-number">37498</span>*x^<span class="hljs-number">79</span> + <span class="hljs-number">52182</span>*x^<span class="hljs-number">78</span> + <span class="hljs-number">48817</span>*x^<span class="hljs-number">77</span> + <span class="hljs-number">10763</span>*x^<span class="hljs-number">76</span> + <span class="hljs-number">46542</span>*x^<span class="hljs-number">75</span> + <span class="hljs-number">36060</span>*x^<span class="hljs-number">74</span> + <span class="hljs-number">49972</span>*x^<span class="hljs-number">73</span> + <span class="hljs-number">63603</span>*x^<span class="hljs-number">72</span> + <span class="hljs-number">46506</span>*x^<span class="hljs-number">71</span> + <span class="hljs-number">44788</span>*x^<span class="hljs-number">70</span> + <span class="hljs-number">44905</span>*x^<span class="hljs-number">69</span> + <span class="hljs-number">46112</span>*x^<span class="hljs-number">68</span> + <span class="hljs-number">5297</span>*x^<span class="hljs-number">67</span> + <span class="hljs-number">26440</span>*x^<span class="hljs-number">66</span> + <span class="hljs-number">28470</span>*x^<span class="hljs-number">65</span> + <span class="hljs-number">15525</span>*x^<span class="hljs-number">64</span> + <span class="hljs-number">11566</span>*x^<span class="hljs-number">63</span> + <span class="hljs-number">15781</span>*x^<span class="hljs-number">62</span> + <span class="hljs-number">36098</span>*x^<span class="hljs-number">61</span> + <span class="hljs-number">44402</span>*x^<span class="hljs-number">60</span> + <span class="hljs-number">55331</span>*x^<span class="hljs-number">59</span> + <span class="hljs-number">61583</span>*x^<span class="hljs-number">58</span> + <span class="hljs-number">16406</span>*x^<span class="hljs-number">57</span> + <span class="hljs-number">59089</span>*x^<span class="hljs-number">56</span> + <span class="hljs-number">53161</span>*x^<span class="hljs-number">55</span> + <span class="hljs-number">43695</span>*x^<span class="hljs-number">54</span> + <span class="hljs-number">49580</span>*x^<span class="hljs-number">53</span> + <span class="hljs-number">62685</span>*x^<span class="hljs-number">52</span> + <span class="hljs-number">31447</span>*x^<span class="hljs-number">51</span> + <span class="hljs-number">26755</span>*x^<span class="hljs-number">50</span> + <span class="hljs-number">14810</span>*x^<span class="hljs-number">49</span> + <span class="hljs-number">3281</span>*x^<span class="hljs-number">48</span> + <span class="hljs-number">27371</span>*x^<span class="hljs-number">47</span> + <span class="hljs-number">53392</span>*x^<span class="hljs-number">46</span> + <span class="hljs-number">2648</span>*x^<span class="hljs-number">45</span> + <span class="hljs-number">10095</span>*x^<span class="hljs-number">44</span> + <span class="hljs-number">25977</span>*x^<span class="hljs-number">43</span> + <span class="hljs-number">22912</span>*x^<span class="hljs-number">42</span> + <span class="hljs-number">41278</span>*x^<span class="hljs-number">41</span> + <span class="hljs-number">33236</span>*x^<span class="hljs-number">40</span> + <span class="hljs-number">57792</span>*x^<span class="hljs-number">39</span> + <span class="hljs-number">7169</span>*x^<span class="hljs-number">38</span> + <span class="hljs-number">29250</span>*x^<span class="hljs-number">37</span> + <span class="hljs-number">16906</span>*x^<span class="hljs-number">36</span> + <span class="hljs-number">4436</span>*x^<span class="hljs-number">35</span> + <span class="hljs-number">2729</span>*x^<span class="hljs-number">34</span> + <span class="hljs-number">29736</span>*x^<span class="hljs-number">33</span> + <span class="hljs-number">19383</span>*x^<span class="hljs-number">32</span> + <span class="hljs-number">11921</span>*x^<span class="hljs-number">31</span> + <span class="hljs-number">26075</span>*x^<span class="hljs-number">30</span> + <span class="hljs-number">54616</span>*x^<span class="hljs-number">29</span> + <span class="hljs-number">739</span>*x^<span class="hljs-number">28</span> + <span class="hljs-number">38509</span>*x^<span class="hljs-number">27</span> + <span class="hljs-number">19118</span>*x^<span class="hljs-number">26</span> + <span class="hljs-number">20062</span>*x^<span class="hljs-number">25</span> + <span class="hljs-number">21280</span>*x^<span class="hljs-number">24</span> + <span class="hljs-number">12594</span>*x^<span class="hljs-number">23</span> + <span class="hljs-number">14974</span>*x^<span class="hljs-number">22</span> + <span class="hljs-number">27795</span>*x^<span class="hljs-number">21</span> + <span class="hljs-number">54107</span>*x^<span class="hljs-number">20</span> + <span class="hljs-number">1890</span>*x^<span class="hljs-number">19</span> + <span class="hljs-number">13410</span>*x^<span class="hljs-number">18</span> + <span class="hljs-number">5381</span>*x^<span class="hljs-number">17</span> + <span class="hljs-number">19500</span>*x^<span class="hljs-number">16</span> + <span class="hljs-number">47481</span>*x^<span class="hljs-number">15</span> + <span class="hljs-number">58488</span>*x^<span class="hljs-number">14</span> + <span class="hljs-number">26433</span>*x^<span class="hljs-number">13</span> + <span class="hljs-number">37803</span>*x^<span class="hljs-number">12</span> + <span class="hljs-number">60232</span>*x^<span class="hljs-number">11</span> + <span class="hljs-number">34772</span>*x^<span class="hljs-number">10</span> + <span class="hljs-number">1505</span>*x^<span class="hljs-number">9</span> + <span class="hljs-number">63760</span>*x^<span class="hljs-number">8</span> + <span class="hljs-number">20890</span>*x^<span class="hljs-number">7</span> + <span class="hljs-number">41533</span>*x^<span class="hljs-number">6</span> + <span class="hljs-number">16130</span>*x^<span class="hljs-number">5</span> + <span class="hljs-number">29769</span>*x^<span class="hljs-number">4</span> + <span class="hljs-number">49142</span>*x^<span class="hljs-number">3</span> + <span class="hljs-number">64184</span>*x^<span class="hljs-number">2</span> + <span class="hljs-number">55443</span>*x + <span class="hljs-number">45925</span><br>c2 = <span class="hljs-number">19921</span>*x^<span class="hljs-number">174</span> + <span class="hljs-number">49192</span>*x^<span class="hljs-number">173</span> + <span class="hljs-number">18894</span>*x^<span class="hljs-number">172</span> + <span class="hljs-number">61121</span>*x^<span class="hljs-number">171</span> + <span class="hljs-number">50271</span>*x^<span class="hljs-number">170</span> + <span class="hljs-number">11860</span>*x^<span class="hljs-number">169</span> + <span class="hljs-number">53128</span>*x^<span class="hljs-number">168</span> + <span class="hljs-number">38658</span>*x^<span class="hljs-number">167</span> + <span class="hljs-number">14191</span>*x^<span class="hljs-number">166</span> + <span class="hljs-number">9671</span>*x^<span class="hljs-number">165</span> + <span class="hljs-number">40879</span>*x^<span class="hljs-number">164</span> + <span class="hljs-number">15187</span>*x^<span class="hljs-number">163</span> + <span class="hljs-number">33523</span>*x^<span class="hljs-number">162</span> + <span class="hljs-number">62270</span>*x^<span class="hljs-number">161</span> + <span class="hljs-number">64211</span>*x^<span class="hljs-number">160</span> + <span class="hljs-number">54518</span>*x^<span class="hljs-number">159</span> + <span class="hljs-number">50446</span>*x^<span class="hljs-number">158</span> + <span class="hljs-number">2597</span>*x^<span class="hljs-number">157</span> + <span class="hljs-number">32216</span>*x^<span class="hljs-number">156</span> + <span class="hljs-number">10500</span>*x^<span class="hljs-number">155</span> + <span class="hljs-number">63276</span>*x^<span class="hljs-number">154</span> + <span class="hljs-number">27916</span>*x^<span class="hljs-number">153</span> + <span class="hljs-number">55316</span>*x^<span class="hljs-number">152</span> + <span class="hljs-number">30898</span>*x^<span class="hljs-number">151</span> + <span class="hljs-number">43706</span>*x^<span class="hljs-number">150</span> + <span class="hljs-number">5734</span>*x^<span class="hljs-number">149</span> + <span class="hljs-number">35616</span>*x^<span class="hljs-number">148</span> + <span class="hljs-number">14288</span>*x^<span class="hljs-number">147</span> + <span class="hljs-number">18282</span>*x^<span class="hljs-number">146</span> + <span class="hljs-number">22788</span>*x^<span class="hljs-number">145</span> + <span class="hljs-number">48188</span>*x^<span class="hljs-number">144</span> + <span class="hljs-number">34176</span>*x^<span class="hljs-number">143</span> + <span class="hljs-number">55952</span>*x^<span class="hljs-number">142</span> + <span class="hljs-number">9578</span>*x^<span class="hljs-number">141</span> + <span class="hljs-number">9177</span>*x^<span class="hljs-number">140</span> + <span class="hljs-number">22083</span>*x^<span class="hljs-number">139</span> + <span class="hljs-number">14586</span>*x^<span class="hljs-number">138</span> + <span class="hljs-number">9748</span>*x^<span class="hljs-number">137</span> + <span class="hljs-number">21118</span>*x^<span class="hljs-number">136</span> + <span class="hljs-number">155</span>*x^<span class="hljs-number">135</span> + <span class="hljs-number">64224</span>*x^<span class="hljs-number">134</span> + <span class="hljs-number">18193</span>*x^<span class="hljs-number">133</span> + <span class="hljs-number">33732</span>*x^<span class="hljs-number">132</span> + <span class="hljs-number">38135</span>*x^<span class="hljs-number">131</span> + <span class="hljs-number">51992</span>*x^<span class="hljs-number">130</span> + <span class="hljs-number">8203</span>*x^<span class="hljs-number">129</span> + <span class="hljs-number">8538</span>*x^<span class="hljs-number">128</span> + <span class="hljs-number">55203</span>*x^<span class="hljs-number">127</span> + <span class="hljs-number">5003</span>*x^<span class="hljs-number">126</span> + <span class="hljs-number">2009</span>*x^<span class="hljs-number">125</span> + <span class="hljs-number">45023</span>*x^<span class="hljs-number">124</span> + <span class="hljs-number">12311</span>*x^<span class="hljs-number">123</span> + <span class="hljs-number">21428</span>*x^<span class="hljs-number">122</span> + <span class="hljs-number">24110</span>*x^<span class="hljs-number">121</span> + <span class="hljs-number">43537</span>*x^<span class="hljs-number">120</span> + <span class="hljs-number">21885</span>*x^<span class="hljs-number">119</span> + <span class="hljs-number">50212</span>*x^<span class="hljs-number">118</span> + <span class="hljs-number">40445</span>*x^<span class="hljs-number">117</span> + <span class="hljs-number">17768</span>*x^<span class="hljs-number">116</span> + <span class="hljs-number">46616</span>*x^<span class="hljs-number">115</span> + <span class="hljs-number">4771</span>*x^<span class="hljs-number">114</span> + <span class="hljs-number">20903</span>*x^<span class="hljs-number">113</span> + <span class="hljs-number">47764</span>*x^<span class="hljs-number">112</span> + <span class="hljs-number">13056</span>*x^<span class="hljs-number">111</span> + <span class="hljs-number">50837</span>*x^<span class="hljs-number">110</span> + <span class="hljs-number">22313</span>*x^<span class="hljs-number">109</span> + <span class="hljs-number">39698</span>*x^<span class="hljs-number">108</span> + <span class="hljs-number">60377</span>*x^<span class="hljs-number">107</span> + <span class="hljs-number">59357</span>*x^<span class="hljs-number">106</span> + <span class="hljs-number">24051</span>*x^<span class="hljs-number">105</span> + <span class="hljs-number">5888</span>*x^<span class="hljs-number">104</span> + <span class="hljs-number">29414</span>*x^<span class="hljs-number">103</span> + <span class="hljs-number">31726</span>*x^<span class="hljs-number">102</span> + <span class="hljs-number">4906</span>*x^<span class="hljs-number">101</span> + <span class="hljs-number">23968</span>*x^<span class="hljs-number">100</span> + <span class="hljs-number">52360</span>*x^<span class="hljs-number">99</span> + <span class="hljs-number">58063</span>*x^<span class="hljs-number">98</span> + <span class="hljs-number">706</span>*x^<span class="hljs-number">97</span> + <span class="hljs-number">31420</span>*x^<span class="hljs-number">96</span> + <span class="hljs-number">62468</span>*x^<span class="hljs-number">95</span> + <span class="hljs-number">18557</span>*x^<span class="hljs-number">94</span> + <span class="hljs-number">1498</span>*x^<span class="hljs-number">93</span> + <span class="hljs-number">17590</span>*x^<span class="hljs-number">92</span> + <span class="hljs-number">62990</span>*x^<span class="hljs-number">91</span> + <span class="hljs-number">27200</span>*x^<span class="hljs-number">90</span> + <span class="hljs-number">7052</span>*x^<span class="hljs-number">89</span> + <span class="hljs-number">39117</span>*x^<span class="hljs-number">88</span> + <span class="hljs-number">46944</span>*x^<span class="hljs-number">87</span> + <span class="hljs-number">45535</span>*x^<span class="hljs-number">86</span> + <span class="hljs-number">28092</span>*x^<span class="hljs-number">85</span> + <span class="hljs-number">1981</span>*x^<span class="hljs-number">84</span> + <span class="hljs-number">4377</span>*x^<span class="hljs-number">83</span> + <span class="hljs-number">34419</span>*x^<span class="hljs-number">82</span> + <span class="hljs-number">33754</span>*x^<span class="hljs-number">81</span> + <span class="hljs-number">2640</span>*x^<span class="hljs-number">80</span> + <span class="hljs-number">44427</span>*x^<span class="hljs-number">79</span> + <span class="hljs-number">32179</span>*x^<span class="hljs-number">78</span> + <span class="hljs-number">57721</span>*x^<span class="hljs-number">77</span> + <span class="hljs-number">9444</span>*x^<span class="hljs-number">76</span> + <span class="hljs-number">49374</span>*x^<span class="hljs-number">75</span> + <span class="hljs-number">21288</span>*x^<span class="hljs-number">74</span> + <span class="hljs-number">44098</span>*x^<span class="hljs-number">73</span> + <span class="hljs-number">57744</span>*x^<span class="hljs-number">72</span> + <span class="hljs-number">63457</span>*x^<span class="hljs-number">71</span> + <span class="hljs-number">43300</span>*x^<span class="hljs-number">70</span> + <span class="hljs-number">1508</span>*x^<span class="hljs-number">69</span> + <span class="hljs-number">13775</span>*x^<span class="hljs-number">68</span> + <span class="hljs-number">23197</span>*x^<span class="hljs-number">67</span> + <span class="hljs-number">43070</span>*x^<span class="hljs-number">66</span> + <span class="hljs-number">20751</span>*x^<span class="hljs-number">65</span> + <span class="hljs-number">47479</span>*x^<span class="hljs-number">64</span> + <span class="hljs-number">18496</span>*x^<span class="hljs-number">63</span> + <span class="hljs-number">53392</span>*x^<span class="hljs-number">62</span> + <span class="hljs-number">10387</span>*x^<span class="hljs-number">61</span> + <span class="hljs-number">2317</span>*x^<span class="hljs-number">60</span> + <span class="hljs-number">57492</span>*x^<span class="hljs-number">59</span> + <span class="hljs-number">25441</span>*x^<span class="hljs-number">58</span> + <span class="hljs-number">52532</span>*x^<span class="hljs-number">57</span> + <span class="hljs-number">27150</span>*x^<span class="hljs-number">56</span> + <span class="hljs-number">33788</span>*x^<span class="hljs-number">55</span> + <span class="hljs-number">43371</span>*x^<span class="hljs-number">54</span> + <span class="hljs-number">30972</span>*x^<span class="hljs-number">53</span> + <span class="hljs-number">39583</span>*x^<span class="hljs-number">52</span> + <span class="hljs-number">36407</span>*x^<span class="hljs-number">51</span> + <span class="hljs-number">35564</span>*x^<span class="hljs-number">50</span> + <span class="hljs-number">44564</span>*x^<span class="hljs-number">49</span> + <span class="hljs-number">1505</span>*x^<span class="hljs-number">48</span> + <span class="hljs-number">47519</span>*x^<span class="hljs-number">47</span> + <span class="hljs-number">38695</span>*x^<span class="hljs-number">46</span> + <span class="hljs-number">43107</span>*x^<span class="hljs-number">45</span> + <span class="hljs-number">1676</span>*x^<span class="hljs-number">44</span> + <span class="hljs-number">42057</span>*x^<span class="hljs-number">43</span> + <span class="hljs-number">49879</span>*x^<span class="hljs-number">42</span> + <span class="hljs-number">29083</span>*x^<span class="hljs-number">41</span> + <span class="hljs-number">42241</span>*x^<span class="hljs-number">40</span> + <span class="hljs-number">8853</span>*x^<span class="hljs-number">39</span> + <span class="hljs-number">33546</span>*x^<span class="hljs-number">38</span> + <span class="hljs-number">48954</span>*x^<span class="hljs-number">37</span> + <span class="hljs-number">30352</span>*x^<span class="hljs-number">36</span> + <span class="hljs-number">62020</span>*x^<span class="hljs-number">35</span> + <span class="hljs-number">39864</span>*x^<span class="hljs-number">34</span> + <span class="hljs-number">9519</span>*x^<span class="hljs-number">33</span> + <span class="hljs-number">24828</span>*x^<span class="hljs-number">32</span> + <span class="hljs-number">34696</span>*x^<span class="hljs-number">31</span> + <span class="hljs-number">2387</span>*x^<span class="hljs-number">30</span> + <span class="hljs-number">27413</span>*x^<span class="hljs-number">29</span> + <span class="hljs-number">55829</span>*x^<span class="hljs-number">28</span> + <span class="hljs-number">40217</span>*x^<span class="hljs-number">27</span> + <span class="hljs-number">30205</span>*x^<span class="hljs-number">26</span> + <span class="hljs-number">42328</span>*x^<span class="hljs-number">25</span> + <span class="hljs-number">6210</span>*x^<span class="hljs-number">24</span> + <span class="hljs-number">52442</span>*x^<span class="hljs-number">23</span> + <span class="hljs-number">58495</span>*x^<span class="hljs-number">22</span> + <span class="hljs-number">2014</span>*x^<span class="hljs-number">21</span> + <span class="hljs-number">26452</span>*x^<span class="hljs-number">20</span> + <span class="hljs-number">33547</span>*x^<span class="hljs-number">19</span> + <span class="hljs-number">19840</span>*x^<span class="hljs-number">18</span> + <span class="hljs-number">5995</span>*x^<span class="hljs-number">17</span> + <span class="hljs-number">16850</span>*x^<span class="hljs-number">16</span> + <span class="hljs-number">37855</span>*x^<span class="hljs-number">15</span> + <span class="hljs-number">7221</span>*x^<span class="hljs-number">14</span> + <span class="hljs-number">32200</span>*x^<span class="hljs-number">13</span> + <span class="hljs-number">8121</span>*x^<span class="hljs-number">12</span> + <span class="hljs-number">23767</span>*x^<span class="hljs-number">11</span> + <span class="hljs-number">46563</span>*x^<span class="hljs-number">10</span> + <span class="hljs-number">51673</span>*x^<span class="hljs-number">9</span> + <span class="hljs-number">19372</span>*x^<span class="hljs-number">8</span> + <span class="hljs-number">4157</span>*x^<span class="hljs-number">7</span> + <span class="hljs-number">48421</span>*x^<span class="hljs-number">6</span> + <span class="hljs-number">41096</span>*x^<span class="hljs-number">5</span> + <span class="hljs-number">45735</span>*x^<span class="hljs-number">4</span> + <span class="hljs-number">53022</span>*x^<span class="hljs-number">3</span> + <span class="hljs-number">35475</span>*x^<span class="hljs-number">2</span> + <span class="hljs-number">47521</span>*x + <span class="hljs-number">27544</span><br>S.&lt;x&gt; = R.quotient(N)<br>P,Q= N.factor()<br>P, Q = P[<span class="hljs-number">0</span>], Q[<span class="hljs-number">0</span>]<br>phi = (p2 ** P.degree() - <span class="hljs-number">1</span>) * (p2 ** Q.degree() - <span class="hljs-number">1</span>)<br>d = inverse_mod(e, phi)<br>m = <span class="hljs-built_in">pow</span>(c2,d,N)<br>h = <span class="hljs-built_in">int</span>(<span class="hljs-string">&quot;&quot;</span>.join([<span class="hljs-built_in">str</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> m.<span class="hljs-built_in">list</span>()]))<br><span class="hljs-built_in">print</span>(h)<br><span class="hljs-comment">#88520242910362871448352317137540300262448941340486475602003226117035863930302</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="step2"><a href="#step2" class="headerlink" title="step2"></a>step2</h2><p>求解f，g。参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163#toc-4">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
+<p>构造格如下所示</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031022463.png" srcset="/img/loading.gif" lazyload/>
+
+<p>进行LLL()即可得到(f,g)。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">h = <span class="hljs-number">88520242910362871448352317137540300262448941340486475602003226117035863930302</span><br>p1 = <span class="hljs-number">106472061241112922861460644342336453303928202010237284715354717630502168520267</span><br>v1 = vector(ZZ, [<span class="hljs-number">1</span>, h])<br>v2 = vector(ZZ, [<span class="hljs-number">0</span>, p1])<br>m = matrix([v1,v2])<br>shortest_vector = m.LLL()[<span class="hljs-number">0</span>]<br>f, g = shortest_vector<br><span class="hljs-built_in">print</span>(f,g)<br><span class="hljs-comment">#183610829622016944154542682943585488074 228679177303871981036829786447405151037</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="step3"><a href="#step3" class="headerlink" title="step3"></a>step3</h2><p>求g。对g的低20位爆破。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> *<br><br>e = <span class="hljs-number">0x10001</span><br>g1 = <span class="hljs-number">228679177303871981036829786447405151037</span><br>c1 = <span class="hljs-number">20920247107738496784071050239422540936224577122721266141057957551603705972966457203177812404896852110975768315464852962210648535130235298413611598658659777108920014929632531307409885868941842921815735008981335582297975794108016151210394446009890312043259167806981442425505200141283138318269058818777636637375101005540308736021976559495266332357714</span><br>n = <span class="hljs-number">31398174203566229210665534094126601315683074641013205440476552584312112883638278390105806127975406224783128340041129316782549009811196493319665336016690985557862367551545487842904828051293613836275987595871004601968935866634955528775536847402581734910742403788941725304146192149165731194199024154454952157531068881114411265538547462017207361362857</span><br>g = (g1&gt;&gt;<span class="hljs-number">20</span>)&lt;&lt;<span class="hljs-number">20</span><br>g = next_prime(g)<br>end = g ^ (<span class="hljs-number">2</span>**<span class="hljs-number">20</span>-<span class="hljs-number">1</span>)<br><span class="hljs-keyword">while</span> g &lt;= end:<br>    <span class="hljs-keyword">if</span> n%g == <span class="hljs-number">0</span>:<br>        q = n//g<br>        d = invert(e,(q-<span class="hljs-number">1</span>)*(g-<span class="hljs-number">1</span>))<br>        m = <span class="hljs-built_in">pow</span>(c1,d,n)<br>        <span class="hljs-built_in">print</span>(long_to_bytes(m))<br>    g = next_prime(g)<br></code></pre></td></tr></table></figure>
+
+<h1 id="LWE"><a href="#LWE" class="headerlink" title="LWE?"></a>LWE?</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> secret <span class="hljs-keyword">import</span> secret<br><span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(secret)==<span class="hljs-number">66</span>*<span class="hljs-number">3</span><br>sec = [<span class="hljs-built_in">ord</span>(x) <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> secret]<br><br>DEBUG = <span class="hljs-literal">False</span><br>m = <span class="hljs-number">66</span><br>n = <span class="hljs-number">200</span><br>p = <span class="hljs-number">3</span><br>q = <span class="hljs-number">2</span>^<span class="hljs-number">20</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">errorV</span>():<br>  <span class="hljs-keyword">return</span> vector(ZZ, [<span class="hljs-number">1</span> - randrange(p) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)])<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">matrixMn</span>():<br>  <span class="hljs-keyword">return</span> matrix(ZZ, [[q//<span class="hljs-number">2</span> - randrange(q) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n)] <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(m)])<br><br>A, B, C = matrixMn(), matrixMn(), matrixMn()<br>x = vector(ZZ, sec[<span class="hljs-number">0</span>:m])<br>y = vector(ZZ, sec[m:<span class="hljs-number">2</span>*m])<br>z = vector(ZZ, sec[<span class="hljs-number">2</span>*m:<span class="hljs-number">3</span>*m])<br>e = errorV()<br>b = x*A+y*B+z*C+e<br><br><span class="hljs-keyword">if</span> DEBUG:<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;x = %s&#x27;</span> % x)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;y = %s&#x27;</span> % y)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;z = %s&#x27;</span> % z)<br>  <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;e = %s&#x27;</span> % e)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;A = \n%s&#x27;</span> % A)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;B = \n%s&#x27;</span> % B)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;C = \n%s&#x27;</span> % C)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;b = %s&#x27;</span> % b)<br></code></pre></td></tr></table></figure>
+
+<p>将$b &#x3D; x*A+y*B+z*C+e$改造一下，可以得到一个常见的式子：<br>$$<br>b &#x3D; [x,y,z]* \left[\matrix{A \\B\\C}\right] + e<br>$$<br>e取自[-1,0,1]，误差很小，按照常规解法就可以得到flag了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#sage</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">str_to_int</span>(<span class="hljs-params">s</span>):<br>    <span class="hljs-keyword">return</span> [<span class="hljs-built_in">int</span>(each) <span class="hljs-keyword">for</span> each <span class="hljs-keyword">in</span> s]<br><br>f=<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;out&#x27;</span>,<span class="hljs-string">&#x27;r&#x27;</span>)<br>f.readline()<br>matA=[]<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">66</span>):<br>    s = f.readline()[<span class="hljs-number">1</span>:-<span class="hljs-number">2</span>].split()<br>    row = str_to_int(s)<br>    matA.append(row)<br><br>f.readline()<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">66</span>):<br>    s = f.readline()[<span class="hljs-number">1</span>:-<span class="hljs-number">2</span>].split()<br>    row = str_to_int(s)<br>    matA.append(row)<br><br>f.readline()<br><span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">66</span>):<br>    s = f.readline()[<span class="hljs-number">1</span>:-<span class="hljs-number">2</span>].split()<br>    row = str_to_int(s)<br>    matA.append(row)<br><br>row= [-<span class="hljs-number">19786291</span>, -<span class="hljs-number">713104590</span>, <span class="hljs-number">79700973</span>, <span class="hljs-number">23261288</span>, <span class="hljs-number">203038164</span>, <span class="hljs-number">430352288</span>, <span class="hljs-number">147848301</span>, <span class="hljs-number">633183638</span>, <span class="hljs-number">188651439</span>, <span class="hljs-number">243206160</span>, -<span class="hljs-number">654830271</span>, <span class="hljs-number">335642059</span>, -<span class="hljs-number">100511588</span>, <span class="hljs-number">180023362</span>, <span class="hljs-number">130607831</span>, <span class="hljs-number">227597861</span>, <span class="hljs-number">188424473</span>, <span class="hljs-number">175518170</span>, -<span class="hljs-number">246987997</span>, <span class="hljs-number">180879649</span>, <span class="hljs-number">421934976</span>, -<span class="hljs-number">227575274</span>, -<span class="hljs-number">628937118</span>, <span class="hljs-number">5466646</span>, -<span class="hljs-number">254939474</span>, -<span class="hljs-number">438417079</span>, <span class="hljs-number">150434624</span>, <span class="hljs-number">327054986</span>, <span class="hljs-number">163561829</span>, <span class="hljs-number">816959939</span>, -<span class="hljs-number">265298657</span>, <span class="hljs-number">82651050</span>, <span class="hljs-number">176899880</span>, <span class="hljs-number">174020455</span>, -<span class="hljs-number">419656325</span>, -<span class="hljs-number">101606182</span>, <span class="hljs-number">300413909</span>, <span class="hljs-number">237169571</span>, -<span class="hljs-number">589213744</span>, <span class="hljs-number">121803611</span>, -<span class="hljs-number">38080334</span>, -<span class="hljs-number">255712509</span>, -<span class="hljs-number">133782964</span>, <span class="hljs-number">106220001</span>, <span class="hljs-number">195767251</span>, -<span class="hljs-number">397096116</span>, -<span class="hljs-number">583305587</span>, -<span class="hljs-number">182462561</span>, -<span class="hljs-number">271478737</span>, -<span class="hljs-number">32014717</span>, <span class="hljs-number">114385188</span>, <span class="hljs-number">437506115</span>, -<span class="hljs-number">1165732</span>, <span class="hljs-number">179349265</span>, -<span class="hljs-number">77761751</span>, -<span class="hljs-number">233976783</span>, <span class="hljs-number">410153356</span>, <span class="hljs-number">476453640</span>, <span class="hljs-number">91892631</span>, -<span class="hljs-number">242168750</span>, <span class="hljs-number">506769243</span>, -<span class="hljs-number">384438362</span>, <span class="hljs-number">131852532</span>, <span class="hljs-number">586202810</span>, <span class="hljs-number">376719791</span>, <span class="hljs-number">578215353</span>, <span class="hljs-number">874304742</span>, <span class="hljs-number">163584566</span>, <span class="hljs-number">434260863</span>, <span class="hljs-number">98013671</span>, <span class="hljs-number">213627784</span>, <span class="hljs-number">59622886</span>, -<span class="hljs-number">84912852</span>, <span class="hljs-number">156744856</span>, <span class="hljs-number">169652328</span>, <span class="hljs-number">178143615</span>, <span class="hljs-number">400046730</span>, <span class="hljs-number">408163110</span>, -<span class="hljs-number">357990863</span>, -<span class="hljs-number">269552089</span>, -<span class="hljs-number">199410809</span>, <span class="hljs-number">187503858</span>, -<span class="hljs-number">853206157</span>, <span class="hljs-number">134901027</span>, <span class="hljs-number">313984185</span>, -<span class="hljs-number">162544217</span>, -<span class="hljs-number">69722073</span>, <span class="hljs-number">43817388</span>, -<span class="hljs-number">47389463</span>, <span class="hljs-number">210346729</span>, -<span class="hljs-number">46516961</span>, <span class="hljs-number">72002967</span>, <span class="hljs-number">327714191</span>, <span class="hljs-number">45052266</span>, <span class="hljs-number">1010509210</span>, <span class="hljs-number">110937225</span>, <span class="hljs-number">448179404</span>, <span class="hljs-number">341448936</span>, <span class="hljs-number">446550865</span>, <span class="hljs-number">221914340</span>, -<span class="hljs-number">804918424</span>, -<span class="hljs-number">12007071</span>, <span class="hljs-number">151215468</span>, <span class="hljs-number">440279795</span>, -<span class="hljs-number">73408566</span>, -<span class="hljs-number">112121988</span>, <span class="hljs-number">40294376</span>, <span class="hljs-number">283179449</span>, -<span class="hljs-number">193812410</span>, -<span class="hljs-number">30061804</span>, <span class="hljs-number">20326854</span>, <span class="hljs-number">65412625</span>, -<span class="hljs-number">260020045</span>, -<span class="hljs-number">570090340</span>, <span class="hljs-number">1546454</span>, <span class="hljs-number">548030557</span>, <span class="hljs-number">618148316</span>, <span class="hljs-number">290333796</span>, <span class="hljs-number">665474379</span>, <span class="hljs-number">301709165</span>, -<span class="hljs-number">104726821</span>, -<span class="hljs-number">503111899</span>, <span class="hljs-number">480689642</span>, -<span class="hljs-number">331192606</span>, -<span class="hljs-number">518345784</span>, -<span class="hljs-number">314602459</span>, <span class="hljs-number">25354403</span>, <span class="hljs-number">410995568</span>, <span class="hljs-number">179675848</span>, -<span class="hljs-number">207010027</span>, <span class="hljs-number">400838662</span>, <span class="hljs-number">125916880</span>, <span class="hljs-number">501112567</span>, <span class="hljs-number">578261227</span>, <span class="hljs-number">24802586</span>, <span class="hljs-number">493171331</span>, <span class="hljs-number">383306766</span>, -<span class="hljs-number">390093502</span>, -<span class="hljs-number">389822626</span>, -<span class="hljs-number">303615722</span>, <span class="hljs-number">20813851</span>, -<span class="hljs-number">399678371</span>, -<span class="hljs-number">566907567</span>, -<span class="hljs-number">432647113</span>, -<span class="hljs-number">280465568</span>, <span class="hljs-number">1002042393</span>, -<span class="hljs-number">510901339</span>, <span class="hljs-number">316603766</span>, -<span class="hljs-number">139701243</span>, <span class="hljs-number">211217523</span>, <span class="hljs-number">108545545</span>, -<span class="hljs-number">12948109</span>, -<span class="hljs-number">569199543</span>, <span class="hljs-number">37065919</span>, -<span class="hljs-number">150542603</span>, <span class="hljs-number">417851006</span>, -<span class="hljs-number">470173530</span>, -<span class="hljs-number">628557669</span>, -<span class="hljs-number">128339015</span>, -<span class="hljs-number">427978763</span>, <span class="hljs-number">381402990</span>, <span class="hljs-number">205835334</span>, -<span class="hljs-number">30976552</span>, -<span class="hljs-number">357466556</span>, -<span class="hljs-number">104985580</span>, -<span class="hljs-number">115366372</span>, <span class="hljs-number">296031071</span>, -<span class="hljs-number">8036087</span>, <span class="hljs-number">79340491</span>, <span class="hljs-number">650365147</span>, <span class="hljs-number">295521125</span>, <span class="hljs-number">885900267</span>, <span class="hljs-number">133049758</span>, <span class="hljs-number">217970062</span>, <span class="hljs-number">237420894</span>, <span class="hljs-number">358760095</span>, -<span class="hljs-number">2684469</span>, <span class="hljs-number">475711698</span>, <span class="hljs-number">316770575</span>, -<span class="hljs-number">25024622</span>, -<span class="hljs-number">193442003</span>, <span class="hljs-number">200260606</span>, <span class="hljs-number">89183826</span>, <span class="hljs-number">567491985</span>, <span class="hljs-number">726371428</span>, <span class="hljs-number">222116554</span>, <span class="hljs-number">87397506</span>, -<span class="hljs-number">29529094</span>, <span class="hljs-number">125968479</span>, -<span class="hljs-number">50793004</span>, <span class="hljs-number">218035181</span>, -<span class="hljs-number">210376687</span>, <span class="hljs-number">1025673749</span>, -<span class="hljs-number">262390458</span>, <span class="hljs-number">467412984</span>, -<span class="hljs-number">71097225</span>, <span class="hljs-number">259125517</span>, -<span class="hljs-number">337232810</span>, <span class="hljs-number">143359550</span>, <span class="hljs-number">27115363</span>]<br>matA.append(row)<br>L=Matrix(ZZ,matA)<br>e=vector(ZZ,L.LLL()[<span class="hljs-number">0</span>])<br><span class="hljs-built_in">print</span>(e)<br>b=vector(ZZ,row)<br>s=b-e<br>m=L.solve_left(s)<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">bytes</span>(<span class="hljs-built_in">list</span>(m)))<br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">b&quot;Oh, you get it?? Here is the flag: &#x27;DASCTF&#123;uuid&#125;&#x27;. What? You don&#x27;t know the uuid? The first part is &#x27;dcf41556&#x27;, second part-&gt; &#x27;c194&#x27;, and then &#x27;4c66&#x27;, &#x27;9092&#x27;. And finally, it&#x27;s &#x27;059e0bf8b84e&#x27;!!! 0v0\x00&quot;</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/ECDSA/">#ECDSA</a>
+      
+        <a href="/tags/NTRU/">#NTRU</a>
+      
+        <a href="/tags/%E5%A4%9A%E9%A1%B9%E5%BC%8FRSA/">#多项式RSA</a>
+      
+        <a href="/tags/LWE/">#LWE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DASCTF2022.07赋能赛</div>
+      <div>http://example.com/2022/07/24/DASCTF2022.07赋能赛/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/04/%E7%AC%AC%E5%85%AD%E5%B1%8A%E2%80%9C%E5%BC%BA%E7%BD%91%E6%9D%AF%E2%80%9D%E5%85%A8%E5%9B%BD%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%8C%91%E6%88%98%E8%B5%9B-%E7%BA%BF%E4%B8%8A%E8%B5%9B/" title="第六届“强网杯”全国网络安全挑战赛  线上赛">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第六届“强网杯”全国网络安全挑战赛  线上赛</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/21/NepCTF%202022/" title="NepCTF 2022">
+                        <span class="hidden-mobile">NepCTF 2022</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

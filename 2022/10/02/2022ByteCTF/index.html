@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="2022ByteCTFCardShark123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022ByteCTF">
+<meta property="og:url" content="http://example.com/2022/10/02/2022ByteCTF/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="2022ByteCTFCardShark123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-02T14:39:34.000Z">
+<meta property="article:modified_time" content="2022-10-02T14:46:33.373Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="MT19937">
+<meta property="article:tag" content="Paillier同态加密">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>2022ByteCTF - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2022ByteCTF"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-02 22:39" pubdate>
+          2022年10月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          89 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2022ByteCTF</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="2022ByteCTF"><a href="#2022ByteCTF" class="headerlink" title="2022ByteCTF"></a>2022ByteCTF</h1><h2 id="CardShark"><a href="#CardShark" class="headerlink" title="CardShark"></a>CardShark</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python3.9</span><br><span class="hljs-comment"># -*- coding: utf-8 -*-</span><br><span class="hljs-keyword">import</span> string<br><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">import</span> socketserver<br><span class="hljs-keyword">import</span> signal<br><span class="hljs-keyword">from</span> os <span class="hljs-keyword">import</span> urandom<br><span class="hljs-keyword">from</span> hashlib <span class="hljs-keyword">import</span> sha256<br><span class="hljs-keyword">from</span> flag <span class="hljs-keyword">import</span> FLAG<br><br>BANNER = <span class="hljs-string">rb&quot;&quot;&quot;</span><br><span class="hljs-string">.--------.--------.--------.--------.     .--------.--------.--------.--------.--------.</span><br><span class="hljs-string">| C.--.  | A.--.  | R.--.  | D.--.  |.-.  | S.--.  | H.--.  | A.--.  | R.--.  | K.--.  |</span><br><span class="hljs-string">|  :/\:  |  (\/)  |  :():  |  :/\:  (( )) |  :/\:  |  :/\:  |  (\/)  |  :():  |  :/\:  |</span><br><span class="hljs-string">|  :\/:  |  :\/:  |  ()()  |  (__)  |&#x27;-.-.|  :\/:  |  (__)  |  :\/:  |  ()()  |  :\/:  |</span><br><span class="hljs-string">|  &#x27;--&#x27;C |  &#x27;--&#x27;A |  &#x27;--&#x27;R |  &#x27;--&#x27;D | (( ))  &#x27;--&#x27;S |  &#x27;--&#x27;H |  &#x27;--&#x27;A |  &#x27;--&#x27;R |  &#x27;--&#x27;K |</span><br><span class="hljs-string">`--------`--------`--------`--------&#x27;  &#x27;-&#x27;`--------`--------`--------`--------`--------&#x27;</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Card</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):<br>        random.seed(urandom(<span class="hljs-number">32</span>))<br>        self.cards = []<br>        <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;Hearts&#x27;</span>, <span class="hljs-string">&#x27;Spades&#x27;</span>, <span class="hljs-string">&#x27;Diamonds&#x27;</span>, <span class="hljs-string">&#x27;Clubs&#x27;</span>):<br>            <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;J&#x27;</span>, <span class="hljs-string">&#x27;Q&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;A&#x27;</span>):<br>                self.cards.append(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;p&#125;</span> <span class="hljs-subst">&#123;t&#125;</span>&#x27;</span>)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">deal</span>(<span class="hljs-params">self</span>):<br>        n = random.getrandbits(<span class="hljs-number">4</span>)<br>        <span class="hljs-keyword">return</span> self.cards[n]<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Task</span>(socketserver.BaseRequestHandler):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_recv_all</span>(<span class="hljs-params">self</span>):<br>        BUFF_SIZE = <span class="hljs-number">1024</span><br>        data = <span class="hljs-string">b&#x27;&#x27;</span><br>        <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>            part = self.request.recv(BUFF_SIZE)<br>            data += part<br>            <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(part) &lt; BUFF_SIZE:<br>                <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">return</span> data.strip()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">send</span>(<span class="hljs-params">self, msg, newline=<span class="hljs-literal">True</span></span>):<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(msg, <span class="hljs-built_in">str</span>):<br>            msg = msg.encode()<br>        <span class="hljs-keyword">if</span> newline:<br>            msg += <span class="hljs-string">b&#x27;\n&#x27;</span><br>        self.request.sendall(msg)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">recv</span>(<span class="hljs-params">self, prompt=<span class="hljs-string">&#x27;&gt; &#x27;</span></span>):<br>        self.send(prompt, newline=<span class="hljs-literal">False</span>)<br>        <span class="hljs-keyword">return</span> self._recv_all()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">proof_of_work</span>(<span class="hljs-params">self</span>):<br>        random.seed(urandom(<span class="hljs-number">32</span>))<br>        alphabet = string.ascii_letters + string.digits<br>        proof = <span class="hljs-string">&#x27;&#x27;</span>.join(random.choices(alphabet, k=<span class="hljs-number">32</span>))<br>        hash_value = sha256(proof.encode()).hexdigest()<br>        self.send(<span class="hljs-string">f&#x27;sha256(XXXX+<span class="hljs-subst">&#123;proof[<span class="hljs-number">4</span>:]&#125;</span>) == <span class="hljs-subst">&#123;hash_value&#125;</span>&#x27;</span>)<br>        nonce = self.recv(prompt=<span class="hljs-string">&#x27;Give me XXXX &gt; &#x27;</span>)<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(nonce) != <span class="hljs-number">4</span> <span class="hljs-keyword">or</span> sha256(nonce + proof[<span class="hljs-number">4</span>:].encode()).hexdigest() != hash_value:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">timeout_handler</span>(<span class="hljs-params">self, signum, frame</span>):<br>        <span class="hljs-keyword">raise</span> TimeoutError<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">handle</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">try</span>:<br>            self.send(BANNER)<br><br>            signal.signal(signal.SIGALRM, self.timeout_handler)<br>            signal.alarm(<span class="hljs-number">60</span>)<br><br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> self.proof_of_work():<br>                self.send(<span class="hljs-string">&#x27;Wrong!&#x27;</span>)<br>                <span class="hljs-keyword">return</span><br><br>            card = Card()<br>            coin = <span class="hljs-number">5200</span><br>            count = <span class="hljs-number">0</span><br><br>            self.send(<span class="hljs-string">&#x27;Greetings! I will give you my secret, if you can guess my card 200 times in a row. &#x27;</span><br>                      <span class="hljs-string">&#x27;One coin, one chance.&#x27;</span>)<br><br>            signal.alarm(<span class="hljs-number">3600</span>)<br><br>            <span class="hljs-keyword">while</span> coin &gt; <span class="hljs-number">0</span>:<br>                coin -= <span class="hljs-number">1</span><br>                c = card.deal()<br>                r = self.recv(prompt=<span class="hljs-string">&#x27;Your guess &gt; &#x27;</span>).decode(<span class="hljs-string">&#x27;l1&#x27;</span>)<br>                <span class="hljs-keyword">if</span> r == c:<br>                    count += <span class="hljs-number">1</span><br>                    self.send(<span class="hljs-string">f&#x27;Correct! Your progress: <span class="hljs-subst">&#123;count&#125;</span>/200.&#x27;</span>)<br>                    <span class="hljs-keyword">if</span> count &gt;= <span class="hljs-number">200</span>:<br>                        self.send(<span class="hljs-string">&#x27;You are the Card Shark! Flag is yours:&#x27;</span>)<br>                        self.send(FLAG)<br>                        <span class="hljs-keyword">break</span><br>                <span class="hljs-keyword">else</span>:<br>                    count = <span class="hljs-number">0</span><br>                    self.send(<span class="hljs-string">f&#x27;Sorry! My card is <span class="hljs-subst">&#123;c&#125;</span>.&#x27;</span>)<br><br>            <span class="hljs-keyword">if</span> coin == <span class="hljs-number">0</span>:<br>                self.send(<span class="hljs-string">&#x27;You have no money! See you another day.&#x27;</span>)<br><br>            self.send(<span class="hljs-string">&#x27;Bye!&#x27;</span>)<br><br>        <span class="hljs-keyword">except</span> TimeoutError:<br>            self.send(<span class="hljs-string">&#x27;Timeout!&#x27;</span>)<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-keyword">pass</span><br>        <span class="hljs-keyword">finally</span>:<br>            self.request.close()<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ForkedServer</span>(socketserver.ForkingMixIn, socketserver.TCPServer):<br>    <span class="hljs-keyword">pass</span><br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    HOST, PORT = <span class="hljs-string">&#x27;0.0.0.0&#x27;</span>, <span class="hljs-number">10000</span><br>    <span class="hljs-built_in">print</span>(HOST, PORT)<br>    server = ForkedServer((HOST, PORT), Task)<br>    server.allow_reuse_address = <span class="hljs-literal">True</span><br>    server.serve_forever()<br><br></code></pre></td></tr></table></figure>
+
+<p>审计代码，容易看出先是四位哈希爆破，然后是随机数预测问题。但起初以为可以用RandCrack来解决这个随机数预测问题，看来是想简单了。</p>
+<p>随即预测工具：<a target="_blank" rel="noopener" href="https://github.com/JuliaPoo/MT19937-Symbolic-Execution-and-Solver">JuliaPoo&#x2F;MT19937-Symbolic-Execution-and-Solver: Python implementation of a symbolic execution of MT19937 and a solver for GF(2) matrices (github.com)</a></p>
+<p>相似题目：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/205861#h3-9">浅析MT19937伪随机数生成算法-安全客 - 安全资讯平台 (anquanke.com)</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> hashlib <span class="hljs-keyword">import</span> sha256<br><span class="hljs-keyword">import</span> string<br><span class="hljs-keyword">from</span> randcrack <span class="hljs-keyword">import</span> RandCrack<br><span class="hljs-keyword">from</span> tqdm <span class="hljs-keyword">import</span> tqdm<br><span class="hljs-keyword">from</span> MT19937 <span class="hljs-keyword">import</span> MT19937, MT19937_symbolic<br><br>alphabet = string.ascii_letters + string.digits<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proof</span>(<span class="hljs-params"><span class="hljs-built_in">hash</span>, part</span>):<br>    <span class="hljs-keyword">for</span> a <span class="hljs-keyword">in</span> alphabet:<br>        <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> alphabet:<br>            <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> alphabet:<br>                <span class="hljs-keyword">for</span> d <span class="hljs-keyword">in</span> alphabet:<br>                    s = (a+b+c+d).encode() + part<br>                    <span class="hljs-keyword">if</span> sha256(s).hexdigest() == <span class="hljs-built_in">hash</span>.decode():<br>                        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Found XXXX: <span class="hljs-subst">&#123;a+b+c+d&#125;</span>&#x27;</span>)<br>                        <span class="hljs-keyword">return</span> a+b+c+d<br><br><br>ID = <span class="hljs-string">&#x27;dcb894124cb27c186d8a996bdbb43602&#x27;</span><br>s = remote(ID + <span class="hljs-string">&#x27;.2022.capturetheflag.fun&#x27;</span>, <span class="hljs-number">1337</span>, ssl=<span class="hljs-literal">True</span>)<br>s.recvuntil(<span class="hljs-string">b&#x27;XXX+&#x27;</span>)<br>part = s.recvuntil(<span class="hljs-string">b&#x27;)&#x27;</span>)[:-<span class="hljs-number">1</span>]<br>s.recvuntil(<span class="hljs-string">b&#x27;== &#x27;</span>)<br><span class="hljs-built_in">hash</span> = s.recvline()[:-<span class="hljs-number">1</span>]<br><br>s.send(proof(<span class="hljs-built_in">hash</span>, part).encode())<br><br>cards = []<br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;Hearts&#x27;</span>, <span class="hljs-string">&#x27;Spades&#x27;</span>, <span class="hljs-string">&#x27;Diamonds&#x27;</span>, <span class="hljs-string">&#x27;Clubs&#x27;</span>):<br>     <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> (<span class="hljs-string">&#x27;J&#x27;</span>, <span class="hljs-string">&#x27;Q&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;A&#x27;</span>):<br>           cards.append(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;p&#125;</span> <span class="hljs-subst">&#123;t&#125;</span>&#x27;</span>)<br><br>known = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> tqdm(<span class="hljs-built_in">range</span>(<span class="hljs-number">4992</span>)):<br>    s.send(<span class="hljs-string">&#x27;J&#x27;</span>.encode())<br>    s.recvuntil(<span class="hljs-string">b&#x27;is &#x27;</span>)<br>    key = s.recvline()[:-<span class="hljs-number">2</span>].decode()<br>    pos = cards.index(key)<br>    known.append(pos)<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">#预测</span><br><span class="hljs-string">rc = RandCrack()</span><br><span class="hljs-string">for i in known:</span><br><span class="hljs-string">    rc.submit(i)</span><br><span class="hljs-string"></span><br><span class="hljs-string">cnt = 0</span><br><span class="hljs-string">for i in tqdm(range(205)):</span><br><span class="hljs-string">    pos = rc.predict_getrandbits(4)</span><br><span class="hljs-string">    s.send(cards[pos].encode())</span><br><span class="hljs-string">    res = s.recvline().decode()</span><br><span class="hljs-string">    print(res)</span><br><span class="hljs-string">    if &#x27;Correct&#x27; in res:</span><br><span class="hljs-string">        cnt += 1</span><br><span class="hljs-string">        if cnt &gt;= 200:</span><br><span class="hljs-string">            s.interactive()</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-comment">#预测</span><br>rc = MT19937(state_from_data=(known, <span class="hljs-number">4</span>))<br><br><span class="hljs-comment">#好像一开始是初始态，得先过4992个</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> known:<br>    <span class="hljs-keyword">assert</span> i == rc() &gt;&gt; (<span class="hljs-number">32</span>-<span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;[*] Cloning successful!&quot;</span>)<br><br>cnt = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">205</span>):<br>    pos = rc() &gt;&gt; (<span class="hljs-number">32</span>-<span class="hljs-number">4</span>)<br>    <span class="hljs-comment"># s.sendlineafter(b&#x27;Your guess &gt; &#x27;, cards[pos].encode())</span><br>    s.send(cards[pos].encode())<br>    res = s.recvline().decode()<br>    <span class="hljs-built_in">print</span>(res)<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;Correct&#x27;</span> <span class="hljs-keyword">in</span> res:<br>        cnt += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">if</span> cnt &gt;= <span class="hljs-number">200</span>:<br>            s.interactive()<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="Compare"><a href="#Compare" class="headerlink" title="Compare"></a>Compare</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> getPrime, getRandomNBitInteger, inverse<br><span class="hljs-keyword">from</span> fractions <span class="hljs-keyword">import</span> Fraction<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> lcm<br><span class="hljs-keyword">import</span> re<br><br>N = <span class="hljs-number">512</span><br>safe_expr = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&#x27;^([-+*/0-9.~%^&amp;()=|&lt;&gt;]|and|or|not|MSG)+$&#x27;</span>)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encode</span>(<span class="hljs-params">m, n, g</span>):<br>    r = getRandomNBitInteger(N)<br>    c = <span class="hljs-built_in">pow</span>(g, m, n*n) * <span class="hljs-built_in">pow</span>(r, n, n*n) % (n*n)<br>    <span class="hljs-keyword">return</span> c<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">decode</span>(<span class="hljs-params">c, n, l, u</span>):<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">int</span>(Fraction(<span class="hljs-built_in">pow</span>(c, l, n * n) - <span class="hljs-number">1</span>, n) * u % n)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">round</span>(<span class="hljs-params">expr</span>):<br>    p = getPrime(N)<br>    q = getPrime(N)<br><br>    n = p * q<br>    g = getRandomNBitInteger(N)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;n =&#x27;</span>, n)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;g =&#x27;</span>, g)<br><br>    a = getRandomNBitInteger(N)<br>    b = getRandomNBitInteger(N)<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;a =&#x27;</span>, encode(a, n, g))<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;b =&#x27;</span>, encode(b, n, g))<br><br>    msg = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;msg = &quot;</span>))<br><br>    l = <span class="hljs-built_in">int</span>(lcm(p - <span class="hljs-number">1</span>, q - <span class="hljs-number">1</span>))<br>    u = inverse(Fraction(<span class="hljs-built_in">pow</span>(g, l, n * n) - <span class="hljs-number">1</span>, n), n)<br><br>    <span class="hljs-keyword">return</span> (a &gt; b) <span class="hljs-keyword">is</span> <span class="hljs-built_in">bool</span>(<span class="hljs-built_in">eval</span>(expr, <span class="hljs-literal">None</span>, &#123;<span class="hljs-string">&#x27;MSG&#x27;</span>: decode(msg, n, l, u)&#125;))<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>():<br>    expr = <span class="hljs-built_in">input</span>(<span class="hljs-string">&#x27;Hello, Give me your expr: &#x27;</span>)<br>    expr = re.sub(<span class="hljs-string">r&#x27;\s&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>, expr)<br><br><br>    <span class="hljs-keyword">if</span> safe_expr.<span class="hljs-keyword">match</span>(expr) <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">raise</span> Exception(<span class="hljs-string">&#x27;Hacker?&#x27;</span>)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Round:&#x27;</span>, i)<br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-keyword">assert</span> <span class="hljs-built_in">round</span>(expr)<br>        <span class="hljs-keyword">except</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;You lost.&#x27;</span>)<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Congratulations!&#x27;</span>)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;/flag&#x27;</span>).read())<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    main()<br></code></pre></td></tr></table></figure>
+
+<p>Paillier同态加密，由于其满足加法同态，即<br>$$<br>\begin{cases}<br>E(a) &#x3D; g^a*r_1^n\quad mod\ n^2\\<br>E(b) &#x3D; g^b*r_2^n\quad mod\ n^2\\<br>\end{cases}<br>$$</p>
+<p>$$<br>&#x3D;&#x3D;&gt; E(a+b) &#x3D; E(a)*E(b) &#x3D; g^{a+b}*(r_1*r_2)^n\quad mod\ n^2<br>$$</p>
+<p>那么解密就会得到<br>$$<br>D(E(a)*E(b))&#x3D;a+b<br>$$<br>我们只要稍微改变一下就可以得到$a-b$，过程如下</p>
+<p>对$E(b)$取逆得<br>$$<br>E(b)^{-1} &#x3D; g^{-b}*(r_2^{-1})^n\quad mod\ n^2<br>$$<br>$E(a)*E(b)^{-1}$得<br>$$<br>E(a)*E(b)^{-1} &#x3D; g^{a-b}*(r_1*r_2^{-1})^n\quad mod\ n^2<br>$$<br>因此解密就得到<br>$$<br>D(E(a)*E(b)^{-1})&#x3D;a-b<br>$$<br>如何构造<code>expr</code>？如果$a-b&gt;0$，则$(a-b)\%2^{1024}&lt;&#x3D;2^{512}$，但如果$a-b&lt;0$，则$(a-b)\%n&gt;2^{512}$左右，因此可以构造<code>expr</code>为$MSG\%2^{1024}&lt;&#x3D;2^{512}$。当然也可以根据正负数对整除符号的运算结果的差异性构造$MSG&#x2F;&#x2F;2^{512}&#x3D;&#x3D;0$。</p>
+<p>代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> invert<br><br>ID = <span class="hljs-string">&#x27;dcb894124cb27c186d8a996bdbb43602&#x27;</span><br>s = remote(ID + <span class="hljs-string">&#x27;.2022.capturetheflag.fun&#x27;</span>, <span class="hljs-number">1337</span>, ssl=<span class="hljs-literal">True</span>)<br><br>MSG = <span class="hljs-string">b&#x27;MSG//2**512==0&#x27;</span><br>s.recvuntil(<span class="hljs-string">b&#x27;expr: &#x27;</span>)<br>s.send(MSG)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>    s.recvuntil(<span class="hljs-string">b&#x27;n =&#x27;</span>)<br>    n = <span class="hljs-built_in">int</span>(s.recvline()[:-<span class="hljs-number">1</span>].decode())<br>    s.recvuntil(<span class="hljs-string">b&#x27;g =&#x27;</span>)<br>    g = <span class="hljs-built_in">int</span>(s.recvline()[:-<span class="hljs-number">1</span>].decode())<br>    s.recvuntil(<span class="hljs-string">b&#x27;a =&#x27;</span>)<br>    a = <span class="hljs-built_in">int</span>(s.recvline()[:-<span class="hljs-number">1</span>].decode())<br>    s.recvuntil(<span class="hljs-string">b&#x27;b =&#x27;</span>)<br>    b = <span class="hljs-built_in">int</span>(s.recvline()[:-<span class="hljs-number">1</span>].decode())<br>    inv_b = <span class="hljs-built_in">int</span>(invert(b, n**<span class="hljs-number">2</span>))<br>    msg = a*inv_b % (n**<span class="hljs-number">2</span>)<br>    s.recvuntil(<span class="hljs-string">b&#x27;msg = &#x27;</span>)<br>    s.send(<span class="hljs-built_in">str</span>(msg).encode())<br>    <span class="hljs-comment"># r.sendlineafter(b&#x27;msg = &#x27;, f&#x27;&#123;x&#125;&#x27;.encode())</span><br>s.interactive()<br></code></pre></td></tr></table></figure>
+
+<h2 id="Choose-U-Flag"><a href="#Choose-U-Flag" class="headerlink" title="Choose_U_Flag"></a>Choose_U_Flag</h2><p>给出两个代码，其中<code>task.py</code>如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ast<br><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">import</span> signal<br><span class="hljs-keyword">import</span> string<br><span class="hljs-keyword">import</span> os<br><br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sympy <span class="hljs-keyword">import</span> ZZ, Poly<br><span class="hljs-keyword">from</span> sympy.abc <span class="hljs-keyword">import</span> x<br><br><span class="hljs-keyword">from</span> ntru <span class="hljs-keyword">import</span> NTRUCipher<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">exitHandler</span>(<span class="hljs-params">signum, frame</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;timeout&quot;</span>)<br>    exit()<br><br><br>signal.signal(signal.SIGALRM, exitHandler)<br>signal.alarm(<span class="hljs-number">30</span>)<br><br>flag = os.environ.get(<span class="hljs-string">&quot;CTF_CHALLENGE_FLAG&quot;</span>)<br><br>N = <span class="hljs-number">107</span><br>p = <span class="hljs-number">3</span><br>q = <span class="hljs-number">64</span><br><br>cipher = NTRUCipher(N, p, q)<br>cipher.generate()<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[+]h_poly: <span class="hljs-subst">&#123;cipher.h_poly.all_coeffs()&#125;</span>&quot;</span>)<br><br>random_key = <span class="hljs-string">&#x27;&#x27;</span>.join(random.sample(string.printable, <span class="hljs-number">12</span>))<br>key_arr = np.unpackbits(np.frombuffer(random_key.encode(), dtype=np.uint8))<br>key_enc = cipher.encrypt(Poly(key_arr, x).set_domain(ZZ))<br>key_coeffs = key_enc.all_coeffs()<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[+]key coeffs: <span class="hljs-subst">&#123;key_coeffs&#125;</span>&quot;</span>)<br><br>dec_data = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;decrypt data &gt; &quot;</span>)<br>dec_arr = ast.literal_eval(dec_data)<br><span class="hljs-keyword">if</span> dec_arr == key_coeffs:<br>    exit(-<span class="hljs-number">1</span>)<br>dec = cipher.decrypt(Poly(dec_arr, x).set_domain(ZZ))<br>dec_coeffs = dec.all_coeffs()<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;[+]decrypt coeffs: <span class="hljs-subst">&#123;dec_coeffs&#125;</span>&quot;</span>)<br><br><span class="hljs-keyword">while</span> N &gt; <span class="hljs-number">0</span>:<br>    <span class="hljs-keyword">try</span>:<br>        u_key = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;u key &gt; &quot;</span>)<br>        <span class="hljs-keyword">if</span> u_key == random_key:<br>            <span class="hljs-built_in">print</span>(flag)<br>            exit(-<span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;key err&quot;</span>)<br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;input err&quot;</span>)<br>    N = N - <span class="hljs-number">1</span><br><br></code></pre></td></tr></table></figure>
+
+<p>给出了$N,p,q,h,c$，允许我们提供$c’(!&#x3D;c)$，求出$key$。其实只要给$c$加个模数就能绕过这个限制条件，从而得到的解密内容即为$key$。</p>
+<p>根据NTRU的解密过程，有<br>$$<br>a &#x3D; f*c\mod (q)<br>$$<br>因为模数是$q$，所以添加$q$仍然可以得到正确的$a$<br>$$<br>a &#x3D; f*(c+q)&#x3D;f*c\mod (q)<br>$$</p>
+<p>不管NTRU是建立在多项式上还是整数上，其加解密原理是不变的。</p>
+<p>代码如下（没环境了，只能贴一下别人的代码）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>CHALLENGE_ID = <span class="hljs-string">&#x27;bb3fcb3fc9708bfdcdf710895615ba6e&#x27;</span><br>sh = remote(CHALLENGE_ID + <span class="hljs-string">&#x27;.2022.capturetheflag.fun&#x27;</span>, <span class="hljs-number">1337</span>, ssl=<span class="hljs-literal">True</span>)<br><br>sh.recvuntil(<span class="hljs-string">&quot;[+]key coeffs: &quot;</span>)<br>cipher = <span class="hljs-built_in">eval</span>(sh.recvline(<span class="hljs-literal">False</span>))<br>cipher[-<span class="hljs-number">1</span>] += <span class="hljs-number">64</span><br><br>sh.recvuntil(<span class="hljs-string">&quot;&gt; &quot;</span>)<br>sh.sendline(<span class="hljs-built_in">str</span>(cipher).encode())<br><br>sh.recvuntil(<span class="hljs-string">&quot;coeffs: &quot;</span>)<br>key = <span class="hljs-built_in">eval</span>(sh.recvline(<span class="hljs-literal">False</span>))<br><br>tmp = <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> key:<br>    tmp += <span class="hljs-built_in">str</span>(i)<br>res = long_to_bytes(<span class="hljs-built_in">int</span>(tmp, <span class="hljs-number">2</span>))<br>sh.recvuntil(<span class="hljs-string">&quot;&gt; &quot;</span>)<br>sh.sendline(res)<br>flag = sh.recvline(<span class="hljs-literal">False</span>)<br><span class="hljs-built_in">print</span>(flag)<br><br><span class="hljs-comment"># sh.interactive()</span><br>sh.close()<br></code></pre></td></tr></table></figure>
+
+
+
+<hr>
+<p>要是不知道这些函数的功能，就挨个试一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">random.sample(string.printable, <span class="hljs-number">12</span>)<span class="hljs-comment">#随机产生12个可打印字符</span><br>np.frombuffer(random_key.encode(), dtype=np.uint8)<span class="hljs-comment">#转成数组，数据好像是字符ord()</span><br>np.unpackbits()<span class="hljs-comment">#转成二进制数组，即数据二进制化</span><br>Poly(key_arr, x).set_domain(ZZ)<span class="hljs-comment">#以key_arr的数据为系数，x为变量，在整数域上的多项式</span><br>np.zeros(<span class="hljs-built_in">len</span>)<span class="hljs-comment">#全0数组,长度为len</span><br>np.ones(<span class="hljs-built_in">len</span>)<span class="hljs-comment">#全1数组</span><br>np.concatenate((x,y,z))<span class="hljs-comment">#连接x,y,z，组成一个数组</span><br>np.random.permutation()<span class="hljs-comment">#随机排列</span><br>(rand_poly * self.h_poly).trunc(self.q)<br>h_poly.all_coeffs()<span class="hljs-comment">#多项式转换成系数数组</span><br><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/05/13/crypto-%E5%85%B6%E4%BB%96%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/#Paillier%E5%90%8C%E6%80%81%E5%8A%A0%E5%AF%86">其他加密算法 | Lazzaro (lazzzaro.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.wm-team.cn/index.php/archives/28/">ByteCTF 2022 By W&amp;M - W&amp;M Team (wm-team.cn)</a></p>
+<p><a href="">ByteCTF WriteUp By Nu1L.pdf</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MT19937/">#MT19937</a>
+      
+        <a href="/tags/Paillier%E5%90%8C%E6%80%81%E5%8A%A0%E5%AF%86/">#Paillier同态加密</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2022ByteCTF</div>
+      <div>http://example.com/2022/10/02/2022ByteCTF/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月2日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/03/Github%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA%E9%97%AE%E9%A2%98/" title="Github图床搭建问题">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Github图床搭建问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/21/2022DASCTF%20X%20CBCTF%E4%B9%9D%E6%9C%88%E8%B5%9B/" title="2022 DASCTF X CBCTF九月赛">
+                        <span class="hidden-mobile">2022 DASCTF X CBCTF九月赛</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,826 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Java层Hook简单的代码框架： 1234567891011function main()&amp;#123;	&#x2F;&#x2F;使用Java平台，Java层hook在Java.perform中执行    Java.perform(        &#x2F;&#x2F;代码逻辑        function()&amp;#123;            ...        &amp;#125;    )&amp;#125;&#x2F;&#x2F;调用main方法setImm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frida Java层Hook学习笔记">
+<meta property="og:url" content="http://example.com/2023/12/17/Frida%20Java%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="Java层Hook简单的代码框架： 1234567891011function main()&amp;#123;	&#x2F;&#x2F;使用Java平台，Java层hook在Java.perform中执行    Java.perform(        &#x2F;&#x2F;代码逻辑        function()&amp;#123;            ...        &amp;#125;    )&amp;#125;&#x2F;&#x2F;调用main方法setImm">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-17T12:02:51.000Z">
+<meta property="article:modified_time" content="2023-12-18T09:09:39.754Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Frida">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Frida Java层Hook学习笔记 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Frida Java层Hook学习笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-17 20:02" pubdate>
+          2023年12月17日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          66 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Frida Java层Hook学习笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Java层Hook"><a href="#Java层Hook" class="headerlink" title="Java层Hook"></a>Java层Hook</h1><p>简单的代码框架：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>)&#123;<br>	<span class="hljs-comment">//使用Java平台，Java层hook在Java.perform中执行</span><br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>        <span class="hljs-comment">//代码逻辑</span><br>        <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>            ...<br>        &#125;<br>    )<br>&#125;<br><span class="hljs-comment">//调用main方法</span><br><span class="hljs-title function_">setImmediate</span>(main)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="获取类对象"><a href="#获取类对象" class="headerlink" title="获取类对象"></a>获取类对象</h2><ul>
+<li><code>Java.use(classname)</code>：获取<code>classname</code>对应的类。</li>
+</ul>
+<p>普通类：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment">//普通类的获取</span><br><span class="hljs-keyword">var</span> clazz = Java.<span class="hljs-keyword">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>内部类：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-comment">//内部类的获取</span><br><span class="hljs-keyword">var</span> clazz = Java.<span class="hljs-keyword">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo<span class="hljs-subst">$innerClass</span>&quot;</span>);<br><span class="hljs-keyword">var</span> clazz = Java.<span class="hljs-keyword">use</span>(<span class="hljs-string">&#x27;外部类$1&#x27;</span>) <span class="hljs-comment">// 获取第一个内部类</span><br></code></pre></td></tr></table></figure>
+
+<p>匿名类：</p>
+<p>匿名类是根据内存生成，没有具体的内部类名，通过 smali 代码来判断，具体参考：<a target="_blank" rel="noopener" href="https://blog.xhyeax.com/2021/10/13/frida-hook-anonymous-class/">Frida Hook匿名内部类 | Xhy’s Blog (xhyeax.com)</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;包名.MainActivity$1&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>枚举类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Java">Java.choose(<span class="hljs-string">&quot;枚举类&quot;</span> &#123;<br>    onMatch: function (obj) &#123;<br>        console.log(obj.ordinal()); <span class="hljs-comment">// 输出枚举的键</span><br>    &#125;, onComplete: function () &#123;<br><br>    &#125;<br>&#125;)<br>console.log(Java.use(<span class="hljs-string">&quot;枚举类&quot;</span>).values()); <span class="hljs-comment">// 输出值</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>获取类对象之后，可以使用类似Java反射的方法，具体如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> cl = java.<span class="hljs-title function_">use</span>(类名)<br><span class="hljs-comment">//cl.newInstance()</span><br><span class="hljs-keyword">var</span> methods = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getDeclaredMethods</span>() 、<span class="hljs-title function_">getMethods</span>()  <span class="hljs-comment">// 方法</span><br><span class="hljs-keyword">var</span> constructors = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getDeclaredConstructors</span>() <span class="hljs-comment">// 构造函数</span><br><span class="hljs-keyword">var</span> fields = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getDeclaredFields</span>() <span class="hljs-comment">// 字段</span><br><span class="hljs-keyword">var</span> classes = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getDeclaredClasses</span>() <span class="hljs-comment">// 内部类</span><br><span class="hljs-keyword">var</span> superClass = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getSuperclass</span>() <span class="hljs-comment">// 父类(抽象类)</span><br><span class="hljs-keyword">var</span> interfaces = cl.<span class="hljs-property">class</span>.<span class="hljs-title function_">getInterfaces</span>() <span class="hljs-comment">// 所有接口</span><br><br><span class="hljs-comment">// 遍历输出</span><br><span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> method <span class="hljs-keyword">of</span> methods) &#123;<br>  <span class="hljs-comment">//method.getName()、invoke()</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="普通方法Hook"><a href="#普通方法Hook" class="headerlink" title="普通方法Hook"></a>普通方法Hook</h2><p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">demo</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a,<span class="hljs-type">int</span> b)</span>&#123;<br>        <span class="hljs-keyword">return</span>  a + b;<br>    &#125;<br>&#125;<br><span class="hljs-comment">//应用中主动调用</span><br>Log.d(<span class="hljs-string">&quot;demo&quot;</span>, <span class="hljs-string">&quot;onCreate: &quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">demo</span>().add(<span class="hljs-number">3</span>,<span class="hljs-number">4</span>));<br></code></pre></td></tr></table></figure>
+
+<p>hook代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>)&#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>        <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>            <span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>);<br>            clazz.<span class="hljs-property">add</span>.<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>)&#123;<br>                <span class="hljs-comment">//修改传入的参数值</span><br>                a = <span class="hljs-number">1</span>;<br>                b = <span class="hljs-number">2</span>;<br>                <span class="hljs-comment">//调用原有的add方法，实现原有逻辑</span><br>                <span class="hljs-keyword">var</span> result = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(a,b);<br>                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;value = &quot;</span> + result);<br>                <span class="hljs-comment">//原add方法需要返回，在这里也需要返回相应的类型值</span><br>                <span class="hljs-keyword">return</span> result;<br>            &#125;<br>        &#125;<br>    )<br>&#125;<br><span class="hljs-title function_">setImmediate</span>(main)<br><span class="hljs-comment">/*结果</span><br><span class="hljs-comment">js输出：</span><br><span class="hljs-comment">value = 3</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">app log输出：</span><br><span class="hljs-comment">onCreate: 3</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>注意：这里只是hook，并没有主动调用add方法，只有应用程序的代码逻辑触发了才会有结果。</strong></p>
+<h2 id="重载方法Hook"><a href="#重载方法Hook" class="headerlink" title="重载方法Hook"></a>重载方法Hook</h2><ul>
+<li><code>class.methodname.overload(paramterTypes...)</code>：通过<code>overload</code>指定特定的重载方法。</li>
+<li><code>class.methodname.overloads</code>：获取<code>class</code>类中的<code>methodname</code>方法的所有重载方法。</li>
+</ul>
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">demo</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a,<span class="hljs-type">int</span> b)</span>&#123;<br>        <span class="hljs-keyword">return</span>  a + b;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b, <span class="hljs-type">int</span> c)</span>&#123;<br>        <span class="hljs-keyword">return</span> add(a, b) + c;<br>    &#125;<br>&#125;<br><span class="hljs-comment">//应用中主动调用</span><br>Log.d(<span class="hljs-string">&quot;demo&quot;</span>, <span class="hljs-string">&quot;onCreate: &quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">demo</span>().add(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>));<br></code></pre></td></tr></table></figure>
+
+<p>hook代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>)&#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>        <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>            <span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>);<br>			<span class="hljs-comment">//通过overload()指定所要hook的重载方法</span><br>            clazz.<span class="hljs-property">add</span>.<span class="hljs-title function_">overload</span>(<span class="hljs-string">&#x27;int&#x27;</span>, <span class="hljs-string">&#x27;int&#x27;</span>).<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>)&#123;<br>                <span class="hljs-comment">//重写两个参数的add方法的加法逻辑为乘法逻辑</span><br>                <span class="hljs-keyword">var</span> result = a*b;<br>                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;value = &quot;</span> + result);<br>                <span class="hljs-keyword">return</span> result;<br>            &#125;<br>			<span class="hljs-comment">//通过overload()指定所要hook的重载方法</span><br>            clazz.<span class="hljs-property">add</span>.<span class="hljs-title function_">overload</span>(<span class="hljs-string">&#x27;int&#x27;</span>, <span class="hljs-string">&#x27;int&#x27;</span>, <span class="hljs-string">&#x27;int&#x27;</span>).<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">a, b, c</span>)&#123;<br>                <span class="hljs-comment">//重写三个参数的add方法的加法逻辑为减法逻辑</span><br>                <span class="hljs-keyword">var</span> result = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(a,b) - c;<br>                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;value = &quot;</span> + result);<br>                <span class="hljs-keyword">return</span> result;<br>            &#125;<br>            <span class="hljs-comment">/*</span><br><span class="hljs-comment">            //function中的参数个数也可以改变！</span><br><span class="hljs-comment">            clazz.add.overload(&#x27;int&#x27;, &#x27;int&#x27;, &#x27;int&#x27;).implementation = function(a, b, c, d)&#123;</span><br><span class="hljs-comment">                d = 4</span><br><span class="hljs-comment">                var result = this.add(a,b) - c - d;</span><br><span class="hljs-comment">                console.log(&quot;value = &quot; + result);</span><br><span class="hljs-comment">                return result;</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">            */</span><br>        &#125;<br>    )<br>&#125;<br><span class="hljs-title function_">setImmediate</span>(main)<br><span class="hljs-comment">/*结果</span><br><span class="hljs-comment">js输出：					注释掉的：</span><br><span class="hljs-comment">value = 30					value = 30		</span><br><span class="hljs-comment">value = 23					value = 19</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">app log输出：</span><br><span class="hljs-comment">onCreate: 23				onCreate: 19</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>)<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(clazz.<span class="hljs-property">add</span>.<span class="hljs-property">overloads</span>);<br><span class="hljs-comment">/*输出</span><br><span class="hljs-comment">function add(int, int): int,function add(int, int, int): int</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="构造方法Hook"><a href="#构造方法Hook" class="headerlink" title="构造方法Hook"></a>构造方法Hook</h2><ul>
+<li><code>class.$init</code>：获取class类的构造方法，如有多个重载的构造方法，使用<code>.overload(paramterTypes...)</code>指定。</li>
+</ul>
+<p>测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">demo</span> &#123;<br>	...<br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">demo</span><span class="hljs-params">()</span>&#123;&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(String b)</span> &#123;<br>        <span class="hljs-built_in">this</span>.b = b;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">demo</span><span class="hljs-params">(String b, <span class="hljs-type">boolean</span> flag)</span> &#123;<br>        <span class="hljs-built_in">this</span>.b = b;<br>        <span class="hljs-built_in">this</span>.flag = flag;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>hook代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>)&#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>        <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>            <span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>)<br>            <span class="hljs-comment">//多个构造方法使用overload方法指定</span><br>            clazz.<span class="hljs-property">$init</span>.<span class="hljs-title function_">overload</span>().<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>				<span class="hljs-comment">//hook后代码逻辑实现</span><br>            &#125;<br>        &#125;<br>    )<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="实例化对象"><a href="#实例化对象" class="headerlink" title="实例化对象"></a>实例化对象</h2><ul>
+<li><code>class.$new(paramters...)</code>：实例化class类对象</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>    <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>        <span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>);<br>        <span class="hljs-keyword">var</span> demoObj = clazz.$new();<br>        <span class="hljs-comment">//调用add方法</span><br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(demoObj.<span class="hljs-title function_">add</span>(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>));<br>    &#125;<br>)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="主动调用方法"><a href="#主动调用方法" class="headerlink" title="主动调用方法"></a>主动调用方法</h2><ul>
+<li><p>静态方法：可通过类直接调用，也可通过实例调用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(类名) <br>clazz.方法()<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>非静态方法：只能通过实例调用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(类名) <br><span class="hljs-keyword">var</span> <span class="hljs-title class_">Obj</span> = clazz.$new(paramters...)<br><span class="hljs-title class_">Obj</span>.方法(paramters...)<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="获取已有对象"><a href="#获取已有对象" class="headerlink" title="获取已有对象"></a>获取已有对象</h2><p>内存中遍历，找到所有符合条件的对象。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Java</span>.<span class="hljs-title function_">choose</span>(<span class="hljs-string">&#x27;类路径&#x27;</span>, &#123;<br>    <span class="hljs-comment">//每遍历一个对象都会调用onMatch</span><br>    <span class="hljs-attr">onMatch</span>: <span class="hljs-keyword">function</span> (<span class="hljs-params">obj</span>) &#123;<br>        <span class="hljs-comment">//todo...(主要在这里实现代码逻辑)</span><br>    &#125;,<br>    <span class="hljs-comment">//遍历完成后调用onComplete</span><br>    <span class="hljs-attr">onComplete</span>: <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-comment">//todo...</span><br>    &#125;,<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="字段Hook"><a href="#字段Hook" class="headerlink" title="字段Hook"></a>字段Hook</h2><blockquote>
+<p><strong>注: 如果字段名与方法名一样，则需要给字段名前加下划线_，否则获取到的是方法</strong></p>
+</blockquote>
+<h3 id="静态字段"><a href="#静态字段" class="headerlink" title="静态字段"></a>静态字段</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs js">类.字段<span class="hljs-comment">//获取类的属性定义，例如Java.Field&#123;holder: &lt;class: com.example.testfrida.demo&gt;, fieldType: 1, fieldReturnType: I, value: 3&#125;</span><br>类.字段.<span class="hljs-property">value</span> <span class="hljs-comment">// 获取类的属性值</span><br>类.字段.<span class="hljs-property">value</span> = newValue <span class="hljs-comment">// 修改类的值</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="非静态字段"><a href="#非静态字段" class="headerlink" title="非静态字段"></a>非静态字段</h3><ul>
+<li><p>通过<code>$new</code>实例化对象，然后再获取。</p>
+</li>
+<li><p>使用<code>Java.choose()</code>遍历内存获取已存在的类对象，然后再获取。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Java">Java.choose(<span class="hljs-string">&#x27;类路径&#x27;</span>, &#123;<br>    onMatch: function (obj) &#123;<br>        obj.字段.value = ?;<br>        console.log(obj.字段.value);<br>    &#125;,<br>    onComplete: function () &#123;&#125;,<br>&#125;)<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="获取已加载的所有类名"><a href="#获取已加载的所有类名" class="headerlink" title="获取已加载的所有类名"></a>获取已加载的所有类名</h2><ul>
+<li><code>Java.enumerateLoadedClassesSync()</code> ： 同步获取已加载所有类，返回一个数组，<strong>里面的类型是字符串并不是类对象</strong>。</li>
+<li><code>Java.enumerateLoadedClasses() </code>：异步获取已加载所有类，需内部实现onMatch、onComplete方法。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-comment">//1.</span><br><span class="hljs-keyword">var</span> classes = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">enumerateLoadedClassesSync</span>();<br><span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>;i&lt;classes.<span class="hljs-property">length</span>;i++)&#123;<br>    <span class="hljs-keyword">if</span>(classes[i] == <span class="hljs-string">&quot;com.example.testfrida.demo&quot;</span>)&#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">typeof</span>(classes[i]));<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(classes[i]);<br>    &#125;<br>&#125;<br><span class="hljs-comment">//2.</span><br><span class="hljs-title class_">Java</span>.<span class="hljs-title function_">enumerateLoadedClasses</span>(&#123;<br>    <span class="hljs-comment">//对每个类进行操作</span><br>    <span class="hljs-attr">onMatch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">clazz</span>)&#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(clazz);<br>    &#125;,<br>    <span class="hljs-attr">onComplete</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br><br>    &#125;<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="获取ClassLoader"><a href="#获取ClassLoader" class="headerlink" title="获取ClassLoader"></a>获取ClassLoader</h2><ul>
+<li><code>Java.enumerateClassLoadersSync()</code> ： 同步获取已存在的所有类加载器，返回一个数组，<strong>里面的是类加载器对象</strong>。</li>
+<li><code>Java.enumerateClassLoaders() </code>：异步获取已存在的所有加载器，需内部实现onMatch、onComplete方法。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-comment">//1.</span><br><span class="hljs-keyword">var</span> loaderlist = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">enumerateClassLoadersSync</span>()<br><span class="hljs-keyword">for</span>(<span class="hljs-keyword">const</span> loader <span class="hljs-keyword">of</span> loaderlist)&#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(loader);<br>&#125;<br><span class="hljs-comment">//2.</span><br><span class="hljs-title class_">Java</span>.<span class="hljs-title function_">enumerateClassLoaders</span>(&#123;<br>    <span class="hljs-attr">onMatch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">loader</span>)&#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(loader);<br>    &#125;,<br>    <span class="hljs-attr">onComplete</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br><br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>hook动态加载的类：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<br>    <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br>        <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">enumerateClassLoaders</span>(&#123;<br>            <span class="hljs-attr">onMatch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">loader</span>)&#123;<br>                <span class="hljs-comment">//需要使用try-catch模块，因为findClass可能因找不到类而报错</span><br>                <span class="hljs-keyword">try</span>&#123;<br>                    <span class="hljs-keyword">if</span>(loader.<span class="hljs-title function_">finClass</span>(<span class="hljs-string">&quot;com.example.testfrida.nodo&quot;</span>))&#123;<br>                        <span class="hljs-comment">//更改js代码当前所使用的classloader为此loader</span><br>                        java.<span class="hljs-property">ClassFactory</span>.<span class="hljs-property">loader</span> = loader<br>                        <span class="hljs-comment">//进行hook实现</span><br>                        <span class="hljs-keyword">var</span> clazz = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.example.testfrida.nodo&quot;</span>)<br>                        clazz.<span class="hljs-property">add</span>.<span class="hljs-property">implementation</span>  =  <span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>)&#123;<br>                            <span class="hljs-keyword">return</span> a - b;<br>                        &#125;<br>                        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(clazz.<span class="hljs-title function_">add</span>(<span class="hljs-number">4</span>,<span class="hljs-number">5</span>));<br>                    &#125;<br>                &#125;<br>                <span class="hljs-keyword">catch</span>(error)&#123;<br><br>                &#125;<br><br>            &#125;,<br>            <span class="hljs-attr">onComplete</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br><br>            &#125;<br>        &#125;);<br>    &#125;<br>)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="构建Java数组"><a href="#构建Java数组" class="headerlink" title="构建Java数组"></a>构建Java数组</h2><ul>
+<li><code>Java.array(type,elements)</code>：构造<code>elements</code>数组为<code>type</code>类型的Java数组，其中<code>type</code>是Java类型的签名。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-comment">//字符串数组</span><br><span class="hljs-keyword">var</span> arr = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">array</span>(<span class="hljs-string">&#x27;Ljava.lang.String;&#x27;</span>,[<span class="hljs-string">&#x27;1&#x27;</span>,<span class="hljs-string">&#x27;2&#x27;</span>,<span class="hljs-string">&#x27;3&#x27;</span>])<br><span class="hljs-comment">//int数组</span><br><span class="hljs-keyword">var</span> values = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">array</span>(<span class="hljs-string">&#x27;int&#x27;</span>, [ <span class="hljs-number">1003</span>, <span class="hljs-number">1005</span>, <span class="hljs-number">1007</span> ]);<br><span class="hljs-comment">//byte数组</span><br><span class="hljs-keyword">const</span> values = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">array</span>(<span class="hljs-string">&#x27;byte&#x27;</span>, [ <span class="hljs-number">0x48</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0x69</span> ])<br><span class="hljs-comment">//对象数组</span><br><span class="hljs-keyword">var</span> integerclass = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.lang.Integer&#x27;</span>)<span class="hljs-comment">//获取Java中Integer对象</span><br><span class="hljs-keyword">var</span> booleanclass = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.lang.Boolean&#x27;</span>)<span class="hljs-comment">//获取Java中Boolean对象</span><br>	<span class="hljs-comment">//构建对象数组，基本类型不是对象，需要包装成对象才行</span><br><span class="hljs-keyword">var</span> objarr = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">array</span>(<span class="hljs-string">&#x27;Ljava.lang.Object;&#x27;</span>, [<span class="hljs-string">&#x27;hello&#x27;</span>, integerclass.$new(<span class="hljs-number">1</span>), booleanclass.$new(<span class="hljs-literal">true</span>)])<br><br><span class="hljs-comment">//动态数组ArrayList</span><br><span class="hljs-keyword">var</span> arraylist = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.util.ArrayList&#x27;</span>).$new()<br><span class="hljs-keyword">var</span> num = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.lang.Integer&#x27;</span>).$new(<span class="hljs-number">1</span>)<br>arraylist.<span class="hljs-title function_">add</span>(num);<br>arraylist.<span class="hljs-title function_">add</span>(<span class="hljs-string">&#x27;hello&#x27;</span>)<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(arraylist);<br>arraylist.<span class="hljs-title function_">remove</span>(num);<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(arraylist)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="取消Hook"><a href="#取消Hook" class="headerlink" title="取消Hook"></a>取消Hook</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">var</span> cl = java.<span class="hljs-title function_">use</span>(类名)<br><span class="hljs-comment">//对方法进行hook</span><br>cl.方法名.<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<br><br>&#125;<br><span class="hljs-comment">//取消hook</span><br>cl.方法名.<span class="hljs-property">implementation</span> = <span class="hljs-literal">null</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h2><ul>
+<li><code>Java.cast(handle, klass)</code>：将句柄handle转成klass类型的变量&#x2F;类型。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">Activity</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;android.app.Activity&#x27;</span>);<br><span class="hljs-keyword">const</span> activity = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">cast</span>(<span class="hljs-title function_">ptr</span>(<span class="hljs-string">&#x27;0x1234&#x27;</span>), <span class="hljs-title class_">Activity</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h2><ul>
+<li><code>Java.openClassFile(filePath)</code>：打开dex文件，返回一个对象，该对象拥有<code>load()</code>（加载包含的类）、<code>getClassNames()</code>方法</li>
+</ul>
+<h2 id="函数堆栈打印"><a href="#函数堆栈打印" class="headerlink" title="函数堆栈打印"></a>函数堆栈打印</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">showStack</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;android.util.Log&#x27;</span>).<span class="hljs-title function_">getStackTraceString</span>(<span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.lang.Throwable&#x27;</span>).$new()))<br>  &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38474570/article/details/120876120">Android之Frida框架完全使用指南-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://kuizuo.cn/docs/frida-note">https://kuizuo.cn/docs/frida-note</a></p>
+<p><a target="_blank" rel="noopener" href="https://frida.re/docs/javascript-api/#java">JavaScript API | Frida • A world-class dynamic instrumentation toolkit</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_35016347/article/details/104002411">Frida用法详解【附用例】_frida -u -f-CSDN博客</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Hook/" class="category-chain-item">Hook</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Frida/">#Frida</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Frida Java层Hook学习笔记</div>
+      <div>http://example.com/2023/12/17/Frida Java层Hook学习笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月17日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/18/Python%E4%B8%ADfrida%E5%BA%93%E4%BD%BF%E7%94%A8/" title="Python中frida库使用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Python中frida库使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/12/Android%E7%AC%AC%E4%B8%80%E4%BA%8C%E4%BB%A3%E5%A3%B3%E7%9A%84%E8%84%B1%E5%A3%B3%E7%82%B9%E5%88%86%E6%9E%90/" title="Android第一二代壳的脱壳点分析">
+                        <span class="hidden-mobile">Android第一二代壳的脱壳点分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
