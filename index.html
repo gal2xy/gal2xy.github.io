@@ -238,13 +238,76 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)/" target="_self">
-          Frida入门练习(一)
+        <a href="/2023/12/21/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%BA%8C)%20-%20KGB%20Messager/" target="_self">
+          Frida入门练习(二)
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/21/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%BA%8C)%20-%20KGB%20Messager/" target="_self">
+        <div>
+          题目附件：tlamb96&#x2F;kgb_messenger: An Android CTF practice challenge (github.com)  MainActivity 这里我们需要跟踪一下R.string.User，直接点击，可以知道对应的资源id为： 1public static final int User &#x3D; 0x7f0d0000;  根据这个资源id在resources
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-21 20:16" pubdate>
+              2023-12-21
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Frida/">#Frida</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)%20-%20%E4%B8%83%E5%B1%82%E5%85%B3%E5%8D%A1/" target="_self">
+          Frida入门练习(一) - 七层关卡
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)%20-%20%E4%B8%83%E5%B1%82%E5%85%B3%E5%8D%A1/" target="_self">
         <div>
           附件：见[原创]frida基础 闯关训练 七层关卡-Android安全-看雪-安全社区|安全招聘|kanxue.com  LoginActivity onClick()方法中判断了输入不能为空，且要满足LoginActivity.a(obj, obj).equals(obj2)才行，方法如下：  很简单，也就是密码是账号的HmacSha256加密，加密使用的密钥是账号本身。 这里我们使用frida
         </div>
@@ -786,67 +849,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Java%E5%8F%8D%E5%B0%84/">#Java反射</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/02/%E5%85%B3%E4%BA%8E%E4%B8%80%E4%BB%A3%E5%A3%B3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%86%E8%A7%A3/" target="_self">
-          关于一代壳的一些理解
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/02/%E5%85%B3%E4%BA%8E%E4%B8%80%E4%BB%A3%E5%A3%B3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%86%E8%A7%A3/" target="_self">
-        <div>
-          想解释一下一代壳的脱壳代码为什么这么写，以及一些代码中的细节，解释全在代码注释中！！！ 思维有点乱，可能有错误的地方，烦请告知，谢谢！  话不多说，直接看handleBindApplication()，想要详细跟踪Application的创建请阅读Android中Application的创建流程。 12345678910111213141516171819202122232425262728293
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-02 20:14" pubdate>
-              2023-12-02
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%8A%A0%E5%9B%BA/">#Android加固</a>
             
           </div>
         
