@@ -238,6 +238,132 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/12/10/JNI%E5%8E%9F%E7%90%86/" target="_self">
+          JNI原理
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/10/JNI%E5%8E%9F%E7%90%86/" target="_self">
+        <div>
+          一、前言在 Android 逆向过程中，常常可以见到 java 层使用 native 函数，但 native 函数并没有在 java 层实现，而是在 native 层实现，java 层通过加载库文件来正常使用该函数。java 层之所以可以使用 native 层实现的函数，是因为 JNI 的存在。 如果我们进一步探究 so 文件，可以发现有的 so 文件中含有 JNI_OnLoad 函数，而有的没有
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-10 16:30" pubdate>
+              2023-12-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+              <a href="/tags/JNI/">#JNI</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/06/InMemoryDexClassLoader%E5%8A%A0%E8%BD%BD%E5%86%85%E5%AD%98dex%E7%9A%84%E6%B5%81%E7%A8%8B/" target="_self">
+          InMemoryDexClassLoader加载内存dex的流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/06/InMemoryDexClassLoader%E5%8A%A0%E8%BD%BD%E5%86%85%E5%AD%98dex%E7%9A%84%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          一、前言在之前分析dex文件加载流程中（dex文件加载流程(一)(二)(三)），我们分析过了DexClassLoader和PathClassLoader这两个类加载器加载dex的流程。它们两个都是用来记载文件dex的，但是在Android 8新增了InMemoryDexClassLoader，专门用于加载内存dex，接下来我们就根据源码来剖析内存dex的加载流程。 二、InMemoryDexCla
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-06 17:01" pubdate>
+              2023-12-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/12/04/%E5%AF%B9Java%E5%8F%8D%E5%B0%84%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E5%B0%81%E8%A3%85/" target="_self">
           对Java反射方法进行封装
         </a>
@@ -679,132 +805,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-11-20 21:13" pubdate>
-              2023-11-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
-            
-              <a href="/tags/dex/">#dex</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%BA%8C)/" target="_self">
-          dex文件加载流程(二)
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%BA%8C)/" target="_self">
-        <div>
-          书接上文dex文件加载流程(一)(gal2xy.github.io)。 一、DexFile_openDexFileNative()学习完上一篇文章，我们知道：不管是用PathClassLoader还是DexClassLoader加载dex文件，它们最终都会调用openDexFileNative()方法，该方法对应art&#x2F;runtime&#x2F;native&#x2F;dalivk_system_DexFile.cc
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-20 21:12" pubdate>
-              2023-11-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
-            
-              <a href="/tags/dex/">#dex</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
-          dex文件加载流程(一)
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
-        <div>
-          dex文件加载系列文章链接：  PathClassLoader、DexClassLoader dex文件加载流程(一) dex文件加载流程(二) dex文件加载流程(三)  InMemoryDexClassLoader InMemoryDexClassLoader加载内存dex的流程    一、PathClassLoader和DexClassLoaderAndroid启动APP时，会加载dex文
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-20 21:11" pubdate>
               2023-11-20
             </time>
           </div>
