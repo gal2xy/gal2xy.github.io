@@ -238,6 +238,211 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
+          阅读笔记 —— 《Obfuscator-LLVM — Software Protection》
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
+        <div>
+          LLVMLLVM独立于语言和平台。它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   OLLVMOLL
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-17 19:52" pubdate>
+              2024-04-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/OLLVM/">#OLLVM</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
+          阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
+        <div>
+          改进该论文对于LLVM-IR层的混淆进行了如下两种改进：  指令加花 指令替换  指令加花该论文提出了两种指令加花方法：  叠加跳转 虚假循环  以上花指令以基本块形式进行添加，首先需要对原有的基本块进行拆分，然后在拆分后的基本块之间插入构造的花指令基本块，并通过不透明谓词进行有效的整合。 基本块拆分算法123456789101112131415算法1 Dependency Analysis Al
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-17 19:51" pubdate>
+              2024-04-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/OLLVM/">#OLLVM</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
+          OLLVM移植到LLVM14
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
+        <div>
+          一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-17 19:48" pubdate>
+              2024-04-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Obfuscation/" class="category-chain-item">Obfuscation</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/OLLVM/">#OLLVM</a>
+            
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
+            
+              <a href="/tags/LLVM/">#LLVM</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" target="_self">
           OLLVM移植到LLVM14
         </a>
@@ -673,196 +878,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/17/Frida%20Java%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-          Frida Java层Hook学习笔记
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/17/Frida%20Java%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-        <div>
-          Java层Hook简单的代码框架： 1234567891011function main()&amp;#123;	&#x2F;&#x2F;使用Java平台，Java层hook在Java.perform中执行    Java.perform(        &#x2F;&#x2F;代码逻辑        function()&amp;#123;            ...        &amp;#125;    )&amp;#125;&#x2F;&#x2F;调用main方法setImm
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-17 20:02" pubdate>
-              2023-12-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Frida/">#Frida</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/12/Android%E7%AC%AC%E4%B8%80%E4%BA%8C%E4%BB%A3%E5%A3%B3%E7%9A%84%E8%84%B1%E5%A3%B3%E7%82%B9%E5%88%86%E6%9E%90/" target="_self">
-          Android第一二代壳的脱壳点分析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/12/Android%E7%AC%AC%E4%B8%80%E4%BA%8C%E4%BB%A3%E5%A3%B3%E7%9A%84%E8%84%B1%E5%A3%B3%E7%82%B9%E5%88%86%E6%9E%90/" target="_self">
-        <div>
-          只讲ART下的脱壳，DVM太过时了   一、脱壳点分析编写过Android第一二代加固壳的可以知道，无论是通过系统的类加载器加载的，还是通过自定义类加载器加载的，无一例外，最终都逃不过创建DexFile对象： 123456789101112131415161718192021222324252627282930313233343536373839404142434445class DexFile
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-12 21:55" pubdate>
-              2023-12-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E8%84%B1%E5%A3%B3/">#Android脱壳</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/10/Android%E7%AC%AC%E4%BA%8C%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
-          Android第二代加固壳的原理及实现 —— 不落地加载
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/10/Android%E7%AC%AC%E4%BA%8C%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
-        <div>
-          一、对第一代壳的改良在第一代加固壳中，会将源程序APK存储到文件系统中，然后再通过DexClassLoader动态加载。这种落地加载方式存在很大问题，一是容易在文件系统中获取到源程序APK，二是两次加载源程序APK到内存中，效率低。 第二代壳就是为了解决上述问题，做到不落地加载，即不使用文件系统作为中转站，而是直接将内存中的源APK字节码进行加载。 那么问题就来了，怎样解决加载内存dex的难题呢？
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-10 16:30" pubdate>
-              2023-12-10
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%8A%A0%E5%9B%BA/">#Android加固</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/#board">10</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/#board">11</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

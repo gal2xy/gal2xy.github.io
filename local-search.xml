@@ -4,6 +4,93 @@
   
   
   <entry>
+    <title>阅读笔记 —— 《Obfuscator-LLVM — Software Protection》</title>
+    <link href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/"/>
+    <url>/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/</url>
+    
+    <content type="html"><![CDATA[<h1 id="LLVM"><a href="#LLVM" class="headerlink" title="LLVM"></a>LLVM</h1><p>LLVM独立于语言和平台。它由以下三部分组成：</p><ol><li><p>前端</p><p>前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端</p></li><li><p>优化器（亦称为中端）</p><p>优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。</p></li><li><p>后端</p><p>根据目标架构生成高效的汇编代码</p></li></ol><h1 id="OLLVM"><a href="#OLLVM" class="headerlink" title="OLLVM"></a>OLLVM</h1><p>OLLVM中的大多数混淆和防护机制都是在中端进行的。它具有以下功能：</p><ol><li><p>指令替换（instruction substitutions）</p></li><li><p>虚假控制流插入（bogus control-flow insertion）</p></li><li><p>基本块分割（basic block splitting）</p></li><li><p>控制流平坦化（control-flow flattening）</p></li><li><p>程序合并（procedures merging）</p></li><li><p>防篡改代码插入（insertion of code tamper-proofing）</p></li></ol><p>为了使生成的代码能够多样化，使用PRNG生成随机数来决定混淆代码的生成。</p><h2 id="指令替换"><a href="#指令替换" class="headerlink" title="指令替换"></a>指令替换</h2><p>不支持浮点数运算的指令替换，因为会带来数值不准确性，即认为生成的代码不具有功能等效性。</p><p>由于指令替换很直接，并没有增加逆向的阻力，因为这种混淆很容易通过重新优化生成代码来规避。这也就是为什么指令替换pass运行在所有LLVM优化passes之后。</p><h2 id="虚假控制流插入"><a href="#虚假控制流插入" class="headerlink" title="虚假控制流插入"></a>虚假控制流插入</h2><p>包括在函数控制流图中插入条件跳转结构，该结构要么指向原始基本块，要么指向循环回条件跳转块的假基本块。</p><p><strong>不透明谓词</strong>：</p><p>干扰逆向人员但值不变的表达式，用于确保运行时只执行原始基本块，同样也使优化器不能够通过识别死代码来简化生成调用图。</p><h2 id="控制流平坦化和基本块分割"><a href="#控制流平坦化和基本块分割" class="headerlink" title="控制流平坦化和基本块分割"></a>控制流平坦化和基本块分割</h2><h3 id="控制流平坦化"><a href="#控制流平坦化" class="headerlink" title="控制流平坦化"></a>控制流平坦化</h3><p>通过移除所有易辨别的条件和循环结构来破坏函数控制流图。</p><p>基本上是使用一个大型switch结构来实现。通过路由变量（switch中用到的条件变量）控制代码流进入正确的基本块。在每个基本块的末尾，设置路由变量的正确值，使得代码流进入下一个正确的基本块。</p><p>路由变量的更新使用动态更新，这样能够迫使逆向工程师对可执行文件进行动态分析。</p><h2 id="代码防篡改"><a href="#代码防篡改" class="headerlink" title="代码防篡改"></a>代码防篡改</h2><p>代码防篡改机制用于确保运行时代码不被修改。它通过两种机制实现：</p><ol><li>check()：负责检查代码是否被修改。</li><li>respond()：检测到代码被篡改后采取的措施。</li></ol><p>这些check()和respond()分布在整个程序中，并且它们之间相互依赖。</p><h3 id="check"><a href="#check" class="headerlink" title="check()"></a>check()</h3><p>对一段代码进行32位CRC校验和的计算，其中段的开始和结束时随机选择的。</p><p>check()的结果可用于更新路由变量。路由变量不仅是动态更新的，而且依赖于编译阶段生成的静态值$s$：<br>$$<br>s&#x3D;\rho⊕d_1⊕d_2⊕…⊕d_n<br>$$<br>其中$\rho$的值指向下一个基本块，$d_i$是基本块中第$i$个check()的结果，其值在编译后才能知道。</p><h2 id="程序合并"><a href="#程序合并" class="headerlink" title="程序合并"></a>程序合并</h2><p>将所有函数合并到一个唯一的新函数中，然后使用新函数merged()替换所有原始函数的调用。</p><p>机制的实现大致如下：</p><p>每个原始函数的代码被提取、放入merged()中，并作为switch-case中个一个分支。然后每个原始函数都被一个简单的包装函数替换，该函数带有标识原始函数的参数，在调用merged()时能够找到正确的原始函数。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+      <category>LLVM and OLLVM</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>OLLVM</tag>
+      
+      <tag>论文研读</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》</title>
+    <link href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/"/>
+    <url>/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/LLVM%20and%20OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/</url>
+    
+    <content type="html"><![CDATA[<h1 id="改进"><a href="#改进" class="headerlink" title="改进"></a>改进</h1><p>该论文对于LLVM-IR层的混淆进行了如下两种改进：</p><ol><li>指令加花</li><li>指令替换</li></ol><h2 id="指令加花"><a href="#指令加花" class="headerlink" title="指令加花"></a>指令加花</h2><p>该论文提出了两种指令加花方法：</p><ol><li>叠加跳转</li><li>虚假循环</li></ol><p>以上花指令以基本块形式进行添加，首先需要对原有的基本块进行拆分，然后在拆分后的基本块之间插入构造的花指令基本块，并通过不透明谓词进行有效的整合。</p><h3 id="基本块拆分算法"><a href="#基本块拆分算法" class="headerlink" title="基本块拆分算法"></a>基本块拆分算法</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">算法<span class="hljs-number">1</span> Dependency Analysis Algorithm。<br>输入 instList ← instruction <span class="hljs-built_in">set</span> in the basic block；<br>输出 resStack ← instruction dependency analysis results。<br><span class="hljs-keyword">while</span> instList.size &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">do</span><br>    inst ← instList.getLast()<br>    <span class="hljs-built_in">stack</span>.add(inst); <span class="hljs-built_in">queue</span>.add(inst)<br>    <span class="hljs-keyword">while</span> <span class="hljs-built_in">queue</span>.size &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">do</span><br>        toAnalyzeInst ← <span class="hljs-built_in">queue</span>.pop()<br>        depInst← searching forwards <span class="hljs-keyword">for</span> instructions that <br>        toAnalyzeInst depends on in the instList<br>        <span class="hljs-built_in">stack</span>.add(depInst)；<span class="hljs-built_in">queue</span>.add(depInst)<br>        instList.remove(depInst)<br>    end <span class="hljs-keyword">while</span><br>    resStack.add(<span class="hljs-built_in">stack</span>)<br>end <span class="hljs-keyword">while</span><br></code></pre></td></tr></table></figure><p>​算法 1 的输入为基本块内所有的 LLVM-IR 指令，输出为存储指令依赖分析结果的嵌套堆栈集合，集合内的每一个子集也是一个栈，用于存储一组相互依赖的指令。算法实现的中间过程需要借助栈和队列来完成，前者用于存储相关依赖指令，最后作为子集存储到依赖分析结果集中；后者用于存储当前指令搜索过程中涉及的直接依赖指令和间接依赖指令，并不断向外扩展，直到没有新的依赖指令。针对每一条新加入的指令，均需要备份并对其依赖关系进行重新检查，通过队列实现每一条加入的新指令，其依赖的指令也会同步加入指令堆栈中。在指令依赖关系分析过程中，若出现所依赖的指令已经添加到其他的指令集合中，则生成原生指令的备份存储到新的集合中，以避免数据流的断裂问题。</p><blockquote><p>这里我就冒出了个问题，假如确定了基本块中的子块，但指令分布如下图左侧所示，那么怎么确定花指令的位置呢？或者说怎么用子块之间的特征来确定花指令的插入位置？（总不能是指令比对吧？毕竟指令之间的相似性可能会很大）</p><p>后面我想到了一个解释。既然这些指令之间没有数据关联性，那么其在执行顺序上理应也没有相关性，也就是说，我们将这些调换这些指令的位置顺序，使属于同一基本块的指令在位置上是连续的，如下图右侧所展示的。如此一来，基本块拆分后的子块之间的界限也就明显了，那么花指令的插入就可以在这些地方进行。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404121952728.png"></p></blockquote><h3 id="叠加跳转"><a href="#叠加跳转" class="headerlink" title="叠加跳转"></a>叠加跳转</h3><p>叠加跳转的示例如下：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404111543618.png"></p><h3 id="虚假循环"><a href="#虚假循环" class="headerlink" title="虚假循环"></a>虚假循环</h3><p>定义循环基本块集合为<code>loopBBs</code> , <code>loopBBs =  &#123;entryBB, loopCondition, loopBody&#125;</code>。</p><p>示例：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br><span class="hljs-type">int</span> bound = <span class="hljs-number">10</span>;<br><span class="hljs-keyword">while</span>(i &lt; bound)&#123;<br>i += <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure><p>在上述代码中，<code>entryBB</code>对应第1、2行，<code>loopCondition</code>对应第3行，<code>loopBody</code>对应第4行。</p><p>基于上述定义，生成虚假循环体，为了与源程序有着数据相关性，可以在循环体内添加源程序中相关变量的运算操作，在循环条件中引入源程序中的变量等。</p><h2 id="指令替换"><a href="#指令替换" class="headerlink" title="指令替换"></a>指令替换</h2><p>指令替换混淆是指令的等效替换，即用语义相同但形式不同的一条或多条指令来替换。</p><p>该论文主要是对运算操作进行了混淆，例如对+、-、*、&amp;、|、^、位移等运算进行等价替换，部分如下表所示：</p><table><thead><tr><th align="center">运算符</th><th align="center">等价指令序列</th></tr></thead><tbody><tr><td align="center">a&#x3D;b+c</td><td align="center">a&#x3D;b-(-c)</td></tr><tr><td align="center">a&#x3D;b&amp;c</td><td align="center">a&#x3D;(b^!c)&amp;b</td></tr><tr><td align="center">a&#x3D;b|c</td><td align="center">a&#x3D;(b&amp;c)|(b^c)</td></tr></tbody></table><p>除此之外，还增加了两种替换方法：</p><ol><li>数据拆分替换</li><li>循环替换</li></ol><p>这两种方法只支持整数类型的变换。</p><h3 id="数据拆分替换"><a href="#数据拆分替换" class="headerlink" title="数据拆分替换"></a>数据拆分替换</h3><p>数据拆分替换的定义如下：</p><p>程序的运算操作集记为 $O$， $O$所涉及的常量和变量集合记为 $D$，$Δx$记为运算中产生的进位或借位信息。对 $∀N ∈ D$，将$N$拆分为高位数据$N_{high}$和低位数据 $N_{low}$，$∀o∈O$转变为针对$N_{high}$和 $N_{low}$的操作，并同步更新$Δx$的数值，默认为 0。</p><p>示例：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404111509559.png"></p><h3 id="循环替换"><a href="#循环替换" class="headerlink" title="循环替换"></a>循环替换</h3><p>循环替换的目的主要是对操作符进行降级处理。它的定义如下：</p><p>记操作的阈值为 $N$，操作 $Op1$为将程序中的左移指令转变为循环形式的乘法指令，操作 $Op2$ 为将乘法指令转变为循环形式的加法指令。使用 $Op1$ 或 $Op2$对 $∀i ∈ { inst|inst ∈ {MUL，SHL}}$进行处理，若循环的处理次数超过阈值 $N$，阈值内的循环逻辑保留，超出的部分仍使用之前的指令形式。</p><p>示例：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404111512270.png"></p><h1 id="个人认为可以改进的地方"><a href="#个人认为可以改进的地方" class="headerlink" title="个人认为可以改进的地方"></a>个人认为可以改进的地方</h1><ol><li>对于运算操作的混淆，我认为可以使用快速乘、快速幂来替换乘、指数运算，这样一来，不仅达到了混淆，而且在时间开销上也降低了。</li><li>对于有限小数的运算混淆，可以转换成整数运算的混淆，即将小数部分视为整数$*10^{-n}$。</li></ol><h1 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h1><ul><li>基本块是什么？或者说怎样的指令集被认定为基本块？</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+      <category>LLVM and OLLVM</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>OLLVM</tag>
+      
+      <tag>论文研读</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>OLLVM移植到LLVM14</title>
+    <link href="/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/"/>
+    <url>/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/</url>
+    
+    <content type="html"><![CDATA[<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>一开始是直接将ollvm4源码编译后移植到ndk上，按照<a href="https://www.jianshu.com/p/9136f7257e46">跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)</a>上的步骤走，结果仍然报错：</p><figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mel">Android Studio fatal <span class="hljs-keyword">error</span>: <span class="hljs-string">&#x27;stdarg.h&#x27;</span> <span class="hljs-keyword">file</span> not found<br></code></pre></td></tr></table></figure><p>而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目录，居然会出现jni.h、string库识别不出来的错误（可是它可以在NDK目录中搜索出来）：</p><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">Android Studio fatal <span class="hljs-keyword">error</span>: &#x27;<span class="hljs-built_in">string</span>&#x27; <span class="hljs-built_in">file</span> <span class="hljs-keyword">not</span> found<br></code></pre></td></tr></table></figure><p>之后看了Whitebird的博客，猜测可能是版本不匹配的问题。</p><p>所以有必要提醒各位，本文章中所涉及到的NDK是Android Studio自带的，以及LLVM是抑制了OLLVM的，且NDK版本和LLVM版本一致，均为14.0.6。</p><h1 id="二、移植"><a href="#二、移植" class="headerlink" title="二、移植"></a>二、移植</h1><h2 id="2-1-OLLVM移植到LLVM14-x"><a href="#2-1-OLLVM移植到LLVM14-x" class="headerlink" title="2.1 OLLVM移植到LLVM14.x"></a>2.1 OLLVM移植到LLVM14.x</h2><p>OLLVM移植到LLVM14.x参考<a href="https://gal2xy.github.io/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/">OLLVM移植到LLVM14 - gla2xy’s blog (gal2xy.github.io)</a></p><h2 id="2-2-目录复制"><a href="#2-2-目录复制" class="headerlink" title="2.2 目录复制"></a>2.2 目录复制</h2><ol><li><p>将2.1步骤中编译出的LLVM中的bin、lib、include目录复制到NDK的toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;目录下，进行覆盖。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png"></p></li><li><p>在NDK目录下，将toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib64目录下的clang文件夹复制到toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib目录下，进行覆盖。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162030284.png"></p><p>没有操作此步骤会报如下错误：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162028890.png">查询发现根本就没有这个目录。</p></li></ol><h1 id="三、项目混淆配置与测试"><a href="#三、项目混淆配置与测试" class="headerlink" title="三、项目混淆配置与测试"></a>三、项目混淆配置与测试</h1><h2 id="3-1-项目混淆配置"><a href="#3-1-项目混淆配置" class="headerlink" title="3.1 项目混淆配置"></a>3.1 项目混淆配置</h2><p>想要对项目中的.c&#x2F;.cpp代码进行混淆，需要在cpp目录下的CMakeLists.txt中添加混淆配置，例如：</p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">set</span>(CMAKE_C_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_C_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br><span class="hljs-keyword">set</span>(CMAKE_CXX_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_CXX_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br></code></pre></td></tr></table></figure><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162139959.png"></p><h2 id="3-2-测试"><a href="#3-2-测试" class="headerlink" title="3.2 测试"></a>3.2 测试</h2><p>测试代码：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162131982.png"></p><p>分析apk中的so文件，该函数对应控制流图如下：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162130555.png"></p><p>可见是非常的成功！</p><hr><p>参考：</p><p><a href="https://whitebird0.github.io/post/%E4%BB%8Ellvm%E5%88%B0ollvm%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html">从LLVM到OLLVM学习笔记 | Whitebird’s Home (whitebird0.github.io)</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Obfuscation</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>OLLVM</tag>
+      
+      <tag>代码混淆</tag>
+      
+      <tag>LLVM</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>OLLVM移植到LLVM14</title>
     <link href="/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/"/>
     <url>/2024/04/17/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/</url>
