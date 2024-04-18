@@ -16,23 +16,27 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="LLVMLLVM独立于语言和平台。它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   OLLVMOLL">
+    <meta name="description" content="一、前言不知怎么的，我电脑上VMware软件启动虚拟机变得十分慢，每次启动黑屏，等到用户登录界面出现时，已经花了4分钟左右，而且在用户登入界面输入密码回车后，又有一段时间的黑屏，最终才会显示桌面。 按照网络上的教程，大都走了个遍，花费了大量的时间，仍然无济于事。 我执行过如下指令来查看开机启动项的时间记录 1systemd-analyze blame   结果发现最高的也才8秒左右，这显然不是启动">
 <meta property="og:type" content="article">
-<meta property="og:title" content="阅读笔记 —— 《Obfuscator-LLVM — Software Protection》">
-<meta property="og:url" content="http://example.com/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/index.html">
+<meta property="og:title" content="记一次VMware平台虚拟机启动黑屏问题">
+<meta property="og:url" content="http://example.com/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="LLVMLLVM独立于语言和平台。它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   OLLVMOLL">
+<meta property="og:description" content="一、前言不知怎么的，我电脑上VMware软件启动虚拟机变得十分慢，每次启动黑屏，等到用户登录界面出现时，已经花了4分钟左右，而且在用户登入界面输入密码回车后，又有一段时间的黑屏，最终才会显示桌面。 按照网络上的教程，大都走了个遍，花费了大量的时间，仍然无济于事。 我执行过如下指令来查看开机启动项的时间记录 1systemd-analyze blame   结果发现最高的也才8秒左右，这显然不是启动">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-17T11:52:17.000Z">
-<meta property="article:modified_time" content="2024-04-17T11:59:06.684Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181647721.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181657950.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181708272.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181711510.png">
+<meta property="article:published_time" content="2024-04-18T08:14:48.000Z">
+<meta property="article:modified_time" content="2024-04-18T09:20:27.297Z">
 <meta property="article:author" content="gla2xy">
-<meta property="article:tag" content="OLLVM">
-<meta property="article:tag" content="论文研读">
+<meta property="article:tag" content="环境配置">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181647721.png">
   
   
   
-  <title>阅读笔记 —— 《Obfuscator-LLVM — Software Protection》 - gla2xy&#39;s blog</title>
+  <title>记一次VMware平台虚拟机启动黑屏问题 - gla2xy&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -212,7 +216,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="阅读笔记 —— 《Obfuscator-LLVM — Software Protection》"></span>
+            <span id="subtitle" data-typed-text="记一次VMware平台虚拟机启动黑屏问题"></span>
           
         </div>
 
@@ -223,8 +227,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-17 19:52" pubdate>
-          2024年4月17日 晚上
+        <time datetime="2024-04-18 16:14" pubdate>
+          2024年4月18日 下午
         </time>
       </span>
     
@@ -284,58 +288,72 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">阅读笔记 —— 《Obfuscator-LLVM — Software Protection》</h1>
+            <h1 style="display: none">记一次VMware平台虚拟机启动黑屏问题</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="LLVM"><a href="#LLVM" class="headerlink" title="LLVM"></a>LLVM</h1><p>LLVM独立于语言和平台。它由以下三部分组成：</p>
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>不知怎么的，我电脑上<code>VMware</code>软件启动虚拟机变得十分慢，每次启动黑屏，等到用户登录界面出现时，已经花了4分钟左右，而且在用户登入界面输入密码回车后，又有一段时间的黑屏，最终才会显示桌面。</p>
+<p>按照网络上的教程，大都走了个遍，花费了大量的时间，仍然无济于事。</p>
+<p>我执行过如下指令来查看开机启动项的时间记录</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">systemd-analyze blame</span> <br></code></pre></td></tr></table></figure>
+
+<p>结果发现最高的也才8秒左右，这显然不是启动项的问题，</p>
+<p>也尝试过修改<code>/etc/default/grub</code>文件，修改内容如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">GRUB_CMDLINE_LINUX_DEFAULT</span>=“”<br></code></pre></td></tr></table></figure>
+
+<p>这样开机的时候能看到详细信息，而不是光标闪动。</p>
+<p>但结果也没有发现啥问题。</p>
+<p>也就是说，我这个虚拟机慢的地方在于：</p>
+<ul>
+<li><p>虚拟机启动前黑屏一段时间</p>
+</li>
+<li><p>用户登入进去后黑屏一段时间</p>
+</li>
+</ul>
+<p>因此我极其怀疑是显卡驱动的问题。</p>
+<p>无可奈何，只能抛弃VMware，选择VirtualBox，你才怎么着？虚拟机启动那是非常的快啊！不过虚拟机创建的时候好像报错了，太快了没截到，可能到后期是个雷。</p>
+<h1 id="二、VirtualBox上出现的问题"><a href="#二、VirtualBox上出现的问题" class="headerlink" title="二、VirtualBox上出现的问题"></a>二、VirtualBox上出现的问题</h1><p>VirtualBox上的虚拟机快是真的快，但是也出现了问题：</p>
 <ol>
-<li><p>前端</p>
-<p>前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端</p>
-</li>
-<li><p>优化器（亦称为中端）</p>
-<p>优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。</p>
-</li>
-<li><p>后端</p>
-<p>根据目标架构生成高效的汇编代码</p>
-</li>
+<li>terminal 打不开</li>
+<li>用户不在sudoers文件中</li>
 </ol>
-<h1 id="OLLVM"><a href="#OLLVM" class="headerlink" title="OLLVM"></a>OLLVM</h1><p>OLLVM中的大多数混淆和防护机制都是在中端进行的。它具有以下功能：</p>
+<h2 id="2-1-用户不在sudoers文件中"><a href="#2-1-用户不在sudoers文件中" class="headerlink" title="2.1 用户不在sudoers文件中"></a>2.1 用户不在sudoers文件中</h2><p>自己创建的用户居然没有<code>sudo</code>权限，解决方法是将当前用户加入到<code>sudoers</code>文件中，做法如下：</p>
 <ol>
-<li><p>指令替换（instruction substitutions）</p>
+<li><p>切换至root用户</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">su root<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>虚假控制流插入（bogus control-flow insertion）</p>
+<li><p>修改<code>/etc/sudoers</code>文件为可读可写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">chmod u+w /etc/sudoers<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>基本块分割（basic block splitting）</p>
+<li><p>编辑<code>/etc/sudoers</code>文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">nano /etc/sudoers<br></code></pre></td></tr></table></figure>
+
+<p>添加当前用户，如下图所示（补录的截图）：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181647721.png" srcset="/img/loading.gif" lazyload></p>
+<p>其中<code>gal2xy</code>按照自己的用户名进行替换。替换后，按<code>ctrl+x</code>，根据指示进行保存和退出。</p>
 </li>
-<li><p>控制流平坦化（control-flow flattening）</p>
-</li>
-<li><p>程序合并（procedures merging）</p>
-</li>
-<li><p>防篡改代码插入（insertion of code tamper-proofing）</p>
-</li>
+<li><p>恢复 <code>/etc/sudoers</code>的权限</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">chmod 440 /etc/sudoers<br></code></pre></td></tr></table></figure></li>
 </ol>
-<p>为了使生成的代码能够多样化，使用PRNG生成随机数来决定混淆代码的生成。</p>
-<h2 id="指令替换"><a href="#指令替换" class="headerlink" title="指令替换"></a>指令替换</h2><p>不支持浮点数运算的指令替换，因为会带来数值不准确性，即认为生成的代码不具有功能等效性。</p>
-<p>由于指令替换很直接，并没有增加逆向的阻力，因为这种混淆很容易通过重新优化生成代码来规避。这也就是为什么指令替换pass运行在所有LLVM优化passes之后。</p>
-<h2 id="虚假控制流插入"><a href="#虚假控制流插入" class="headerlink" title="虚假控制流插入"></a>虚假控制流插入</h2><p>包括在函数控制流图中插入条件跳转结构，该结构要么指向原始基本块，要么指向循环回条件跳转块的假基本块。</p>
-<p><strong>不透明谓词</strong>：</p>
-<p>干扰逆向人员但值不变的表达式，用于确保运行时只执行原始基本块，同样也使优化器不能够通过识别死代码来简化生成调用图。</p>
-<h2 id="控制流平坦化和基本块分割"><a href="#控制流平坦化和基本块分割" class="headerlink" title="控制流平坦化和基本块分割"></a>控制流平坦化和基本块分割</h2><h3 id="控制流平坦化"><a href="#控制流平坦化" class="headerlink" title="控制流平坦化"></a>控制流平坦化</h3><p>通过移除所有易辨别的条件和循环结构来破坏函数控制流图。</p>
-<p>基本上是使用一个大型switch结构来实现。通过路由变量（switch中用到的条件变量）控制代码流进入正确的基本块。在每个基本块的末尾，设置路由变量的正确值，使得代码流进入下一个正确的基本块。</p>
-<p>路由变量的更新使用动态更新，这样能够迫使逆向工程师对可执行文件进行动态分析。</p>
-<h2 id="代码防篡改"><a href="#代码防篡改" class="headerlink" title="代码防篡改"></a>代码防篡改</h2><p>代码防篡改机制用于确保运行时代码不被修改。它通过两种机制实现：</p>
-<ol>
-<li>check()：负责检查代码是否被修改。</li>
-<li>respond()：检测到代码被篡改后采取的措施。</li>
-</ol>
-<p>这些check()和respond()分布在整个程序中，并且它们之间相互依赖。</p>
-<h3 id="check"><a href="#check" class="headerlink" title="check()"></a>check()</h3><p>对一段代码进行32位CRC校验和的计算，其中段的开始和结束时随机选择的。</p>
-<p>check()的结果可用于更新路由变量。路由变量不仅是动态更新的，而且依赖于编译阶段生成的静态值$s$：<br>$$<br>s&#x3D;\rho⊕d_1⊕d_2⊕…⊕d_n<br>$$<br>其中$\rho$的值指向下一个基本块，$d_i$是基本块中第$i$个check()的结果，其值在编译后才能知道。</p>
-<h2 id="程序合并"><a href="#程序合并" class="headerlink" title="程序合并"></a>程序合并</h2><p>将所有函数合并到一个唯一的新函数中，然后使用新函数merged()替换所有原始函数的调用。</p>
-<p>机制的实现大致如下：</p>
-<p>每个原始函数的代码被提取、放入merged()中，并作为switch-case中个一个分支。然后每个原始函数都被一个简单的包装函数替换，该函数带有标识原始函数的参数，在调用merged()时能够找到正确的原始函数。</p>
+<h2 id="2-2-terminal-打不开"><a href="#2-2-terminal-打不开" class="headerlink" title="2.2 terminal 打不开"></a>2.2 terminal 打不开</h2><p>在桌面按<code>CTRL + ALT + F3</code>进入命令行模式，执行如下命令修改<code>/etc/default/locale</code>文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo nano /etc/default/locale<br></code></pre></td></tr></table></figure>
+
+<p>将<code>LANG=&quot;en_US&quot;</code>改成<code>LANG=&quot;en_US.UTF-8&quot;</code>，如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181657950.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、VMware虚拟机转VirtualBox虚拟机"><a href="#三、VMware虚拟机转VirtualBox虚拟机" class="headerlink" title="三、VMware虚拟机转VirtualBox虚拟机"></a>三、VMware虚拟机转VirtualBox虚拟机</h1><p>由于之前使用的是<code>VMware</code>，因此需要把虚拟机移植到<code>VirtualBox</code>上，不过好在通过<code>ovftool</code>工具转换就可以了。</p>
+<p>找到<code>ovftool</code>工具所在目录，一般是<code>VMware</code>安装的路径下的<code>/OVFTool</code>目录，命令行模式下输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./ovftool &quot;source.vmx&quot; &quot;export.ovf&quot;<br></code></pre></td></tr></table></figure>
+
+<p>源文件路径和目的文件路径都需要<code>&quot;&quot;</code>包裹。成功执行后如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181708272.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后在<code>VirtualBox</code>中导入<code>.ovf</code>文件即可，具体如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404181711510.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lifuqiang/articles/17167367.html">VirtualBox_Ubuntu22.04 Terminal无法打开 - 羊脂玉净瓶 - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/143388819">解决 Linux 系统，出现“不在sudoers文件中，此事将被报告”的问题 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44106306/article/details/117448123">VMware和VirtuaBox之间虚拟机相互转换_vmware文件与vbox文件通用嘛-CSDN博客</a></p>
 
                 
               </div>
@@ -344,41 +362,11 @@
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/" class="category-chain-item">OLLVM</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/OLLVM/">#OLLVM</a>
-      
-        <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
+        <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">#环境配置</a>
       
     </div>
   
@@ -390,8 +378,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>阅读笔记 —— 《Obfuscator-LLVM — Software Protection》</div>
-      <div>http://example.com/2024/04/17/论文研读/OLLVM/Obfuscator-LLVM—Software-Protection/</div>
+      <div>记一次VMware平台虚拟机启动黑屏问题</div>
+      <div>http://example.com/2024/04/18/记一次VMware平台虚拟机启动黑屏问题/</div>
     </div>
     <div class="license-meta">
       
@@ -403,7 +391,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年4月17日</div>
+          <div>2024年4月18日</div>
         </div>
       
       
@@ -433,18 +421,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/" title="记一次VMware平台虚拟机启动黑屏问题">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">记一次VMware平台虚拟机启动黑屏问题</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" title="阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》">
-                        <span class="hidden-mobile">阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》</span>
+                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" title="阅读笔记 —— 《Obfuscator-LLVM — Software Protection》">
+                        <span class="hidden-mobile">阅读笔记 —— 《Obfuscator-LLVM — Software Protection》</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
