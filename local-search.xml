@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>阅读笔记 —— 《ObfuscatorDynamic-LLVM》</title>
+    <link href="/2024/04/19/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/ObfuscationDynamic-LLVM/"/>
+    <url>/2024/04/19/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/ObfuscationDynamic-LLVM/</url>
+    
+    <content type="html"><![CDATA[<h1 id="一些基本概念"><a href="#一些基本概念" class="headerlink" title="一些基本概念"></a>一些基本概念</h1><h2 id="动态分析技术"><a href="#动态分析技术" class="headerlink" title="动态分析技术"></a>动态分析技术</h2><ul><li>调试（debugging）</li><li>内存分析（memory profiling）</li><li>模糊测试（fuzzing）</li><li>动态符号执行（dynamic symbolic execution，简称DSE）</li></ul><h2 id="动态符号执行"><a href="#动态符号执行" class="headerlink" title="动态符号执行"></a>动态符号执行</h2><p>使用自动化方法，执行引擎使用输入的符号表示来求解和引导执行沿着两个分支进行，它会将分支条件作为约束条件，然后使用SMT solver求解所需的输入。它有3个致命缺点：</p><ol><li><p>路径爆炸</p><p>分支呈指数级增长。这会导致求解超时、爆内存。</p></li><li><p>路径发散</p><p>这个发生在DSE引擎无法从程序代码精确计算路径约束时。这是由自我修改的代码方案引起的，该方案迫使引擎猜测要执行的指令的正确值。</p></li><li><p>复杂约束</p><p>给 SMT 求解器的约束太难求解了。这通常是通过使用加密哈希函数来实现的。</p></li></ol><h2 id="软件保护技术"><a href="#软件保护技术" class="headerlink" title="软件保护技术"></a>软件保护技术</h2><p>两个评价软件保护技术的指标：</p><ul><li>potency：用于描述攻破保护技术所需要的资源。</li><li>resilience：用于描述攻破保护技术的困难程度。</li></ul><p>软件保护技术的要求：</p><p>任何应用到软件包上的保护技术都不应产生高昂的成本，它不应增加代码&#x2F;二进制文件的大小，也不应显著增加运行时开销。</p><h2 id="软件加密"><a href="#软件加密" class="headerlink" title="软件加密"></a>软件加密</h2><p>软件加密面临的四个挑战：</p><ol><li>bulk&#x2F;on demand：加载程序时是否应该立即解密所有代码，还是在需要执行时按需解密代码？</li><li>fine&#x2F;course granularity：一次应该解密多少？应该一次解密一个基本块、函数还是一个模块？</li><li>key-as-data&#x2F;key-as-code：解密密钥应该作为数据存储在程序中，还是应该从代码派生？</li><li>keep-in-the-clear&#x2F;re-encrypt：解密的代码应该保持明文形式，还是应该在执行后重新加密？</li></ol><p>嗯，怎么感觉跟软件加壳面临的问题一样！？</p><h2 id="软件混淆"><a href="#软件混淆" class="headerlink" title="软件混淆"></a>软件混淆</h2><p>混淆的基本原理是转换代码，使其在功能上等效，但更复杂。复杂性可以以数据结构的形式出现，也可以以控制流的形式出现。</p><p>混淆不能改变程序的可观测行为，它只能使程序的运行逻辑更加复杂。</p><p>混淆的基本架构：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404161436288.png"></p><p>混淆分为两大类：</p><ol><li><p>静态混淆</p><p>通过注入垃圾指令来完成，这些指令会稀释程序的真实逻辑。这种混淆已经在许多不同级别的程序代码上完成，从高级语言源代码到汇编代码。这种混淆在编译阶段完成。</p></li><li><p>动态混淆</p><p>在程序代码运行时会更改程序代码，以使程序保持在恒定的动态状态。程序在编译时通过混淆来注入自我修改的代码，然后在运行时定期触发该代码以更改程序的过去&#x2F;未来指令&#x2F;数据。动态混淆的范围从简单的指令覆盖到运行时的加密&#x2F;解密。动态混淆可以有效的防止动态分析。</p></li></ol><h2 id="混淆技术"><a href="#混淆技术" class="headerlink" title="混淆技术"></a>混淆技术</h2><ul><li>指令替换（Instruction Substitution&#x2F;Arithmetic Encoding）</li><li>字符串加密（String Encoding）</li><li>虚假代码插入（Irrelevant&#x2F;Bogus Code Insertion）</li><li>不透明谓词和构造（Opaque Predicates and Constructs）</li><li>控制流扁平化（Control Flow Flattening）</li><li>自修改代码（Self-Modifying Code）</li><li>虚拟化（Virtualization）</li></ul><h2 id="Self-Modifying-Code"><a href="#Self-Modifying-Code" class="headerlink" title="Self-Modifying Code"></a>Self-Modifying Code</h2><p>自修改代码，作用是在程序运行时修改程序自身代码。最简单的一种是使用虚假指令替换，在执行虚假指令之前，使用更新例程来恢复原始的正确指令。如果在错误的时间删除了更新例程，则程序行为在功能上不再正确。</p><p>这种保护背后的想法是：真正的指令只在一小段时间内可见，因此逆向工程师需要捕获该窗口期间的行为。</p><p>自修改代码作为一种动态混淆变换，大多数形式的静态分析在分析它时都是无用的。反编译器不知道指令是如何或何时被覆盖的。</p><h2 id="Virtualization"><a href="#Virtualization" class="headerlink" title="Virtualization"></a>Virtualization</h2><p>虚拟化可以使每个副本与其他副本完全不同，因此可以严重限制逆向工程师对所有副本的攻击能力。虚拟化使程序能够在运行时进行更改。</p><p>虚拟化采用一个函数，并将其转换为解释器。该函数使用虚拟指令集架构 （ISA） 执行，该架构是为每个函数随机生成的。虚拟指令集架构的随机性是软件副本之间最大的多样性。当转换后的函数被执行时，虚拟指令集架构被转换为计算系统的真实底层指令集架构，然后被执行。虚拟化也可以嵌套，其中函数被虚拟化两次，并具有两个不同的虚拟 ISA。静态分析方法在这种转换下几乎毫无用处，但动态分析仍然可以与之抗衡。虚拟化是成本最高的混淆之一，而且在嵌套时，会导致无法忍受的运行时开销。但是，并非程序的每个功能都需要虚拟化，因此混淆器可以通过仅虚拟化少数功能来限制成本。</p><h2 id="Range-Divider-Obfuscation-Transform"><a href="#Range-Divider-Obfuscation-Transform" class="headerlink" title="Range Divider Obfuscation Transform"></a>Range Divider Obfuscation Transform</h2><p>Range Divider混淆尝试通过引入额外分支，这些分支条件依赖于输入，因此这些分支能够使得DSE引擎持续不断的求解，从而触发路径爆炸问题。要想使得分支条件取决于输入，我们可以欺骗DSE引擎，让它认为这个分支是跟输入相关的，但实际上并不是。（不透明谓词的引入并不会影响DSE求解，因为没有输入依赖性，DSE 引擎可以立即将其作为死代码消除）</p><p>Range Divider Obfuscation Transform的一个例子：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404161559669.png"></p><h1 id="本论文提出的争对动态攻击的新保护"><a href="#本论文提出的争对动态攻击的新保护" class="headerlink" title="本论文提出的争对动态攻击的新保护"></a>本论文提出的争对动态攻击的新保护</h1><p>引入了两种新混淆来抵抗DSE攻击：</p><ul><li>FOR obfuscation</li><li>WRITE obfuscation</li></ul><p>FOR obfuscation利用了DSE的分支爆炸问题，引入指数增长的分支给DSE。</p><p>WRITE obfuscation利用了DSE的路径发散问题，引入自修改的汇编代码，该代码在运行时覆盖指令。</p><h1 id="ObfuscationDynamic-LLVM实现"><a href="#ObfuscationDynamic-LLVM实现" class="headerlink" title="ObfuscationDynamic-LLVM实现"></a>ObfuscationDynamic-LLVM实现</h1><p>ObfuscationDynamic-LLVM，简称OD-LLVM，具备OLLVM的功能，并额外实现如下图红框所示功能：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404191522557.png"></p><h2 id="SymbexSplit-Obfuscation-Transform"><a href="#SymbexSplit-Obfuscation-Transform" class="headerlink" title="SymbexSplit Obfuscation Transform"></a>SymbexSplit Obfuscation Transform</h2><p>SPLIT变换注入了一个if语句，其中谓词依赖于相关变量。if 语句可以带有或不带有 else 子句，这些语句正文中的内容可以是垃圾指令，也可以是原始指令的不同混淆版本。在实现 SymbexSplit 时，选择将垃圾指令注入 if&#x2F;else 语句的正文中，这样可以最大限度地降低将原始程序指令更改为非功能等效指令的风险。</p><p>SymbexSplit Obfuscation Transform的实现：</p><ol><li>选择一个随机指令用于将基本块一分为二，并称这个指令为 splitInst。</li><li>分配内存给垃圾变量并初始化，这些垃圾变量用于if语句正文中。</li><li>使用 splitInst 作为拆分点将基本块分成两半。</li><li>创建两个基本块来操作垃圾变量。</li><li>向拆分基本块的上半部分插入带有输入依赖谓词的条件分支，这些分支将跳转到其他一个垃圾基本块中。</li><li>向每个垃圾基本块中添加无条件分支，这些分支会跳转到拆分基本块的下半部分。</li></ol><p>示例图：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404191540580.png"></p><h2 id="SymbexFor-Obfuscation-Transform"><a href="#SymbexFor-Obfuscation-Transform" class="headerlink" title="SymbexFor Obfuscation Transform"></a>SymbexFor Obfuscation Transform</h2><p>FOR 转换注入一个 for 语句，其中循环停止谓词依赖于相关变量，for 循环的主体充满了垃圾指令。</p><p>SymbexFor Obfuscation Transform的实现如下：</p><ol><li>选择一个随机指令用于将基本块一分为二，并称这个指令为 splitInst。</li><li>分配内存给垃圾变量并初始化，这些垃圾变量将用在 for 循环主体中。</li><li>使用 splitInst 作为拆分点将基本块分成两半。</li><li>将 for 循环构造拆分为3个基本块：<ol><li>compBlock：for 循环的相关变量依赖谓词。</li><li>garbBlock：for 循环的垃圾变量操作体。</li><li>incBlock：for 循环的迭代变量递增语句。</li></ol></li><li>向拆分基本快的上半部分插入无条件分支，用于跳转到compBlock。</li><li>向compBlock中插入条件分支，这些分支要么跳转到garbBlock，要么跳转到拆分基本快的下半部分。</li><li>向garbBlock中插入无条件分支，用于跳转到incBlock。</li><li>向incBlock中插入无条件分支，用于跳转到compBlock。</li></ol><p>示例图：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404191557108.png"></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+      <category>OLLVM</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>OLLVM</tag>
+      
+      <tag>论文研读</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>记一次VMware平台虚拟机启动黑屏问题</title>
     <link href="/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/"/>
     <url>/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/</url>
