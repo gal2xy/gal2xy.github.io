@@ -238,6 +238,71 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/09/07/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
+          nssctf-mobile专题(一)
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/07/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
+        <div>
+          [CISCN 2022 东北]crackme_Android整个分析如下图所示：  很简单。就是将38bytes的flag去掉格式后，每4bytes一组进行md5加密，得到的结果组成一个字符串，并于已知字符串比较。所以我们只需要将已知字符串分好组拿到https:&#x2F;&#x2F;www.cmd5.org&#x2F;上解密即可。分组代码如下： 12345678md5string &#x3D; &amp;#x27;8393931a16db5a
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-07 22:36" pubdate>
+              2023-09-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Reverse/">#Reverse</a>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/09/06/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/06%E6%97%A5%E6%8A%A5/" target="_self">
           20230906日报
         </a>
@@ -750,67 +815,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-09-04 22:08" pubdate>
-              2023-09-04
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Reverse/">#Reverse</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/04/QCTF2018-Xman-babymips/" target="_self">
-          QCTF2018-Xman-babymips
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/QCTF2018-Xman-babymips/" target="_self">
-        <div>
-          可以看到上述代码不同于汇编代码，是MIPS指令，不过好在IDA有相应的插件反汇编这种代码。  整个代码流程为：我们输入32bytes的字符串，先进行异或，然后比较前5bytes的字符是否相等，然后进入sub_4007F0函数。  将后27bytes字符串进行移位运算，然后再与字符串比较。 相应的逆向比较简单，代码如下： 12345678910111213141516171819202122232
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-04 22:06" pubdate>
               2023-09-04
             </time>
           </div>

@@ -238,6 +238,67 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" target="_self">
+          LLVM Pass编写
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" target="_self">
+        <div>
+          一、LLVMLLVM的架构图如下：  它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   LLVM独立于语言和平台。如果需要支持一种新
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-22 15:43" pubdate>
+              2024-04-22
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/LLVM-Pass/">#LLVM Pass</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/04/19/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/ObfuscationDynamic-LLVM/" target="_self">
           阅读笔记 —— 《ObfuscatorDynamic-LLVM》
         </a>
@@ -520,7 +581,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Obfuscation/" class="category-chain-item">Obfuscation</a>
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
   
   
 
@@ -760,69 +821,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-12-21 20:16" pubdate>
               2023-12-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Frida/">#Frida</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)%20-%20%E4%B8%83%E5%B1%82%E5%85%B3%E5%8D%A1/" target="_self">
-          Frida入门练习(一) - 七层关卡
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/20/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%B8%80)%20-%20%E4%B8%83%E5%B1%82%E5%85%B3%E5%8D%A1/" target="_self">
-        <div>
-          附件：见[原创]frida基础 闯关训练 七层关卡-Android安全-看雪-安全社区|安全招聘|kanxue.com  LoginActivity onClick()方法中判断了输入不能为空，且要满足LoginActivity.a(obj, obj).equals(obj2)才行，方法如下：  很简单，也就是密码是账号的HmacSha256加密，加密使用的密钥是账号本身。 这里我们使用frida
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-20 20:25" pubdate>
-              2023-12-20
             </time>
           </div>
         
