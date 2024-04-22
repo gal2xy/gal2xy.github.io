@@ -238,13 +238,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/09/04/QCTF2018-Xman-babymips/" target="_self">
+        <a href="/2023/09/04/CTF/QCTF2018-Xman-babymips/" target="_self">
           QCTF2018-Xman-babymips
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/QCTF2018-Xman-babymips/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/QCTF2018-Xman-babymips/" target="_self">
         <div>
           可以看到上述代码不同于汇编代码，是MIPS指令，不过好在IDA有相应的插件反汇编这种代码。  整个代码流程为：我们输入32bytes的字符串，先进行异或，然后比较前5bytes的字符是否相等，然后进入sub_4007F0函数。  将后27bytes字符串进行移位运算，然后再与字符串比较。 相应的逆向比较简单，代码如下： 12345678910111213141516171819202122232
         </div>
@@ -299,13 +299,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/09/04/%E7%BE%8A%E5%9F%8E%E6%9D%AF2020login/" target="_self">
+        <a href="/2023/09/04/CTF/%E7%BE%8A%E5%9F%8E%E6%9D%AF2020login/" target="_self">
           羊城杯2020-login
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/%E7%BE%8A%E5%9F%8E%E6%9D%AF2020login/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/%E7%BE%8A%E5%9F%8E%E6%9D%AF2020login/" target="_self">
         <div>
           附件是个python编写的exe程序（从图标中就可以看出来），先运行一下，给出了字符串input somthing，然后尝试用IDA分析，可惜不行，shift+F12也找不到相应的字符串。 因为python代码要通过打包才能变成exe文件，所以借助浏览器搜索python编写的exe如何反编译py文件，找到了相应的文章： Python解包及反编译: PyInstaller Extractor+unc
         </div>
@@ -360,13 +360,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/09/04/SWPU2019ReverseMe/" target="_self">
+        <a href="/2023/09/04/CTF/SWPU2019ReverseMe/" target="_self">
           SWPU2019-ReverseMe
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/SWPU2019ReverseMe/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/SWPU2019ReverseMe/" target="_self">
         <div>
           方法一IDA打开如下图所示（部分分析在图上）：  基本可以确定，我们要让v16&#x3D;0才是正确的，而能使v16&#x3D;0有两条路径，第一条是伪代码中第89103行的 while 循环，第二条是伪代码中第105111行的if语句。显然，第二条路径是走不通的，因为不可能存在同时满足如下条件： 123v17 &#x3D; v18 &lt; *((_BYTE *)v13 + 1), v18 &#x3D;&#x3D; *((_BYTE *)v13
         </div>
@@ -421,13 +421,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/09/04/2019%E7%BA%A2%E5%B8%BD%E6%9D%AFchidRE/" target="_self">
+        <a href="/2023/09/04/CTF/2019%E7%BA%A2%E5%B8%BD%E6%9D%AFchidRE/" target="_self">
           2019红帽杯-childRE
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/2019%E7%BA%A2%E5%B8%BD%E6%9D%AFchidRE/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/2019%E7%BA%A2%E5%B8%BD%E6%9D%AFchidRE/" target="_self">
         <div>
           部分分析如图所示。第29行的sub_xxxx是个复杂的函数，尝试分析过。第33~34行的这两个函数是二叉树的后序遍历  且遍历的结果存储到name中。 之后比较关键的函数是UnDecorateSymbolName函数，这个函数在官方文档上有介绍，但不是很详细，于是问了问chatgpt： 12345678910111213141516171819202122232425262728好的，让我们以
         </div>
@@ -482,13 +482,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/28/AOSP%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" target="_self">
+        <a href="/2023/08/28/Android%E5%AE%89%E5%85%A8/AOSP%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" target="_self">
           AOSP源码编译
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/28/AOSP%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/28/Android%E5%AE%89%E5%85%A8/AOSP%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" target="_self">
         <div>
           下载AOSP源码根据中科大的来：AOSP 镜像使用帮助 — USTC Mirror Help 文档 这里我用的是第二种方法，虽然不推荐，但是必须得尝试一下。 首先是下载 repo 工具： 1234mkdir ~&#x2F;binPATH&#x3D;~&#x2F;bin:$PATHcurl https:&#x2F;&#x2F;storage.googleapis.com&#x2F;git-repo-downloads&#x2F;repo &gt; ~&#x2F;bin&#x2F;repo
         </div>
@@ -514,7 +514,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
   
   
 
@@ -531,9 +531,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/AOSP/">#AOSP</a>
-            
               <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">#环境配置</a>
+            
+              <a href="/tags/AOSP/">#AOSP</a>
             
           </div>
         
@@ -547,13 +547,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/24/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_self">
+        <a href="/2023/08/24/Android%E5%AE%89%E5%85%A8/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_self">
           Frida开发环境搭建
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/24/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/24/Android%E5%AE%89%E5%85%A8/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_self">
         <div>
           pyenv环境配置科学上网：pyenv&#x2F;pyenv: Simple Python version management (github.com) 直连：pyenv-installer: pyenv(gitee的地址) 首先下载依赖包（参考：Common build problems · pyenv&#x2F;pyenv Wiki (github.com)）： 123sudo apt in
         </div>
@@ -579,7 +579,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
   
   
 
@@ -612,13 +612,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
+        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
           Android开发学习笔记(八) —— 探究ContentProvider
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
         <div>
           一、什么是ContentProvider1.1 概念内容提供器(Content Provider)是Android四大组件之一，主要用于在不同的应用程序之间实现数据共享的功能，它提供了一套完整的机制，允许一个程序访问另一个程序中的数据，同时还能保证被访数据的安全性。使用时需要在AndroidManifest..xml文件中进行声明。 不同于文件存储和SharedPreferences存储中的两种全
         </div>
@@ -673,13 +673,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
+        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
           Android开发学习笔记(七) —— 详解数据存储全方案
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
         <div>
           一、什么是数据持久化数据持久化就是指将那些内存中的瞬时数据保存到存储设备中，保证即使在手机或电脑关机的情况下，这些数据仍然不会丢失。保存在内存中的数据是处于瞬时状态的，而保存在存储设备中的数据是处于持久状态的，持久化技术则提供了一种机制可以让数据在瞬时状态和持久状态之间进行转换。Android系统中主要提供了3种方式用于简单地实现数据持久化功能，即文件存储、SharedPreference存储以及
         </div>
@@ -734,13 +734,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
+        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
           Android开发学习笔记(六) —— 重温BroadcastReceiver
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
         <div>
           一、什么是BroadcastReceiver广播（Broadcast）是一种广泛运用的在应用程序之间传输信息的机制。而广播接收器（BroadcastReceiver）是Android四大组件之一，用于对发送出来的广播进行过滤接受并响应的一类组件。它允许应用程序在某些事件发生时作出响应，无论应用是否在前台运行。它的工作原理是基于发布-订阅模式。应用程序可以选择注册感兴趣的广播消息，并在消息到达时进行
         </div>
@@ -795,13 +795,13 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
+        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
           Android开发学习笔记(五) —— 温习Service
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
         <div>
           一、什么是Service服务（Service）是Android四大组件之一（因此需要在AndroidManifest.xml中进行注册，否则系统无法识别该Service），是Android中实现程序后台运行的解决方案，非常适合去执行那些不需要和用户交互（因而也不需要UI界面）而且还要求长期运行的任务，例如播放音乐、下载文件、上传数据等。服务的运行不依赖于任何用户界面，即使程序被切换到后台，或者用户
         </div>

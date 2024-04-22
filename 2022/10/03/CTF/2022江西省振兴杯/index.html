@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="crypto简单的RSA算法yafu分解n，得到p,q，然后进行解密 123456789101112import gmpy2from Crypto.Util.number import *c &#x3D; 127787005372346984201114973214509899116n &#x3D; 249875510135225835839025820066377585461p &#x3D; 1584922383377717">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022江西省振兴杯">
+<meta property="og:url" content="http://example.com/2022/10/03/CTF/2022%E6%B1%9F%E8%A5%BF%E7%9C%81%E6%8C%AF%E5%85%B4%E6%9D%AF/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="crypto简单的RSA算法yafu分解n，得到p,q，然后进行解密 123456789101112import gmpy2from Crypto.Util.number import *c &#x3D; 127787005372346984201114973214509899116n &#x3D; 249875510135225835839025820066377585461p &#x3D; 1584922383377717">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032138795.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139868.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139553.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139228.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139116.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140550.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140311.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140256.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140459.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141410.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141180.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141323.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141034.png">
+<meta property="article:published_time" content="2022-10-03T13:28:21.000Z">
+<meta property="article:modified_time" content="2022-10-03T13:41:54.992Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="流量分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032138795.png">
+  
+  
+  
+  <title>2022江西省振兴杯 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2022江西省振兴杯"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-03 21:28" pubdate>
+          2022年10月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2022江西省振兴杯</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="crypto"><a href="#crypto" class="headerlink" title="crypto"></a>crypto</h1><h2 id="简单的RSA算法"><a href="#简单的RSA算法" class="headerlink" title="简单的RSA算法"></a>简单的RSA算法</h2><p>yafu分解n，得到p,q，然后进行解密</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><br>c = <span class="hljs-number">127787005372346984201114973214509899116</span><br>n = <span class="hljs-number">249875510135225835839025820066377585461</span><br>p = <span class="hljs-number">15849223833777174791</span><br>q = <span class="hljs-number">15765788454744518371</span><br>e = <span class="hljs-number">16573</span><br><span class="hljs-keyword">assert</span> n == p*q<br>d = gmpy2.invert(e,(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>))<br>m = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">pow</span>(c,d,n))<br><span class="hljs-built_in">print</span>(long_to_bytes(m))<br></code></pre></td></tr></table></figure>
+
+<p>得到</p>
+<figure class="highlight sml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sml">b&#x27;&#125;c2s_45R_Xj&#123;galf&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>反过来就是flag</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml">flag</span><span class="hljs-template-variable">&#123;jX_R54_s2c&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h1><h2 id="PLC流量分析"><a href="#PLC流量分析" class="headerlink" title="PLC流量分析"></a>PLC流量分析</h2><p>进行流量追踪，发现了可疑字符<code>flag&#123;fake_flag&#125;</code>和<code>R3</code>以及<code>41</code>。并且似乎找到了规律，就是每一次发送这些字符前都会双方都会发送一系列可打印字符，作为开头。</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032138795.png" srcset="/img/loading.gif" lazyload/>
+
+<p>尝试将<code>flag&#123;R341&#125;</code>作为flag，结果不行。看到<code>fake</code>想到了<code>real</code>，而跟这个相似的就是<code>R341</code>了，于是进行替换。得到flag</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml">flag</span><span class="hljs-template-variable">&#123;R341_flag&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="流量中的神秘信息"><a href="#流量中的神秘信息" class="headerlink" title="流量中的神秘信息"></a>流量中的神秘信息</h2><p>扔进<code>Wireshark</code>进行流量追踪，经过多次尝试找到了真正的flag</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139868.png" srcset="/img/loading.gif" lazyload/>
+
+<p>即</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">flag&#123;d2UxY29tZVQwQ2hpbmE<span class="hljs-operator">=</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>很明显，括号内的要进行Base64解码，最终flag为</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml">flag</span><span class="hljs-template-variable">&#123;we1comeT0China&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="modbus流量分析"><a href="#modbus流量分析" class="headerlink" title="modbus流量分析"></a>modbus流量分析</h2><p>扔进<code>Wireshark</code>进行分析，流量追踪并没有看出有用的内容。于是尝试找最长的包，发现了可疑的内容。</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139553.png" srcset="/img/loading.gif" lazyload/>
+
+<p>将这些收集起来并直接<code>chr()</code>成字符，可惜并不是这么操作</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139228.png" srcset="/img/loading.gif" lazyload/>
+
+<p>但极大概率这是flag。尝试与flag的固定格式进行匹配，发现了规律</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">m = <span class="hljs-string">&#x27;153 147 158 152 132 146 144 155 157 138 140 160 150 140 160 154 158 140 134 130&#x27;</span>.split()<br>m = [<span class="hljs-built_in">int</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> m]<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> m:<br>    <span class="hljs-built_in">print</span>(i, end=<span class="hljs-string">&#x27; &#x27;</span>)<br><span class="hljs-built_in">print</span>()<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-string">&#x27;flag&#123;&#x27;</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">ord</span>(i), end=<span class="hljs-string">&#x27; &#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032139116.png" srcset="/img/loading.gif" lazyload/>
+
+<p>规律为对应数字进行相加总为255。于是解密脚本为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">m = <span class="hljs-string">&#x27;153 147 158 152 132 146 144 155 157 138 140 160 150 140 160 154 158 140 134 130&#x27;</span>.split()<br>m = [<span class="hljs-built_in">int</span>(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> m]<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> m:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">chr</span>(<span class="hljs-number">255</span>-i),end=<span class="hljs-string">&#x27;&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>得到flag</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ceylon">flag&#123;modbus<span class="hljs-number">_</span><span class="hljs-keyword">is</span><span class="hljs-number">_</span>easy&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="STAGE"><a href="#STAGE" class="headerlink" title="STAGE"></a>STAGE</h1><h2 id="PCL图片分析"><a href="#PCL图片分析" class="headerlink" title="PCL图片分析"></a>PCL图片分析</h2><p>放入winhex分析，最后面有flag.txt，更改后缀为zip，里面有一个需要密码的flag.txt。</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140550.png" srcset="/img/loading.gif" lazyload/>
+
+<p>从更改图片宽高入手，找到了部分密码</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140311.png" srcset="/img/loading.gif" lazyload/>
+
+<p>进行模板爆破，</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140256.png" srcset="/img/loading.gif" lazyload/>
+
+
+
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032140459.png" srcset="/img/loading.gif" lazyload/>
+
+<p>最终得到flag</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml">flag</span><span class="hljs-template-variable">&#123;plc_sec_master&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="工控主机中的异常文件"><a href="#工控主机中的异常文件" class="headerlink" title="工控主机中的异常文件"></a>工控主机中的异常文件</h2><p>扔入winhex分析，发现尾部有<code>oru-flag.jpg</code>，直接将文件后缀改成<code>.zip</code>不行。仔细观察发现首部文件头为<code>KP</code>，</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141410.png" srcset="/img/loading.gif" lazyload/>
+
+<p>但我只见过<code>PK</code>的文件头。于是将<code>04034B50</code>更改成<code>504B0304</code>，更改后缀名为<code>.zip</code>。得到需要密码的jpg图片。</p>
+<p>用爆破工具进行爆破，一开始尝试大小写字母和数字，到后面爆破时间太长就减少字符集，最终得到</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141180.png" srcset="/img/loading.gif" lazyload/>
+
+<p>图片中含有flag</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141323.png" srcset="/img/loading.gif" lazyload/>
+
+
+
+<h1 id="PPC"><a href="#PPC" class="headerlink" title="PPC"></a>PPC</h1><h2 id="被截获的机密文件"><a href="#被截获的机密文件" class="headerlink" title="被截获的机密文件"></a>被截获的机密文件</h2><p>扔进winhex打开，发现文件头为PK，更改文件后缀为.zip。解压缩得到一系列文件。</p>
+<p>依次查看这些文件，发现<code>func1.fcb</code>（这文件名取的让人容易知道这是实现啥功能的模块代码）里面有有一段异或的加密代码，</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210032141034.png" srcset="/img/loading.gif" lazyload/>
+
+<p>根据上述代码，已知<code>buf</code>和<code>var</code>，所以应该是求<code>W</code>。写出python脚本如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">buf = [<span class="hljs-number">177</span>, <span class="hljs-number">146</span>, <span class="hljs-number">158</span>, <span class="hljs-number">156</span>, <span class="hljs-number">137</span>, <span class="hljs-number">148</span>, <span class="hljs-number">146</span>, <span class="hljs-number">147</span>, <span class="hljs-number">180</span>, <span class="hljs-number">142</span>, <span class="hljs-number">188</span>, <span class="hljs-number">137</span>, <span class="hljs-number">204</span>, <span class="hljs-number">197</span>, <span class="hljs-number">205</span>, <span class="hljs-number">203</span>, <span class="hljs-number">186</span>, <span class="hljs-number">143</span>, <span class="hljs-number">156</span>, <span class="hljs-number">147</span>, <span class="hljs-number">153</span>, <span class="hljs-number">139</span>, <span class="hljs-number">148</span>, <span class="hljs-number">152</span>, <span class="hljs-number">138</span>, <span class="hljs-number">181</span>, <span class="hljs-number">146</span>, <span class="hljs-number">137</span>, <span class="hljs-number">152</span>, <span class="hljs-number">145</span>]<br>var = <span class="hljs-number">0xfd</span><br>text = <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">30</span>):<br>    val = buf[i] ^ var<br>    text += <span class="hljs-built_in">chr</span>(val)<br><br><span class="hljs-built_in">print</span>(text)<br><span class="hljs-comment">#LocationIsAt1806GrandviewHotel</span><br></code></pre></td></tr></table></figure>
+
+<p>得到flag</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dust"><span class="language-xml">flag</span><span class="hljs-template-variable">&#123;LocationIsAt1806GrandviewHotel&#125;</span><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">#流量分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2022江西省振兴杯</div>
+      <div>http://example.com/2022/10/03/CTF/2022江西省振兴杯/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月3日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/03/CTF/2022%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4/" title="2022第五空间">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2022第五空间</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/03/Github%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA%E9%97%AE%E9%A2%98/" title="Github图床搭建问题">
+                        <span class="hidden-mobile">Github图床搭建问题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

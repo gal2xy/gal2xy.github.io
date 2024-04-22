@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、什么是BroadcastReceiver广播（Broadcast）是一种广泛运用的在应用程序之间传输信息的机制。而广播接收器（BroadcastReceiver）是Android四大组件之一，用于对发送出来的广播进行过滤接受并响应的一类组件。它允许应用程序在某些事件发生时作出响应，无论应用是否在前台运行。它的工作原理是基于发布-订阅模式。应用程序可以选择注册感兴趣的广播消息，并在消息到达时进行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发学习笔记(六) —— 重温BroadcastReceiver">
+<meta property="og:url" content="http://example.com/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、什么是BroadcastReceiver广播（Broadcast）是一种广泛运用的在应用程序之间传输信息的机制。而广播接收器（BroadcastReceiver）是Android四大组件之一，用于对发送出来的广播进行过滤接受并响应的一类组件。它允许应用程序在某些事件发生时作出响应，无论应用是否在前台运行。它的工作原理是基于发布-订阅模式。应用程序可以选择注册感兴趣的广播消息，并在消息到达时进行">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131921764.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131921064.jpg">
+<meta property="article:published_time" content="2023-08-12T06:32:32.000Z">
+<meta property="article:modified_time" content="2023-08-13T13:40:46.182Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android开发">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131921764.jpg">
+  
+  
+  
+  <title>Android开发学习笔记(六) —— 重温BroadcastReceiver - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android开发学习笔记(六) —— 重温BroadcastReceiver"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-12 14:32" pubdate>
+          2023年8月12日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          103 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android开发学习笔记(六) —— 重温BroadcastReceiver</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、什么是BroadcastReceiver"><a href="#一、什么是BroadcastReceiver" class="headerlink" title="一、什么是BroadcastReceiver"></a>一、什么是BroadcastReceiver</h1><p>广播（Broadcast）是一种广泛运用的在应用程序之间传输信息的机制。而广播接收器（BroadcastReceiver）是Android四大组件之一，用于对发送出来的广播进行过滤接受并响应的一类组件。它允许应用程序在某些事件发生时作出响应，无论应用是否在前台运行。它的工作原理是基于发布-订阅模式。应用程序可以选择注册感兴趣的广播消息，并在消息到达时进行响应。这种机制使得不同的应用程序之间能够实现通信和协作，同时也提供了一种系统级别的事件通知机制。广播接收器在 Android 开发中非常有用，可以用于实现很多功能，如接收来电或短信提醒、处理网络状态变化、监听系统事件等。</p>
+<h2 id="1-1-标准广播和有序广播"><a href="#1-1-标准广播和有序广播" class="headerlink" title="1.1 标准广播和有序广播"></a>1.1 标准广播和有序广播</h2><ol>
+<li><p><strong>标准广播</strong></p>
+<p>完全异步执行的广播，所有的接收者几乎同时接收到广播消息。这种广播不保证接收者能够同时处理广播，也不能保证接收者按照特定的顺序接收到广播。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131921764.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><strong>有序广播</strong></p>
+<p>同步执行的一种广播，发出广播后，同一时间只有一个广播接收者能收到，当这个广播接收者的逻辑执行完后，广播才会继续传递。当然，前面的接受者还可以截断广播的继续传递，那么后续接受者就无法收到广播信息了。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308131921064.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ol>
+<h2 id="静态注册和动态注册"><a href="#静态注册和动态注册" class="headerlink" title="静态注册和动态注册"></a>静态注册和动态注册</h2><p>不同于其他三大组件，广播接收器既可以在<code>AndroidManifest.xml</code>中进行静态注册，也可以在代码中进行动态注册。</p>
+<ol>
+<li><p>静态注册</p>
+<p>在<code>AndroidManifest.xml</code>文件中进行注册。</p>
+<p>静态注册的广播接收器与设备共存亡，可以让应用在未运行时也能接收到广播消息。</p>
+</li>
+<li><p>动态注册</p>
+<p>在代码中使用<code>registerReceiver()</code>进行注册，并在适当的时候调用 <code>unregisterReceiver()</code> 方法进行解注册。</p>
+<p>动态注册的广播接收器与注册它的Activity共存亡，只有当应用处于运行状态时，接收器才会接收到广播消息。</p>
+</li>
+</ol>
+<h1 id="二、BroadcastReceiver的基本使用"><a href="#二、BroadcastReceiver的基本使用" class="headerlink" title="二、BroadcastReceiver的基本使用"></a>二、BroadcastReceiver的基本使用</h1><h2 id="2-1-静态注册接收开机广播"><a href="#2-1-静态注册接收开机广播" class="headerlink" title="2.1 静态注册接收开机广播"></a>2.1 静态注册接收开机广播</h2><p>首先创建一个<code>BootCompleteReceiver</code>类，重写<code>onReceive()</code>方法，进行简单的弹窗提示。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BootCompleteReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ACTION_BOOT</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;android.intent.action.BOOT_COMPLETED&quot;</span>;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        <span class="hljs-keyword">if</span> (ACTION_BOOT.equals(intent.getAction()))<br>            Toast.makeText(context, <span class="hljs-string">&quot;开机完毕~&quot;</span>, Toast.LENGTH_LONG).show();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因为是静态注册，所以需要在<code>AndroidManifest.xml</code>文件中进行注册</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">receiver</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;.BootCompleteReceiver&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span> = <span class="hljs-string">&quot;android.intent.cation.BOOT_COMPLETED&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">receiver</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>当设备启动完成后，广播接收器就会收到名为 <code>android.intent.action.BOOT_COMPLETED</code> 的广播，并执行相应的逻辑操作。</p>
+<p>除此之外，还要给应用添加权限。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">uses-permission</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.permission.RECEIVE_BOOT_COMPLETED&quot;</span>/&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>主活动中不需要添加任何代码。</p>
+<h2 id="2-2-动态注册监听网络状态变化"><a href="#2-2-动态注册监听网络状态变化" class="headerlink" title="2.2 动态注册监听网络状态变化"></a>2.2 动态注册监听网络状态变化</h2><p>以监听网络变化为例，讲解如何动态注册广播接收者。</p>
+<p>首先我们需要创建一个<code>BroadcastReceiver</code>类，重写父类的<code>onReceive()</code>方法来实现网络变化后动作（比如弹窗提示啥的）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NetworkReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        Toast.makeText(context, <span class="hljs-string">&quot;网络状态发生改变&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后再主活动中动态注册该广播接收者。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> NetworkReceiver networkReceiver;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>		<span class="hljs-comment">//实例化广播接收者</span><br>        networkReceiver = <span class="hljs-keyword">new</span> <span class="hljs-title class_">NetworkReceiver</span>();<br>        <span class="hljs-comment">//添加意图为网络状态改变</span><br>        <span class="hljs-type">IntentFilter</span> <span class="hljs-variable">intentFilter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntentFilter</span>();<br>        intentFilter.addAction(<span class="hljs-string">&quot;android.net.conn.CONNECTIVITY_CHANGE&quot;</span>);<br>		<span class="hljs-comment">//使用registerReceiver()动态注册广播接收者</span><br>        registerReceiver(networkReceiver, intentFilter);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        unregisterReceiver(networkReceiver);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当网络状态发生变化时，系统会发出一条值为<code>android.net.conn.CONNECTIVITY_CHANGE</code>的广播，因为我们的广播接收器需要监听这个广播，所以action就设置此值。</p>
+<p>最后，不要忘记将广播接收器取消注册。动态注册的广播接收器与活动共存亡，所以重写活动的<code>onDestroy()</code>方法，调用<code>unregisterReceiver()</code>方法来实现。</p>
+<h2 id="2-3-发送自定义广播"><a href="#2-3-发送自定义广播" class="headerlink" title="2.3 发送自定义广播"></a>2.3 发送自定义广播</h2><p>上面两个案例都是讲如何接收广播，接下来我们来学习如何发送广播。在前面已经介绍过，广播主要分为两种类型：标准广播和有序广播。那么这两种广播如何发送呢？</p>
+<h3 id="2-3-1-发送标准广播"><a href="#2-3-1-发送标准广播" class="headerlink" title="2.3.1 发送标准广播"></a>2.3.1 发送标准广播</h3><p>在发送广播前，我们仍然要定义一个广播接收器来接收我们发送的广播。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBroadcastReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        Log.d(<span class="hljs-string">&quot;MyBroadcastReceiver&quot;</span>, <span class="hljs-string">&quot;Received&quot;</span>);<br>        Toast.makeText(context, <span class="hljs-string">&quot;MyBroadcastReceiver received&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>AndroidManifest.xml</code>中进行注册。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">receiver</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;.MyBroadcastReceiver&quot;</span></span><br><span class="hljs-tag">          <span class="hljs-attr">android:enabled</span>=<span class="hljs-string">&quot;true&quot;</span></span><br><span class="hljs-tag">          <span class="hljs-attr">android:exported</span>=<span class="hljs-string">&quot;true&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-comment">&lt;!--自定义一个动作--&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;com.example.broadcasttest.MY_BROADCAST&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">receiver</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>在主活动的xml中定义一个按钮，用来发送广播。最后是<code>MainActivity.java</code>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> NetworkReceiver networkReceiver;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendBroadcast</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(<span class="hljs-string">&quot;com.example.broadcasttest.MY_BROADCAST&quot;</span>);<br>        <span class="hljs-comment">//SDK版本 &gt; 26需要添加</span><br>        <span class="hljs-comment">//intent.addFlags(0x01000000);</span><br>        sendBroadcast(intent);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>原本到这里就可以实现功能了。但是我这里出了点小插曲。点击按钮后，没有反应，而且Logcat中提示：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">Background execution <span class="hljs-keyword">not</span> allowed: receiving Intent &#123; <span class="hljs-attribute">act</span>=com.example.broadcasttest.MY_BROADCAST <span class="hljs-attribute">flg</span>=0x2010 &#125; <span class="hljs-keyword">to</span> com.example.testbroadcastreceiver/.MyBroadcastReceiver<br></code></pre></td></tr></table></figure>
+
+<p>原因是自 Android 8.0（API 级别 26）起，Android 引入了后台执行限制，以提高设备性能和安全性。这意味着在后台运行的应用程序将无法接收到大多数隐式广播，除非应用程序处于前台或具有前台服务。</p>
+<p>解决方法：</p>
+<ol>
+<li><p>仍然使用静态注册广播，给Intent添加<code>FLAG_RECEIVER_INCLUDE_BACKGROUND</code>的Flag，不过这个标志位在源码中被hide掉了，但是可以直接使用这个属性值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">intent.addFlags(<span class="hljs-number">0x01000000</span>);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>仍然使用静态注册广播，但将原来的隐式Intent变成显式Intent，即指定包名。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(<span class="hljs-built_in">this</span>,MyBroadcastReceiver.class);<br>sendBroadcast(intent);<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>仍然使用静态注册广播，但将广播接收器改为前台服务。</p>
+</li>
+<li><p>降低SDK版本。</p>
+</li>
+<li><p>在<code>AndroidManifest.xml</code>中删除注册，使用动态注册广播接收器，发送广播的代码不变。</p>
+</li>
+</ol>
+<h3 id="2-3-2-发送有序广播"><a href="#2-3-2-发送有序广播" class="headerlink" title="2.3.2 发送有序广播"></a>2.3.2 发送有序广播</h3><p>另外创建一个项目，同样接收<code>com.example.broadcasttest.MY_BROADCAST</code>的广播消息，同样弹窗显示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        Toast.makeText(context, <span class="hljs-string">&quot;另一个应用的静态广播接收器收到该广播&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>记得在<code>AndroidManifest.xml</code>中注册：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">receiver</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;com.example.testanotherbroadcastreceiver.MyReceiver&quot;</span></span><br><span class="hljs-tag">          <span class="hljs-attr">android:exported</span>=<span class="hljs-string">&quot;true&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;com.example.broadcasttest.MY_BROADCAST&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">receiver</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后将其安装到测试机上。</p>
+<p>发送有序广播的代码在上 2.3.1 的基础上，只需要将<code>sendBroadcast(intnet)</code>方法改为<code>sendOrderedBroadcast(intent,receiverPermission )</code>方法即可。其中参数<code>receiverPermission </code>是一个与权限有关的字符串，这里传入 null 就行了。</p>
+<p>点击发送按钮可以看到依次出现两个弹窗。</p>
+<h4 id="a-设置广播接收器的优先级"><a href="#a-设置广播接收器的优先级" class="headerlink" title="a. 设置广播接收器的优先级"></a>a. 设置广播接收器的优先级</h4><p>既然有序广播在接收时是有先后顺序的，那么就我们可以设置广播接收器的先后顺序。在<code>AndroidManifest.xml</code>的<code>&lt;intent-filter&gt;</code>中，使用属性<code>android:priority</code>来设置优先级，值越大优先级越高，优先级越高的广播接收器就越先接收到广播。</p>
+<h4 id="b-截断广播传递"><a href="#b-截断广播传递" class="headerlink" title="b. 截断广播传递"></a>b. 截断广播传递</h4><p>既然已经获得了接收广播的优先权，那么我们就可以对这条广播进行截断了。操作起来比较容易，只需要在自定义的<code>BroadcastReceiver</code>类的<code>onReceive()</code>方法中添加<code>abortBroadcast()</code>方法即可，相关代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBroadcastReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        Log.d(<span class="hljs-string">&quot;MyBroadcastReceiver&quot;</span>, <span class="hljs-string">&quot;Received&quot;</span>);<br>        Toast.makeText(context, <span class="hljs-string">&quot;MyBroadcastReceiver received&quot;</span>, Toast.LENGTH_SHORT).show();<br>        abortBroadcast();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-4-使用本地广播"><a href="#2-4-使用本地广播" class="headerlink" title="2.4 使用本地广播"></a>2.4 使用本地广播</h2><p>在前面的代码中，我们发送和接收的广播全部属于系统全局广播，即发出的广播可以被其他任何应用程序接收到，并且我们也可以接收来自于其他任何应用程序的广播。</p>
+<p>但这样就很容易引起安全性的问题，比如说我们发送的一些携带关键性数据的广播有可能被其他的应用程序截获，或者其他的程序不停地向我们的广播接收器里发送各种垃圾广播。因此Android引入了一套本地广播机制来解决这些安全性问题，使用这个机制发出的广播只能够在应用程序的内部进行传递，并且广播接收器也只能接收来自本应用程序发出的广播。</p>
+<p>本地广播的用法并不复杂，主要就是使用了一个<code>LocalBroadcastManager</code>来对广播进行管理，并提供了发送广播和注册广播接收器的方法。</p>
+<p>在使用前，我们需要注意一些事项：</p>
+<ol>
+<li>本地广播无法通过静态注册来接收。因为发送本地广播时，程序肯定已经启动了，没有必要用静态注册。况且静态注册的话，会接收到来自非自生应用程序的广播。</li>
+<li>在广播中启动Activity的话，需要Intent中添加<code>FLAG_ACTIVITY_NEW_TASK</code>的Flag，不然会报错，因为需要一个栈来存放新打开的Activity。</li>
+<li>如果通过广播来弹出AlertDialog，需要设置对话框的类型为<code>TYPE_SYSTEM_ALERT</code>。</li>
+</ol>
+<p>下面我们就通过具体的实例来尝试一下它的用法。首先自定义的<code>BroadcastReceiver</code>类，代码同上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyBroadcastReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>        Log.d(<span class="hljs-string">&quot;MyBroadcastReceiver&quot;</span>, <span class="hljs-string">&quot;Received&quot;</span>);<br>        Toast.makeText(context, <span class="hljs-string">&quot;MyBroadcastReceiver received&quot;</span>, Toast.LENGTH_SHORT).show();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最关键的是<code>MainActivity.java</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ACTION_MY_BROADCAST</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;com.example.broadcasttest.MY_BROADCAST&quot;</span>;<br>    <span class="hljs-keyword">private</span> LocalBroadcastManager localBroadcastManager;<br>    <span class="hljs-keyword">private</span> MyBroadcastReceiver MyBroadcastReceiver;<br><br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        <span class="hljs-comment">//获取实例</span><br>        localBroadcastManager = LocalBroadcastManager.getInstance(<span class="hljs-built_in">this</span>);<br>        <span class="hljs-comment">//注册本地广播接收器</span><br>        <span class="hljs-type">IntentFilter</span> <span class="hljs-variable">intentFilter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntentFilter</span>(ACTION_MY_BROADCAST);<br>        MyBroadcastReceiver = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyBroadcastReceiver</span>();<br>        localBroadcastManager.registerReceiver(MyBroadcastReceiver, intentFilter);<br><br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendBroadcast</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(ACTION_MY_BROADCAST);<br>        <span class="hljs-comment">//intent.addFlags(0x01000000);</span><br>        <span class="hljs-comment">//发送本地广播</span><br>        localBroadcastManager.sendBroadcast(intent);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        <span class="hljs-comment">//记得要取消注册</span><br>        localBroadcastManager.unregisterReceiver(MyBroadcastReceiver);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>跟动态注册的代码没有很大的区别，只不过是通过<code>localBroadcastManager</code>来注册和销毁广播接收器。</p>
+<h1 id="三、广播的最佳实战-——-实现强制下线功能"><a href="#三、广播的最佳实战-——-实现强制下线功能" class="headerlink" title="三、广播的最佳实战 —— 实现强制下线功能"></a>三、广播的最佳实战 —— 实现强制下线功能</h1><p>强制下线功能应该算是比较常见的了，很多的应用程序都具备这个功能，比如你的QQ号在别处登录了，就会将你强制挤下线。其实实现强制下线功能的思路也比较简单，只需要在界面上弹出一个对话框，让用户无法进行任何其他操作，必须要点击对话框中的确定按钮，然后回到登录界面即可。可是这样就存在着一个问题，因为当我们被通知需要强制下线时可能正处于任何一个界面，难道需要在每个界面上都编写一个弹出对话框的逻辑？其实并不这么做，我们完全可以借助本章中所学的广播知识，来非常轻松地实现这一功能。</p>
+<p>强制下线功能需要先关闭掉所有的活动，然后回到登录界面。因此我们可以利用在Activity章节学到的创建一个活动管理类。</p>
+<p>首先创建一个ActivityCollector类用于管理所有的活动，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ActivityCollector</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List&lt;Activity&gt; activityList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addActivity</span><span class="hljs-params">(Activity activity)</span>&#123;<br>        activityList.add(activity);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeActivity</span><span class="hljs-params">(Activity activity)</span>&#123;<br>        activityList.remove(activity);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">finishAll</span><span class="hljs-params">()</span>&#123;<br><br>        <span class="hljs-keyword">for</span> (Activity each:activityList) &#123;<br>            <span class="hljs-keyword">if</span> (!each.isFinishing())&#123;<br>                each.finish();<br>            &#125;<br>        &#125;<br>        activityList.clear();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后创建BaseActivity类作为所有活动的父类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        ActivityCollector.addActivity(<span class="hljs-built_in">this</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        ActivityCollector.removeActivity(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接着开始实现我们所需要的功能，首先是创建一个登陆界面的活动。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">loginActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseActivity</span>&#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_login);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoLogin</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(<span class="hljs-built_in">this</span>, MainActivity.class);<br>        startActivity(intent);<br>        finish();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>极致的简陋，就一个登入按钮和它的点击事件，账号密码都不想要了（对于这个案例来讲并不重要）。</p>
+<p>记得注册这个活动，并将其设置为主活动而不是MainActivity。</p>
+<p>然后是强制下线界面的活动，这里写在<code>MainActivity.java</code>中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseActivity</span> &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ClicktoFinishAllActivities</span><span class="hljs-params">(View view)</span> &#123;<br>        <span class="hljs-comment">//自定义action，随便就行</span><br>        <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(<span class="hljs-string">&quot;LOGIN_OTHER&quot;</span>);<br>        sendBroadcast(intent);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同样还是一个按钮和它的点击事件，用于强制下线。随便定义一个广播动作即可，只要与广播接收器的动作一致就行。</p>
+<p>现在功能都写好了，接下来我们就需要创建一个广播接收器来接收这条强制下线广播，唯一的问题就是，应该在哪里创建呢？</p>
+<p>首先不可能时静态注册，因为静态注册没有办法在<code>onReceive()</code>方法里弹出对话框这样的UI控件的。其次，我们不可能在每个具体活动中都注册一个动态广播接收器，这显然不合理。但是我们写的每个活动都必须保证能够相应广播，也就是有广播接收器。那么我们将注册广播接收器的代码写到他们的父类BaseActivity中不就行了？这样一来确确实实每个活动都有广播接收器了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AppCompatActivity</span> &#123;<br><br>    <span class="hljs-keyword">public</span> ForceOffLineReceiver forceOffLineReceiver;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(<span class="hljs-meta">@Nullable</span> Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        ActivityCollector.addActivity(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onResume</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onResume();<br>        <span class="hljs-comment">//注册广播接收器</span><br>        forceOffLineReceiver = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ForceOffLineReceiver</span>();<br>        <span class="hljs-type">IntentFilter</span> <span class="hljs-variable">intentFilter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntentFilter</span>(<span class="hljs-string">&quot;LOGIN_OTHER&quot;</span>);<br>        registerReceiver(forceOffLineReceiver,intentFilter);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onPause</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onPause();<br>        <span class="hljs-keyword">if</span> (forceOffLineReceiver != <span class="hljs-literal">null</span>)&#123;<br>			unregisterReceiver(forceOffLineReceiver);<br>            forceOffLineReceiver = <span class="hljs-literal">null</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onDestroy</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onDestroy();<br>        ActivityCollector.removeActivity(<span class="hljs-built_in">this</span>);<br>    &#125;<br>	<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">ForceOffLineReceiver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BroadcastReceiver</span> &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onReceive</span><span class="hljs-params">(Context context, Intent intent)</span> &#123;<br>            Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;onReceive: &quot;</span>);<br>            <span class="hljs-comment">//实现弹窗警告</span><br>            AlertDialog.<span class="hljs-type">Builder</span> <span class="hljs-variable">dialogBuilder</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AlertDialog</span>.Builder(context);<br>            dialogBuilder.setTitle(<span class="hljs-string">&quot;警告：&quot;</span>)<br>                    .setMessage(<span class="hljs-string">&quot;您的账号在别处登录，请重新登陆&quot;</span>)<br>                    .setCancelable(<span class="hljs-literal">false</span>)<br>                    .setPositiveButton(<span class="hljs-string">&quot;确认&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">DialogInterface</span>.OnClickListener() &#123;<br>                        <span class="hljs-meta">@Override</span><br>                        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClick</span><span class="hljs-params">(DialogInterface dialogInterface, <span class="hljs-type">int</span> i)</span> &#123;<br>                            Log.d(<span class="hljs-string">&quot;aaa&quot;</span>, <span class="hljs-string">&quot;onClick: &quot;</span>);<br>                            <span class="hljs-comment">//关闭所有活动</span><br>                            ActivityCollector.finishAll();<br>                            <span class="hljs-comment">//返回登录界面</span><br>                            <span class="hljs-type">Intent</span> <span class="hljs-variable">backintent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(context, loginActivity.class);<br>                            backintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);<br>                            context.startActivity(backintent);<br>                        &#125;<br>                    &#125;);<br>            dialogBuilder.show();<br>            <span class="hljs-comment">//AlertDialog alertDialog = dialogBuilder.create();</span><br>            <span class="hljs-comment">//alertDialog.show();</span><br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们额外重写了<code>onResume()</code>和<code>onPause()</code>这两个生命周期函数，然后分别在这两个方法里注册和取消注册了<code>ForceOfflineReceiver</code>.那么为什么要这样写呢？</p>
+<p>因为我们只需要保证应用的Activity栈中栈顶活动能够接收这条强制下线广播就足够了，非栈顶活动没有必要去接收这条广播，所以写在<code>onResume()</code>和<code>onPause()</code>方法里就可以很好地解决这个问题，当一个活动失去栈顶位置时就会自动取消广播接收器的注册。</p>
+<p><strong>注意事项：</strong></p>
+<p><strong>不能使用<code>localBroadcastManager</code>来注册广播，不然程序异常退出！！！</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android开发学习笔记(六) —— 重温BroadcastReceiver</div>
+      <div>http://example.com/2023/08/12/Android安全/Android开发学习笔记(六) —— 重温BroadcastReceiver/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月12日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" title="Android开发学习笔记(七) —— 详解数据存储全方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android开发学习笔记(七) —— 详解数据存储全方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" title="Android开发学习笔记(五) —— 温习Service">
+                        <span class="hidden-mobile">Android开发学习笔记(五) —— 温习Service</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

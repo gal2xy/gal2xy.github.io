@@ -1,0 +1,862 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、概述Intent是Android四大组件通信桥梁，它负责在组件之间传递消息和数据，是一个消息传递对象。通过使用Intent，可以启动另一个活动Activity、服务Service、广播接收器BroadcastReceiver，以及发送和接收数据。 二、Intent的两种类型显式Intent多用来实现一个应用内部的跳转，而隐式intent多用来实现应用与应用之间的跳转  显示Intent 明确指">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Intent">
+<meta property="og:url" content="http://example.com/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%20Intent/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、概述Intent是Android四大组件通信桥梁，它负责在组件之间传递消息和数据，是一个消息传递对象。通过使用Intent，可以启动另一个活动Activity、服务Service、广播接收器BroadcastReceiver，以及发送和接收数据。 二、Intent的两种类型显式Intent多用来实现一个应用内部的跳转，而隐式intent多用来实现应用与应用之间的跳转  显示Intent 明确指">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041427465.jpg">
+<meta property="article:published_time" content="2023-07-04T06:27:32.000Z">
+<meta property="article:modified_time" content="2023-07-04T06:28:20.464Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041427465.jpg">
+  
+  
+  
+  <title>Android Intent - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android Intent"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-04 14:27" pubdate>
+          2023年7月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          76 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android Intent</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>Intent是Android四大组件通信桥梁，它负责在组件之间传递消息和数据，是一个消息传递对象。通过使用Intent，可以启动另一个活动Activity、服务Service、广播接收器BroadcastReceiver，以及发送和接收数据。</p>
+<h1 id="二、Intent的两种类型"><a href="#二、Intent的两种类型" class="headerlink" title="二、Intent的两种类型"></a>二、Intent的两种类型</h1><p>显式Intent多用来实现一个应用内部的跳转，而隐式intent多用来实现应用与应用之间的跳转</p>
+<ol>
+<li><p><strong>显示Intent</strong></p>
+<p>明确指定了要启动的目标组件的名称。</p>
+<blockquote>
+<p> <strong>值得注意的是从Android 5.0开始， Service 只能通过显式 Intent 启动，如果使用隐式 Intent 调用 bindService()，系统会引发异常</strong>。因为使用隐式 Intent 启动服务存在安全隐患，无法确定哪些服务将响应 Intent，且用户无法看到哪些服务已启动。</p>
+</blockquote>
+</li>
+<li><p><strong>隐式Intent</strong></p>
+<p>不指定组件名，而是指定了可处理该Intent的某些组件的属性，如Action、Data、Category等，然后系统会根据这些属性去匹配AndroidManifest.xml相关组件的Intent-filter，寻找到满足属性的组件，当不止一个满足时, 会弹出一个让我们选择启动哪个的对话框。</p>
+</li>
+</ol>
+<p>举个例子：</p>
+<p>比如我们在手机上修改头像，选择本地图片后，这时候系统自动跳转到图库，这个就是显示Intent（不好说，也许只有一个应用能响应该Intent）。</p>
+<p>再例如，我们在手机上打开pdf文件，选择用其他应用打开，这时候就会弹出多个应用供我们选择，比如WPS、浏览器等，这个就是隐式Intent。</p>
+<h2 id="2-1-强制使用应用选择器"><a href="#2-1-强制使用应用选择器" class="headerlink" title="2.1 强制使用应用选择器"></a>2.1 强制使用应用选择器</h2><p>如果有多个应用响应隐式 Intent，则系统会弹出对话框，让用户选择要使用的应用，用户也可以将某个应用设置为该操作的默认选项。</p>
+<p>如果想让用户无法选择用于操作的应用，而强制使用某个应用响应该操作时，可以使用如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Intent</span> <span class="hljs-variable">sendIntent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(Intent.ACTION_SEND);<br> Intent intent=Intent.createChooser(viewIntent,<span class="hljs-string">&quot;应用选择器&quot;</span>);<br><span class="hljs-comment">//createChooser()创建显式调用选择器，用户将无法设定默认选项</span><br><span class="hljs-type">Intent</span> <span class="hljs-variable">chooser</span> <span class="hljs-operator">=</span> Intent.createChooser(sendIntent, title);<br><br><span class="hljs-comment">// 判断该Intent是否存在可响应Activity</span><br><span class="hljs-keyword">if</span> (sendIntent.resolveActivity(getPackageManager()) != <span class="hljs-literal">null</span>) &#123;<br>    startActivity(chooser);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-2-Intent使用流程"><a href="#2-2-Intent使用流程" class="headerlink" title="2.2 Intent使用流程"></a>2.2 Intent使用流程</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041427465.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、Intent的七个属性"><a href="#三、Intent的七个属性" class="headerlink" title="三、Intent的七个属性"></a>三、Intent的七个属性</h1><h2 id="3-1-ComponentName-组件名称"><a href="#3-1-ComponentName-组件名称" class="headerlink" title="3.1 ComponentName(组件名称)"></a>3.1 ComponentName(组件名称)</h2><p>目标组件的名称。这是可选项，如果构建Intent时有组件名称，则为显式Intent，否则为隐式Intent。</p>
+<p>组件名称由组件所在应用程序配置文件中设置的包名+组件的全限定类名组成。</p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ComponentName</span> <span class="hljs-variable">componentName</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ComponentName</span>(<span class="hljs-string">&quot;com.example.demo&quot;</span>,<span class="hljs-string">&quot;com.example.demo.DemoActivity&quot;</span>);<br><span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>();<br>intent.setComponent(componentName);<br>startActivity(intent);<br></code></pre></td></tr></table></figure>
+
+<p>ComponentName中的两个参数，第一个为包名，第二个为全限定类名。如果全限定类名的前面和包名是一样的话，是可以省略的，上面这个例子的组件名称可以写成com.example.demo&#x2F;.DemoActivity。</p>
+<h2 id="3-2-Action-动作"><a href="#3-2-Action-动作" class="headerlink" title="3.2 Action(动作)"></a>3.2 Action(动作)</h2><p>一个普通的字符串，代表Intent要完成的一个抽象动作，它告诉系统或其他组件要执行什么操作。</p>
+<h3 id="Action的两种类型"><a href="#Action的两种类型" class="headerlink" title="Action的两种类型"></a>Action的两种类型</h3><ol>
+<li><p><strong>系统定义的Action</strong></p>
+<p>Android系统提供了许多预定义的Action，例如</p>
+<ul>
+<li><strong>ACTION_VIEW</strong><br> 向用户展示某信息，比如使用浏览器打开网址，用图片应用显示图片等。</li>
+<li><strong>ACTION_SEND</strong><br> 用于发送数据，比如电子邮件应用或者一些社交应用。</li>
+<li><strong>ACTION_DIAL</strong><br> 显示带拨号盘的页面，让用户可以进行拨号动作。</li>
+</ul>
+<p>更多Action常量详见<a target="_blank" rel="noopener" href="https://developer.android.google.cn/guide/components/intents-common?hl=zh-cn">通用 Intent  | Android 开发者  | Android Developers (google.cn)</a></p>
+</li>
+<li><p><strong>应用程序定义的Action</strong></p>
+<p>开发者可以自定义Action，在应用程序内部使用，但确保加入应用的软件包名称作为前缀。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ACTION_TIMETRAVEL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;com.example.action.SEND_EMAIL&quot;</span>;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="3-3-Category-类别"><a href="#3-3-Category-类别" class="headerlink" title="3.3 Category(类别)"></a>3.3 Category(类别)</h2><p>一个普通的字符串，用于为Action提供额外的附加信息。一个Intent对象可以有多个Category。</p>
+<h3 id="Category的两种类型"><a href="#Category的两种类型" class="headerlink" title="Category的两种类型"></a>Category的两种类型</h3><ol>
+<li><p><strong>系统定义的Category</strong></p>
+<ul>
+<li><p><strong>CATEGORY_DEFAULT</strong>：默认类别，表示这个Intent没有特殊要求，可以被任何与之匹配的组件来处理。通常情况下，在一个Intent中只能添加一个CATEGORY_DEFAULT。</p>
+</li>
+<li><p><strong>CATEGORY_BROWSABLE</strong>： 表示你的Activity能够打开浏览器并访问一个链接。如果你想创建一个能够响应http:&#x2F;&#x2F;或https:&#x2F;&#x2F;链接的Activity，你需要添加这个Category。</p>
+</li>
+<li><p><strong>CATEGORY_LAUNCHER</strong>：表示该Activity是一个启动器（Launcher），也就是它会在设备上生成一个图标，当用户点击该图标时，系统会启动此Activity。在一个应用程序中，只有一个Activity可以拥有CATEGORY_LAUNCHER属性。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>应用程序定义的Category</strong></p>
+<p>自定义的Category需要在AndroidManifest.xml配置文件中进行声明。例如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">category</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;com.example.myapp.MY_CUSTOM_CATEGORY&quot;</span> /&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>使用时代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(Intent.ACTION_VIEW);<br>intent.addCategory(<span class="hljs-string">&quot;com.example.myapp.MY_CUSTOM_CATEGORY&quot;</span>);<br>startActivity(intent);<br></code></pre></td></tr></table></figure>
+
+<p>这样，其他应用程序就可以使用该Intent Category来启动你的应用程序，并执行相关操作。</p>
+</li>
+</ol>
+<h2 id="3-4-Data-数据-Type-MIME类型"><a href="#3-4-Data-数据-Type-MIME类型" class="headerlink" title="3.4 Data(数据), Type(MIME类型)"></a>3.4 Data(数据), Type(MIME类型)</h2><h3 id="Data"><a href="#Data" class="headerlink" title="Data"></a>Data</h3><p>Data通常用于向Action属性提供操作的数据，是一个URI对象，该URI可以表示文件、网址、数据库表格等不同类型的数据源。</p>
+<h3 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h3><p>Type通常用于指定Data所指定的URI对应的MIME类型。</p>
+<p>以下是一些常见的Android MIME类型（其中*是通配符，也可以指定某种类型）：</p>
+<ul>
+<li>image&#x2F;*：所有图像类型。</li>
+<li>audio&#x2F;*：所有音频类型。</li>
+<li>video&#x2F;*：所有视频类型。</li>
+<li>text&#x2F;*：所有文本类型。</li>
+<li>application&#x2F;pdf：PDF文件类型</li>
+<li>application&#x2F;zip：Zip压缩文件类型</li>
+</ul>
+<p>当然也可以自定义MIME类型。例如自定义json的MIME类型：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript"><span class="hljs-built_in">application</span>/json<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p><strong>若要同时设置 URI 和 MIME 类型，请勿调用 <code>setData()</code> 和 <code>setType()</code>，因为它们会互相抵消彼此的值。请始终使用 <code>setDataAndType()</code> 同时设置 URI 和 MIME 类型。</strong></p>
+<p>原因参考：<a target="_blank" rel="noopener" href="https://www.coder.work/article/671139">Android:关于Intents，为什么setType()和setData()会互相抵消？</a></p>
+<h2 id="3-5-Extra-额外信息"><a href="#3-5-Extra-额外信息" class="headerlink" title="3.5 Extra(额外信息)"></a>3.5 Extra(额外信息)</h2><p>Extra是一个键值对集合，用于传递额外信息。Extra的键是String类型，而值可以是任何Parcelable或Serializable对象（Java中用于序列化和反序列化对象的接口）。</p>
+<h2 id="3-6-Flag-标记"><a href="#3-6-Flag-标记" class="headerlink" title="3.6 Flag(标记)"></a>3.6 Flag(标记)</h2><p>充当 Intent 的元数据。指示 Android 系统如何启动 Activity（例如，Activity 应属于哪个任务），以及启动之后如何处理（例如，它是否属于最近的 Activity 列表）。</p>
+<p>以下是几种常见的Flag：</p>
+<ul>
+<li><strong>FLAG_ACTIVITY_NEW_TASK</strong>：创建一个新的任务栈来启动Activity，如果已经存在一个相同的任务栈，则直接将它调到前台。这个Flag通常用于从Service启动一个Activity。</li>
+<li><strong>FLAG_ACTIVITY_CLEAR_TOP</strong>：清空Task栈顶部的所有Activity，使得目标Activity变成栈顶的Activity。如果该Activity不存在，则创建一个新的实例。这个Flag通常用于从深层次的Activity返回到栈顶Activity。</li>
+<li><strong>FLAG_ACTIVITY_SINGLE_TOP</strong>：如果目标Activity已经位于栈顶，则不创建一个新的实例，而是继续使用原来的实例。这个Flag通常用于避免重复创建Activity的情况。</li>
+<li><strong>FLAG_ACTIVITY_NO_HISTORY</strong>：启动一个Activity时不在Task栈中保存这个Activity的历史记录。这个Flag通常用于启动一个临时性的Activity。</li>
+<li><strong>FLAG_ACTIVITY_CLEAR_TASK</strong>：清空整个Task栈，并且创建一个新的Task栈。这个Flag通常用于启动一个应用的主界面或者重新启动应用。</li>
+<li><strong>FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS</strong>：阻止启动的Activity出现在最近运行的应用列表中。</li>
+</ul>
+<h1 id="四、Intent过滤器"><a href="#四、Intent过滤器" class="headerlink" title="四、Intent过滤器"></a>四、Intent过滤器</h1><p>Intent过滤器(Intent-filter)是 AndroidMainifest.xml 配置文件中组件的子标签<code>&lt;intent-fileter&gt;</code>。<strong>一个组件可以声明一个或者多个 Intent过滤器，只要其中一个通过匹配，该组件就可以响应相应 Intent。</strong></p>
+<p>Intent过滤器通过 Action、Category、Data 属性进行过滤，筛选出可以响应的组件。</p>
+<p>例如官方文档中的一个例子：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">activity</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;ShareActivity&quot;</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- This activity handles &quot;SEND&quot; actions with text data --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.action.SEND&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">category</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.category.DEFAULT&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">&quot;text/plain&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br>    <span class="hljs-comment">&lt;!-- This activity also handles &quot;SEND&quot; and &quot;SEND_MULTIPLE&quot; with media data --&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.action.SEND&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">action</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.action.SEND_MULTIPLE&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">category</span> <span class="hljs-attr">android:name</span>=<span class="hljs-string">&quot;android.intent.category.DEFAULT&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">&quot;application/vnd.google.panorama360+jpg&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">&quot;image/*&quot;</span>/&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">&quot;video/*&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">activity</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看出<code>ShareActivity</code>旨在发送图片、视频、文本。</p>
+<h2 id="4-1-Intent匹配规则"><a href="#4-1-Intent匹配规则" class="headerlink" title="4.1 Intent匹配规则"></a>4.1 Intent匹配规则</h2><p>当收到隐式 Intent 以启动 Activity 时，系统会按照优先级（Action &gt; Data &gt; Category），将该 Intent 与 Intent 过滤器进行比较，搜索该 Intent 的最佳 Activity。</p>
+<p>如果多个 Intent 过滤器都能够匹配到同一个 Intent，那么系统就会根据它们在清单文件中声明的顺序来决定使用哪一个 Intent 过滤器。在同一个 Intent 过滤器中，如果同时设置了多个 action 或 category，那么这些条件之间是 “或” 的关系，只要满足其中任意一个，该 Intent Filter 就会被匹配到。</p>
+<h3 id="Action匹配规则"><a href="#Action匹配规则" class="headerlink" title="Action匹配规则"></a>Action匹配规则</h3><ul>
+<li>Intent只能设置一个action，但一个Intent过滤器可以声明多个action。只要Intent中的action与Intent过滤器的某一项action匹配，就可以通过action测试。</li>
+<li>如果Intent过滤器未列出任何action，则 Intent 没有任何匹配项，因此所有 Intent 均无法通过action测试。</li>
+<li>如果 Intent 未指定action，则只要Intent过滤器内包含至少一项action，就可以通过action测试。</li>
+</ul>
+<h3 id="Data匹配规则"><a href="#Data匹配规则" class="headerlink" title="Data匹配规则"></a>Data匹配规则</h3><p>Data的匹配规则分为两部分：URI和MIME。</p>
+<h4 id="URI匹配规则"><a href="#URI匹配规则" class="headerlink" title="URI匹配规则"></a>URI匹配规则</h4><p>URI的格式为<code>&lt;scheme&gt;://&lt;host&gt;:&lt;port&gt;/&lt;path&gt;</code>，上述每个属性均为可选，但存在线性依赖关系：</p>
+<ul>
+<li>如果未指定scheme，则会忽略host。</li>
+<li>如果未指定host，则会忽略port。</li>
+<li>如果未指定scheme和host，则会忽略path</li>
+</ul>
+<p>Intent 中的 URI 与过滤器中的 URI 进行比较时，它仅与过滤器中包含的部分 URI 进行比较（即刚才所讲到的依赖关系）。例如：</p>
+<ul>
+<li>如果过滤器仅指定scheme，则具有该scheme的所有 URI 均与该过滤器匹配。</li>
+<li>如果过滤器指定scheme和authority，但未指定path，则具有相同scheme和authority的所有 URI 都会通过过滤器，无论其path如何均是如此。</li>
+<li>如果过滤器指定scheme、authority和path，则仅具有相同scheme、authority和path的 URI 才会通过过滤器。</li>
+<li>path 部分可以使用通配符(*)，仅需部分匹配路径名即可。</li>
+</ul>
+<h4 id="URI和MIME匹配规则"><a href="#URI和MIME匹配规则" class="headerlink" title="URI和MIME匹配规则"></a>URI和MIME匹配规则</h4><ol>
+<li>仅当过滤器未指定任何 URI 或 MIME 类型时，不含 URI 和 MIME 类型的 Intent 才会通过测试。</li>
+<li>如果 Intent 指定 URI 或 MIME 类型，而过滤器中没有声明data元素，则Intent不能通过测试。</li>
+<li>如果 Intent 指定 URI 或 MIME 类型，仅当有过滤器能匹配其URI和MIME类型时，才会通过测试。</li>
+<li>对于包含 URI 但不含 MIME 类型（既未显式声明，也无法通过 URI 推断得出）的 Intent，仅当其 URI 与过滤器的 URI 格式匹配、<strong>且过滤器同样未指定 MIME 类型时</strong>，才会通过测试。</li>
+<li>仅当过滤器列出相同的 MIME 类型且未指定 URI 格式时，包含 MIME 类型但不含 URI 的 Intent 才会通过测试。</li>
+<li>如果过滤器只是列出 MIME 类型，则默认支持URI含 <code>content:</code> 或 <code>file:</code>的数据。</li>
+</ol>
+<p>由于大部分可用数据均由内容提供程序分发，因此指定数据类型（而非 URI）的过滤器也许最为常见。</p>
+<p>另一常见的配置是具有架构和数据类型的过滤器，如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">intent-filter</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">data</span> <span class="hljs-attr">android:scheme</span>=<span class="hljs-string">&quot;http&quot;</span> <span class="hljs-attr">android:mimeType</span>=<span class="hljs-string">&quot;video/*&quot;</span> /&gt;</span><br>    ...<br><span class="hljs-tag">&lt;/<span class="hljs-name">intent-filter</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="Category匹配规则"><a href="#Category匹配规则" class="headerlink" title="Category匹配规则"></a>Category匹配规则</h3><ul>
+<li>Intent 可以包含多项 category，Intent 过滤器也可以包含多项 category。Intent 中的每项category 必须在Intent过滤器中都有对应项，才能通过category 测试。（Intent过滤器声明的category可以超过Intent中的category数量）</li>
+<li>不含category的Intent始终会通过Intent过滤器中的category测试。</li>
+<li>当目标组件为 Activity 时，如需响应隐式 Intent，必须添加 “android.intent.category.DEFAULT” 到 Intent 过滤器中。</li>
+<li>目标组件为广播时，Intent 和 Intent 过滤器都不设置 category，可通过匹配。</li>
+</ul>
+<h1 id="五、Intent数据传递"><a href="#五、Intent数据传递" class="headerlink" title="五、Intent数据传递"></a>五、Intent数据传递</h1><p>Intent不仅可以用来启动组件，还可以用来传递数据。</p>
+<p>Intent传送数据是以键值对的形式。</p>
+<p>传递单个数据时，主要通过<code>putExtra()</code>方法，该方法接收两个参数，第一个是数据的键，第二个是数据的值。</p>
+<p>传递多个数据时，使用Bundle对象作为容器，先将数据存储到Bundle中，然后通过<code>putExtras()</code>方法传入Intent中。</p>
+<p>Intent传递的数据可分为以下几种：</p>
+<ol>
+<li><strong>基本类型数据</strong>：如int、float、double等。</li>
+<li><strong>字符串类型数据</strong>：如String、CharSequence等。</li>
+<li><strong>序列化数据类型</strong>：如ArrayList、Bundle等。</li>
+<li><strong>自定义数据类型</strong>：如Parcelable、Serializable对象。</li>
+</ol>
+<h2 id="5-1-Intent数据回传"><a href="#5-1-Intent数据回传" class="headerlink" title="5.1 Intent数据回传"></a>5.1 Intent数据回传</h2><p>一个Activity可以通过Intent启动另一个Activity，有时候，我们希望后者能够返回一些数据给前者，这时候就需要使用数据回传。典型的应用场景如：充值。</p>
+<p>数据回传的过程如下：</p>
+<ol>
+<li>在调用者 Activity 中，重写 <code>onActivityResult(int requestCode, int resultCode, Intent intent) </code> 方法。其中<code>requestCode</code>是请求码，<code>resultCode</code>是结果码。</li>
+<li>在调用者 Activity 中，使用 <code>startActivityForResult(Intent intent, int requestCode)</code> 方法启动另一个 Activity。其中请求码由我们自己设定，用于区分请求来源。</li>
+<li>在被调用的 Activity 中，获取需要返回的数据，并将其放入一个 Intent 对象中。</li>
+<li>在被调用的 Activity 中，调用 <code>setResult(int resultCode, Intent data)</code> 方法来设置返回结果和结果码。</li>
+<li>在被调用的 Activity 中，调用 <code>finish() </code>方法来结束当前 Activity 的生命周期。当被请求的 Activity 被关闭时，就会调用请求者Activity的<code>onActivityResult()</code> 方法。</li>
+</ol>
+<p><strong>请求码</strong>和<strong>结果码</strong>的作用如下：</p>
+<ul>
+<li><strong>区分不同的请求</strong>：如果一个 Activity 发送了多个不同的请求，在 onActivityResult 方法中使用请求码来区别不同的请求，以便做出不同的处理。</li>
+<li><strong>标识操作执行结果</strong>：结果码用于标识操作的执行结果，比如成功、失败、用户取消等。这可以告诉调用方执行的操作是否成功。</li>
+<li><strong>保证数据正确性</strong>：使用请求码和结果码可以确保返回的数据来自于正确的 Activity，防止数据被恶意篡改或者被其他程序错误地返回。</li>
+<li><strong>简化代码编写</strong>：使用请求码和结果码，开发者可以更加简单方便地实现 Activity 之间的数据传递，减少编写冗长代码的工作量。</li>
+</ul>
+<h1 id="六、待定Intent"><a href="#六、待定Intent" class="headerlink" title="六、待定Intent"></a>六、待定Intent</h1><p>待定Intent（Pending Intent）是Android平台中的一种特殊类型的Intent对象，通常被用于延迟执行某个动作。待定Intent和普通Intent的区别在于，待定Intent是在稍有的实践点由系统代理执行，而不是立刻执行。</p>
+<p>典型的应用场景如：设置闹钟、备忘录。</p>
+<h3 id="6-1-PendingIntent的相关方法"><a href="#6-1-PendingIntent的相关方法" class="headerlink" title="6.1 PendingIntent的相关方法"></a>6.1 PendingIntent的相关方法</h3><ul>
+<li>getActivity()：返回一个启动 Activity 的 PendingIntent。</li>
+<li>getService()：返回一个启动 Service 的 PendingIntent。</li>
+<li>getBroadcast()：返回一个发送广播的 PendingIntent。</li>
+<li>cancel()：取消当前的 PendingIntent。</li>
+<li>send()：发送当前的 PendingIntent。</li>
+</ul>
+<h3 id="6-2-PendingIntent的标志位"><a href="#6-2-PendingIntent的标志位" class="headerlink" title="6.2 PendingIntent的标志位"></a>6.2 PendingIntent的标志位</h3><p>在创建待定 Intent 时，我们还可以设置 PendingIntent.FLAG_XXX等标志位。这些标志位主要用于控制 PendingIntent 的一些行为和属性，以下是几种常用的标志位：</p>
+<ul>
+<li><strong>FLAG_ONE_SHOT</strong>：表示 PendingIntent 只能被使用一次。</li>
+<li><strong>FLAG_CANCEL_CURRENT</strong>：表示如果 PendingIntent 已经存在，则会先取消当前的 PendingIntent，然后重新创建一个新的 PendingIntent。</li>
+<li><strong>FLAG_UPDATE_CURRENT</strong>：表示如果 PendingIntent 已经存在，则会更新它的 Extras 数据，而不是重新创建一个新的 PendingIntent。</li>
+<li><strong>FLAG_NO_CREATE</strong>：表示如果 PendingIntent 已经存在，返回它，否则返回 null。</li>
+</ul>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/165542980">Intent详解以及Activity的跳转与数据传递 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/android-tutorial-intent-base.html">4.5.1 Intent的基本使用 | 菜鸟教程 (runoob.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.android.google.cn/guide/components/intents-filters?hl=zh-cn#Building">Intent 和 Intent 过滤器  | Android 开发者  | Android Developers (google.cn)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/19147a69e970">Android Intent详解 - 简书 (jianshu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/45397580">Android-Intent-Intent Filter篇 - 知乎 (zhihu.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android Intent</div>
+      <div>http://example.com/2023/07/04/Android安全/Android Intent/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" title="Android系统启动流程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android系统启动流程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/" title="Android四大组件">
+                        <span class="hidden-mobile">Android四大组件</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

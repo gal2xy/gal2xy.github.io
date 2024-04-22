@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数$(N,p,q)$和四个次数为$N-1$得整数多项式集合 $L_f,L_g,L_φ,L_m$。$N$为素数，$p,q$可以是合数，但要求$gcd(p,q) &#x3D; 1$，且$q$远大于$p$。 NTRU工作于多项式整数环$R &#x3D; Z[x]&#x2F;(x^N-1)$，当$F∈R$时，可以把$F$表示为多项">
+<meta property="og:type" content="article">
+<meta property="og:title" content="格密码学习（二）">
+<meta property="og:url" content="http://example.com/2022/04/19/CTF/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="本文主要通过分析一些例题来学习格。  NTRU摘自Lazzaro 三个整数参数$(N,p,q)$和四个次数为$N-1$得整数多项式集合 $L_f,L_g,L_φ,L_m$。$N$为素数，$p,q$可以是合数，但要求$gcd(p,q) &#x3D; 1$，且$q$远大于$p$。 NTRU工作于多项式整数环$R &#x3D; Z[x]&#x2F;(x^N-1)$，当$F∈R$时，可以把$F$表示为多项">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031040179.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031040878.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031041704.png">
+<meta property="article:published_time" content="2022-04-19T11:25:37.000Z">
+<meta property="article:modified_time" content="2022-10-03T02:41:29.307Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="NTRU">
+<meta property="article:tag" content="格密码">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031040179.png">
+  
+  
+  
+  <title>格密码学习（二） - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="格密码学习（二）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-19 19:25" pubdate>
+          2022年4月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">格密码学习（二）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文主要通过分析一些例题来学习格。</p>
+<hr>
+<h1 id="NTRU"><a href="#NTRU" class="headerlink" title="NTRU"></a>NTRU</h1><p>摘自Lazzaro</p>
+<p>三个整数参数$(N,p,q)$和四个次数为$N-1$得整数多项式集合 $L_f,L_g,L_φ,L_m$。$N$为素数，$p,q$可以是合数，但要求$gcd(p,q) &#x3D; 1$，且$q$远大于$p$。</p>
+<p>NTRU工作于多项式整数环$R &#x3D; Z[x]&#x2F;(x^N-1)$，当$F∈R$时，可以把$F$表示为多项式或向量形式：<br>$$<br>F&#x3D;\sum_{i&#x3D;0}^{N-1}{F_ix^i}&#x3D;[F_0,F_1,…,F_{N-1}]<br>$$<br>选取三个确定的整数$d_f,d_g,d_φ$，多项式集合$L_f&#x3D;L(d_f,d_{f-1}),L_g&#x3D;L(d_g,d_g),L_φ&#x3D;L(d_φ,d_φ)$，而$L_m&#x3D;{m∈R|m的系数位于区间[-\dfrac{p-1}{2},\dfrac{p-1}{2}],其中p为素数}$。</p>
+<ul>
+<li><p>密钥生成</p>
+<p>选择多项式$f$和$g$，$f∈L_f$，$g∈L_g$。要求$f$关于模$p$和模$q$的逆元$F_p$，$F_q$都存在，否则重新选取$f$。</p>
+</li>
+<li><p>加密</p>
+<p>A发送的消息$m∈L_m$，根据参数$d_φ$随机选取一个$φ∈L_φ$，利用公钥$h$计算<br>$$<br>c ≡ φ*h+m\quad(mod\ q)<br>$$<br>A把密文c发给了B。</p>
+</li>
+<li><p>解密</p>
+<p>B收到密文c后，利用私钥$f$计算<br>$$<br>a≡f*c\quad(mod\ q)<br>$$<br>选择a的系数位于$[-\dfrac{p-1}{2},\dfrac{p-1}{2}]$之间，计算<br>$$<br>b≡a\quad(mod\ p)\<br>m≡F_p*b\quad(mod\ p)<br>$$<br>多项式m即是明文。</p>
+</li>
+</ul>
+<p>例题：</p>
+<p>巅峰极客线上赛的一道密码题NTURE。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">from</span> flag <span class="hljs-keyword">import</span> flag<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate</span>():<br>    p = getStrongPrime(<span class="hljs-number">2048</span>)<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        f = getRandomNBitInteger(<span class="hljs-number">1024</span>)<br>        g = getStrongPrime(<span class="hljs-number">768</span>)<br>        h = gmpy2.invert(f, p) * g % p<br>        <span class="hljs-keyword">return</span> (p, f, g, h)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypt</span>(<span class="hljs-params">plaintext, p, h</span>):<br>    m = bytes_to_long(plaintext)<br>    r = getRandomNBitInteger(<span class="hljs-number">1024</span>)<br>    c = (r * h + m) % p<br>    <span class="hljs-keyword">return</span> c<br><br><br>p, f, g, h = generate()<br>c = encrypt(flag, p, h)<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;cipher.txt&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    f.write(<span class="hljs-string">&quot;h = &quot;</span> + <span class="hljs-built_in">str</span>(h) + <span class="hljs-string">&quot;\n&quot;</span>)<br>    f.write(<span class="hljs-string">&quot;p = &quot;</span> + <span class="hljs-built_in">str</span>(p) + <span class="hljs-string">&quot;\n&quot;</span>)<br>    f.write(<span class="hljs-string">&quot;c = &quot;</span> + <span class="hljs-built_in">str</span>(c) + <span class="hljs-string">&quot;\n&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a>中有非常详细的解析。（大可不必继续往下翻）</p>
+<p>根据题目有<br>$$<br>\begin{align}<br>h &#x3D; f_p*g\quad (mod\ p) \tag{1}\\<br>c &#x3D; r*h+m\quad (mod\ p) \tag{2}<br>\end{align}<br>$$<br>(2)式等式两边同$×f$，得<br>$$<br>c*f &#x3D; r*g + m*f\quad (mod\ p)\tag{3}<br>$$<br>分析各个数的bit：</p>
+<p>(贴过来)</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">r</span>：<span class="hljs-number">1024</span>bit<br><span class="hljs-attribute">g</span>：<span class="hljs-number">768</span>bit<br><span class="hljs-attribute">m</span>：flag字符串转成数字，一个字符<span class="hljs-number">8</span>bit，一般来说flag不会太长，所以基本上是小<span class="hljs-number">1000</span>bit的。<br><span class="hljs-attribute">f</span>：<span class="hljs-number">1024</span>bit<br><span class="hljs-attribute">p</span>：<span class="hljs-number">2048</span>bit<br></code></pre></td></tr></table></figure>
+
+<p>发现$r*g + m*f$小于$p$，故令$a &#x3D; c*f%p$，则有等式<br>$$<br>a &#x3D; r*g+m*f\tag{4}<br>$$<br>(4)式对g取模得<br>$$<br>a &#x3D; m*f\quad(mod\ g)\tag{5}<br>$$<br>很可惜，我们并不知道$f,g$。</p>
+<p>这里就需要用到格了。</p>
+<p>我们已知$h,p,c$，要求$f,g$。</p>
+<p>如何构造呢？以下是我的初步理解（可能有误）：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">利用关系等式、已知量以及常量构造格（矩阵），通过矩阵变化求出含f,g的矩阵。<br>求解未知数的个数一般是矩阵的行和列。<br></code></pre></td></tr></table></figure>
+
+<p>那么就有：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs armasm">构造<span class="hljs-number">2</span>×<span class="hljs-number">2</span>的矩阵M<br>矩阵<span class="hljs-keyword">B</span> = [f,g]为我们的最终结果<br></code></pre></td></tr></table></figure>
+
+<p>根据关系等式(1)，改写得$f*h &#x3D; g\quad(mod\ p)$，进一步有$f*h &#x3D; g + k*p$，将$k*p$移至等式左边得$g &#x3D; f*h-k*p$。</p>
+<p>很显然，$f,g,p$之间存在关系，将矩阵$B &#x3D; [f,g]$化成$[f,f*h-k*p]$，讨论它是由怎样一个2×2的矩阵$M$得来的以及如何得到的。</p>
+<p>易知$[f,g]$是由一个1×2的矩阵$A$乘一个2×2的矩阵$M$得来的。反推一下，就有$A &#x3D; [f,-k]$，$M&#x3D;\left[\matrix{1&amp;h\\0&amp;p}\right]$。</p>
+<ol>
+<li>因为与$f$有关的关系等式已经用来代换$g$了，所以推出$A&#x3D;[f，？]$</li>
+<li>然后可以推出$M&#x3D;\left[\matrix{1&amp;?\\0&amp;?}\right]$</li>
+<li>根据$B&#x3D;[f,f*h-k*p]$第二个数，可知$A &#x3D; [f,-k]$，$M&#x3D;\left[\matrix{1&amp;h\\0&amp;p}\right]$。</li>
+</ol>
+<p>（可能向量维度一高，逆向分析就很难了）</p>
+<p>但好在接这类题目有通用矩阵</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031040179.png" srcset="/img/loading.gif" lazyload/>
+
+<p>继续分析，求出的矩阵$B &#x3D; [f,g]$为什么就是最短向量呢？</p>
+<p><code>Gaussian heurstic</code>：</p>
+<p>以及<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031040878.png" srcset="/img/loading.gif" lazyload/></p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main//img/202210031041704.png" srcset="/img/loading.gif" lazyload/>
+
+<p>可知，在这个M中最短向量的长度大概在$sqrt(det(M))&#x3D; sqrt(p)&#x3D;sqrt(2^{2048})&#x3D;2^{1024}$左右。</p>
+<p>而$sqrt(det(B)) &#x3D; sqrt(\sqrt{f^2+g^2}) ≈ 2^{1024}$。</p>
+<p>因此，很大概率上，这个$[f, g]$就是这个lattice的最短向量。</p>
+<p>代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#sage</span><br>h = <span class="hljs-number">7257231567493321493497732423756001924698993879741072696808433246581786362611889417289029671240997843541696187487722285762633068287623369923457879458577466240950224087015909821079480431797917376609839097610864517760515986973340148901898582075413756737310797402537478388864632901178463429574227279668004092519322204990617969134092793157225082977967228366838748193084097651575835471869030934527383379794480007872562067799484905159381690179011192017159985260435844246766711550315143517066359521598424992244464723490166447105679062078049379153154659732304112563255058750656946353654402824529058734270363154894216317570784</span><br>p = <span class="hljs-number">23969137365202547728693945383611572667294904799854243194734466236017441545927679469239814785947383727854265554138290421827510545078908517696536495567625593439996528098119344504866817224169113920532528233185011693829122447604993468817512696036673804626830507903206709121383065701222707251053362179946170981868061834734684494881504724254812067180384269711822738708203454131838741703416329765575995359232573740932069147491776326045743679105041246906081872936901848272288949389026129761726749334006319072981386763830897454245553866145620689939497868469730297795063648030738668273210516497399954626983672357236110363894081</span><br>c = <span class="hljs-number">6388077150013017095358415295704360631706672647932184267739118115740221804173068089559645506533240372483689997499821300861865955720630884024099415936433339512125910973936154713306915269365877588850574948033131161679256849814325373882706559635563285860782658950169507940368219930971600522754831612134153314448445006958300840618894359885321144158064446236744722180819829183828290798747455324761671198097712539900569386477647697973195787663298318786718012522378981137877863153067057280649127202971806609339007027052518049995341356359016898069863799529357397514218249272201695539181908803360181347114492616706419618151757</span><br><br>m = matrix([[<span class="hljs-number">1</span>,h],[<span class="hljs-number">0</span>,p]])<br>shortest_vector = m.LLL()[<span class="hljs-number">0</span>]<br>f,g = shortest_vector<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;f = <span class="hljs-subst">&#123;f&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;g = <span class="hljs-subst">&#123;g&#125;</span>&#x27;</span>)<br><br>a = c*f%p%g<br>m = a*inverse_mod(f,g)%g<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;m = <span class="hljs-subst">&#123;m&#125;</span>&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>最后long_to_bytes(m)就行了。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7163">从一道CTF题初探NTRU格密码 - 先知社区 (aliyun.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://lazzzaro.github.io/2020/11/07/crypto-%E6%A0%BC%E5%AF%86%E7%A0%81/">格密码 Lazzaro (lazzzaro.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33458986/article/details/104366177">Lattices and Cryptography（格理论与密码学）</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/NTRU/">#NTRU</a>
+      
+        <a href="/tags/%E6%A0%BC%E5%AF%86%E7%A0%81/">#格密码</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>格密码学习（二）</div>
+      <div>http://example.com/2022/04/19/CTF/格密码学习（二）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月19日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/20/CTF/starctf2022/" title="starctf2022">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">starctf2022</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/10/CTF/%E6%A0%BC%E5%AF%86%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89/" title="格密码学习（一）">
+                        <span class="hidden-mobile">格密码学习（一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

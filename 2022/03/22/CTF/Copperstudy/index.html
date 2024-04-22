@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="最近遇到一个很不错的题【强网杯2019 Copperstudy】，里面包含大多数Coppersmith攻击，故以此题来分析其中出现的不同情况的攻击方式。  Coppersmith 可以用于求多项式的小根，经常用于 RSA 攻击中“已知某些二进制位，求剩余位”这一类问题。  d0:hash爆破1234567891011121314151617def d0(hashstr,str):    for">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Copperstudy">
+<meta property="og:url" content="http://example.com/2022/03/22/CTF/Copperstudy/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="最近遇到一个很不错的题【强网杯2019 Copperstudy】，里面包含大多数Coppersmith攻击，故以此题来分析其中出现的不同情况的攻击方式。  Coppersmith 可以用于求多项式的小根，经常用于 RSA 攻击中“已知某些二进制位，求剩余位”这一类问题。  d0:hash爆破1234567891011121314151617def d0(hashstr,str):    for">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-22T12:57:30.000Z">
+<meta property="article:modified_time" content="2022-07-28T13:52:04.440Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Coppersmith">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Copperstudy - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Copperstudy"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-22 20:57" pubdate>
+          2022年3月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Copperstudy</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <hr>
+<p>最近遇到一个很不错的题【强网杯2019 Copperstudy】，里面包含大多数Coppersmith攻击，故以此题来分析其中出现的不同情况的攻击方式。</p>
+<hr>
+<p>Coppersmith 可以用于求多项式的小根，经常用于 RSA 攻击中“已知某些二进制位，求剩余位”这一类问题。</p>
+<hr>
+<h1 id="d0-hash爆破"><a href="#d0-hash爆破" class="headerlink" title="d0:hash爆破"></a>d0:hash爆破</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">d0</span>(<span class="hljs-params">hashstr,<span class="hljs-built_in">str</span></span>):<br>    <span class="hljs-keyword">for</span> a <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>):<br>        <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>):<br>            <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">256</span>):<br>                s = <span class="hljs-built_in">str</span>+a.to_bytes(<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;big&#x27;</span>)+b.to_bytes(<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;big&#x27;</span>)+c.to_bytes(<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;big&#x27;</span>)<br>                <span class="hljs-keyword">if</span> hashlib.sha256(s).hexdigest() == hashstr:<br>                    <span class="hljs-keyword">return</span> binascii.hexlify(s)<br><br>sh = remote(<span class="hljs-string">&quot;node4.buuoj.cn&quot;</span>,<span class="hljs-number">29418</span>)<br>sh.recvline()<br>sh.recvuntil(<span class="hljs-string">b&#x27;=&#x27;</span>)<br>hashstr = sh.recvline()[:-<span class="hljs-number">1</span>].decode()<br>sh.recvuntil(<span class="hljs-string">b&#x27;=&#x27;</span>)<br><span class="hljs-built_in">str</span> = binascii.unhexlify(sh.recvline()[:-<span class="hljs-number">1</span>])<br>sh.recvline()<br>sh.sendline(d0(hashstr,<span class="hljs-built_in">str</span>))<br><span class="hljs-built_in">print</span>(sh.recvline())<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="d1-已知p高位求低位"><a href="#d1-已知p高位求低位" class="headerlink" title="d1:已知p高位求低位"></a>d1:已知p高位求低位</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">e = <br>n = <br>phigh = <br>R.&lt;x&gt; = PolynomialRing(Zmod(n))<br>p = phigh + x<br>x0 = p.small_roots(X = <span class="hljs-number">2</span>^<span class="hljs-number">388</span>,beta = <span class="hljs-number">0.4</span>)[<span class="hljs-number">0</span>]<br><span class="hljs-built_in">print</span>(x0)<br></code></pre></td></tr></table></figure>
+
+<h1 id="d2-已知m高位求低位"><a href="#d2-已知m高位求低位" class="headerlink" title="d2:已知m高位求低位"></a>d2:已知m高位求低位</h1><p>$$<br>highm &#x3D; 2^{72}*m_{h72}\quad 和\quad<br>c≡(highm+x)^e\ mod\ n<br>$$</p>
+<p>转换成sage方程：<br>$$<br>f &#x3D; (highm+x)^e - c &#x3D; 0<br>$$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">n = <br>e = <br>c = <br>highm = <br><br>R.&lt;x&gt; = PolynomialRing(Zmod(n), implementation=<span class="hljs-string">&#x27;NTL&#x27;</span>)<br><br>f = (highm+x)^e - c<br>x0 = f.small_roots()[<span class="hljs-number">0</span>]<br><span class="hljs-built_in">print</span>(x0)<br><br>m = highm+x0<br><span class="hljs-built_in">print</span>(m)<br></code></pre></td></tr></table></figure>
+
+<h1 id="d3-已知d低位求高位"><a href="#d3-已知d低位求高位" class="headerlink" title="d3:已知d低位求高位"></a>d3:已知d低位求高位</h1><p>d的低512bits<br>$$<br>e*d ≡ 1\ mod \ φ(n)\<br>&#x3D;&gt;e*d &#x3D; 1+k*(p-1)*(q-1)<br>$$<br>两边对$2^{512}$取模，得：<br>$$<br>e*d_{low} ≡ 1 + k*(n-p-q+1)\ mod\ 2^{512}<br>$$<br>为了让上式成为单变量等式（假定k已知），两边同乘p（或q），得：<br>$$<br>e*d_{low}*p ≡ 1 + k*(n*p-p^2-n-p)\ mod\ 2^{512}<br>$$<br>解此方程可得到p的低512bits，再通过类似d2的方法求其高位，从而得到p,q。</p>
+<p>需要注意的是k是未知的，需要枚举其值。参考他人博客，应该枚举前几个就行了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getp</span>(<span class="hljs-params">n,p_list</span>):<br>    <br>    R.&lt;x&gt; = PolynomialRing(Zmod(n), implementation=<span class="hljs-string">&#x27;NTL&#x27;</span>)<br>    <span class="hljs-keyword">for</span> each <span class="hljs-keyword">in</span> p_list:<br>        f = x*<span class="hljs-number">2</span>^<span class="hljs-number">512</span> + each<br>        x0 = f.monic().small_roots(X = <span class="hljs-number">2</span>^<span class="hljs-number">128</span>, beta = <span class="hljs-number">0.4</span>)<br>        <span class="hljs-keyword">if</span> x0:<br>            <span class="hljs-keyword">return</span> f(x0[<span class="hljs-number">0</span>])<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">d3</span>(<span class="hljs-params">d_low,n,c,e</span>):<br>    <br>    p_list = []<br>    <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>,<span class="hljs-number">4</span>):<br>        p = var(<span class="hljs-string">&#x27;p&#x27;</span>)<br>        f = solve_mod([<span class="hljs-number">3</span>*p*d_low == p+k*(n*p-p^<span class="hljs-number">2</span>-n+p)],<span class="hljs-number">2</span>^<span class="hljs-number">512</span>)<br>        p_list += [<span class="hljs-built_in">int</span>(x[<span class="hljs-number">0</span>]) <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> f]<br>    <span class="hljs-comment">#print(p_list)    </span><br>    p = <span class="hljs-built_in">int</span>(getp(n,p_list))<br>    q = n//p<br>    d = inverse_mod(e,(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>))<br>    m = <span class="hljs-built_in">pow</span>(c,d,n)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-built_in">hex</span>(m)[<span class="hljs-number">2</span>:])<br>    <br>n = <br>c = <br>d_low = <br>e = <span class="hljs-number">3</span><br><br>d3(d_low,n,c,e)<br></code></pre></td></tr></table></figure>
+
+<h1 id="d4-广播攻击"><a href="#d4-广播攻击" class="headerlink" title="d4:广播攻击"></a>d4:广播攻击</h1><p>利用中国剩余定理求解。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> gmpy2<br>e=<span class="hljs-number">3</span><br>n1=<span class="hljs-number">78642188663937191491235684351005990853149481644703243255021321296087539054265733392095095639539412823093600710316645130404423641473150336492175402885270861906530337207734106926328737198871118125840680572148601743121884788919989184318198417654263598170932154428514561079675550090698019678767738203477097731989</span><br>c1=<span class="hljs-number">23419685303892339080979695469481275906709035609088426118328601771163101123641599051556995351678670765521269546319724616458499631461037359417701720430452076029312714313804716888119910334476982840024696320503747736428099717113471541651211596481005191146454458591558743268791485623924245960696651150688621664860</span><br>n2=<span class="hljs-number">98174485544103863705821086588292917749386955237408645745685476234349659452606822650329076955303471252833860010724515777826660887118742978051231030080666542833950748806944312437614585352818344599399156268450521239843157288915059003487783576003027303399985723834248634230998110618288843582573006048070816520647</span><br>c2=<span class="hljs-number">72080679612442543693944655041130370753964497034378634203383617624269927191363529233872659451561571441107920350406295389613006330637565645758727103723546610079332161151567096389071050158035757745766399510575237344950873632114050632573903701015749830874081198250578516967517980592506626547273178363503100507676</span><br><br>M = CRT([c1,c2],[n1,n2])<br>m = gmpy2.iroot(M,<span class="hljs-number">3</span>)[<span class="hljs-number">0</span>]<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">hex</span>(m)[<span class="hljs-number">2</span>:])<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="d5-ranklin-Reiter-相关消息攻击"><a href="#d5-ranklin-Reiter-相关消息攻击" class="headerlink" title="d5:ranklin-Reiter 相关消息攻击"></a>d5:ranklin-Reiter 相关消息攻击</h1><p>$$<br>\begin{cases}<br>c_1 ≡ m^e\ mod\ n<br>\\<br>c_2 ≡ (m+1)^e\ mod\ n<br>\end{cases}<br>&#x3D;&#x3D;&gt;<br>\begin{cases}<br>m^e-c_1&#x3D;0<br>\\<br>(m+1)^e-c_2&#x3D;0<br>\end{cases}<br>$$</p>
+<p>既然已知$m$是上述两方程的根，说明其公约式含$(x-m)$。</p>
+<p>(因为方程可以化成$(x-x_1)*(x-x_2)*…*(x-x_e)$)</p>
+<p>于是乎，对两个方程求公约式即可（sagemath是真的强大，这都能求，代码类似求两个数的公约数）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">gcd</span>(<span class="hljs-params">a,b</span>):<br>    <span class="hljs-keyword">if</span> b == <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> a.monic()<br>    <span class="hljs-keyword">else</span>: <br>        <span class="hljs-keyword">return</span> gcd(b,a%b)<br><br>n = <br>c1 = <br>c2 = <br>e = <br><br>R.&lt;x&gt; = PolynomialRing(Zmod(n))<br>f1 = x^e - c1<br>f2 = (x+<span class="hljs-number">1</span>)^e - c2<br><br>g = gcd(f1,f2)<br><span class="hljs-comment">#print(g)</span><br><span class="hljs-comment">#print(g.coefficients())#求各项的系数，按次数从低到高排列</span><br>m = n - g.coefficients()[<span class="hljs-number">0</span>]<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">hex</span>(m)[<span class="hljs-number">2</span>:])<br></code></pre></td></tr></table></figure>
+
+<h1 id="d6-Boneh-Durfee-攻击"><a href="#d6-Boneh-Durfee-攻击" class="headerlink" title="d6:Boneh Durfee 攻击"></a>d6:Boneh Durfee 攻击</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">[+]n= <br>[+]d=random.getrandbits(<span class="hljs-number">1024</span>*<span class="hljs-number">0.270</span>)<br>[+]e=invmod(d,phin)<br>[+]<span class="hljs-built_in">hex</span>(e)=<br>[+]m=random.getrandbits(<span class="hljs-number">512</span>)<br>[+]c=<span class="hljs-built_in">pow</span>(m,e,n)=<br></code></pre></td></tr></table></figure>
+
+<p>已知$e，d≤n^{0.27}$。使用</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/mimoo/RSA-and-LLL-attacks/blob/master/boneh_durfee.sage">Boneh Durfee 攻击</a></p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.ruanx.net/coppersmith/">Coppersmith 攻击 (ruanx.net)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Coppersmith/">#Coppersmith</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Copperstudy</div>
+      <div>http://example.com/2022/03/22/CTF/Copperstudy/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月22日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/23/CTF/%E7%BA%A2%E6%98%8E%E8%B0%B7%E6%9D%AF2022/" title="红明谷杯2022">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">红明谷杯2022</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/18/CTF/D%5E3CTF%202022/" title="D^3CTF2022">
+                        <span class="hidden-mobile">D^3CTF2022</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言在之前分析dex文件加载流程中（dex文件加载流程(一)(二)(三)），我们分析过了DexClassLoader和PathClassLoader这两个类加载器加载dex的流程。它们两个都是用来记载文件dex的，但是在Android 8新增了InMemoryDexClassLoader，专门用于加载内存dex，接下来我们就根据源码来剖析内存dex的加载流程。 二、InMemoryDexCla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InMemoryDexClassLoader加载内存dex的流程">
+<meta property="og:url" content="http://example.com/2023/12/06/Android%E5%AE%89%E5%85%A8/InMemoryDexClassLoader%E5%8A%A0%E8%BD%BD%E5%86%85%E5%AD%98dex%E7%9A%84%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言在之前分析dex文件加载流程中（dex文件加载流程(一)(二)(三)），我们分析过了DexClassLoader和PathClassLoader这两个类加载器加载dex的流程。它们两个都是用来记载文件dex的，但是在Android 8新增了InMemoryDexClassLoader，专门用于加载内存dex，接下来我们就根据源码来剖析内存dex的加载流程。 二、InMemoryDexCla">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-06T09:01:55.000Z">
+<meta property="article:modified_time" content="2023-12-06T09:02:33.352Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android源码解析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>InMemoryDexClassLoader加载内存dex的流程 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="InMemoryDexClassLoader加载内存dex的流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-06 17:01" pubdate>
+          2023年12月6日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          87 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">InMemoryDexClassLoader加载内存dex的流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在之前分析dex文件加载流程中（<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/">dex文件加载流程(一)(二)(三)</a>），我们分析过了DexClassLoader和PathClassLoader这两个类加载器加载dex的流程。它们两个都是用来记载文件dex的，但是在Android 8新增了InMemoryDexClassLoader，专门用于加载内存dex，接下来我们就根据源码来剖析内存dex的加载流程。</p>
+<h1 id="二、InMemoryDexClassLoader加载内存dex的流程"><a href="#二、InMemoryDexClassLoader加载内存dex的流程" class="headerlink" title="二、InMemoryDexClassLoader加载内存dex的流程"></a>二、InMemoryDexClassLoader加载内存dex的流程</h1><h2 id="2-1-InMemoryDexClassLoader"><a href="#2-1-InMemoryDexClassLoader" class="headerlink" title="2.1 InMemoryDexClassLoader"></a>2.1 InMemoryDexClassLoader</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/InMemoryDexClassLoader.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InMemoryDexClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseDexClassLoader</span> &#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Create an in-memory DEX class loader with the given dex buffers.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> dexBuffers array of buffers containing DEX files between</span><br><span class="hljs-comment">     *                       &lt;tt&gt;buffer.position()&lt;/tt&gt; and &lt;tt&gt;buffer.limit()&lt;/tt&gt;.</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> parent the parent class loader for delegation.</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@hide</span></span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">InMemoryDexClassLoader</span><span class="hljs-params">(ByteBuffer[] dexBuffers, ClassLoader parent)</span> &#123;<br>        <span class="hljs-built_in">super</span>(dexBuffers, parent);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">InMemoryDexClassLoader</span><span class="hljs-params">(ByteBuffer dexBuffer, ClassLoader parent)</span> &#123;<br>        <span class="hljs-built_in">this</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteBuffer</span>[] &#123; dexBuffer &#125;, parent);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>InMemoryDexClassLoader继承自BaseDexClassLoader，是专门用来加载内存dex的，<strong>其中第一个构造方法接受ByteBuffer数组，因此是可以支持多dex的</strong>。它的方法都在父类中实现，其中对应的构造方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/BaseDexClassLoader.java</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Constructs an instance.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * dexFile must be an in-memory representation of a full dexFile.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> dexFiles the array of in-memory dex files containing classes.</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> parent the parent class loader</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@hide</span></span><br><span class="hljs-comment">     */</span><br><span class="hljs-keyword">public</span> <span class="hljs-title function_">BaseDexClassLoader</span><span class="hljs-params">(ByteBuffer[] dexFiles, ClassLoader parent)</span> &#123;<br>    <span class="hljs-built_in">super</span>(parent);<br>    <span class="hljs-built_in">this</span>.pathList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DexPathList</span>(<span class="hljs-built_in">this</span>, dexFiles);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在该方法中，会创建一个DexPathList对象。</p>
+<h2 id="2-2-DexPathList实例化"><a href="#2-2-DexPathList实例化" class="headerlink" title="2.2 DexPathList实例化"></a>2.2 DexPathList实例化</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/DexPathList.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-title function_">DexPathList</span><span class="hljs-params">(ClassLoader definingContext, ByteBuffer[] dexFiles)</span> &#123;<br>    <span class="hljs-comment">//校验参数</span><br>    <span class="hljs-keyword">if</span> (definingContext == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>(<span class="hljs-string">&quot;definingContext == null&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (dexFiles == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>(<span class="hljs-string">&quot;dexFiles == null&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (Arrays.stream(dexFiles).anyMatch(v -&gt; v == <span class="hljs-literal">null</span>)) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>(<span class="hljs-string">&quot;dexFiles contains a null Buffer!&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-built_in">this</span>.definingContext = definingContext;<br>    <span class="hljs-comment">// 加载本地库</span><br>    <span class="hljs-built_in">this</span>.nativeLibraryDirectories = Collections.emptyList();<br>    <span class="hljs-built_in">this</span>.systemNativeLibraryDirectories = splitPaths(System.getProperty(<span class="hljs-string">&quot;java.library.path&quot;</span>), <span class="hljs-literal">true</span>);<br>    <span class="hljs-built_in">this</span>.nativeLibraryPathElements = makePathElements(<span class="hljs-built_in">this</span>.systemNativeLibraryDirectories);<br>	<br>    ArrayList&lt;IOException&gt; suppressedExceptions = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;IOException&gt;();<br>    <span class="hljs-comment">// 加载dex</span><br>    <span class="hljs-built_in">this</span>.dexElements = makeInMemoryDexElements(dexFiles, suppressedExceptions);<br>    <span class="hljs-keyword">if</span> (suppressedExceptions.size() &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-built_in">this</span>.dexElementsSuppressedExceptions =<br>            suppressedExceptions.toArray(<span class="hljs-keyword">new</span> <span class="hljs-title class_">IOException</span>[suppressedExceptions.size()]);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        dexElementsSuppressedExceptions = <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>值得注意的是，它在这里调用的是<code>makeInMemoryDexElements()</code>方法，而在DexClassLoader和PathClassLoader流程中，调用的是<code>makeDexElements()</code>方法。</p>
+<h2 id="2-3-makeInMemoryDexElements"><a href="#2-3-makeInMemoryDexElements" class="headerlink" title="2.3 makeInMemoryDexElements()"></a>2.3 makeInMemoryDexElements()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/DexPathList.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Element[] makeInMemoryDexElements(ByteBuffer[] dexFiles,<br>                                                 List&lt;IOException&gt; suppressedExceptions) &#123;<br>    <span class="hljs-comment">//根据传入的内存dex个数创建Element对象</span><br>    Element[] elements = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Element</span>[dexFiles.length];<br>    <span class="hljs-type">int</span> <span class="hljs-variable">elementPos</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">//遍历内存dex数组</span><br>    <span class="hljs-keyword">for</span> (ByteBuffer buf : dexFiles) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">//给内存dex创建DexFile对象</span><br>            <span class="hljs-type">DexFile</span> <span class="hljs-variable">dex</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DexFile</span>(buf);<br>            <span class="hljs-comment">//将刚创建的DexFile封装成Element对象</span><br>            elements[elementPos++] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Element</span>(dex);<br>        &#125; <span class="hljs-keyword">catch</span> (IOException suppressed) &#123;<br>            System.logE(<span class="hljs-string">&quot;Unable to load dex file: &quot;</span> + buf, suppressed);<br>            suppressedExceptions.add(suppressed);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (elementPos != elements.length) &#123;<br>        elements = Arrays.copyOf(elements, elementPos);<br>    &#125;<br>    <span class="hljs-keyword">return</span> elements;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个方法主要是遍历内存dex数组，给每个内存dex创建一个DexFile对象，并封装成Element对象。</p>
+<h2 id="2-4-DexFile实例化"><a href="#2-4-DexFile实例化" class="headerlink" title="2.4 DexFile实例化"></a>2.4 DexFile实例化</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/DexFile.java</span><br>DexFile(ByteBuffer buf) <span class="hljs-keyword">throws</span> IOException &#123;<br>    mCookie = openInMemoryDexFile(buf);<br>    mInternalCookie = mCookie;<br>    mFileName = <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用<code>openInMemoryDexFile()</code>方法，返回的cookie是用于操作dex文件的唯一凭证，可以理解为”身份码”。</p>
+<h2 id="2-5-openInMemoryDexFile"><a href="#2-5-openInMemoryDexFile" class="headerlink" title="2.5 openInMemoryDexFile()"></a>2.5 openInMemoryDexFile()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/libcore/dalvik/src/main/java/dalvik/system/DexFile.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">openInMemoryDexFile</span><span class="hljs-params">(ByteBuffer buf)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">//ByteBuffer.isDirect()用于判断当前缓冲区是否是直接缓冲区</span><br>    <span class="hljs-keyword">if</span> (buf.isDirect()) &#123;<br>        <span class="hljs-comment">//单dex</span><br>        <span class="hljs-keyword">return</span> createCookieWithDirectBuffer(buf, buf.position(), buf.limit());<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">//多dex</span><br>        <span class="hljs-keyword">return</span> createCookieWithArray(buf.array(), buf.position(), buf.limit());<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">native</span> Object <span class="hljs-title function_">createCookieWithDirectBuffer</span><span class="hljs-params">(ByteBuffer buf, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span>;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">native</span> Object <span class="hljs-title function_">createCookieWithArray</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] buf, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>最终调用两个native层的方法，它们都在<code>art/runtime/native/dalvik_system_DexFile.cc</code>中实现。</p>
+<h3 id="2-5-1-createCookieWithDirectBuffer"><a href="#2-5-1-createCookieWithDirectBuffer" class="headerlink" title="2.5.1 createCookieWithDirectBuffer()"></a>2.5.1 createCookieWithDirectBuffer()</h3><p><code>createCookieWithDirectBuffer()</code>对应<code>DexFile_createCookieWithDirectBuffer()</code>方法，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/native/dalvik_system_DexFile.cc</span><br><span class="hljs-function"><span class="hljs-type">static</span> jobject <span class="hljs-title">DexFile_createCookieWithDirectBuffer</span><span class="hljs-params">(JNIEnv* env,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                    jclass,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                    jobject buffer,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                    jint start,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                    jint end)</span> </span>&#123;<br>    <span class="hljs-comment">//获取起始地址</span><br>    <span class="hljs-type">uint8_t</span>* base_address = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">uint8_t</span>*&gt;(env-&gt;<span class="hljs-built_in">GetDirectBufferAddress</span>(buffer));<br>    <span class="hljs-keyword">if</span> (base_address == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-function">ScopedObjectAccess <span class="hljs-title">soa</span><span class="hljs-params">(env)</span></span>;<br>        <span class="hljs-built_in">ThrowWrappedIOException</span>(<span class="hljs-string">&quot;dexFileBuffer not direct&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>	<span class="hljs-comment">//分配内存</span><br>    <span class="hljs-function">std::unique_ptr&lt;MemMap&gt; <span class="hljs-title">dex_mem_map</span><span class="hljs-params">(AllocateDexMemoryMap(env, start, end))</span></span>;<br>    <span class="hljs-keyword">if</span> (dex_mem_map == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">DCHECK</span>(Thread::<span class="hljs-built_in">Current</span>()-&gt;<span class="hljs-built_in">IsExceptionPending</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-type">size_t</span> length = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">size_t</span>&gt;(end - start);<br>    <span class="hljs-comment">//复制到dex_mem_map中</span><br>    <span class="hljs-built_in">memcpy</span>(dex_mem_map-&gt;<span class="hljs-built_in">Begin</span>(), base_address, length);<br>	<span class="hljs-comment">//调用CreateSingleDexFileCookie创建Cookie</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">CreateSingleDexFileCookie</span>(env, std::<span class="hljs-built_in">move</span>(dex_mem_map));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是将java层的数据转换成native层的数据，最后调用<code>CreateSingleDexFileCookie()</code>方法。</p>
+<h3 id="2-5-2-createCookieWithArray"><a href="#2-5-2-createCookieWithArray" class="headerlink" title="2.5.2 createCookieWithArray()"></a>2.5.2 createCookieWithArray()</h3><p><code>createCookieWithArray()</code>对应<code>DexFile_createCookieWithArray()</code>方法，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/native/dalvik_system_DexFile.cc</span><br><span class="hljs-function"><span class="hljs-type">static</span> jobject <span class="hljs-title">DexFile_createCookieWithArray</span><span class="hljs-params">(JNIEnv* env,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             jclass,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             jbyteArray buffer,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             jint start,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             jint end)</span> </span>&#123;<br>    <span class="hljs-comment">//分配内存</span><br>    <span class="hljs-function">std::unique_ptr&lt;MemMap&gt; <span class="hljs-title">dex_mem_map</span><span class="hljs-params">(AllocateDexMemoryMap(env, start, end))</span></span>;<br>    <span class="hljs-keyword">if</span> (dex_mem_map == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">DCHECK</span>(Thread::<span class="hljs-built_in">Current</span>()-&gt;<span class="hljs-built_in">IsExceptionPending</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>	<span class="hljs-comment">//获取dex_mem_map的首地址</span><br>    <span class="hljs-keyword">auto</span> destination = <span class="hljs-built_in">reinterpret_cast</span>&lt;jbyte*&gt;(dex_mem_map.<span class="hljs-built_in">get</span>()-&gt;<span class="hljs-built_in">Begin</span>());<br>    <span class="hljs-comment">//复制到destination指向的内存</span><br>    env-&gt;<span class="hljs-built_in">GetByteArrayRegion</span>(buffer, start, end - start, destination);<br>    <span class="hljs-comment">//调用CreateSingleDexFileCookie创建Cookie</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">CreateSingleDexFileCookie</span>(env, std::<span class="hljs-built_in">move</span>(dex_mem_map));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同样最终也是调用<code>CreateSingleDexFileCookie()</code>方法。</p>
+<h2 id="2-6-CreateSingleDexFileCookie"><a href="#2-6-CreateSingleDexFileCookie" class="headerlink" title="2.6 CreateSingleDexFileCookie()"></a>2.6 CreateSingleDexFileCookie()</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">//路径：/art/runtime/native/dalvik_system_DexFile.cc</span><br><span class="hljs-function"><span class="hljs-type">static</span> jobject <span class="hljs-title">CreateSingleDexFileCookie</span><span class="hljs-params">(JNIEnv* env, std::unique_ptr&lt;MemMap&gt; data)</span> </span>&#123;<br>    <span class="hljs-comment">//调用CreateDexFile()创建DexFile对象</span><br>    <span class="hljs-function">std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt; <span class="hljs-title">dex_file</span><span class="hljs-params">(CreateDexFile(env, std::move(data)))</span></span>;<br>    <span class="hljs-keyword">if</span> (dex_file.<span class="hljs-built_in">get</span>() == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">DCHECK</span>(env-&gt;<span class="hljs-built_in">ExceptionCheck</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-comment">//DexFile数组</span><br>    std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; dex_files;<br>    <span class="hljs-comment">//将刚刚创建的dex_file放入数组中</span><br>    dex_files.<span class="hljs-built_in">push_back</span>(std::<span class="hljs-built_in">move</span>(dex_file));<br>    <span class="hljs-comment">//调用ConvertDexFilesToJavaArray()方法转成可供Java层使用的数据</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">ConvertDexFilesToJavaArray</span>(env, <span class="hljs-literal">nullptr</span>, dex_files);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是调用<code>CreateDexFile()</code>方法为内存dex创建DexFile对象，然后移入DexFile数组中，最后调用<code>ConvertDexFilesToJavaArray()</code>方法将DexFile数组转成Java数组。这里我们主要关注<code>CreateDexFile()</code>方法。</p>
+<h2 id="2-7-CreateDexFile"><a href="#2-7-CreateDexFile" class="headerlink" title="2.7 CreateDexFile()"></a>2.7 CreateDexFile()</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/native/dalvik_system_DexFile.cc</span><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">const</span> DexFile* <span class="hljs-title">CreateDexFile</span><span class="hljs-params">(JNIEnv* env, std::unique_ptr&lt;MemMap&gt; dex_mem_map)</span> </span>&#123;<br>    <span class="hljs-comment">//StringPrintf格式化字符串</span><br>    std::string location = <span class="hljs-built_in">StringPrintf</span>(<span class="hljs-string">&quot;Anonymous-DexFile@%p-%p&quot;</span>,<br>                                        dex_mem_map-&gt;<span class="hljs-built_in">Begin</span>(),<br>                                        dex_mem_map-&gt;<span class="hljs-built_in">End</span>());<br>    std::string error_message;<br>    <span class="hljs-comment">//调用DexFile::Open()创建DexFile对象</span><br>    <span class="hljs-function">std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt; <span class="hljs-title">dex_file</span><span class="hljs-params">(DexFile::Open(location,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                          <span class="hljs-number">0</span>,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                          std::move(dex_mem_map),</span></span><br><span class="hljs-params"><span class="hljs-function">                                                          <span class="hljs-comment">/* verify */</span> <span class="hljs-literal">true</span>,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                          <span class="hljs-comment">/* verify_location */</span> <span class="hljs-literal">true</span>,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                          &amp;error_message))</span></span>;<br>    <span class="hljs-keyword">if</span> (dex_file == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-function">ScopedObjectAccess <span class="hljs-title">soa</span><span class="hljs-params">(env)</span></span>;<br>        <span class="hljs-built_in">ThrowWrappedIOException</span>(<span class="hljs-string">&quot;%s&quot;</span>, error_message.<span class="hljs-built_in">c_str</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>	<br>    <span class="hljs-keyword">if</span> (!dex_file-&gt;<span class="hljs-built_in">DisableWrite</span>()) &#123;<br>        <span class="hljs-function">ScopedObjectAccess <span class="hljs-title">soa</span><span class="hljs-params">(env)</span></span>;<br>        <span class="hljs-built_in">ThrowWrappedIOException</span>(<span class="hljs-string">&quot;Failed to make dex file read-only&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>	<span class="hljs-comment">//调用release()释放dex_file所拥有的内存</span><br>    <span class="hljs-keyword">return</span> dex_file.<span class="hljs-built_in">release</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是调用<code>DexFile::Open()</code>方法，之后的流程就跟DexClassLoader和PathClassLoader一样了，可以详见<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%89)/">dex文件加载流程(三)</a>，本文就不再详细分析了。</p>
+<h2 id="2-8-DexFile-Open"><a href="#2-8-DexFile-Open" class="headerlink" title="2.8 DexFile::Open()"></a>2.8 DexFile::Open()</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/dex_file.cc</span><br><span class="hljs-function">std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt; <span class="hljs-title">DexFile::Open</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; location,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">uint32_t</span> location_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             std::unique_ptr&lt;MemMap&gt; map,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">bool</span> verify,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">bool</span> verify_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             std::string* error_msg)</span> </span>&#123;<br>    <span class="hljs-function">ScopedTrace <span class="hljs-title">trace</span><span class="hljs-params">(std::string(<span class="hljs-string">&quot;Open dex file from mapped-memory &quot;</span>) + location)</span></span>;<br>    <span class="hljs-built_in">CHECK</span>(map.<span class="hljs-built_in">get</span>() != <span class="hljs-literal">nullptr</span>);<br>	<span class="hljs-comment">//内存dex的长度不能小于它的dex文件头长度</span><br>    <span class="hljs-keyword">if</span> (map-&gt;<span class="hljs-built_in">Size</span>() &lt; <span class="hljs-built_in">sizeof</span>(DexFile::Header)) &#123;<br>        *error_msg = <span class="hljs-built_in">StringPrintf</span>(<br>            <span class="hljs-string">&quot;DexFile: failed to open dex file &#x27;%s&#x27; that is too short to have a header&quot;</span>,<br>            location.<span class="hljs-built_in">c_str</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>	<span class="hljs-comment">//调用OpenCommon()创建DexFile</span><br>    std::unique_ptr&lt;DexFile&gt; dex_file = <span class="hljs-built_in">OpenCommon</span>(map-&gt;<span class="hljs-built_in">Begin</span>(),<br>                                                   map-&gt;<span class="hljs-built_in">Size</span>(),<br>                                                   location,<br>                                                   location_checksum,<br>                                                   kNoOatDexFile,<br>                                                   verify,<br>                                                   verify_checksum,<br>                                                   error_msg);<br>    <span class="hljs-keyword">if</span> (dex_file != <span class="hljs-literal">nullptr</span>) &#123;<br>        dex_file-&gt;mem_map_.<span class="hljs-built_in">reset</span>(map.<span class="hljs-built_in">release</span>());<br>    &#125;<br>    <span class="hljs-keyword">return</span> dex_file;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是调用<code>OpenCommon()</code>方法。</p>
+<h2 id="2-9-OpenCommon"><a href="#2-9-OpenCommon" class="headerlink" title="2.9 OpenCommon()"></a>2.9 OpenCommon()</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/dex_file.cc</span><br><span class="hljs-function">std::unique_ptr&lt;DexFile&gt; <span class="hljs-title">DexFile::OpenCommon</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">uint8_t</span>* base,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">size_t</span> size,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">const</span> std::string&amp; location,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">uint32_t</span> location_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">const</span> OatDexFile* oat_dex_file,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">bool</span> verify,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             <span class="hljs-type">bool</span> verify_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             std::string* error_msg,</span></span><br><span class="hljs-params"><span class="hljs-function">                                             VerifyResult* verify_result)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (verify_result != <span class="hljs-literal">nullptr</span>) &#123;<br>        *verify_result = VerifyResult::kVerifyNotAttempted;<br>    &#125;<br>    <span class="hljs-comment">//调用DexFile的构造方法真正为内存dex创建DexFile实例，里面会解析dex</span><br>    <span class="hljs-function">std::unique_ptr&lt;DexFile&gt; <span class="hljs-title">dex_file</span><span class="hljs-params">(<span class="hljs-keyword">new</span> DexFile(base,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                  size,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                  location,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                  location_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                  oat_dex_file))</span></span>;<br>    <span class="hljs-keyword">if</span> (dex_file == <span class="hljs-literal">nullptr</span>) &#123;<br>        *error_msg = <span class="hljs-built_in">StringPrintf</span>(<span class="hljs-string">&quot;Failed to open dex file &#x27;%s&#x27; from memory: %s&quot;</span>, location.<span class="hljs-built_in">c_str</span>(),<br>                                  error_msg-&gt;<span class="hljs-built_in">c_str</span>());<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-comment">//检查magic</span><br>    <span class="hljs-keyword">if</span> (!dex_file-&gt;<span class="hljs-built_in">Init</span>(error_msg)) &#123;<br>        dex_file.<span class="hljs-built_in">reset</span>();<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-comment">//检查dex文件的结构</span><br>    <span class="hljs-keyword">if</span> (verify &amp;&amp; !DexFileVerifier::<span class="hljs-built_in">Verify</span>(dex_file.<span class="hljs-built_in">get</span>(),<br>                                           dex_file-&gt;<span class="hljs-built_in">Begin</span>(),<br>                                           dex_file-&gt;<span class="hljs-built_in">Size</span>(),<br>                                           location.<span class="hljs-built_in">c_str</span>(),<br>                                           verify_checksum,<br>                                           error_msg)) &#123;<br>        <span class="hljs-keyword">if</span> (verify_result != <span class="hljs-literal">nullptr</span>) &#123;<br>            *verify_result = VerifyResult::kVerifyFailed;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (verify_result != <span class="hljs-literal">nullptr</span>) &#123;<br>        *verify_result = VerifyResult::kVerifySucceeded;<br>    &#125;<br>    <span class="hljs-keyword">return</span> dex_file;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从这里可以看出，不管是DexClassLoader、PathClassLoader，还是InMemoryDexClassLoader，尽管它们的流程可能会不太一样，但最终都会调用<code>OpenCommon()</code>方法创建dexfile，而且该方法的参数含有dex的起始地址（base）和大小（size），因此这里可以作为一个非常好的脱壳点。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://aospxref.com/android-8.0.0_r36">http://aospxref.com/android-8.0.0_r36</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>InMemoryDexClassLoader加载内存dex的流程</div>
+      <div>http://example.com/2023/12/06/Android安全/InMemoryDexClassLoader加载内存dex的流程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月6日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/10/Android%E5%AE%89%E5%85%A8/JNI%E5%8E%9F%E7%90%86/" title="JNI原理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">JNI原理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/04/%E5%AF%B9Java%E5%8F%8D%E5%B0%84%E6%96%B9%E6%B3%95%E8%BF%9B%E8%A1%8C%E5%B0%81%E8%A3%85/" title="对Java反射方法进行封装">
+                        <span class="hidden-mobile">对Java反射方法进行封装</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

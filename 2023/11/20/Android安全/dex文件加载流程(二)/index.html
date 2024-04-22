@@ -1,0 +1,722 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="书接上文dex文件加载流程(一)(gal2xy.github.io)。 一、DexFile_openDexFileNative()学习完上一篇文章，我们知道：不管是用PathClassLoader还是DexClassLoader加载dex文件，它们最终都会调用openDexFileNative()方法，该方法对应art&#x2F;runtime&#x2F;native&#x2F;dalivk_system_DexFile.cc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dex文件加载流程(二)">
+<meta property="og:url" content="http://example.com/2023/11/20/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="书接上文dex文件加载流程(一)(gal2xy.github.io)。 一、DexFile_openDexFileNative()学习完上一篇文章，我们知道：不管是用PathClassLoader还是DexClassLoader加载dex文件，它们最终都会调用openDexFileNative()方法，该方法对应art&#x2F;runtime&#x2F;native&#x2F;dalivk_system_DexFile.cc">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202311202114264.png">
+<meta property="article:published_time" content="2023-11-20T13:12:10.000Z">
+<meta property="article:modified_time" content="2023-11-27T09:53:28.458Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android源码解析">
+<meta property="article:tag" content="dex">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202311202114264.png">
+  
+  
+  
+  <title>dex文件加载流程(二) - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="dex文件加载流程(二)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-20 21:12" pubdate>
+          2023年11月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          126 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">dex文件加载流程(二)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>书接上文<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/11/20/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/">dex文件加载流程(一)(gal2xy.github.io)</a>。</p>
+<h1 id="一、DexFile-openDexFileNative"><a href="#一、DexFile-openDexFileNative" class="headerlink" title="一、DexFile_openDexFileNative()"></a>一、DexFile_openDexFileNative()</h1><p>学习完上一篇文章，我们知道：不管是用PathClassLoader还是DexClassLoader加载dex文件，它们最终都会调用<code>openDexFileNative()</code>方法，该方法对应<code>art/runtime/native/dalivk_system_DexFile.cc</code>目录下的<code>DexFile_openDexFileNative()</code>方法，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：art/runtime/native/dalivk_system_DexFile.cc</span><br><span class="hljs-function"><span class="hljs-type">static</span> jobject <span class="hljs-title">DexFile_openDexFileNative</span><span class="hljs-params">(JNIEnv* env,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jclass,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jstring javaSourceName,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jstring javaOutputName ATTRIBUTE_UNUSED,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jint flags ATTRIBUTE_UNUSED,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jobject class_loader,</span></span><br><span class="hljs-params"><span class="hljs-function">                                         jobjectArray dex_elements)</span> </span>&#123;<br>    <span class="hljs-function">ScopedUtfChars <span class="hljs-title">sourceName</span><span class="hljs-params">(env, javaSourceName)</span></span>;<br>    <span class="hljs-keyword">if</span> (sourceName.<span class="hljs-built_in">c_str</span>() == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    Runtime* <span class="hljs-type">const</span> runtime = Runtime::<span class="hljs-built_in">Current</span>();<br>    ClassLinker* linker = runtime-&gt;<span class="hljs-built_in">GetClassLinker</span>();<br>    std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; dex_files;<br>    std::vector&lt;std::string&gt; error_msgs;<br>    <span class="hljs-type">const</span> OatFile* oat_file = <span class="hljs-literal">nullptr</span>;<br>	<span class="hljs-comment">//打开oat文件</span><br>    dex_files = runtime-&gt;<span class="hljs-built_in">GetOatFileManager</span>().<span class="hljs-built_in">OpenDexFilesFromOat</span>(sourceName.<span class="hljs-built_in">c_str</span>(),<br>                                                                 class_loader,<br>                                                                 dex_elements,<br>                                                                 <span class="hljs-comment">/*out*/</span> &amp;oat_file,<br>                                                                 <span class="hljs-comment">/*out*/</span> &amp;error_msgs);<br><br>    <span class="hljs-keyword">if</span> (!dex_files.<span class="hljs-built_in">empty</span>()) &#123;<br>        jlongArray array = <span class="hljs-built_in">ConvertDexFilesToJavaArray</span>(env, oat_file, dex_files);<br>        <span class="hljs-keyword">if</span> (array == <span class="hljs-literal">nullptr</span>) &#123;<br>            <span class="hljs-function">ScopedObjectAccess <span class="hljs-title">soa</span><span class="hljs-params">(env)</span></span>;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; dex_file : dex_files) &#123;<br>                <span class="hljs-keyword">if</span> (linker-&gt;<span class="hljs-built_in">IsDexFileRegistered</span>(soa.<span class="hljs-built_in">Self</span>(), *dex_file)) &#123;<br>                    dex_file.<span class="hljs-built_in">release</span>();<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> array;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>       ......<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>整个代码关键部分是调用了<code>OpenDexFilesFromOat()</code>方法。</p>
+<h1 id="二、OpenDexFilesFromOat"><a href="#二、OpenDexFilesFromOat" class="headerlink" title="二、OpenDexFilesFromOat()"></a>二、OpenDexFilesFromOat()</h1><p>对应代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/oat_file_manager.cc</span><br>std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; OatFileManager::<span class="hljs-built_in">OpenDexFilesFromOat</span>(<br>                                            <span class="hljs-type">const</span> <span class="hljs-type">char</span>* dex_location,<br>                                            jobject class_loader,<br>                                            jobjectArray dex_elements,<br>                                            <span class="hljs-type">const</span> OatFile** out_oat_file,<br>                                            std::vector&lt;std::string&gt;* error_msgs) &#123;<br>    ......<br>	<span class="hljs-comment">//获取oat_file_assistant</span><br>    <span class="hljs-function">OatFileAssistant <span class="hljs-title">oat_file_assistant</span><span class="hljs-params">(dex_location, kRuntimeISA, !runtime-&gt;IsAotCompiler())</span></span>;<br><br>    ......<br><br>    <span class="hljs-type">const</span> OatFile* source_oat_file = <span class="hljs-literal">nullptr</span>;<br>	<span class="hljs-comment">//判断是否有生成 oat 文件</span><br>    <span class="hljs-keyword">if</span> (!oat_file_assistant.<span class="hljs-built_in">IsUpToDate</span>()) &#123;<br>        <span class="hljs-comment">//执行MakeUpToDate生成oat文件</span><br>        <span class="hljs-keyword">switch</span> (oat_file_assistant.<span class="hljs-built_in">MakeUpToDate</span>(<span class="hljs-comment">/*profile_changed*/</span><span class="hljs-literal">false</span>, <span class="hljs-comment">/*out*/</span> &amp;error_msg)) &#123;<br>            ......<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 通过oat_file_assistant.GetBestOatFile()获取oat文件</span><br>    <span class="hljs-function">std::unique_ptr&lt;<span class="hljs-type">const</span> OatFile&gt; <span class="hljs-title">oat_file</span><span class="hljs-params">(oat_file_assistant.GetBestOatFile().release())</span></span>;<br><br>    <span class="hljs-keyword">if</span> (oat_file != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-type">bool</span> accept_oat_file = !<span class="hljs-built_in">HasCollisions</span>(oat_file.<span class="hljs-built_in">get</span>(), class_loader, dex_elements, <span class="hljs-comment">/*out*/</span> &amp;error_msg);<br>        <span class="hljs-keyword">if</span> (!accept_oat_file) &#123;<br>            <span class="hljs-comment">// 冲突检测失败，打印警告</span><br>            ......<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (accept_oat_file) &#123;<br>            <span class="hljs-built_in">VLOG</span>(class_linker) &lt;&lt; <span class="hljs-string">&quot;Registering &quot;</span> &lt;&lt; oat_file-&gt;<span class="hljs-built_in">GetLocation</span>();<br>            source_oat_file = <span class="hljs-built_in">RegisterOatFile</span>(std::<span class="hljs-built_in">move</span>(oat_file));<br>            *out_oat_file = source_oat_file;<br>        &#125;<br>    &#125;<br><br>    std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; dex_files;<br><br>    <span class="hljs-comment">// 从oat文件中加载dex文件</span><br>    <span class="hljs-keyword">if</span> (source_oat_file != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-type">bool</span> added_image_space = <span class="hljs-literal">false</span>;<br>        <span class="hljs-comment">//if语句这一大块的作用是给oat文件开辟镜像空间?</span><br>        <span class="hljs-keyword">if</span> (source_oat_file-&gt;<span class="hljs-built_in">IsExecutable</span>()) &#123;<br>            std::unique_ptr&lt;gc::space::ImageSpace&gt; image_space = kEnableAppImage ? oat_file_assistant.<span class="hljs-built_in">OpenImageSpace</span>(source_oat_file) : <span class="hljs-literal">nullptr</span>;<br>            <span class="hljs-keyword">if</span> (image_space != <span class="hljs-literal">nullptr</span>) &#123;<br>                <span class="hljs-function">ScopedObjectAccess <span class="hljs-title">soa</span><span class="hljs-params">(self)</span></span>;<br>                <span class="hljs-function">StackHandleScope&lt;1&gt; <span class="hljs-title">hs</span><span class="hljs-params">(self)</span></span>;<br>                <span class="hljs-function">Handle&lt;mirror::ClassLoader&gt; <span class="hljs-title">h_loader</span><span class="hljs-params">(hs.NewHandle(soa.Decode&lt;mirror::ClassLoader&gt;(class_loader)))</span></span>;<br>                <span class="hljs-comment">// Can not load app image without class loader.</span><br>                <span class="hljs-keyword">if</span> (h_loader != <span class="hljs-literal">nullptr</span>) &#123;<br>                    std::string temp_error_msg;<br>                    <span class="hljs-comment">// Add image space has a race condition since other threads could be reading from the</span><br>                    <span class="hljs-comment">// spaces array.</span><br>                    &#123;<br>                        <span class="hljs-function">ScopedThreadSuspension <span class="hljs-title">sts</span><span class="hljs-params">(self, kSuspended)</span></span>;<br>                        <span class="hljs-function">gc::ScopedGCCriticalSection <span class="hljs-title">gcs</span><span class="hljs-params">(self,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                        gc::kGcCauseAddRemoveAppImageSpace,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                        gc::kCollectorTypeAddRemoveAppImageSpace)</span></span>;<br>                        <span class="hljs-function">ScopedSuspendAll <span class="hljs-title">ssa</span><span class="hljs-params">(<span class="hljs-string">&quot;Add image space&quot;</span>)</span></span>;<br>                        runtime-&gt;<span class="hljs-built_in">GetHeap</span>()-&gt;<span class="hljs-built_in">AddSpace</span>(image_space.<span class="hljs-built_in">get</span>());<br>                    &#125;<br>                    &#123;<br>                        <span class="hljs-function">ScopedTrace <span class="hljs-title">trace2</span><span class="hljs-params">(StringPrintf(<span class="hljs-string">&quot;Adding image space for location %s&quot;</span>, dex_location))</span></span>;<br>                        added_image_space = runtime-&gt;<span class="hljs-built_in">GetClassLinker</span>()-&gt;<span class="hljs-built_in">AddImageSpace</span>(image_space.<span class="hljs-built_in">get</span>(),<br>                                                                                     h_loader,<br>                                                                                     dex_elements,<br>                                                                                     dex_location,<br>                                                                                     <span class="hljs-comment">/*out*/</span>&amp;dex_files,<br>                                                                                     <span class="hljs-comment">/*out*/</span>&amp;temp_error_msg);<br>                    &#125;<br>                    <span class="hljs-keyword">if</span> (added_image_space) &#123;<br>                        image_space.<span class="hljs-built_in">release</span>();<br>                    &#125; <span class="hljs-keyword">else</span> &#123;<br>                        <span class="hljs-built_in">LOG</span>(INFO) &lt;&lt; <span class="hljs-string">&quot;Failed to add image file &quot;</span> &lt;&lt; temp_error_msg;<br>                        dex_files.<span class="hljs-built_in">clear</span>();<br>                        &#123;<br>                            <span class="hljs-function">ScopedThreadSuspension <span class="hljs-title">sts</span><span class="hljs-params">(self, kSuspended)</span></span>;<br>                            <span class="hljs-function">gc::ScopedGCCriticalSection <span class="hljs-title">gcs</span><span class="hljs-params">(self,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                            gc::kGcCauseAddRemoveAppImageSpace,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                            gc::kCollectorTypeAddRemoveAppImageSpace)</span></span>;<br>                            <span class="hljs-function">ScopedSuspendAll <span class="hljs-title">ssa</span><span class="hljs-params">(<span class="hljs-string">&quot;Remove image space&quot;</span>)</span></span>;<br>                            runtime-&gt;<span class="hljs-built_in">GetHeap</span>()-&gt;<span class="hljs-built_in">RemoveSpace</span>(image_space.<span class="hljs-built_in">get</span>());<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (!added_image_space) &#123;<br>            <span class="hljs-built_in">DCHECK</span>(dex_files.<span class="hljs-built_in">empty</span>());<br>            <span class="hljs-comment">//执行LoadDexFiles加载dex文件</span><br>            dex_files = oat_file_assistant.<span class="hljs-built_in">LoadDexFiles</span>(*source_oat_file, dex_location);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (dex_files.<span class="hljs-built_in">empty</span>()) &#123;<span class="hljs-comment">//获取dex文件失败</span><br>            error_msgs-&gt;<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&quot;Failed to open dex files from &quot;</span> + source_oat_file-&gt;<span class="hljs-built_in">GetLocation</span>());<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">//从oat文件中加载dex文件失败</span><br>    <span class="hljs-keyword">if</span> (dex_files.<span class="hljs-built_in">empty</span>()) &#123;<br>        <span class="hljs-keyword">if</span> (oat_file_assistant.<span class="hljs-built_in">HasOriginalDexFiles</span>()) &#123;<span class="hljs-comment">//判断是否有原始dex文件</span><br>            <span class="hljs-keyword">if</span> (Runtime::<span class="hljs-built_in">Current</span>()-&gt;<span class="hljs-built_in">IsDexFileFallbackEnabled</span>()) &#123;<span class="hljs-comment">//是否启用了Dex文件的回退机制</span><br>                <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> kVerifyChecksum = <span class="hljs-literal">true</span>;<br>                <span class="hljs-comment">//调用DexFile::Open()打开dex文件</span><br>                <span class="hljs-keyword">if</span> (!DexFile::<span class="hljs-built_in">Open</span>(dex_location, dex_location, kVerifyChecksum, <span class="hljs-comment">/*out*/</span> &amp;error_msg, &amp;dex_files)) &#123;<br>                    <span class="hljs-built_in">LOG</span>(WARNING) &lt;&lt; error_msg;<br>                    error_msgs-&gt;<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&quot;Failed to open dex files from &quot;</span> + std::<span class="hljs-built_in">string</span>(dex_location)  + <span class="hljs-string">&quot; because: &quot;</span> + error_msg);<br>                &#125;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                error_msgs-&gt;<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&quot;Fallback mode disabled, skipping dex files.&quot;</span>);<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            error_msgs-&gt;<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&quot;No original dex files found for dex location &quot;</span> + std::<span class="hljs-built_in">string</span>(dex_location));<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dex_files;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上代码大致流程如下：</p>
+<ol>
+<li>通过<code>oat_file_assistant()</code>获取oat_file_assistant对象。</li>
+<li>通过<code>oat_file_assistant.IsUpToDate()</code>判断是否有oat文件，没有调用<code>oat_file_assistant.MakeUpToDate()</code>则生成oat文件。</li>
+<li>通过<code>oat_file_assistant.GetBestOatFile()</code>获取oat文件</li>
+<li>调用<code>oat_file_assistant.LoadDexFiles()</code>从oat文件中加载dex文件。</li>
+<li>如果从oat文件中加载dex文件失败，则调用<code>DexFile::Open()</code>加载dex文件。</li>
+</ol>
+<h2 id="2-1-GetBestOatFile"><a href="#2-1-GetBestOatFile" class="headerlink" title="2.1 GetBestOatFile()"></a>2.1 GetBestOatFile()</h2><p>先来看<code>GetBestOatFile()</code>方法，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/oat_file_assistant.cc</span><br><span class="hljs-function">std::unique_ptr&lt;OatFile&gt; <span class="hljs-title">OatFileAssistant::GetBestOatFile</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">GetBestInfo</span>().<span class="hljs-built_in">ReleaseFileForUse</span>();<br>&#125;<br><br><span class="hljs-function">OatFileAssistant::OatFileInfo&amp; <span class="hljs-title">OatFileAssistant::GetBestInfo</span><span class="hljs-params">()</span> </span>&#123;<br><br>    <span class="hljs-keyword">if</span> (dex_parent_writable_) &#123;<span class="hljs-comment">//dex文件父目录可写则选择odex</span><br>        <span class="hljs-keyword">return</span> odex_;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (oat_.<span class="hljs-built_in">IsUseable</span>()) &#123;<span class="hljs-comment">//oat文件可用选择oat</span><br>        <span class="hljs-keyword">return</span> oat_;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (odex_.<span class="hljs-built_in">Status</span>() == kOatUpToDate) &#123;<span class="hljs-comment">//odex文件最新</span><br>        <span class="hljs-keyword">return</span> odex_;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">HasOriginalDexFiles</span>()) &#123;<span class="hljs-comment">//如果有原始dex文件</span><br>        <span class="hljs-keyword">return</span> oat_;<br>    &#125;<br>	<span class="hljs-comment">//最糟糕的情况，有啥就选啥</span><br>    <span class="hljs-keyword">return</span> (odex_.<span class="hljs-built_in">Status</span>() == kOatCannotOpen) ? oat_ : odex_;<br>&#125;<br><br>std::unique_ptr&lt;OatFile&gt; OatFileAssistant::OatFileInfo::<span class="hljs-built_in">ReleaseFileForUse</span>() &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Status</span>() == kOatUpToDate) &#123;<span class="hljs-comment">//oat文件是最新的则释放文件以供直接使用</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReleaseFile</span>();<br>    &#125;<br><br>    <span class="hljs-built_in">VLOG</span>(oat) &lt;&lt; <span class="hljs-string">&quot;Oat File Assistant: No relocated oat file found,&quot;</span> &lt;&lt; <span class="hljs-string">&quot; attempting to fall back to interpreting oat file instead.&quot;</span>;<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Status</span>() == kOatRelocationOutOfDate &amp;&amp; !<span class="hljs-built_in">IsExecutable</span>()) &#123;<span class="hljs-comment">//oat需要重定位且不可执行</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReleaseFile</span>();<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Status</span>() == kOatRelocationOutOfDate) &#123;<span class="hljs-comment">//oat需要重定位</span><br>        <span class="hljs-comment">// 设置加载不可执行，以确保能够解析oat中的dex代码</span><br>        oat_file_assistant_-&gt;load_executable_ = <span class="hljs-literal">false</span>;<br>        <span class="hljs-built_in">Reset</span>();<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">IsUseable</span>()) &#123;<br>            <span class="hljs-built_in">CHECK</span>(!<span class="hljs-built_in">IsExecutable</span>());<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">ReleaseFile</span>();<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">unique_ptr</span>&lt;OatFile&gt;();<br>&#125;<br><br>std::unique_ptr&lt;OatFile&gt; OatFileAssistant::OatFileInfo::<span class="hljs-built_in">ReleaseFile</span>() &#123;<br>  file_released_ = <span class="hljs-literal">true</span>;<br>  <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">move</span>(file_);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>GetBestOatFile()</code>方法中，首先调用<code>GetBestInfo()</code>来获取最佳的oat文件（代码中的<code>oat_</code>和<code>oat_</code>在<code>/art/runtime/oat_file_assistant.cc</code>定义），然后调用<code>ReleaseFileForUse()</code>方法根据oat文件的状态释放文件以供使用。</p>
+<h3 id="2-1-1-Status"><a href="#2-1-1-Status" class="headerlink" title="2.1.1 Status()"></a>2.1.1 Status()</h3><p><code>GetBestInfo()</code>中使用的<code>Status()</code>方法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/oat_file_assistant.cc</span><br>OatFileAssistant::OatStatus OatFileAssistant::OatFileInfo::<span class="hljs-built_in">Status</span>() &#123;<br>    <span class="hljs-keyword">if</span> (!status_attempted_) &#123;<br>        status_attempted_ = <span class="hljs-literal">true</span>;<br>        <span class="hljs-comment">//打开oat文件</span><br>        <span class="hljs-type">const</span> OatFile* file = <span class="hljs-built_in">GetFile</span>();<br>        <span class="hljs-keyword">if</span> (file == <span class="hljs-literal">nullptr</span>) &#123;<br>            <span class="hljs-comment">// Check to see if there is a vdex file we can make use of.</span><br>            std::string error_msg;<br>            std::string vdex_filename = <span class="hljs-built_in">GetVdexFilename</span>(filename_);<br>            <span class="hljs-comment">//打开vdex文件</span><br>            std::unique_ptr&lt;VdexFile&gt; vdex = VdexFile::<span class="hljs-built_in">Open</span>(vdex_filename,<br>                                                            <span class="hljs-comment">/*writeable*/</span><span class="hljs-literal">false</span>,<br>                                                            <span class="hljs-comment">/*low_4gb*/</span><span class="hljs-literal">false</span>,<br>                                                            <span class="hljs-comment">/*unquicken*/</span><span class="hljs-literal">false</span>,<br>                                                            &amp;error_msg);<br>            <span class="hljs-keyword">if</span> (vdex == <span class="hljs-literal">nullptr</span>) &#123;<br>                status_ = kOatCannotOpen;<br>                <span class="hljs-built_in">VLOG</span>(oat) &lt;&lt; <span class="hljs-string">&quot;unable to open vdex file &quot;</span> &lt;&lt; vdex_filename &lt;&lt; <span class="hljs-string">&quot;: &quot;</span> &lt;&lt; error_msg;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">//检查vdex文件是否是最新的</span><br>                <span class="hljs-keyword">if</span> (oat_file_assistant_-&gt;<span class="hljs-built_in">DexChecksumUpToDate</span>(*vdex, &amp;error_msg)) &#123;<br>                    <span class="hljs-comment">// The vdex file does not contain enough information to determine</span><br>                    <span class="hljs-comment">// whether it is up to date with respect to the boot image, so we</span><br>                    <span class="hljs-comment">// assume it is out of date.</span><br>                    <span class="hljs-built_in">VLOG</span>(oat) &lt;&lt; error_msg;<br>                    status_ = kOatBootImageOutOfDate;<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    status_ = kOatDexOutOfDate;<br>                &#125;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            status_ = oat_file_assistant_-&gt;<span class="hljs-built_in">GivenOatFileStatus</span>(*file);<br>            <span class="hljs-built_in">VLOG</span>(oat) &lt;&lt; file-&gt;<span class="hljs-built_in">GetLocation</span>() &lt;&lt; <span class="hljs-string">&quot; is &quot;</span> &lt;&lt; status_<br>                &lt;&lt; <span class="hljs-string">&quot; with filter &quot;</span> &lt;&lt; file-&gt;<span class="hljs-built_in">GetCompilerFilter</span>();<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> status_;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>首先通过<code>GetFile()</code>方法打开oat文件，如果有vdex文件，则调用<code>VdexFile::Open()</code>方法打开vdex文件。</p>
+<h4 id="2-1-1-1-GetFile"><a href="#2-1-1-1-GetFile" class="headerlink" title="2.1.1.1 GetFile()"></a>2.1.1.1 GetFile()</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> OatFile* OatFileAssistant::OatFileInfo::<span class="hljs-built_in">GetFile</span>() &#123;<br>    <span class="hljs-built_in">CHECK</span>(!file_released_) &lt;&lt; <span class="hljs-string">&quot;GetFile called after oat file released.&quot;</span>;<br>    <span class="hljs-keyword">if</span> (!load_attempted_) &#123;<br>        load_attempted_ = <span class="hljs-literal">true</span>;<br>        <span class="hljs-keyword">if</span> (filename_provided_) &#123;<br>            std::string error_msg;<br>            file_.<span class="hljs-built_in">reset</span>(OatFile::<span class="hljs-built_in">Open</span>(filename_.<span class="hljs-built_in">c_str</span>(),<br>                                      filename_.<span class="hljs-built_in">c_str</span>(),<br>                                      <span class="hljs-literal">nullptr</span>,<br>                                      <span class="hljs-literal">nullptr</span>,<br>                                      oat_file_assistant_-&gt;load_executable_,<br>                                      <span class="hljs-comment">/*low_4gb*/</span><span class="hljs-literal">false</span>,<br>                                      oat_file_assistant_-&gt;dex_location_.<span class="hljs-built_in">c_str</span>(),<br>                                      &amp;error_msg));<br>            <span class="hljs-keyword">if</span> (file_.<span class="hljs-built_in">get</span>() == <span class="hljs-literal">nullptr</span>) &#123;<br>                <span class="hljs-built_in">VLOG</span>(oat) &lt;&lt; <span class="hljs-string">&quot;OatFileAssistant test for existing oat file &quot;</span><br>                    &lt;&lt; filename_ &lt;&lt; <span class="hljs-string">&quot;: &quot;</span> &lt;&lt; error_msg;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> file_.<span class="hljs-built_in">get</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用<code>OatFile::Open()</code>打开oat文件。</p>
+<p><code>OatFile::Open()</code>和<code>VdexFile::Open()</code>等讲解oat和vdex文件加载时再详细分析，这里先打住，毕竟我们现在跟踪的是dex文件加载。</p>
+<h2 id="2-2-LoadDexFiles"><a href="#2-2-LoadDexFiles" class="headerlink" title="2.2 LoadDexFiles()"></a>2.2 LoadDexFiles()</h2><p>再来看<code>LoadDexFiles()</code>方法，该方法的代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/oat_file_assistant.cc</span><br>std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; OatFileAssistant::<span class="hljs-built_in">LoadDexFiles</span>(<br>    <span class="hljs-type">const</span> OatFile&amp; oat_file, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* dex_location) &#123;<br>    std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt; dex_files;<br><br>    <span class="hljs-comment">// Load the main dex file.</span><br>    std::string error_msg;<br>    <br>    <span class="hljs-comment">//通过oat_file.GetOatDexFile()获得oat、dex文件</span><br>    <span class="hljs-type">const</span> OatFile::OatDexFile* oat_dex_file = oat_file.<span class="hljs-built_in">GetOatDexFile</span>(dex_location, <span class="hljs-literal">nullptr</span>, &amp;error_msg);<br>    <span class="hljs-keyword">if</span> (oat_dex_file == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">LOG</span>(WARNING) &lt;&lt; error_msg;<br>        <span class="hljs-keyword">return</span> std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt;();<br>    &#125;<br>    <br>	<span class="hljs-comment">//通过oat_dex_file-&gt;OpenDexFile()打开dex文件</span><br>    std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt; dex_file = oat_dex_file-&gt;<span class="hljs-built_in">OpenDexFile</span>(&amp;error_msg);<br>    <span class="hljs-keyword">if</span> (dex_file.<span class="hljs-built_in">get</span>() == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">LOG</span>(WARNING) &lt;&lt; <span class="hljs-string">&quot;Failed to open dex file from oat dex file: &quot;</span> &lt;&lt; error_msg;<br>        <span class="hljs-keyword">return</span> std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt;();<br>    &#125;<br>    <span class="hljs-comment">//添加dex文件到dex_files数组中</span><br>    dex_files.<span class="hljs-built_in">push_back</span>(std::<span class="hljs-built_in">move</span>(dex_file));<br><br>    <span class="hljs-comment">// 看是否存在多个dex文件</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">1</span>; ; i++) &#123;<br>        std::string multidex_dex_location = DexFile::<span class="hljs-built_in">GetMultiDexLocation</span>(i, dex_location);<br>		<span class="hljs-comment">//从oat中获取第i个dex文件</span><br>        oat_dex_file = oat_file.<span class="hljs-built_in">GetOatDexFile</span>(multidex_dex_location.<span class="hljs-built_in">c_str</span>(), <span class="hljs-literal">nullptr</span>);<br>        <span class="hljs-keyword">if</span> (oat_dex_file == <span class="hljs-literal">nullptr</span>) &#123;<br>            <span class="hljs-comment">// There are no more multidex entries to load.</span><br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>		<span class="hljs-comment">//打开第i个dex文件</span><br>        dex_file = oat_dex_file-&gt;<span class="hljs-built_in">OpenDexFile</span>(&amp;error_msg);<br>        <span class="hljs-keyword">if</span> (dex_file.<span class="hljs-built_in">get</span>() == <span class="hljs-literal">nullptr</span>) &#123;<br>            <span class="hljs-built_in">LOG</span>(WARNING) &lt;&lt; <span class="hljs-string">&quot;Failed to open dex file from oat dex file: &quot;</span> &lt;&lt; error_msg;<br>            <span class="hljs-keyword">return</span> std::vector&lt;std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt;&gt;();<br>        &#125;<br>        <span class="hljs-comment">//添加dex文件到dex_files数组中</span><br>        dex_files.<span class="hljs-built_in">push_back</span>(std::<span class="hljs-built_in">move</span>(dex_file));<br>    &#125;<br>    <span class="hljs-keyword">return</span> dex_files;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是<code>GetOatDexFile()</code>、<code>OpenDexFile()</code>，这两个方法与<code>OpenDexFilesFromOat()</code>方法中调用的<code>Open()</code>方法同在<code>oat_file.cc</code>文件中。</p>
+<h3 id="2-2-1-GetOatDexFile"><a href="#2-2-1-GetOatDexFile" class="headerlink" title="2.2.1 GetOatDexFile()"></a>2.2.1 GetOatDexFile()</h3><p>先来看<code>GetOatDexFile()</code>，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//路径：/art/runtime/oat_file.cc</span><br><span class="hljs-function"><span class="hljs-type">const</span> OatFile::OatDexFile* <span class="hljs-title">OatFile::GetOatDexFile</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* dex_location,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                 <span class="hljs-type">const</span> <span class="hljs-type">uint32_t</span>* dex_location_checksum,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                 std::string* error_msg)</span> <span class="hljs-type">const</span> </span>&#123;<br>    <span class="hljs-type">const</span> OatFile::OatDexFile* oat_dex_file = <span class="hljs-literal">nullptr</span>;<br>    <span class="hljs-function">StringPiece <span class="hljs-title">key</span><span class="hljs-params">(dex_location)</span></span>;<br>    <span class="hljs-comment">//通过key在oat_dex_files_map中找到dex文件所在位置</span><br>    <span class="hljs-keyword">auto</span> primary_it = oat_dex_files_.<span class="hljs-built_in">find</span>(key);<br>    <span class="hljs-keyword">if</span> (primary_it != oat_dex_files_.<span class="hljs-built_in">end</span>()) &#123;<span class="hljs-comment">//dex文件不唯一</span><br>        oat_dex_file = primary_it-&gt;second;<br>        <span class="hljs-built_in">DCHECK</span>(oat_dex_file != <span class="hljs-literal">nullptr</span>);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// This dex_location is not one of the dex locations directly mentioned in the</span><br>        <span class="hljs-comment">// oat file. The correct lookup is via the canonical location but first see in</span><br>        <span class="hljs-comment">// the secondary_oat_dex_files_ whether we&#x27;ve looked up this location before.</span><br>        MutexLock <span class="hljs-built_in">mu</span>(Thread::<span class="hljs-built_in">Current</span>(), secondary_lookup_lock_);<br>        <span class="hljs-keyword">auto</span> secondary_lb = secondary_oat_dex_files_.<span class="hljs-built_in">lower_bound</span>(key);<br>        <span class="hljs-keyword">if</span> (secondary_lb != secondary_oat_dex_files_.<span class="hljs-built_in">end</span>() &amp;&amp; key == secondary_lb-&gt;first) &#123;<br>            oat_dex_file = secondary_lb-&gt;second;  <span class="hljs-comment">// May be null.</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">// We haven&#x27;t seen this dex_location before, we must check the canonical location.</span><br>            std::string dex_canonical_location = DexFile::<span class="hljs-built_in">GetDexCanonicalLocation</span>(dex_location);<br>            <span class="hljs-keyword">if</span> (dex_canonical_location != dex_location) &#123;<br>                <span class="hljs-function">StringPiece <span class="hljs-title">canonical_key</span><span class="hljs-params">(dex_canonical_location)</span></span>;<br>                <span class="hljs-keyword">auto</span> canonical_it = oat_dex_files_.<span class="hljs-built_in">find</span>(canonical_key);<br>                <span class="hljs-keyword">if</span> (canonical_it != oat_dex_files_.<span class="hljs-built_in">end</span>()) &#123;<br>                    oat_dex_file = canonical_it-&gt;second;<br>                &#125;  <span class="hljs-comment">// else keep null.</span><br>            &#125;  <span class="hljs-comment">// else keep null.</span><br><br>            <span class="hljs-comment">// Copy the key to the string_cache_ and store the result in secondary map.</span><br>            string_cache_.<span class="hljs-built_in">emplace_back</span>(key.<span class="hljs-built_in">data</span>(), key.<span class="hljs-built_in">length</span>());<br>            <span class="hljs-function">StringPiece <span class="hljs-title">key_copy</span><span class="hljs-params">(string_cache_.back())</span></span>;<br>            secondary_oat_dex_files_.<span class="hljs-built_in">PutBefore</span>(secondary_lb, key_copy, oat_dex_file);<br>        &#125;<br>    &#125;<br>	<span class="hljs-comment">//oat_dex_file获取失败</span><br>    <span class="hljs-keyword">if</span> (oat_dex_file == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-keyword">if</span> (error_msg != <span class="hljs-literal">nullptr</span>) &#123;<br>            std::string dex_canonical_location = DexFile::<span class="hljs-built_in">GetDexCanonicalLocation</span>(dex_location);<br>            *error_msg = <span class="hljs-string">&quot;Failed to find OatDexFile for DexFile &quot;</span> + std::<span class="hljs-built_in">string</span>(dex_location)  + <span class="hljs-string">&quot; (canonical path &quot;</span> + dex_canonical_location + <span class="hljs-string">&quot;) in OatFile &quot;</span> + <span class="hljs-built_in">GetLocation</span>();<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>	<span class="hljs-comment">//验证oat_dex_file文件的校验码</span><br>    <span class="hljs-keyword">if</span> (dex_location_checksum != <span class="hljs-literal">nullptr</span> &amp;&amp; oat_dex_file-&gt;<span class="hljs-built_in">GetDexFileLocationChecksum</span>() != *dex_location_checksum) &#123;<br>        <span class="hljs-keyword">if</span> (error_msg != <span class="hljs-literal">nullptr</span>) &#123;<br>            std::string dex_canonical_location = DexFile::<span class="hljs-built_in">GetDexCanonicalLocation</span>(dex_location);<br>            std::string checksum = <span class="hljs-built_in">StringPrintf</span>(<span class="hljs-string">&quot;0x%08x&quot;</span>, oat_dex_file-&gt;<span class="hljs-built_in">GetDexFileLocationChecksum</span>());<br>            std::string required_checksum = <span class="hljs-built_in">StringPrintf</span>(<span class="hljs-string">&quot;0x%08x&quot;</span>, *dex_location_checksum);<br>            *error_msg = <span class="hljs-string">&quot;OatDexFile for DexFile &quot;</span> + std::<span class="hljs-built_in">string</span>(dex_location) + <span class="hljs-string">&quot; (canonical path &quot;</span> + dex_canonical_location + <span class="hljs-string">&quot;) in OatFile &quot;</span> + <span class="hljs-built_in">GetLocation</span>() + <span class="hljs-string">&quot; has checksum &quot;</span> + checksum + <span class="hljs-string">&quot; but &quot;</span> + required_checksum + <span class="hljs-string">&quot; was required&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> oat_dex_file;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-2-2-OpenDexFile"><a href="#2-2-2-OpenDexFile" class="headerlink" title="2.2.2 OpenDexFile()"></a>2.2.2 OpenDexFile()</h3><p>然后是<code>OpenDexFile()</code>，代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::unique_ptr&lt;<span class="hljs-type">const</span> DexFile&gt; OatFile::OatDexFile::<span class="hljs-built_in">OpenDexFile</span>(std::string* error_msg) <span class="hljs-type">const</span> &#123;<br>    <span class="hljs-function">ScopedTrace <span class="hljs-title">trace</span><span class="hljs-params">(__PRETTY_FUNCTION__)</span></span>;<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> kVerify = <span class="hljs-literal">false</span>;<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> kVerifyChecksum = <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">return</span> DexFile::<span class="hljs-built_in">Open</span>(dex_file_pointer_,<br>                         <span class="hljs-built_in">FileSize</span>(),<br>                         dex_file_location_,<br>                         dex_file_location_checksum_,<br>                         <span class="hljs-keyword">this</span>,<br>                         kVerify,<br>                         kVerifyChecksum,<br>                         error_msg);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>直接调用<code>DexFile::Open()</code>方法实现。</p>
+<p>通过上述分析可知，在<code>OpenDexFilesFromOat()</code>中，无论是调用<code>LoadDexFiles()</code>方法加载dex文件，还是调用<code>DexFile::Open()</code>加载dex文件，最终殊途同归，都调用<code>DexFile::Open()</code>方法，只不过参数个数不同。</p>
+<p>在下一篇文章中将沿着<code>DexFile::Open()</code>方法继续分析dex文件加载流程。</p>
+<h1 id="三、总览图"><a href="#三、总览图" class="headerlink" title="三、总览图"></a>三、总览图</h1><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202311202114264.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<p>参考：</p>
+<p>[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-257893.htm">原创]菜鸟学8.1版本dex加载流程笔记–第一篇：oat_file_manager与oat_file_assistant-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b89d0b03e82c">入门ART虚拟机(2)——加载DEX文件续 - 简书 (jianshu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="http://aospxref.com/android-8.0.0_r36/">http://aospxref.com/android-8.0.0_r36/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+      
+        <a href="/tags/dex/">#dex</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>dex文件加载流程(二)</div>
+      <div>http://example.com/2023/11/20/Android安全/dex文件加载流程(二)/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月20日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/20/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%89)/" title="dex文件加载流程(三)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">dex文件加载流程(三)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/20/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/" title="dex文件加载流程(一)">
+                        <span class="hidden-mobile">dex文件加载流程(一)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="impossible RSA12345678910111213141516171819from Crypto.Util.number import *from Crypto.PublicKey import RSAe &#x3D; 65537flag &#x3D; b&amp;#x27;ACTF&amp;#123;...&amp;#125;&amp;#x27;while True:    p &#x3D; getPrime(1024)    q &#x3D; inve">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ACTF2022">
+<meta property="og:url" content="http://example.com/2022/06/26/CTF/ACTF2022/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="impossible RSA12345678910111213141516171819from Crypto.Util.number import *from Crypto.PublicKey import RSAe &#x3D; 65537flag &#x3D; b&amp;#x27;ACTF&amp;#123;...&amp;#125;&amp;#x27;while True:    p &#x3D; getPrime(1024)    q &#x3D; inve">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/07/28/vCJKgI.png">
+<meta property="article:published_time" content="2022-06-26T04:03:55.000Z">
+<meta property="article:modified_time" content="2022-09-11T13:58:55.830Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="RSA">
+<meta property="article:tag" content="Crypto">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/07/28/vCJKgI.png">
+  
+  
+  
+  <title>ACTF2022 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ACTF2022"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-26 12:03" pubdate>
+          2022年6月26日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          75 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ACTF2022</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="impossible-RSA"><a href="#impossible-RSA" class="headerlink" title="impossible RSA"></a>impossible RSA</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.PublicKey <span class="hljs-keyword">import</span> RSA<br><br>e = <span class="hljs-number">65537</span><br>flag = <span class="hljs-string">b&#x27;ACTF&#123;...&#125;&#x27;</span><br><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    p = getPrime(<span class="hljs-number">1024</span>)<br>    q = inverse(e, p)<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> isPrime(q):<br>        <span class="hljs-keyword">continue</span><br>    n = p * q;<br>    public = RSA.construct((n, e))<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;public.pem&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> file:<br>        file.write(public.exportKey(<span class="hljs-string">&#x27;PEM&#x27;</span>))<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;flag&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> file:<br>        file.write(long_to_bytes(<span class="hljs-built_in">pow</span>(bytes_to_long(flag), e, n)))<br>    <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+
+<p>$$<br>e*q &#x3D; 1 \ mod\ p\\<br>&#x3D;&#x3D;&gt;e*q &#x3D; 1 + k*p(可以知道k的值近似e)\\<br>&#x3D;&#x3D;&gt;e*q^2-q-k*n&#x3D;0\\<br>解方程就行了<br>$$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">import</span> gmpy2<br><span class="hljs-keyword">import</span> rsa<br><span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;public.pem&quot;</span>,<span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>    keydata = f.read()<br>    pubckey = rsa.PublicKey.load_pkcs1_openssl_pem(keydata)<br>    pubckey.n<br>    pubckey.e<br><br>n = pubckey.n<br>e = pubckey.e<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;n = <span class="hljs-subst">&#123;n&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;e = <span class="hljs-subst">&#123;e&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;flag&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    c = bytes_to_long(f.read())<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;c = <span class="hljs-subst">&#123;c&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>,e):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;k = <span class="hljs-subst">&#123;k&#125;</span>&quot;</span>)<br>    deta = <span class="hljs-number">1</span> + <span class="hljs-number">4</span> * k * e * n<br>    <span class="hljs-keyword">if</span> gmpy2.iroot(deta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>] &gt;= <span class="hljs-number">0</span>:<br>        <span class="hljs-comment">#p = int((gmpy2.iroot(deta,2)[0]+1)/(2*e))</span><br>        p = <span class="hljs-built_in">int</span>(gmpy2.iroot(deta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]+<span class="hljs-number">1</span>)//(<span class="hljs-number">2</span>*e)<span class="hljs-comment">#前面需要int化，淦！</span><br>        q = n//p<br>        <span class="hljs-keyword">if</span> p*q == n:<br>            phi = (p - <span class="hljs-number">1</span>) * (q - <span class="hljs-number">1</span>)<br>            d = gmpy2.invert(e, phi)<br>            m = <span class="hljs-built_in">pow</span>(c, d, n)<br>            flag = long_to_bytes(m)<br>            <span class="hljs-keyword">if</span> <span class="hljs-string">b&#x27;ACTF&#x27;</span> <span class="hljs-keyword">in</span> flag:<br>                <span class="hljs-built_in">print</span>(flag)<br>                <span class="hljs-keyword">break</span><br><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="RSA-LEAK"><a href="#RSA-LEAK" class="headerlink" title="RSA LEAK"></a>RSA LEAK</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> sage.<span class="hljs-built_in">all</span> <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> secret <span class="hljs-keyword">import</span> flag<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> bytes_to_long<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">leak</span>(<span class="hljs-params">a, b</span>):<br>    p = random_prime(<span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">64</span>))<br>    q = random_prime(<span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">64</span>))<br>    n = p*q<br>    e = <span class="hljs-number">65537</span><br>    <span class="hljs-built_in">print</span>(n)<br>    <span class="hljs-built_in">print</span>((<span class="hljs-built_in">pow</span>(a, e) + <span class="hljs-built_in">pow</span>(b, e) + <span class="hljs-number">0xdeadbeef</span>) % n)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gen_key</span>():<br>    a = randrange(<span class="hljs-number">0</span>, <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>,<span class="hljs-number">256</span>))<br>    b = randrange(<span class="hljs-number">0</span>, <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>,<span class="hljs-number">256</span>))<br>    p = <span class="hljs-built_in">pow</span>(a, <span class="hljs-number">4</span>)<br>    q = <span class="hljs-built_in">pow</span>(b, <span class="hljs-number">4</span>)<br>    rp = randrange(<span class="hljs-number">0</span>, <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>,<span class="hljs-number">24</span>))<br>    rq = randrange(<span class="hljs-number">0</span>, <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>,<span class="hljs-number">24</span>))<br>    pp = next_prime(p+rp)<br>    qq = next_prime(q+rq)<br>    <span class="hljs-keyword">if</span> pp % <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">4</span>) == (pp-p) % <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">4</span>) <span class="hljs-keyword">and</span> qq % <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">4</span>) == (qq-q) % <span class="hljs-built_in">pow</span>(<span class="hljs-number">2</span>, <span class="hljs-number">4</span>):<br>        n = pp*qq<br>        rp = pp-p<br>        rq = qq-q<br>        <span class="hljs-keyword">return</span> n, rp, rq<br>    <br>n, rp, rq = gen_key()<br>e = <span class="hljs-number">65537</span><br>c = <span class="hljs-built_in">pow</span>(bytes_to_long(flag), e, n)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;n =&quot;</span>, n)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;e =&quot;</span>, e)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;c =&quot;</span>, c)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;=======leak=======&quot;</span>)<br>leak(rp, rq)<br><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">n = 3183573836769699313763043722513486503160533089470716348487649113450828830224151824106050562868640291712433283679799855890306945562430572137128269318944453041825476154913676849658599642113896525291798525533722805116041675462675732995881671359593602584751304602244415149859346875340361740775463623467503186824385780851920136368593725535779854726168687179051303851797111239451264183276544616736820298054063232641359775128753071340474714720534858295660426278356630743758247422916519687362426114443660989774519751234591819547129288719863041972824405872212208118093577184659446552017086531002340663509215501866212294702743</span><br><span class="hljs-string">e = 65537</span><br><span class="hljs-string">c = 48433948078708266558408900822131846839473472350405274958254566291017137879542806238459456400958349315245447486509633749276746053786868315163583443030289607980449076267295483248068122553237802668045588106193692102901936355277693449867608379899254200590252441986645643511838233803828204450622023993363140246583650322952060860867801081687288233255776380790653361695125971596448862744165007007840033270102756536056501059098523990991260352123691349393725158028931174218091973919457078350257978338294099849690514328273829474324145569140386584429042884336459789499705672633475010234403132893629856284982320249119974872840</span><br><span class="hljs-string">=======leak=======</span><br><span class="hljs-string">122146249659110799196678177080657779971</span><br><span class="hljs-string">90846368443479079691227824315092288065</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h2><p>论文：<a target="_blank" rel="noopener" href="https://einspem.upm.edu.my/journal/fullpaper/vol13saugust/8.pdf">8.pdf (upm.edu.my)</a></p>
+<p>通过上述论文可知，我们要先求出<code>rp(pp-p),rq(qq-q)</code>。</p>
+<p>令</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">leak_out = <span class="hljs-number">90846368443479079691227824315092288065</span><br>leak_n = <span class="hljs-number">122146249659110799196678177080657779971</span><br>tmp = <span class="hljs-number">0xdeadbeef</span><br></code></pre></td></tr></table></figure>
+
+<p>该题中<code>leak_n</code>很小易分解出<code>leak_p,leak_q</code>，且<code>rp,rq</code>的范围在[0,1&lt;&lt;24]左右，故可以对<code>rp</code>进行枚举（枚举范围可以减半，即<code>rp,rq</code>的值对调），有等式$rq^e &#x3D; leak\_out - tmp - rq^e\quad (mod\quad leak\_n)$，然后解密得到<code>rq</code>，通过以下条件筛选出<code>rp,rq</code></p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs excel"><span class="hljs-number">1</span>)rq in [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">24</span>)<br><span class="hljs-number">2</span>)rp*rq ≡ <span class="hljs-built_in">n</span> (<span class="hljs-built_in">mod</span> <span class="hljs-number">16</span>)<br></code></pre></td></tr></table></figure>
+
+<p>然后再根据论文中的步骤写出算法：</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/vCJKgI"><img src="https://s1.ax1x.com/2022/07/28/vCJKgI.png" srcset="/img/loading.gif" lazyload alt="vCJKgI.png" border="0" /></a></p>
+<p>代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> iroot,invert<br><span class="hljs-keyword">from</span> tqdm <span class="hljs-keyword">import</span> tqdm<br><span class="hljs-keyword">from</span> math <span class="hljs-keyword">import</span> ceil,floor<br><br>n = <span class="hljs-number">3183573836769699313763043722513486503160533089470716348487649113450828830224151824106050562868640291712433283679799855890306945562430572137128269318944453041825476154913676849658599642113896525291798525533722805116041675462675732995881671359593602584751304602244415149859346875340361740775463623467503186824385780851920136368593725535779854726168687179051303851797111239451264183276544616736820298054063232641359775128753071340474714720534858295660426278356630743758247422916519687362426114443660989774519751234591819547129288719863041972824405872212208118093577184659446552017086531002340663509215501866212294702743</span><br>e = <span class="hljs-number">65537</span><br>c = <span class="hljs-number">48433948078708266558408900822131846839473472350405274958254566291017137879542806238459456400958349315245447486509633749276746053786868315163583443030289607980449076267295483248068122553237802668045588106193692102901936355277693449867608379899254200590252441986645643511838233803828204450622023993363140246583650322952060860867801081687288233255776380790653361695125971596448862744165007007840033270102756536056501059098523990991260352123691349393725158028931174218091973919457078350257978338294099849690514328273829474324145569140386584429042884336459789499705672633475010234403132893629856284982320249119974872840</span><br><br>leak_n = <span class="hljs-number">122146249659110799196678177080657779971</span><br>leak_p = <span class="hljs-number">8949458376079230661</span><br>leak_q = <span class="hljs-number">13648451618657980711</span><br>leak_phi = (leak_p - <span class="hljs-number">1</span>)*(leak_q - <span class="hljs-number">1</span>)<br>leak_d = invert(e,leak_phi)<br>leak_out = <span class="hljs-number">90846368443479079691227824315092288065</span><br>leak_out -= <span class="hljs-number">0xdeadbeef</span><br>m = <span class="hljs-number">4</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">for rp in tqdm(range(1,16777216)):</span><br><span class="hljs-string">    rpe = pow(rp,e,leak_n)</span><br><span class="hljs-string">    rq = pow(leak_out-rpe,leak_d,leak_n)</span><br><span class="hljs-string">    #if rq.bit_length() in range(23,25):</span><br><span class="hljs-string">    if rq.bit_length() &lt;= 24 and n%16 == (rp*rq)%16:</span><br><span class="hljs-string">        print(rp,rq)</span><br><span class="hljs-string">        break</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-comment">#rp, rq = 405771, 11974933</span><br>rq, rp = <span class="hljs-number">405771</span>, <span class="hljs-number">11974933</span><br>start = ceil(iroot(rp*rq,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>])<br>edge = floor(rq/<span class="hljs-number">2</span>+<span class="hljs-number">2</span>**(m/<span class="hljs-number">2</span>-<span class="hljs-number">1</span>)*rp+<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;start = <span class="hljs-subst">&#123;start&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;edge = <span class="hljs-subst">&#123;edge&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> tqdm(<span class="hljs-built_in">range</span>(start,edge)):<br>    sigma = (<span class="hljs-built_in">int</span>(iroot(n,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]) - i)**<span class="hljs-number">2</span><span class="hljs-comment">#整数化</span><br>    z = (n - rp*rq)%sigma<br>    delta = z**<span class="hljs-number">2</span> - <span class="hljs-number">4</span>*sigma*rp*rq<br>    <span class="hljs-keyword">if</span> delta &lt; <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">continue</span><br>    <span class="hljs-keyword">if</span> iroot(delta,<span class="hljs-number">2</span>)[<span class="hljs-number">1</span>]:<br>        x1, x2 = (z+<span class="hljs-built_in">int</span>(iroot(delta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]))//<span class="hljs-number">2</span>, (z-<span class="hljs-built_in">int</span>(iroot(delta,<span class="hljs-number">2</span>)[<span class="hljs-number">0</span>]))//<span class="hljs-number">2</span><span class="hljs-comment">#整数化</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;x1 = <span class="hljs-subst">&#123;x1&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">assert</span> x1**<span class="hljs-number">2</span> - z*x1 + sigma*rp*rq == <span class="hljs-number">0</span><br>        maybe_p = <span class="hljs-built_in">int</span>(n//(x1//rp+rq))<br>        <span class="hljs-keyword">if</span> n%maybe_p == <span class="hljs-number">0</span>:<br>            p = maybe_p<br>            q = n//p<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;p = <span class="hljs-subst">&#123;p&#125;</span>\nq = <span class="hljs-subst">&#123;q&#125;</span>&#x27;</span>)<br>            <span class="hljs-keyword">break</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;x2 = <span class="hljs-subst">&#123;x2&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">assert</span> x2**<span class="hljs-number">2</span> - z*x2 + sigma*rp*rq == <span class="hljs-number">0</span><br>        maybe_q = <span class="hljs-built_in">int</span>(n//(x2//rq+rp))<br>        <span class="hljs-keyword">if</span> n%maybe_q == <span class="hljs-number">0</span>:<br>            q = maybe_q<br>            p = n//q<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;p = <span class="hljs-subst">&#123;p&#125;</span>\nq = <span class="hljs-subst">&#123;q&#125;</span>&#x27;</span>)<br>            <span class="hljs-keyword">break</span><br><br>phi = (p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>)<br>d = invert(e,phi)<br>flag = long_to_bytes(<span class="hljs-built_in">pow</span>(c,d,n))<br><span class="hljs-built_in">print</span>(flag)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h2><p><code>rp,rq</code>的求法同上。（rp &#x3D; pp - p，rq &#x3D; qq-q）<br>$$<br>\begin{cases}<br>pp &#x3D; a^4+rp<br>\\qq &#x3D; b^4+rq<br>\end{cases}<br>$$<br>比较各数值大小</p>
+<figure class="highlight parser3"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs parser3"><span class="language-xml">a,b在</span><span class="hljs-number">256</span><span class="language-xml">bit左右，a</span><span class="hljs-keyword">^4</span><span class="language-xml">,b</span><span class="hljs-keyword">^4</span><span class="language-xml">在</span><span class="hljs-number">1024</span><span class="language-xml">bit左右</span><br><span class="language-xml">而rp,rq在</span><span class="hljs-number">24</span><span class="language-xml">bit左右</span><br><span class="language-xml">故n=pp*qq=(a</span><span class="hljs-keyword">^4</span><span class="language-xml">+rp)*(b</span><span class="hljs-keyword">^4</span><span class="language-xml">+rq)≈a</span><span class="hljs-keyword">^4</span><span class="language-xml">*b</span><span class="hljs-keyword">^4</span><br></code></pre></td></tr></table></figure>
+
+<p>于是可以联立方程<br>$$<br>\begin{cases}<br>n &#x3D; (a^4+rp)*(b^4+rq)<br>\\n^{1&#x2F;4} &#x3D; a*b<br>\end{cases}<br>$$<br>解此方程可得到<code>a,b</code>，继而求出<code>p,q</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> gmpy2 <span class="hljs-keyword">import</span> iroot,invert<br><span class="hljs-keyword">from</span> tqdm <span class="hljs-keyword">import</span> tqdm<br><span class="hljs-keyword">from</span> z3 <span class="hljs-keyword">import</span> *<br><br>n = <span class="hljs-number">3183573836769699313763043722513486503160533089470716348487649113450828830224151824106050562868640291712433283679799855890306945562430572137128269318944453041825476154913676849658599642113896525291798525533722805116041675462675732995881671359593602584751304602244415149859346875340361740775463623467503186824385780851920136368593725535779854726168687179051303851797111239451264183276544616736820298054063232641359775128753071340474714720534858295660426278356630743758247422916519687362426114443660989774519751234591819547129288719863041972824405872212208118093577184659446552017086531002340663509215501866212294702743</span><br>e = <span class="hljs-number">65537</span><br>c = <span class="hljs-number">48433948078708266558408900822131846839473472350405274958254566291017137879542806238459456400958349315245447486509633749276746053786868315163583443030289607980449076267295483248068122553237802668045588106193692102901936355277693449867608379899254200590252441986645643511838233803828204450622023993363140246583650322952060860867801081687288233255776380790653361695125971596448862744165007007840033270102756536056501059098523990991260352123691349393725158028931174218091973919457078350257978338294099849690514328273829474324145569140386584429042884336459789499705672633475010234403132893629856284982320249119974872840</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br><span class="hljs-string">for i in tqdm(range(1,16777216)):</span><br><span class="hljs-string">    rpe = pow(rp,e,leak_n)</span><br><span class="hljs-string">    rq = pow(leak_out-rpe,leak_d,leak_n)</span><br><span class="hljs-string">    if rq.bit_length() &lt;= 24 and n%16 == (rp*rq)%16:</span><br><span class="hljs-string">        print(rp,rq)</span><br><span class="hljs-string">        break</span><br><span class="hljs-string">&#x27;&#x27;&#x27;</span><br>rp, rq = <span class="hljs-number">405771</span>, <span class="hljs-number">11974933</span><br><br>a,b = Ints(<span class="hljs-string">&#x27;a b&#x27;</span>)<br>solver = Solver()<br><span class="hljs-comment">#solver.add(n == (a**4+rp)*(b**4+rq))</span><br><span class="hljs-comment">#solver.add(int(iroot(n,4)[0]) == a*b)#int化</span><br>solver.add( n == (a**<span class="hljs-number">4</span>+rp)*(b**<span class="hljs-number">4</span>+rq), <span class="hljs-built_in">int</span>(iroot(n,<span class="hljs-number">4</span>)[<span class="hljs-number">0</span>]) == a*b )<br><span class="hljs-keyword">if</span> solver.check() == sat:<br>    result = solver.model()<br><br>a_, b_ = <span class="hljs-built_in">int</span>(<span class="hljs-built_in">str</span>(result[a])), <span class="hljs-built_in">int</span>(<span class="hljs-built_in">str</span>(result[b]))<span class="hljs-comment">#必须先整数化，否则后面的p,q是式子</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;a = <span class="hljs-subst">&#123;a_&#125;</span>,b = <span class="hljs-subst">&#123;b_&#125;</span>&#x27;</span>)<br>p = a_**<span class="hljs-number">4</span>+rp<br>q = b_**<span class="hljs-number">4</span>+rq<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;p = <span class="hljs-subst">&#123;p&#125;</span>\nq = <span class="hljs-subst">&#123;q&#125;</span>&#x27;</span>)<br><br><span class="hljs-keyword">assert</span> p*q == n<br>d = invert(e,(p-<span class="hljs-number">1</span>)*(q-<span class="hljs-number">1</span>))<br>m = <span class="hljs-built_in">pow</span>(c,d,n)<br><span class="hljs-built_in">print</span>(long_to_bytes(m))<br></code></pre></td></tr></table></figure>
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://files.zsxq.com/Fs-DbVF1HxSse2xhcc_dzxypH0RM?attname=ACTF%20WriteUp%20By%20Nu1L.pdf&e=1656393210&token=kIxbL07-8jAj8w1n4s9zv64FuZZNEATmlU_Vm6zD:lR1WUNhjBvWtVI20OtfYRO26-lY=">ACTF WriteUp By Nu1L</a></p>
+<p><a target="_blank" rel="noopener" href="https://einspem.upm.edu.my/journal/fullpaper/vol13saugust/8.pdf">8.pdf (upm.edu.my)</a></p>
+<p><a target="_blank" rel="noopener" href="https://furutsuki.hatenablog.com/entry/2022/06/28/001931">ACTF 2022 writeup - ふるつき (hatenablog.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/RSA/">#RSA</a>
+      
+        <a href="/tags/Crypto/">#Crypto</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ACTF2022</div>
+      <div>http://example.com/2022/06/26/CTF/ACTF2022/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月26日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/28/CTF/Ez_Pager_Tiper/" title="SUSCTF - Ez_Pager_Tiper">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SUSCTF - Ez_Pager_Tiper</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/16/CTF/%E5%AE%81%E6%B3%A2%E5%B8%82%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%A4%A7%E8%B5%9B2022/" title="宁波市网络安全大赛2022-Crypto-WP">
+                        <span class="hidden-mobile">宁波市网络安全大赛2022-Crypto-WP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言在上一篇文章中，我们分析了应用程序进程启动的流程。那么，在应用程序进程已启动的情况下，应用程序又是如何启动的呢？在这篇文章中，我们将从点击应用快捷图标开始，分析应用程序是如何启动的，即根Activity是如何启动的。 二、根Activity启动流程2.1 Launcher 请求 AMS 过程还记得Android系统启动流程中，最后一个阶段是什么嘛？没错，是Launcher应用程序的启动，也">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android应用程序启动流程(二)">
+<meta property="og:url" content="http://example.com/2023/07/24/Android%E5%AE%89%E5%85%A8/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言在上一篇文章中，我们分析了应用程序进程启动的流程。那么，在应用程序进程已启动的情况下，应用程序又是如何启动的呢？在这篇文章中，我们将从点击应用快捷图标开始，分析应用程序是如何启动的，即根Activity是如何启动的。 二、根Activity启动流程2.1 Launcher 请求 AMS 过程还记得Android系统启动流程中，最后一个阶段是什么嘛？没错，是Launcher应用程序的启动，也">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-24T08:52:37.000Z">
+<meta property="article:modified_time" content="2023-11-27T09:52:48.984Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android源码解析">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Android应用程序启动流程(二) - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android应用程序启动流程(二)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-24 16:52" pubdate>
+          2023年7月24日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          30k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          253 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android应用程序启动流程(二)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/07/17/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)">上一篇文章</a>中，我们分析了应用程序进程启动的流程。那么，在应用程序进程已启动的情况下，应用程序又是如何启动的呢？在这篇文章中，我们将从点击应用快捷图标开始，分析应用程序是如何启动的，即根<code>Activity</code>是如何启动的。</p>
+<h1 id="二、根Activity启动流程"><a href="#二、根Activity启动流程" class="headerlink" title="二、根Activity启动流程"></a>二、根Activity启动流程</h1><h2 id="2-1-Launcher-请求-AMS-过程"><a href="#2-1-Launcher-请求-AMS-过程" class="headerlink" title="2.1 Launcher 请求 AMS 过程"></a>2.1 Launcher 请求 AMS 过程</h2><p>还记得<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/07/04/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">Android系统启动流程</a>中，最后一个阶段是什么嘛？没错，是<code>Launcher</code>应用程序的启动，也就是手机的桌面。它是<code>Zygote</code>进程孵化的第一个<code>APP</code>。在启动过程中，它会请求<code>PackageManagerService</code>返回系统中已经安装的应用程序的信息，并将这些信息封装成一个快捷图标列表显示在系统屏幕上，用户可以通过点击图标来启动相应的应用程序。</p>
+<p>当我们点击应用图标时，<code>Launcher</code>的<code>onClick</code>方法被调用，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/packages/apps/Launcher3/src/com/android/launcher3/Launcher.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClick</span><span class="hljs-params">(View v)</span> &#123;<br>    ......<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">tag</span> <span class="hljs-operator">=</span> v.getTag();<br>    <span class="hljs-keyword">if</span> (tag <span class="hljs-keyword">instanceof</span> ShortcutInfo) &#123;<span class="hljs-comment">//应用程序快捷图标</span><br>        <span class="hljs-comment">//处理应用程序快捷方式的点击事件</span><br>        onClickAppShortcut(v);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (tag <span class="hljs-keyword">instanceof</span> FolderInfo) &#123;<span class="hljs-comment">//文件夹</span><br>        <span class="hljs-keyword">if</span> (v <span class="hljs-keyword">instanceof</span> FolderIcon) &#123;<span class="hljs-comment">//点击的视图时文件夹图标</span><br>            onClickFolderIcon(v);<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((FeatureFlags.LAUNCHER3_ALL_APPS_PULL_UP &amp;&amp; v <span class="hljs-keyword">instanceof</span> PageIndicator) ||<br>               (v == mAllAppsButton &amp;&amp; mAllAppsButton != <span class="hljs-literal">null</span>)) &#123;<br>        onClickAllAppsButton(v);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (tag <span class="hljs-keyword">instanceof</span> AppInfo) &#123;<span class="hljs-comment">//应用信息</span><br>        startAppShortcutOrInfoActivity(v);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (tag <span class="hljs-keyword">instanceof</span> LauncherAppWidgetInfo) &#123;<span class="hljs-comment">//Launcher小部件，如天气、日期等小部件</span><br>        <span class="hljs-keyword">if</span> (v <span class="hljs-keyword">instanceof</span> PendingAppWidgetHostView) &#123;<br>            onClickPendingWidget((PendingAppWidgetHostView) v);<br>        &#125;<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onClickAppShortcut</span><span class="hljs-params">(<span class="hljs-keyword">final</span> View v)</span> &#123;<br>    <span class="hljs-comment">//对v的检测</span><br>	......<br>    <span class="hljs-comment">// Start activities</span><br>    startAppShortcutOrInfoActivity(v);<br>&#125;<br><br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startAppShortcutOrInfoActivity</span><span class="hljs-params">(View v)</span> &#123;<br>    <span class="hljs-type">ItemInfo</span> <span class="hljs-variable">item</span> <span class="hljs-operator">=</span> (ItemInfo) v.getTag();<br>    <span class="hljs-type">Intent</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> item.getIntent();<br>    <span class="hljs-keyword">if</span> (intent == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Input must have a valid intent&quot;</span>);<br>    &#125;<br>    <span class="hljs-comment">//startActivitySafely()启动应用程序</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">success</span> <span class="hljs-operator">=</span> startActivitySafely(v, intent, item);<br>    <span class="hljs-comment">//记录应用程序启动的用户事件（日志）</span><br>    getUserEventDispatcher().logAppLaunch(v, intent); <span class="hljs-comment">// TODO for discovered apps b/35802115</span><br><br>    <span class="hljs-keyword">if</span> (success &amp;&amp; v <span class="hljs-keyword">instanceof</span> BubbleTextView) &#123;<br>        mWaitingForResume = (BubbleTextView) v;<br>        mWaitingForResume.setStayPressed(<span class="hljs-literal">true</span>);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">startActivitySafely</span><span class="hljs-params">(View v, Intent intent, ItemInfo item)</span> &#123;<br>    ......<br>    <span class="hljs-comment">//创建一个新的任务栈来启动Activity</span><br>    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);<br>    <span class="hljs-keyword">if</span> (v != <span class="hljs-literal">null</span>) &#123;<br>        intent.setSourceBounds(getViewBounds(v));<br>    &#125;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span> (Utilities.ATLEAST_MARSHMALLOW<br>            &amp;&amp; (item <span class="hljs-keyword">instanceof</span> ShortcutInfo)<br>            &amp;&amp; (item.itemType == Favorites.ITEM_TYPE_SHORTCUT<br>                || item.itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT)<br>            &amp;&amp; !((ShortcutInfo) item).isPromise()) &#123;<br>            <span class="hljs-comment">// Shortcuts need some special checks due to legacy reasons.</span><br>            startShortcutIntentSafely(intent, optsBundle, item);<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span> || user.equals(Process.myUserHandle())) &#123;<br>            <span class="hljs-comment">// Could be launching some bookkeeping activity</span><br>            startActivity(intent, optsBundle);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            LauncherAppsCompat.getInstance(<span class="hljs-built_in">this</span>).startActivityForProfile(<br>                intent.getComponent(), user, intent.getSourceBounds(), optsBundle);<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125; <span class="hljs-keyword">catch</span> (ActivityNotFoundException|SecurityException e) &#123;<br>        ......<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果点击的时应用快捷图标，会调用<code>onClickAppShortcut</code>方法，进而调用<code>startAppShortcutOrInfoActivity</code>方法，获取视图对象的<code>Intent</code>，然后调用<code>startActivitySafely</code>方法，设置<code>Intent</code>的<code>Flag</code>为<code>FLAG_ACTIVITY_NEW_TASK</code>，指示<code>Android</code>系统通过创建一个新的任务栈来启动<code>Activity</code>，之后会调用<code>startActivity</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Activity.java</span><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">* Launch a new activity.  You will not receive any information about when</span><br><span class="hljs-comment">* the activity exits.  This implementation overrides the base version,</span><br><span class="hljs-comment">* providing information about the activity performing the launch.  </span><br><span class="hljs-comment">* Because of this additional information,</span><br><span class="hljs-comment">* the &#123;<span class="hljs-doctag">@link</span> Intent#FLAG_ACTIVITY_NEW_TASK&#125; launch flag is not</span><br><span class="hljs-comment">* required; if not specified, the new activity will be added to the</span><br><span class="hljs-comment">* task of the caller.</span><br><span class="hljs-comment">*</span><br><span class="hljs-comment">* <span class="hljs-doctag">@param</span> intent The intent to start.</span><br><span class="hljs-comment">* <span class="hljs-doctag">@param</span> options Additional options for how the Activity should be started.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startActivity</span><span class="hljs-params">(Intent intent, <span class="hljs-meta">@Nullable</span> Bundle options)</span> &#123;<br>    <span class="hljs-keyword">if</span> (options != <span class="hljs-literal">null</span>) &#123;<br>        startActivityForResult(intent, -<span class="hljs-number">1</span>, options);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        startActivityForResult(intent, -<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">* Same as calling &#123;<span class="hljs-doctag">@link</span> #startActivityForResult(Intent, int, Bundle)&#125;</span><br><span class="hljs-comment">* with no options.</span><br><span class="hljs-comment">*</span><br><span class="hljs-comment">* <span class="hljs-doctag">@param</span> requestCode If &gt;= 0, this code will be returned in</span><br><span class="hljs-comment">*                    onActivityResult() when the activity exits.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startActivityForResult</span><span class="hljs-params">(<span class="hljs-meta">@RequiresPermission</span> Intent intent, <span class="hljs-type">int</span> requestCode)</span> &#123;<br>    startActivityForResult(intent, requestCode, <span class="hljs-literal">null</span>);<br>&#125;<br><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">* Launch an activity for which you would like a result when it finished.</span><br><span class="hljs-comment">* When this activity exits, your</span><br><span class="hljs-comment">* onActivityResult() method will be called with the given requestCode.</span><br><span class="hljs-comment">* Using a negative requestCode is the same as calling</span><br><span class="hljs-comment">* &#123;<span class="hljs-doctag">@link</span> #startActivity&#125; (the activity is not launched as a sub-activity).</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startActivityForResult</span><span class="hljs-params">(<span class="hljs-meta">@RequiresPermission</span> Intent intent, <span class="hljs-type">int</span> requestCode,</span><br><span class="hljs-params">                                   <span class="hljs-meta">@Nullable</span> Bundle options)</span> &#123;<br>    <span class="hljs-keyword">if</span> (mParent == <span class="hljs-literal">null</span>) &#123;<span class="hljs-comment">//当前Activity是否有父Activity</span><br>        options = transferSpringboardActivityOptions(options);<br>        Instrumentation.<span class="hljs-type">ActivityResult</span> <span class="hljs-variable">ar</span> <span class="hljs-operator">=</span> mInstrumentation.execStartActivity(<span class="hljs-built_in">this</span>, mMainThread.getApplicationThread(), mToken, <span class="hljs-built_in">this</span>, intent, requestCode, options);<br>        <span class="hljs-keyword">if</span> (ar != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">//通过主线程的sendActivityResult方法将结果数据发送给发起请求的Activity</span><br>            mMainThread.sendActivityResult(mToken, mEmbeddedID, requestCode, ar.getResultCode(), ar.getResultData());<br>        &#125;<br>        <span class="hljs-keyword">if</span> (requestCode &gt;= <span class="hljs-number">0</span>) &#123;<br>            mStartedActivity = <span class="hljs-literal">true</span>;<br>        &#125;<br>        cancelInputsAndStartExitTransition(options);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> (options != <span class="hljs-literal">null</span>) &#123;<br>            mParent.startActivityFromChild(<span class="hljs-built_in">this</span>, intent, requestCode, options);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            mParent.startActivityFromChild(<span class="hljs-built_in">this</span>, intent, requestCode);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>startActivity</code>方法中，无论哪个分支，最终都会调用三个参数的<code>startActivityForResult</code>方法，第二个参数<code>requestCode = -1</code>表示<code>Launcher</code>不需要知道<code>Activity</code>启动的结果，第三个参数则代表<code>Activity</code>启动的方式。</p>
+<p>在三个参数的<code>startActivityForResult</code>方法中，<code>mParent</code>是<code>Activity</code>类型的，表示当前<code>Activity</code>的父类。很显然，我们要启动的应用程序的第一个<code>Activity</code>（也就是根<code>Activity</code>）还没有创建出来，所以调用<code>mInstrumentation</code>的<code>execStartActivity</code>方法，<code>mInstrumentation</code>主要用来监控应用程序和系统的交互。<code>execStartActivity</code>方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Instrumentation.java</span><br><span class="hljs-keyword">public</span> ActivityResult <span class="hljs-title function_">execStartActivity</span><span class="hljs-params">(</span><br><span class="hljs-params">    Context who, IBinder contextThread, IBinder token, Activity target,</span><br><span class="hljs-params">    Intent intent, <span class="hljs-type">int</span> requestCode, Bundle options)</span> &#123;<br>    <span class="hljs-type">IApplicationThread</span> <span class="hljs-variable">whoThread</span> <span class="hljs-operator">=</span> (IApplicationThread) contextThread;<br>    <span class="hljs-type">Uri</span> <span class="hljs-variable">referrer</span> <span class="hljs-operator">=</span> target != <span class="hljs-literal">null</span> ? target.onProvideReferrer() : <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">if</span> (referrer != <span class="hljs-literal">null</span>) &#123;<br>        intent.putExtra(Intent.EXTRA_REFERRER, referrer);<br>    &#125;<br>    <span class="hljs-comment">//检查是否存在活动监视器mActivityMonitors</span><br>    <span class="hljs-keyword">if</span> (mActivityMonitors != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">synchronized</span> (mSync) &#123;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">N</span> <span class="hljs-operator">=</span> mActivityMonitors.size();<br>            <span class="hljs-comment">//遍历监视器查找匹配的Activity</span><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;N; i++) &#123;<br>                <span class="hljs-keyword">final</span> <span class="hljs-type">ActivityMonitor</span> <span class="hljs-variable">am</span> <span class="hljs-operator">=</span> mActivityMonitors.get(i);<br>                <span class="hljs-type">ActivityResult</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>                <span class="hljs-keyword">if</span> (am.ignoreMatchingSpecificIntents()) &#123;<br>                    result = am.onStartActivity(intent);<br>                &#125;<br>                <span class="hljs-keyword">if</span> (result != <span class="hljs-literal">null</span>) &#123;<br>                    am.mHits++;<br>                    <span class="hljs-keyword">return</span> result;<br>                &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (am.match(who, <span class="hljs-literal">null</span>, intent)) &#123;<br>                    am.mHits++;<br>                    <span class="hljs-comment">//当该monitor阻塞activity启动,则直接返回</span><br>                    <span class="hljs-keyword">if</span> (am.isBlocking()) &#123;<br>                        <span class="hljs-keyword">return</span> requestCode &gt;= <span class="hljs-number">0</span> ? am.getResult() : <span class="hljs-literal">null</span>;<br>                    &#125;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">try</span> &#123;<br>        intent.migrateExtraStreamToClipData();<br>        intent.prepareToLeaveProcess(who);<br>        <span class="hljs-comment">//获取AMS的代理对象并调用startActivity方法</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> ActivityManager.getService()<br>            .startActivity(whoThread, who.getBasePackageName(), intent,<br>                           intent.resolveTypeIfNeeded(who.getContentResolver()),<br>                           token, target != <span class="hljs-literal">null</span> ? target.mEmbeddedID : <span class="hljs-literal">null</span>,<br>                           requestCode, <span class="hljs-number">0</span>, <span class="hljs-literal">null</span>, options);<br>        <span class="hljs-comment">//检查Activity的启动结果</span><br>        checkStartActivityResult(result, intent);<br>    &#125; <span class="hljs-keyword">catch</span> (RemoteException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;Failure from system&quot;</span>, e);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>先通过活动监视器检查正在启动的<code>Activity</code>是否受监视或拦截，如果没有，则调用<code>ActivityManager</code>的<code>getService</code>方法获得<code>AMS</code>的代理对象，接着调用<code>startActivity</code>方法。</p>
+<p>首先看<code>getService</code>方法做了什么，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityManager.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> IActivityManager <span class="hljs-title function_">getService</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> IActivityManagerSingleton.get();<br>&#125;<br><br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Singleton&lt;IActivityManager&gt; IActivityManagerSingleton =<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>&lt;IActivityManager&gt;() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> IActivityManager <span class="hljs-title function_">create</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">IBinder</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> ServiceManager.getService(Context.ACTIVITY_SERVICE);<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">IActivityManager</span> <span class="hljs-variable">am</span> <span class="hljs-operator">=</span> IActivityManager.Stub.asInterface(b);<br>        <span class="hljs-keyword">return</span> am;<br>    &#125;<br>&#125;;<br><br><br><span class="hljs-comment">//路径：/frameworks/base/core/java/android/util/Singleton.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span>&lt;T&gt; &#123;<br>    <span class="hljs-keyword">private</span> T mInstance;<br><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">abstract</span> T <span class="hljs-title function_">create</span><span class="hljs-params">()</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> T <span class="hljs-title function_">get</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>            <span class="hljs-keyword">if</span> (mInstance == <span class="hljs-literal">null</span>) &#123;<br>                mInstance = create();<br>            &#125;<br>            <span class="hljs-keyword">return</span> mInstance;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>getService</code>方法调用了<code>IActivityManagerSingleton</code>的<code>get</code>方法，而<code>IActivityManagerSingleton</code>是一个<code>Singleton</code>类，这个类中<code>get</code>方法调用了<code>create</code>方法。它在创建的时候重写了<code>create</code>方法，通过<code>getService</code>方法获取名为 “activity” 的<code>Service</code>引用，也就是<code>IBinder</code>类型的<code>AMS</code>引用，接着将它转换成<code>IActivityManager</code>类型的对象（采用的是<code>AIDL</code>，<code>IActivityManager.java</code>类是由<code>AIDL</code>工具编译<code>IActivityManager.aidl</code>时生成的）。<code>AIDL</code>的作用是实现跨进程通信(<code>IPC</code>)，在这里是建立服务端<code>AMS</code>和客户端<code>Launcher</code>之间的通信。</p>
+<p>回到<code>Instrumentation.java</code>，接下来是调用<code>startActivity</code>方法。</p>
+<h2 id="2-2-AMS-到-ApplicationThread-的调用过程"><a href="#2-2-AMS-到-ApplicationThread-的调用过程" class="headerlink" title="2.2 AMS 到 ApplicationThread 的调用过程"></a>2.2 AMS 到 ApplicationThread 的调用过程</h2><p><code>Launcher</code>请求<code>AMS</code>后，代码逻辑进入到<code>AMS</code>中， <code>AMS</code>的 <code>startActivity</code>方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivity</span><span class="hljs-params">(IApplicationThread caller, String callingPackage,</span><br><span class="hljs-params">                               Intent intent, String resolvedType, IBinder resultTo, String resultWho, <span class="hljs-type">int</span> requestCode,</span><br><span class="hljs-params">                               <span class="hljs-type">int</span> startFlags, ProfilerInfo profilerInfo, Bundle bOptions)</span> &#123;<br>    <span class="hljs-keyword">return</span> startActivityAsUser(caller, callingPackage, intent, resolvedType, resultTo,<br>                               resultWho, requestCode, startFlags, profilerInfo, bOptions,<br>                               UserHandle.getCallingUserId());<br>&#125;<br><br><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivityAsUser</span><span class="hljs-params">(IApplicationThread caller, String callingPackage,</span><br><span class="hljs-params">                                     Intent intent, String resolvedType, IBinder resultTo, String resultWho, <span class="hljs-type">int</span> requestCode,</span><br><span class="hljs-params">                                     <span class="hljs-type">int</span> startFlags, ProfilerInfo profilerInfo, Bundle bOptions, <span class="hljs-type">int</span> userId)</span> &#123;<br>    <span class="hljs-comment">//判断调用者进程是否被隔离</span><br>    enforceNotIsolatedCaller(<span class="hljs-string">&quot;startActivity&quot;</span>);<br>    <span class="hljs-comment">//检查调用者权限</span><br>    userId = mUserController.handleIncomingUser(Binder.getCallingPid(), Binder.getCallingUid(),<br>                                                userId, <span class="hljs-literal">false</span>, ALLOW_FULL_ONLY, <span class="hljs-string">&quot;startActivity&quot;</span>, <span class="hljs-literal">null</span>);<br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Switch to user app stacks here.</span><br>    <span class="hljs-keyword">return</span> mActivityStarter.startActivityMayWait(caller, -<span class="hljs-number">1</span>, callingPackage, intent,<br>                                                 resolvedType, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, resultTo, resultWho, requestCode, startFlags,<br>                                                 profilerInfo, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, bOptions, <span class="hljs-literal">false</span>, userId, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>,<br>                                                 <span class="hljs-string">&quot;startActivityAsUser&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与 <code>startActivity</code>方法相比， <code>startActivityAsUser</code>方法的参数多了一个<code>UserHandle.getCallingUserId()</code>，此方法用于获取调用者的<code>UserId</code>。接着在<code>startActivityAsUser</code>方法中，检查调用者进程是否被隔离，以及调用者权限，最后调用<code>startActivityMayWait</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStarter.java</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivityMayWait</span><span class="hljs-params">(IApplicationThread caller, <span class="hljs-type">int</span> callingUid,</span><br><span class="hljs-params">                               String callingPackage, Intent intent, String resolvedType,</span><br><span class="hljs-params">                               IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                               IBinder resultTo, String resultWho, <span class="hljs-type">int</span> requestCode, <span class="hljs-type">int</span> startFlags,</span><br><span class="hljs-params">                               ProfilerInfo profilerInfo, WaitResult outResult,</span><br><span class="hljs-params">                               Configuration globalConfig, Bundle bOptions, <span class="hljs-type">boolean</span> ignoreTargetSecurity, <span class="hljs-type">int</span> userId,</span><br><span class="hljs-params">                               IActivityContainer iContainer, TaskRecord inTask, String reason)</span> &#123;<br>    ......<br>    <span class="hljs-comment">//创建新的Intent对象，即便intent被修改也不受影响</span><br>    intent = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(intent);<br><br>    <span class="hljs-comment">//收集Intent所指向的Activity信息, 当存在多个可供选择的Activity,则直接向用户弹出resolveActivity</span><br>    <span class="hljs-type">ActivityInfo</span> <span class="hljs-variable">aInfo</span> <span class="hljs-operator">=</span> resolveActivity(intent, resolvedType, startFlags, profilerInfo, userId);<br>	......<br>    <span class="hljs-keyword">synchronized</span> (mService) &#123;<br>        ......<br>        <span class="hljs-type">int</span> <span class="hljs-variable">res</span> <span class="hljs-operator">=</span> startActivityLocked(caller, intent, ephemeralIntent, resolvedType,<br>                                      aInfo, rInfo, voiceSession, voiceInteractor,<br>                                      resultTo, resultWho, requestCode, callingPid,<br>                                      callingUid, callingPackage, realCallingPid, realCallingUid, startFlags,<br>                                      options, ignoreTargetSecurity, componentSpecified, outRecord, container,<br>                                      inTask, reason);<br><br>		......<br><br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">startActivityLocked</span><span class="hljs-params">(IApplicationThread caller, Intent intent, Intent ephemeralIntent,</span><br><span class="hljs-params">                        String resolvedType, ActivityInfo aInfo, ResolveInfo rInfo,</span><br><span class="hljs-params">                        IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                        IBinder resultTo, String resultWho, <span class="hljs-type">int</span> requestCode, <span class="hljs-type">int</span> callingPid, <span class="hljs-type">int</span> callingUid,</span><br><span class="hljs-params">                        String callingPackage, <span class="hljs-type">int</span> realCallingPid, <span class="hljs-type">int</span> realCallingUid, <span class="hljs-type">int</span> startFlags,</span><br><span class="hljs-params">                        ActivityOptions options, <span class="hljs-type">boolean</span> ignoreTargetSecurity, <span class="hljs-type">boolean</span> componentSpecified,</span><br><span class="hljs-params">                        ActivityRecord[] outActivity, ActivityStackSupervisor.ActivityContainer container,</span><br><span class="hljs-params">                        TaskRecord inTask, String reason)</span> &#123;<br>	<span class="hljs-comment">//判断启动理由是否为空</span><br>    <span class="hljs-keyword">if</span> (TextUtils.isEmpty(reason)) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Need to specify a reason.&quot;</span>);<br>    &#125;<br>    mLastStartReason = reason;<br>    mLastStartActivityTimeMs = System.currentTimeMillis();<br>    mLastStartActivityRecord[<span class="hljs-number">0</span>] = <span class="hljs-literal">null</span>;<br>	<br>    mLastStartActivityResult = startActivity(caller, intent, ephemeralIntent, resolvedType,<br>                                             aInfo, rInfo, voiceSession, voiceInteractor, resultTo, resultWho, requestCode,<br>                                             callingPid, callingUid, callingPackage, realCallingPid, realCallingUid, startFlags,<br>                                             options, ignoreTargetSecurity, componentSpecified, mLastStartActivityRecord,<br>                                             container, inTask);<br><br>    <span class="hljs-keyword">if</span> (outActivity != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-comment">// mLastStartActivityRecord[0] is set in the call to startActivity above.</span><br>        outActivity[<span class="hljs-number">0</span>] = mLastStartActivityRecord[<span class="hljs-number">0</span>];<br>    &#125;<br>    <span class="hljs-keyword">return</span> mLastStartActivityResult;<br>&#125;<br><br><br><span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivity</span><span class="hljs-params">(IApplicationThread caller, Intent intent, Intent ephemeralIntent,</span><br><span class="hljs-params">                          String resolvedType, ActivityInfo aInfo, ResolveInfo rInfo,</span><br><span class="hljs-params">                          IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                          IBinder resultTo, String resultWho, <span class="hljs-type">int</span> requestCode, <span class="hljs-type">int</span> callingPid, <span class="hljs-type">int</span> callingUid,</span><br><span class="hljs-params">                          String callingPackage, <span class="hljs-type">int</span> realCallingPid, <span class="hljs-type">int</span> realCallingUid, <span class="hljs-type">int</span> startFlags,</span><br><span class="hljs-params">                          ActivityOptions options, <span class="hljs-type">boolean</span> ignoreTargetSecurity, <span class="hljs-type">boolean</span> componentSpecified,</span><br><span class="hljs-params">                          ActivityRecord[] outActivity, ActivityStackSupervisor.ActivityContainer container,</span><br><span class="hljs-params">                          TaskRecord inTask)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">err</span> <span class="hljs-operator">=</span> ActivityManager.START_SUCCESS;<br>    <span class="hljs-comment">// Pull the optional Ephemeral Installer-only bundle out of the options early.</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">Bundle</span> <span class="hljs-variable">verificationBundle</span><br>        <span class="hljs-operator">=</span> options != <span class="hljs-literal">null</span> ? options.popAppVerificationBundle() : <span class="hljs-literal">null</span>;<br><br>    <span class="hljs-type">ProcessRecord</span> <span class="hljs-variable">callerApp</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">if</span> (caller != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-comment">//获得Launcher进程</span><br>        callerApp = mService.getRecordForAppLocked(caller);<br>        <span class="hljs-keyword">if</span> (callerApp != <span class="hljs-literal">null</span>) &#123;<br>            callingPid = callerApp.pid;<br>            callingUid = callerApp.info.uid;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            Slog.w(TAG, <span class="hljs-string">&quot;Unable to find app for caller &quot;</span> + caller<br>                   + <span class="hljs-string">&quot; (pid=&quot;</span> + callingPid + <span class="hljs-string">&quot;) when starting: &quot;</span><br>                   + intent.toString());<br>            err = ActivityManager.START_PERMISSION_DENIED;<br>        &#125;<br>    &#125;<br><br>    ......<br>	<span class="hljs-comment">//创建即将要启动的Activity的描述类ActivityRecord</span><br>    <span class="hljs-type">ActivityRecord</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActivityRecord</span>(mService, callerApp, callingPid, callingUid,<br>                                          callingPackage, intent, resolvedType, aInfo, mService.getGlobalConfiguration(),<br>                                          resultRecord, resultWho, requestCode, componentSpecified, voiceSession != <span class="hljs-literal">null</span>,<br>                                          mSupervisor, container, options, sourceRecord);<br>    <span class="hljs-keyword">if</span> (outActivity != <span class="hljs-literal">null</span>) &#123;<br>        outActivity[<span class="hljs-number">0</span>] = r;<br>    &#125;<br>	......<br><br>    doPendingActivityLaunchesLocked(<span class="hljs-literal">false</span>);<br><br>    <span class="hljs-keyword">return</span> startActivity(r, sourceRecord, voiceSession, voiceInteractor, startFlags, <span class="hljs-literal">true</span>,<br>                         options, inTask, outActivity);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>startActivityMayWait</code>方法中，我们主要关注<code>startActivityLocked</code>方法，该方法先判断了一下启动理由，然后调用<code>startActivity</code>方法（怎么这么多同名方法啊！）。该方法中，调用了<code>mService.getRecordForAppLocked(caller)</code>获得代表<code>Launcher</code>进程的<code>callerApp</code>对象，它是<code>ProcessRecord</code>类型的，<code>ProcessRecord</code>用于描述一个应用程序进程。参数<code>caller</code>是一路传过来的，指向的是<code>Launcher</code>所在的应用程序进程的<code>AppliactionThread</code>对象。</p>
+<p>同样地，<code>ActivityRecord</code>用于描述一个<code>Activity</code>，记录其所用信息。<code>ActivityRecord</code>方法创建了用于描述将要启动的<code>Activity</code>信息的对象<code>r</code>，并将<code>r</code>赋值给<code>outActivity[0]</code>，两者作为<code>startActivity</code>方法的参数传递下去。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStarter.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivity</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ActivityRecord r, ActivityRecord sourceRecord,</span><br><span class="hljs-params">                          IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                          <span class="hljs-type">int</span> startFlags, <span class="hljs-type">boolean</span> doResume, ActivityOptions options, TaskRecord inTask,</span><br><span class="hljs-params">                          ActivityRecord[] outActivity)</span> &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> START_CANCELED;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//延迟窗口布局的操作</span><br>        mService.mWindowManager.deferSurfaceLayout();<br>        result = startActivityUnchecked(r, sourceRecord, voiceSession, voiceInteractor,<br>                                        startFlags, doResume, options, inTask, outActivity);<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (!ActivityManager.isStartResultSuccessful(result)<br>            &amp;&amp; mStartActivity.getTask() != <span class="hljs-literal">null</span>) &#123;<br>            mStartActivity.getTask().removeActivity(mStartActivity);<br>        &#125;<br>        <span class="hljs-comment">//继续执行窗口布局操作</span><br>        mService.mWindowManager.continueSurfaceLayout();<br>    &#125;<br><br>    postStartActivityProcessing(r, result, mSupervisor.getLastStack().mStackId,  mSourceRecord,<br>                                mTargetStack);<br><br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br><br><br><span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-title function_">startActivityUnchecked</span><span class="hljs-params">(<span class="hljs-keyword">final</span> ActivityRecord r, ActivityRecord sourceRecord,</span><br><span class="hljs-params">                                   IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                                   <span class="hljs-type">int</span> startFlags, <span class="hljs-type">boolean</span> doResume, ActivityOptions options, TaskRecord inTask,</span><br><span class="hljs-params">                                   ActivityRecord[] outActivity)</span> &#123;<br><br>    ......<br>    <br>    <span class="hljs-keyword">if</span> (mStartActivity.resultTo == <span class="hljs-literal">null</span> &amp;&amp; mInTask == <span class="hljs-literal">null</span> &amp;&amp; !mAddingToTask &amp;&amp; (mLaunchFlags &amp; FLAG_ACTIVITY_NEW_TASK) != <span class="hljs-number">0</span>) &#123;<br>        newTask = <span class="hljs-literal">true</span>;<br>        <span class="hljs-comment">//创建新的TaskRecord</span><br>        result = setTaskFromReuseOrCreateNewTask(taskToAffiliate, preferredLaunchStackId, topStack);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (mSourceRecord != <span class="hljs-literal">null</span>) &#123;<br>        result = setTaskFromSourceRecord();<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (mInTask != <span class="hljs-literal">null</span>) &#123;<br>        result = setTaskFromInTask();<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        setTaskToCurrentTopOrCreateNewTask();<br>    &#125;<br>    <br>    ......<br><br>    <span class="hljs-keyword">if</span> (mDoResume) &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">ActivityRecord</span> <span class="hljs-variable">topTaskActivity</span> <span class="hljs-operator">=</span><br>            mStartActivity.getTask().topRunningActivityLocked();<br>        <span class="hljs-keyword">if</span> (!mTargetStack.isFocusable()<br>            || (topTaskActivity != <span class="hljs-literal">null</span> &amp;&amp; topTaskActivity.mTaskOverlay<br>                &amp;&amp; mStartActivity != topTaskActivity)) &#123;<br>            <br>            mTargetStack.ensureActivitiesVisibleLocked(<span class="hljs-literal">null</span>, <span class="hljs-number">0</span>, !PRESERVE_WINDOWS);<br>            mWindowManager.executeAppTransition();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">if</span> (mTargetStack.isFocusable() &amp;&amp; !mSupervisor.isFocusedStack(mTargetStack)) &#123;<br>                mTargetStack.moveToFront(<span class="hljs-string">&quot;startActivityUnchecked&quot;</span>);<br>            &#125;<br>            mSupervisor.resumeFocusedStackTopActivityLocked(mTargetStack, mStartActivity, mOptions);<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        mTargetStack.addRecentActivityLocked(mStartActivity);<br>    &#125;<br>    mSupervisor.updateUserStackLocked(mStartActivity.userId, mTargetStack);<br><br>    mSupervisor.handleNonResizableTaskIfNeeded(mStartActivity.getTask(), preferredLaunchStackId, preferredLaunchDisplayId, mTargetStack.mStackId);<br><br>    <span class="hljs-keyword">return</span> START_SUCCESS;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>startActivity</code>方法调用了<code>startActivityUnchecked</code>方法，该方法主要是处理与<code>Activity</code>栈管理相关的逻辑。在 2.1 中的 <code>startActivitySafely</code>方法，里面设置<code>Intent</code>的<code>Flag</code>为<code>FLAG_ACTIVITY_NEW_TASK</code>。所以这里会调用<code>setTaskFromReuseOrCreateNewTask</code>方法，创建一个新的<code>TaskRecord</code>用于描述<code>Activity</code>栈。之后会调用<code>resumeFocusedStackTopActivityLocked</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java</span><br><span class="hljs-type">boolean</span> <span class="hljs-title function_">resumeFocusedStackTopActivityLocked</span><span class="hljs-params">(</span><br><span class="hljs-params">    ActivityStack targetStack, ActivityRecord target, ActivityOptions targetOptions)</span> &#123;<br>    <span class="hljs-comment">//判断目标Activity栈是否存在，并且目标Activity栈是否为焦点Activity栈（用户当前正在与之交互的任务的Activity栈）</span><br>    <span class="hljs-keyword">if</span> (targetStack != <span class="hljs-literal">null</span> &amp;&amp; isFocusedStack(targetStack)) &#123;<br>        <span class="hljs-comment">//恢复焦点Activity栈的顶部活动</span><br>        <span class="hljs-keyword">return</span> targetStack.resumeTopActivityUncheckedLocked(target, targetOptions);<br>    &#125;<br>    <span class="hljs-comment">//获取当前焦点Activity栈的顶部正在运行的Activity</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-type">ActivityRecord</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> mFocusedStack.topRunningActivityLocked();<br>    <span class="hljs-comment">//获得到的ActivityRecord为空或者不处于RESUMED状态</span><br>    <span class="hljs-keyword">if</span> (r == <span class="hljs-literal">null</span> || r.state != RESUMED) &#123;<br>        <span class="hljs-comment">//恢复焦点Activity栈的顶部活动</span><br>        mFocusedStack.resumeTopActivityUncheckedLocked(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (r.state == RESUMED) &#123;<br>        mFocusedStack.executeAppTransition(targetOptions);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>走到这一步，新<code>Activity</code>栈已经创建好了，但是<code>Activity</code>还没创建好，所以调用后一个<code>resumeTopActivityUncheckedLocked</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStack.java</span><br><span class="hljs-type">boolean</span> <span class="hljs-title function_">resumeTopActivityUncheckedLocked</span><span class="hljs-params">(ActivityRecord prev, ActivityOptions options)</span> &#123;<br>    <span class="hljs-comment">//检查是否已经在递归执行resumeTopActivityInnerLocked方法，避免进一步递归调用</span><br>    <span class="hljs-keyword">if</span> (mStackSupervisor.inResumeTopActivity) &#123;<br>        <span class="hljs-comment">// Don&#x27;t even start recursing.</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//防止递归调用，将mStackSupervisor.inResumeTopActivity标志设置为true，表示正在恢复栈顶活动</span><br>        mStackSupervisor.inResumeTopActivity = <span class="hljs-literal">true</span>;<br>        result = resumeTopActivityInnerLocked(prev, options);<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-comment">//将mStackSupervisor.inResumeTopActivity标志重新设置为false，表示恢复顶部活动的过程结束</span><br>        mStackSupervisor.inResumeTopActivity = <span class="hljs-literal">false</span>;<br>    &#125;<br>    <br>    mStackSupervisor.checkReadyForSleepLocked();<br><br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br><br><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">resumeTopActivityInnerLocked</span><span class="hljs-params">(ActivityRecord prev, ActivityOptions options)</span> &#123;<br>    ......    <br>	    mStackSupervisor.startSpecificActivityLocked(next, <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span>);<br>    &#125;<br><br>	<span class="hljs-keyword">if</span> (DEBUG_STACK) mStackSupervisor.validateTopActivitiesLocked();<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>resumeTopActivityUncheckedLocked</code>方法中，根据<code>mStackSupervisor.inResumeTopActivity</code>标志来防止递归调用<code>resumeTopActivityInnerLocked</code>方法，之后调用<code>resumeTopActivityInnerLocked</code>方法，该方法代码巨多，主要关注<code>startSpecificActivityLocked</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java</span><br><span class="hljs-keyword">void</span> <span class="hljs-title function_">startSpecificActivityLocked</span><span class="hljs-params">(ActivityRecord r,</span><br><span class="hljs-params">                                 <span class="hljs-type">boolean</span> andResume, <span class="hljs-type">boolean</span> checkConfig)</span> &#123;<br>    <span class="hljs-comment">//获取即将启动的Activity的所在的应用程序进程</span><br>    <span class="hljs-type">ProcessRecord</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> mService.getProcessRecordLocked(r.processName, r.info.applicationInfo.uid, <span class="hljs-literal">true</span>);<br>    r.getStack().setLaunchTime(r);<br>	<span class="hljs-comment">//如果要启动的Activity所在的应用程序进程已经运行</span><br>    <span class="hljs-keyword">if</span> (app != <span class="hljs-literal">null</span> &amp;&amp; app.thread != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">if</span> ((r.info.flags&amp;ActivityInfo.FLAG_MULTIPROCESS) == <span class="hljs-number">0</span> || !<span class="hljs-string">&quot;android&quot;</span>.equals(r.info.packageName)) &#123;<br>                app.addPackage(r.info.packageName, r.info.applicationInfo.versionCode, mService.mProcessStats);<br>            &#125;<br>            realStartActivityLocked(r, app, andResume, checkConfig);<br>            <span class="hljs-keyword">return</span>;<br>        &#125; <span class="hljs-keyword">catch</span> (RemoteException e) &#123;<br>            Slog.w(TAG, <span class="hljs-string">&quot;Exception when starting activity &quot;</span> + r.intent.getComponent().flattenToShortString(), e);<br>        &#125;<br>    &#125;<br>	<span class="hljs-comment">//应用程序没有运行或者没有有效的进程线程,调用startProcessLocked方法启动目标活动所属的进程</span><br>    mService.startProcessLocked(r.processName, r.info.applicationInfo, <span class="hljs-literal">true</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;activity&quot;</span>, r.intent.getComponent(), <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>startSpecificActivityLocked</code>方法中，先通过<code>getProcessRecordLocked</code>方法获得即将启动的Activity的所在的应用程序进程，接着判断得到的应用程序进程是否已经运行了，如果没有运行，则调用<code>startProcessLocked</code>方法，沿着此方法继续下去，就是<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/07/17/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)">应用程序进程启动流程</a>了。如果运行了，就调用<code>realStartActivityLocked</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/services/core/java/com/android/server/am/ActivityStackSupervisor.java</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">realStartActivityLocked</span><span class="hljs-params">(ActivityRecord r, ProcessRecord app,</span><br><span class="hljs-params">                                      <span class="hljs-type">boolean</span> andResume, <span class="hljs-type">boolean</span> checkConfig)</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>    ......<br><br>        app.thread.scheduleLaunchActivity(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Intent</span>(r.intent), r.appToken,<br>                                          System.identityHashCode(r), r.info,<br>                                          mergedConfiguration.getGlobalConfiguration(),<br>                                          mergedConfiguration.getOverrideConfiguration(), r.compat,<br>                                          r.launchedFromPackage, task.voiceInteractor, app.repProcState, r.icicle,<br>                                          r.persistentState, results, newIntents, !andResume,<br>                                          mService.isNextTransitionForward(), profilerInfo);<br><br>        ......<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里的<code>app</code>指传入的要启动的<code>Activity</code>所在的应用程序进程， <code>app.thread</code>指<code>IApplicationThread</code>，它的实现是<code>ActivityThread</code>的内部类<code>AppliactionThread</code>，这个类又是继承<code>IApplicationThread.Stub</code>的。</p>
+<p><code>realStartActivityLocked</code>方法主要是调用<code>scheduleLaunchActivity</code>方法，将启动<code>Activity</code>的请求发送给应用程序所在的进程。当前代码逻辑运行在<code>AMS</code>所在的进程（<code>SystemServer</code>进程）中，通过<code>ApplicationThread</code>来与应用程序进程进行<code>Binder</code>通信，即<code>ApplicationThread</code>是<code>AMS</code>所在的进程和应用程序进程的通信桥梁。</p>
+<h2 id="2-3-ActivityThread启动Activity的过程"><a href="#2-3-ActivityThread启动Activity的过程" class="headerlink" title="2.3 ActivityThread启动Activity的过程"></a>2.3 ActivityThread启动Activity的过程</h2><p>在上一篇文章里讲过，应用程序进程创建后会运行代表主线程的实例<code>ActivityThread</code>，它管理者当前应用程序进程的主线程。  <code>scheduleLaunchActivity</code>方法就是在<code>AppliactionThread</code>类中的，该类又是<code>ActivityThread</code>的内部类。所以代码逻辑终于进入到应用程序进程中。<code>scheduleLaunchActivity</code>该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scheduleLaunchActivity</span><span class="hljs-params">(Intent intent, IBinder token, <span class="hljs-type">int</span> ident,</span><br><span class="hljs-params">                                         ActivityInfo info, Configuration curConfig, Configuration overrideConfig,</span><br><span class="hljs-params">                                         CompatibilityInfo compatInfo, String referrer, IVoiceInteractor voiceInteractor,</span><br><span class="hljs-params">                                         <span class="hljs-type">int</span> procState, Bundle state, PersistableBundle persistentState,</span><br><span class="hljs-params">                                         List&lt;ResultInfo&gt; pendingResults, List&lt;ReferrerIntent&gt; pendingNewIntents,</span><br><span class="hljs-params">                                         <span class="hljs-type">boolean</span> notResumed, <span class="hljs-type">boolean</span> isForward, ProfilerInfo profilerInfo)</span> &#123;<br>	<span class="hljs-comment">//更新进程的状态</span><br>    updateProcessState(procState, <span class="hljs-literal">false</span>);<br>	<span class="hljs-comment">//将要启动的Activity的参数封装成ActivityClientRecord</span><br>    <span class="hljs-type">ActivityClientRecord</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActivityClientRecord</span>();<br>    r.token = token;<br>    ......<br>    <span class="hljs-comment">//更新要要启动Activity的配置</span><br>    updatePendingConfiguration(curConfig);<br>	<span class="hljs-comment">//向H类发送类型为LAUNCH_ACTIVITY的消息</span><br>    sendMessage(H.LAUNCH_ACTIVITY, r);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>scheduleLaunchActivity</code>方法将传入的参数封装成<code>ActivityClientRecord</code>对象，<code>sendMessage</code>方法向<code>H</code>类发送类型为<code>LAUNCH_ACTIVITY</code>的消息，并将<code>ActivityClientRecord</code>传递过去。<code>sendMessage</code>方法有多个重载方法，调用到的如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMessage</span><span class="hljs-params">(<span class="hljs-type">int</span> what, Object obj)</span> &#123;<br>    sendMessage(what, obj, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">false</span>);<br>&#125;<br><br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendMessage</span><span class="hljs-params">(<span class="hljs-type">int</span> what, Object obj, <span class="hljs-type">int</span> arg1, <span class="hljs-type">int</span> arg2, <span class="hljs-type">boolean</span> async)</span> &#123;<br>    <span class="hljs-keyword">if</span> (DEBUG_MESSAGES) <br>        Slog.v(TAG, <span class="hljs-string">&quot;SCHEDULE &quot;</span> + what + <span class="hljs-string">&quot; &quot;</span> + mH.codeToString(what) + <span class="hljs-string">&quot;: &quot;</span> + arg1 + <span class="hljs-string">&quot; / &quot;</span> + obj);<br>	<span class="hljs-comment">//获取消息实例</span><br>    <span class="hljs-type">Message</span> <span class="hljs-variable">msg</span> <span class="hljs-operator">=</span> Message.obtain();<br>    msg.what = what;<br>    msg.obj = obj;<br>    msg.arg1 = arg1;<br>    msg.arg2 = arg2;<br>    <span class="hljs-comment">//是否是异步消息</span><br>    <span class="hljs-keyword">if</span> (async) &#123;<br>        msg.setAsynchronous(<span class="hljs-literal">true</span>);<br>    &#125;<br>    <span class="hljs-comment">//调用消息处理程序（mH）的sendMessage方法将消息发送出去</span><br>    mH.sendMessage(msg);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>mH</code>是<code>H</code>类，它是<code>ActivityThread</code>的内部类并继承自<code>Handler</code>，是应用程序进程中主线程的消息管理类。因为<code>ApplicationThread</code>是一个<code>Binder</code>，它的调用逻辑运行在<code>Binder</code>线程池中，所以这里需要用<code>H</code>类将代码的逻辑切换到主线程中。</p>
+<p><code>sendMessage</code>方法将消息添加到消息队列中，消息处理程序会自动从队列中取出消息并调用对应的<code>handleMessage</code>方法进行处理，该方法在<code>H</code>类中，如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleMessage</span><span class="hljs-params">(Message msg)</span> &#123;<br>    <span class="hljs-keyword">if</span> (DEBUG_MESSAGES) Slog.v(TAG, <span class="hljs-string">&quot;&gt;&gt;&gt; handling: &quot;</span> + codeToString(msg.what));<br>    <span class="hljs-keyword">switch</span> (msg.what) &#123;<br>        <span class="hljs-keyword">case</span> LAUNCH_ACTIVITY: &#123;<br>            Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="hljs-string">&quot;activityStart&quot;</span>);<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">ActivityClientRecord</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> (ActivityClientRecord) msg.obj;<br><br>            r.packageInfo = getPackageInfoNoCheck(r.activityInfo.applicationInfo, r.compatInfo);<br>            handleLaunchActivity(r, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;LAUNCH_ACTIVITY&quot;</span>);<br>            Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);<br>        &#125; <span class="hljs-keyword">break</span>;<br>        ......<br>    &#125;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> msg.obj;<br>    <span class="hljs-keyword">if</span> (obj <span class="hljs-keyword">instanceof</span> SomeArgs) &#123;<br>        ((SomeArgs) obj).recycle();<br>    &#125;<br>    <span class="hljs-keyword">if</span> (DEBUG_MESSAGES) Slog.v(TAG, <span class="hljs-string">&quot;&lt;&lt;&lt; done: &quot;</span> + codeToString(msg.what));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>handleMessage</code>对 <code>LAUNCH_ACTIVITY</code>消息的处理为：将参数<code>obj</code>（也就是在<code>scheduleLaunchActivity</code>方法中创建的<code>ActivityClientRecord</code>）转成<code>ActivityClientRecord</code>对象，通过<code>getPackageInfoNoCheck</code>的方法获得<code>LoadedApk</code>类型的对象并赋值给<code>r.packageInfo</code>。</p>
+<p>为什么要获取<code>LoadedApk</code>呢？因为应用程序进程要启动<code>Activity</code>时，需要将该<code>Activity</code>所属的<code>APK</code>加载进来，而<code>LoadedApk</code>就是用来描述已加载的<code>APK</code>文件的。</p>
+<p>接下来调用<code>handleLaunchActivity</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">handleLaunchActivity</span><span class="hljs-params">(ActivityClientRecord r, Intent customIntent, String reason)</span> &#123;<br>	<span class="hljs-comment">//取消之前计划的GC(垃圾回收机制)操作，因为应用程序正在重新变为活动状态</span><br>    unscheduleGcIdler();<br>    mSomeActivitiesChanged = <span class="hljs-literal">true</span>;<br>	<span class="hljs-comment">//如果ActivityClientRecord对象中包含了profilerInfo（性能分析器相关信息），则将其设置到mProfiler中，并启动性能分析器</span><br>    <span class="hljs-keyword">if</span> (r.profilerInfo != <span class="hljs-literal">null</span>) &#123;<br>        mProfiler.setProfiler(r.profilerInfo);<br>        mProfiler.startProfiling();<br>    &#125;<br><br>    <span class="hljs-comment">//处理配置变更,确保当前运行时使用的是最新的配置信息</span><br>    handleConfigurationChanged(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br><br>    <span class="hljs-keyword">if</span> (localLOGV) <br>        Slog.v(TAG, <span class="hljs-string">&quot;Handling launch of &quot;</span> + r);<br><br>    <span class="hljs-comment">//初始化窗口管理器</span><br>    WindowManagerGlobal.initialize();<br>	<span class="hljs-comment">//执行Activity启动流程</span><br>    <span class="hljs-type">Activity</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> performLaunchActivity(r, customIntent);<br>	<span class="hljs-comment">//判断Activity是否启动成功</span><br>    <span class="hljs-keyword">if</span> (a != <span class="hljs-literal">null</span>) &#123;<br>        r.createdConfig = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Configuration</span>(mConfiguration);<br>        reportSizeConfigurations(r);<br>        <span class="hljs-type">Bundle</span> <span class="hljs-variable">oldState</span> <span class="hljs-operator">=</span> r.state;<br>        <span class="hljs-comment">//将Activity的状态设置为Resume</span><br>        handleResumeActivity(r.token, <span class="hljs-literal">false</span>, r.isForward, !r.activity.mFinished &amp;&amp; !r.startsNotResumed, r.lastProcessedSeq, reason);<br>        <br>        <span class="hljs-keyword">if</span> (!r.activity.mFinished &amp;&amp; r.startsNotResumed) &#123;<br>            performPauseActivityIfNeeded(r, reason);<br>            <span class="hljs-keyword">if</span> (r.isPreHoneycomb()) &#123;<br>                r.state = oldState;<br>            &#125;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">//停止Activity启动</span><br>        <span class="hljs-keyword">try</span> &#123;<br>            ActivityManager.getService().finishActivity(r.token, Activity.RESULT_CANCELED, <span class="hljs-literal">null</span>, Activity.DONT_FINISH_TASK_WITH_ACTIVITY);<br>        &#125; <span class="hljs-keyword">catch</span> (RemoteException ex) &#123;<br>            <span class="hljs-keyword">throw</span> ex.rethrowFromSystemServer();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>取消<code>GC</code>操作，根据<code>profilerInfo</code>决定是否启动性能分析器，然后更新配置，初始化窗口管理器，调用<code>performLaunchActivity</code>方法启动<code>Activity</code>，如果启动成功，则进行相应的处理，包括保存配置信息、报告<code>Activity</code>尺寸配置、将<code>Activity</code>的状态设置为<code>Resume</code>等。如果<code>Activity</code>启动失败，则通知<code>ActivityManager</code>停止当前<code>Activity</code>。</p>
+<p>接下来看<code>performLaunchActivity</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/ActivityThread.java</span><br><span class="hljs-keyword">private</span> Activity <span class="hljs-title function_">performLaunchActivity</span><span class="hljs-params">(ActivityClientRecord r, Intent customIntent)</span> &#123;<br>	<span class="hljs-comment">//获取Activity的信息</span><br>    <span class="hljs-type">ActivityInfo</span> <span class="hljs-variable">aInfo</span> <span class="hljs-operator">=</span> r.activityInfo;<br>    <span class="hljs-keyword">if</span> (r.packageInfo == <span class="hljs-literal">null</span>) &#123;<br>        r.packageInfo = getPackageInfo(aInfo.applicationInfo, r.compatInfo, Context.CONTEXT_INCLUDE_CODE);<br>    &#125;<br>	<span class="hljs-comment">//获取componentName，即Activity的全限定类名(包名和类名)</span><br>    <span class="hljs-type">ComponentName</span> <span class="hljs-variable">component</span> <span class="hljs-operator">=</span> r.intent.getComponent();<br>    ......<br>	<span class="hljs-comment">//启动Activity的上下文环境(Context)</span><br>    <span class="hljs-type">ContextImpl</span> <span class="hljs-variable">appContext</span> <span class="hljs-operator">=</span> createBaseContextForActivity(r);<br>    <span class="hljs-type">Activity</span> <span class="hljs-variable">activity</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//创建类加载器</span><br>        java.lang.<span class="hljs-type">ClassLoader</span> <span class="hljs-variable">cl</span> <span class="hljs-operator">=</span> appContext.getClassLoader();<br>        <span class="hljs-comment">//通过类加载器创建Activity实例</span><br>        activity = mInstrumentation.newActivity(cl, component.getClassName(), r.intent);<br><br>        StrictMode.incrementExpectedActivityCount(activity.getClass());<br>        r.intent.setExtrasClassLoader(cl);<br>        r.intent.prepareToEnterProcess();<br>        <span class="hljs-keyword">if</span> (r.state != <span class="hljs-literal">null</span>) &#123;<br>            r.state.setClassLoader(cl);<br>        &#125;<br>    &#125;<br>	......<br>    <br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//创建应用程序对象（Application）的实例</span><br>        <span class="hljs-type">Application</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> r.packageInfo.makeApplication(<span class="hljs-literal">false</span>, mInstrumentation);<br>        ......<br><br>        <span class="hljs-keyword">if</span> (activity != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">//初始化Activity</span><br>            ......<br>            <span class="hljs-comment">//对 Activity 进行初始化和连接关键组件</span><br>            activity.attach(appContext, <span class="hljs-built_in">this</span>, getInstrumentation(), r.token,<br>                            r.ident, app, r.intent, r.activityInfo, title, r.parent,<br>                            r.embeddedID, r.lastNonConfigurationInstances, config,<br>                            r.referrer, r.voiceInteractor, window, r.configCallback);<br><br>            ......<br>            <span class="hljs-comment">//启动Activity</span><br>            <span class="hljs-keyword">if</span> (r.isPersistable()) &#123;<br>                mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                mInstrumentation.callActivityOnCreate(activity, r.state);<br>            &#125;<br>            ......<br>        &#125;<br>        r.paused = <span class="hljs-literal">true</span>;<br><br>        mActivities.put(r.token, r);<br><br>    &#125; <br>    ......<br><br>    <span class="hljs-keyword">return</span> activity;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>先做一些准备工作，比如获取<code>Activity</code>的信息、获取<code>APK</code>文件描述信息、获取组件名称(<code>ComponentName</code>)、获取上下文环境(<code>Context</code>)。然后调用<code>mInstrumentation</code>的<code>newActivity</code>方法，通过类加载器创建<code>Activity</code>实例。</p>
+<p>接着是调用<code>makeApplication</code>方法创建应用程序对象（<code>Application</code>）的实例。在 <code>Android </code>中，每个应用程序都有一个全局的 <code>Application</code> 对象，该对象在整个应用程序的生命周期中存在，并且可以用于存储和共享应用程序的全局状态和数据。</p>
+<p>之后是对刚创建的<code>Activity</code>实例进行初始化工作，最后调用<code>callActivityOnCreate</code>方法启动<code>Activity</code>。该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Instrumentation.java</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">callActivityOnCreate</span><span class="hljs-params">(Activity activity, Bundle icicle, PersistableBundle persistentState)</span> &#123;<br>    <span class="hljs-comment">//执行预处理操作，例如设定主题样式、初始化资源等</span><br>    prePerformCreate(activity);<br>	<span class="hljs-comment">//执行Activity的创建操作</span><br>    activity.performCreate(icicle, persistentState);<br>    <span class="hljs-comment">//执行后处理操作，例如注册广播接收器、初始化数据等</span><br>    postPerformCreate(activity);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>关键是调用了<code>Activity</code>的<code>performCreate</code>方法，该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//路径：/frameworks/base/core/java/android/app/Activity.java</span><br><span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">performCreate</span><span class="hljs-params">(Bundle icicle, PersistableBundle persistentState)</span> &#123;<br>    <span class="hljs-comment">//在Android 6.0及以上版本中，应用需要动态请求某些权限，该方法用于恢复之前的权限请求状态</span><br>    restoreHasCurrentPermissionRequest(icicle);<br>    <span class="hljs-comment">//调用Activity的实际的onCreate方法，执行开发者在Activity中重写的onCreate方法</span><br>    onCreate(icicle, persistentState);<br>    <span class="hljs-comment">//读取Activity的转场状态，即过渡动画的状态。这个方法将之前保存的转场状态恢复到当前Activity中</span><br>    mActivityTransitionState.readState(icicle);<br>    <span class="hljs-comment">//执行一些通用的初始化操作</span><br>    performCreateCommon();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>performCreate</code>方法中会调用<code>Activity</code>的实际的<code>onCreate</code>方法，其具体的实现是由开发者来重写。到此，根<code>Activity</code>就启动了，即应用程序启动了。</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>整个流程下来非常长，感觉有点杂乱，这里简单梳理一下整个应用程序启动的流程（假设应用程序进程没有运行）：</p>
+<ol>
+<li>点击桌面的应用图标，<code>Launcher</code>进程使用<code>Binder</code>与<code>SystemServer</code>进程的<code>AMS</code>进行跨进程通信(<code>IPC</code>)，发起<code>startActivity</code>请求。</li>
+<li><code>SystemServer</code>进程的<code>AMS</code>接收到请求后，通过<code>zygoteSendArgsAndGetResult</code>与<code>zygote</code>进程进行<code>Socket</code>通信，发送创建进程的请求。</li>
+<li><code>Zygote</code>进程接收请求后，通过<code>forkAndSpecialize</code>方法创建应用程序进程，然后进行一系列初始化工作。</li>
+<li>启动了应用程序进程后，<code>AMS</code>通过<code>ApplicationThread</code>来与应用程序进程进行<code>Binder</code>通信，发送<code>scheduleLaunchActivity</code>请求。</li>
+<li>应用程序进程的<code>Binder</code>线程（<code>ApplicationThread</code>）接收到请求后，通过<code>sendMessage</code>方法与主线程<code>ActivityThread</code>进行<code>Handler</code>通信，发送 <code>LAUNCH_ACTIVITY</code>的消息。</li>
+<li>主线程<code>ActivityThread</code>接收到消息后，通过反射机制创建目标<code>Activity</code>，并回调<code>Activity.onCreate()</code>等方法。到此，应用程序便正式启动，开始进入<code>Activity</code>生命周期。</li>
+</ol>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://liuwangshu.cn/framework/component/1-activity-start-1.html">Android深入四大组件（一）应用程序启动过程（前篇） | BATcoder - 刘望舒 (liuwangshu.cn)</a></p>
+<p><a target="_blank" rel="noopener" href="http://liuwangshu.cn/framework/component/1-activity-start-2.html">Android深入四大组件（一）应用程序启动过程（后篇） | BATcoder - 刘望舒 (liuwangshu.cn)</a></p>
+<p><a target="_blank" rel="noopener" href="http://gityuan.com/2016/03/12/start-activity/">startActivity启动过程分析 - Gityuan博客 | 袁辉辉的技术博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/67451239">死磕Android_App 启动过程（含 Activity 启动过程） - 知乎 (zhihu.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android应用程序启动流程(二)</div>
+      <div>http://example.com/2023/07/24/Android安全/Android应用程序启动流程(二)/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/26/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93/" title="静态链接库和动态链接库">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">静态链接库和动态链接库</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/21/Android%E5%AE%89%E5%85%A8/BurpSuite%E6%8A%93%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%8C%85/" title="BurpSuite抓手机端小程序包">
+                        <span class="hidden-mobile">BurpSuite抓手机端小程序包</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

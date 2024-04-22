@@ -1,0 +1,839 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言学习加壳之前，建议先把前置知识学习再说。我们需要先学习dex文件结构、java反射、Android中的ClassLoader、Application以及它的加载流程、App启动流程。 不然我真不建议直接莽它，不懂原理只能学到皮毛！ 二、第一代加固壳原理第一代加固壳原理如下图所示：  在图中涉及到三个程序：  待加壳程序的APK（源程序APK） （脱）壳程序APK（负责解密源程序APK并加载">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android第一代加固壳的原理及实现 —— 落地加载">
+<meta property="og:url" content="http://example.com/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E7%AC%AC%E4%B8%80%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言学习加壳之前，建议先把前置知识学习再说。我们需要先学习dex文件结构、java反射、Android中的ClassLoader、Application以及它的加载流程、App启动流程。 不然我真不建议直接莽它，不懂原理只能学到皮毛！ 二、第一代加固壳原理第一代加固壳原理如下图所示：  在图中涉及到三个程序：  待加壳程序的APK（源程序APK） （脱）壳程序APK（负责解密源程序APK并加载">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012216295.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012216659.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217971.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217020.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218279.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218894.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218547.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218409.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218172.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218163.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012219334.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012219334.jpg">
+<meta property="article:published_time" content="2023-12-01T14:15:41.000Z">
+<meta property="article:modified_time" content="2023-12-10T08:27:54.521Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android加固">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012216295.png">
+  
+  
+  
+  <title>Android第一代加固壳的原理及实现 —— 落地加载 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android第一代加固壳的原理及实现 —— 落地加载"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-01 22:15" pubdate>
+          2023年12月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          204 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android第一代加固壳的原理及实现 —— 落地加载</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>学习加壳之前，建议先把前置知识学习再说。我们需要先学习dex文件结构、java反射、Android中的ClassLoader、Application以及它的加载流程、App启动流程。</p>
+<p>不然我真不建议直接莽它，不懂原理只能学到皮毛！</p>
+<h1 id="二、第一代加固壳原理"><a href="#二、第一代加固壳原理" class="headerlink" title="二、第一代加固壳原理"></a>二、第一代加固壳原理</h1><p>第一代加固壳原理如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012216295.png" srcset="/img/loading.gif" lazyload></p>
+<p>在图中涉及到三个程序：</p>
+<ol>
+<li>待加壳程序的APK（源程序APK）</li>
+<li>（脱）壳程序APK（负责解密源程序APK并加载运行它）</li>
+<li>加壳程序（将源程序APK进行加密并与壳程序的dex合并成新的dex）。</li>
+</ol>
+<p>主要步骤如下：</p>
+<p>首先利用加密算法对源程序APK进行加密，然后与脱壳程序APK合并得到新的dex文件，最后替换脱壳程序中的dex文件即可。之后运行合并后的程序时，会通过壳程序对源程序进行解密和运行时加载，这样一来，源程序就能正常运行。合并示意图如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012216659.png" srcset="/img/loading.gif" lazyload></p>
+<p>学过dex文件结构后，我们可以知道：对于合并后的dex文件，需要修改其dex_header中的三个字段：</p>
+<ol>
+<li>checksum：dex文件（除 <code>magic</code>、<code>checksum</code>）的校验和（使用adler32算法），通过它来判断dex文件是否被损坏或篡改。</li>
+<li>signature：dex文件（除 <code>magic</code>、<code>checksum</code> 和<code>signature</code>之外的所有内容）的 SHA-1 签名（哈希），用于对文件进行唯一标识。</li>
+<li>file_size：整个dex文件的大小。</li>
+</ol>
+<p>接下来我们就通过案例来深入学习一下。</p>
+<h1 id="三、案例"><a href="#三、案例" class="headerlink" title="三、案例"></a>三、案例</h1><h2 id="3-1-源程序APK"><a href="#3-1-源程序APK" class="headerlink" title="3.1 源程序APK"></a>3.1 源程序APK</h2><p>随便来一个简单的apk。<code>activity_main.xml</code>文件中简简单单填一个textview控件展示文字即可。MainActivity代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainActivity</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Activity</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">TAG</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;demo&quot;</span>;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">(Bundle savedInstanceState)</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate(savedInstanceState);<br>        setContentView(R.layout.activity_main);<br>        Log.d(TAG, <span class="hljs-string">&quot;SourceMainActivity onCreate: &quot;</span> + getApplicationContext());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>另外需要一个Application类（不需要在源程序的<code>ActivityManifest.xml</code>文件中注册）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyApplication</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Application</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">TAG</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;demo&quot;</span>;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">super</span>.onCreate();<br>        Log.d(TAG, <span class="hljs-string">&quot;SourceApk onCreate: &quot;</span> + <span class="hljs-built_in">this</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>问题来了，为什么需要自定义Application类呢？</p>
+<p>其实Application即使不创建，系统也会帮我们创建的。但是创建自定义Application类是为了方便反射获取Application类，进而创建源程序的Application实例来替换原有的壳程序的Application实例。</p>
+<h2 id="3-2-加壳程序"><a href="#3-2-加壳程序" class="headerlink" title="3.2 加壳程序"></a>3.2 加壳程序</h2><p>根据加壳流程，很容易实现这部分，主要功能是加密源程序APK、合并成新的dex文件、修正三个字段。这里我觉得用python来实现更简便点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> zlib <span class="hljs-keyword">import</span> adler32<br><span class="hljs-keyword">from</span> hashlib <span class="hljs-keyword">import</span> sha1<br><span class="hljs-keyword">from</span> binascii <span class="hljs-keyword">import</span> unhexlify<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">fixCheckSum</span>(<span class="hljs-params">dexBytesArray</span>):<br>    <span class="hljs-comment"># dexfile[8:12]</span><br>    <span class="hljs-comment"># 小端存储</span><br>    value = adler32(<span class="hljs-built_in">bytes</span>(dexBytesArray[<span class="hljs-number">12</span>:]))<br>    valueArray = <span class="hljs-built_in">bytearray</span>(value.to_bytes(<span class="hljs-number">4</span>, <span class="hljs-string">&#x27;little&#x27;</span>))<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(valueArray)):<br>        dexBytesArray[<span class="hljs-number">8</span> + i] = valueArray[i]<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">fixSignature</span>(<span class="hljs-params">dexBytesArray</span>):<br>    <span class="hljs-comment"># dexfile[12:32]</span><br>    sha_1 = sha1()<br>    sha_1.update(<span class="hljs-built_in">bytes</span>(dexBytesArray[<span class="hljs-number">32</span>:]))<br>    value = sha_1.hexdigest()<br>    valueArray = <span class="hljs-built_in">bytearray</span>(unhexlify(value))<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(valueArray)):<br>        dexBytesArray[<span class="hljs-number">12</span> + i] = valueArray[i]<br><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">fixFileSize</span>(<span class="hljs-params">dexBytesArray, fileSize</span>):<br>    <span class="hljs-comment"># dexfile[32:36]</span><br>    <span class="hljs-comment"># 小端存储</span><br>    fileSizeArray = <span class="hljs-built_in">bytearray</span>(fileSize.to_bytes(<span class="hljs-number">4</span>, <span class="hljs-string">&quot;little&quot;</span>))<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(fileSizeArray)):<br>        dexBytesArray[<span class="hljs-number">32</span> + i] = fileSizeArray[i]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">encrypto</span>(<span class="hljs-params">file</span>):<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(file)):<br>        file[i] ^= <span class="hljs-number">0xff</span><br><br>    <span class="hljs-keyword">return</span> file<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">start</span>():<br>    <span class="hljs-comment"># 读取源程序apk, 转成byte数组，方便后续修改</span><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">r&#x27;SourceApk.apk&#x27;</span>, <span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>        SourceApkArray = <span class="hljs-built_in">bytearray</span>(f.read())<br>    <span class="hljs-comment"># 读取壳程序dex</span><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">r&#x27;shellApk.dex&#x27;</span>, <span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>        shellDexArray = <span class="hljs-built_in">bytearray</span>(f.read())<br><br>    SourceApkLen = <span class="hljs-built_in">len</span>(SourceApkArray)<br>    shellDexLen = <span class="hljs-built_in">len</span>(shellDexArray)<br>    <span class="hljs-comment"># 新的dex文件长度</span><br>    newDexLen = shellDexLen + SourceApkLen + <span class="hljs-number">4</span><br>    <span class="hljs-comment"># 加密源文件</span><br>    enApkArray = encrypto(SourceApkArray)<br>    <span class="hljs-comment"># 新的dex文件内容 = 壳dex + 加密的源apk + 四字节标识加密后源apk大小长度</span><br>    newDexArray = shellDexArray + enApkArray + <span class="hljs-built_in">bytearray</span>(SourceApkLen.to_bytes(<span class="hljs-number">4</span>, <span class="hljs-string">&#x27;little&#x27;</span>))<br><br>    <span class="hljs-comment"># 首先修改filesize</span><br>    fixFileSize(newDexArray, newDexLen)<br>    <span class="hljs-comment"># 其次修改signature</span><br>    fixSignature(newDexArray)<br>    <span class="hljs-comment"># 最后修改checksum</span><br>    fixCheckSum(newDexArray)<br><br>    <span class="hljs-comment"># 导出文件</span><br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">r&#x27;classes.dex&#x27;</span>, <span class="hljs-string">&#x27;wb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>        f.write(<span class="hljs-built_in">bytes</span>(newDexArray))<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    start()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-3-脱壳程序"><a href="#3-3-脱壳程序" class="headerlink" title="3.3 脱壳程序"></a>3.3 脱壳程序</h2><h3 id="3-3-1-先分析一波"><a href="#3-3-1-先分析一波" class="headerlink" title="3.3.1 先分析一波"></a>3.3.1 先分析一波</h3><p>这部分理解起来很难也是整个项目最关键的部分！</p>
+<p>这部分主要是在壳Application类中做如下事情：</p>
+<ol>
+<li>创建源程序的DexClassLoader实例替换LoadedApk中的mClassLoader。</li>
+<li>创建源程序的Application实例替换壳程序的Application实例。</li>
+</ol>
+<p>接下来就解释一下为什么这么做。</p>
+<ol>
+<li><p>为什么要替换LoadedApk中的mClassLoader？</p>
+<p>因为我们的源程序肯定是要依靠ClassLoader动态加载的，而ClassLoader存放了应用所需的类库，如下所示：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gradle">dalvik.system.DexClassLoader[<br>	DexPathList[<br>		[zip <span class="hljs-keyword">file</span> <span class="hljs-string">&quot;/data/user/0/com.example.shellapk/app_payload_dex/Source.apk&quot;</span>],<br>		nativeLibraryDirectories<br>				= [<span class="hljs-regexp">/data/u</span>ser<span class="hljs-regexp">/0/</span>com.example.shellapk<span class="hljs-regexp">/app_payload_lib, /</span>system<span class="hljs-regexp">/lib64, /</span>product/lib64]<br>	]<br>]<br></code></pre></td></tr></table></figure>
+
+<p>当需要加载某些类时，就会开始双亲委托模式寻找，而父类加载器以及祖先加载器里面肯定是没有源程序所需要的类的，因而也不可能加载成功，所以我们就需要创建一个新的DexClassLoader来替换壳程序的ClassLoader，由于里面包含源程序的类，这样一来，就可以成功加载源程序。</p>
+</li>
+<li><p>怎么替换LoadedApk中的mClassLoader？</p>
+<p>至于怎么替换，就有好几种方法了，例如：</p>
+<ul>
+<li><p>替换类加载器</p>
+<p>替换壳程序的ClassLoader为源程序的DexClassLoader，同时设置源程序的DexClassLoader的父加载器为壳程序的ClassLoader的父加载器。</p>
+</li>
+<li><p>插入类加载器</p>
+<p>打破原有的双亲关系，在壳程序的ClassLoader和其父加载器之间插入源程序的DexClassLoader。</p>
+</li>
+<li><p>合并dexElements</p>
+<p>将壳程序的ClassLoader中的dexElements与源程序的DexClassLoader中的dexElements合并，仍使用壳程序的ClassLoader。</p>
+</li>
+</ul>
+<p>详细可参考<a target="_blank" rel="noopener" href="https://blog.svip.dev/posts/%E5%8A%A0%E5%A3%B3app%E7%9A%84%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E5%8F%8Aclassloader%E4%BF%AE%E6%AD%A3">加壳App的运行流程及ClassLoader修正 | Security (svip.dev)</a></p>
+</li>
+<li><p>为什么要替换Application？</p>
+<p>因为Application做为整个应用的上下文，它的生命周期就是整个应用程序的生命周期，它还会与Activity、Service等组件有交互关系。对于壳程序和源程序，它们对应的Application实例不一定相同，为了维护应用的正常生命周期，所以需要进行替换。</p>
+<p>你可以认为Application就代表着整个APP，Application都不同，那运行的App能是一样的吗？</p>
+</li>
+<li><p>怎么替换Application？</p>
+<p>多琢磨代码你才能明白。我这里就简要说明一下：</p>
+<p>我们需要将壳程序的Application（也就是mApplication）从ActivityThread实例中的mAllApplications中删除。之后设置LoadedApk实例中的mApplication字段为null，这样才能调用LoadedApk类的<code>makeApplication()</code>方法创建源程序的Application实例（也是反射，需要获取到源Application类名，我们可以通过在壳程序的<code>ActivityManifest.xml</code>中使用<code>&lt;meta-data&gt;</code>标签填写并在代码中获取）。当然ContentProvider也会有Application实例，也是需要替换的。最后运行源程序的Application实例的<code>onCreate()</code>方法，这样源程序才开始它的运行生命周期。详细可参考<a target="_blank" rel="noopener" href="https://github.com/13767004362/HookDemo/blob/master/document/%E6%8F%92%E4%BB%B6%E5%8C%96%E4%B9%8B%E5%8A%A8%E6%80%81%E6%9B%BF%E6%8D%A2application.md">插件化之动态替换application.md</a>。</p>
+</li>
+<li><p>为什么选择Application类作为脱壳代码执行的地方？</p>
+<p>因为Application是整个应用程序的入口点，它的创建早于任何一个Activity、Service的创建（ContentProvider例外），因此壳程序必须在Android系统启动组件之前运行，完成源程序的解密和动态加载，否则会使程序出现加载类失败的异常，所以选择这里作为脱壳代码执行的地方。</p>
+<p>其次，Application类的<code>attachBaseContext()</code>方法比<code>onCreate()</code>方法先执行（看Application创建的源码或者自定义Application类并利用log输出试一试）。</p>
+<p><del>利用这一特性，我们就可以在<code>attachBaseContext()</code>方法中替换壳程序的ClassLoader，在<code>onCreate()</code>方法中替换Application。（为什么呢？我是解释不出来。直接全在attachBaseContext中完成不行吗？）</del></p>
+<blockquote>
+<p>尝试了一下，其实全在<code>attachBaseContext()</code>方法或者全在<code>onCreate()</code>方法中执行都行的！</p>
+<p>但都在<code>attachBaseContext()</code>方法执行会有缺陷，就是ActivityThread实例中的mInitialApplication又会被壳程序的Application替换掉，可以参考<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2023/12/02/%E5%85%B3%E4%BA%8E%E4%B8%80%E4%BB%A3%E5%A3%B3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%86%E8%A7%A3/">关于一代壳的一些理解</a>的分析</p>
+</blockquote>
+</li>
+</ol>
+<p>有了上述的解释之后，我想接下来解析代码就简单一些了！</p>
+<h3 id="3-3-2-attachBaseContext-中所需要做的工作"><a href="#3-3-2-attachBaseContext-中所需要做的工作" class="headerlink" title="3.3.2 attachBaseContext()中所需要做的工作"></a>3.3.2 attachBaseContext()中所需要做的工作</h3><p>首先要在Application类的<code>attachBaseContext()</code>方法中完成对源程序的解密和分离，并动态加载源程序apk。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">attachBaseContext</span><span class="hljs-params">(Context base)</span> &#123;<br>    <span class="hljs-built_in">super</span>.attachBaseContext(base);<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//在应用程序的数据存储目录下创建文件夹，具体路径为data/user/0/包名/app_payload_dex(怎么多了app_?)</span><br>        <span class="hljs-type">File</span> <span class="hljs-variable">dex</span> <span class="hljs-operator">=</span> getDir(<span class="hljs-string">&quot;payload_dex&quot;</span>, MODE_PRIVATE);<br>        <span class="hljs-type">File</span> <span class="hljs-variable">lib</span> <span class="hljs-operator">=</span> getDir(<span class="hljs-string">&quot;payload_lib&quot;</span>, MODE_PRIVATE);<br>        dexPath = dex.getAbsolutePath();<br>        libPath = lib.getAbsolutePath();<br>        Log.d(TAG, <span class="hljs-string">&quot;dexPath: &quot;</span> + dexPath);<br>        Log.d(TAG, <span class="hljs-string">&quot;libPath: &quot;</span> + libPath);<br>        apkFileName = dex.getAbsolutePath() + File.separator + <span class="hljs-string">&quot;Source.apk&quot;</span>;<br>        Log.d(TAG, <span class="hljs-string">&quot;apkFileName: &quot;</span> + apkFileName);<br>        <span class="hljs-comment">// 根据文件路径创建File对象</span><br>        <span class="hljs-type">File</span> <span class="hljs-variable">dexFile</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(apkFileName);<br>        <span class="hljs-keyword">if</span> (!dexFile.exists()) &#123;<br>            <span class="hljs-comment">// 根据路径创建文件，即在payload_dex目录下创建Source.apk文件</span><br>            dexFile.createNewFile();<br>            <span class="hljs-comment">//读取Classes.dex文件</span><br>            <span class="hljs-type">byte</span>[] shellDexData = readDexFromApk();<br>            <span class="hljs-comment">//从中分理处源apk文件</span><br>            splitSourceApkFromShellDex(shellDexData);<br>        &#125;<br>        <span class="hljs-comment">//配置加载源程序的动态环境,即替换mClassLoader</span><br>        replaceClassLoaderInLoadedApk();<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        Log.d(TAG, <span class="hljs-string">&quot;attachBaseContext: &quot;</span> + Log.getStackTraceString(e));<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-3-2-1-readDexFromApk"><a href="#3-3-2-1-readDexFromApk" class="headerlink" title="3.3.2.1 readDexFromApk()"></a>3.3.2.1 readDexFromApk()</h4><p>主要功能是从壳APK中找到dex文件并读取出来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">byte</span>[] readDexFromApk() <span class="hljs-keyword">throws</span> IOException &#123;<br><br>    <span class="hljs-comment">//获取当前应用程序的源码路径(apk),一般是data/app目录下,该目录用于存放用户安装的软件</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">sourceDir</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.getApplicationInfo().sourceDir;<br>    Log.d(TAG, <span class="hljs-string">&quot;this.getApplicationInfo().sourceDir: &quot;</span> + <span class="hljs-built_in">this</span>.getApplicationInfo().sourceDir);<br>    <span class="hljs-type">FileInputStream</span> <span class="hljs-variable">fileInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(sourceDir);<br>    <span class="hljs-type">BufferedInputStream</span> <span class="hljs-variable">bufferedInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedInputStream</span>(fileInputStream);<br>    <span class="hljs-type">ZipInputStream</span> <span class="hljs-variable">zipInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ZipInputStream</span>(bufferedInputStream);<br>    <span class="hljs-comment">//用于存放读取到的dex文件</span><br>    <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">byteArrayOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br><br>    <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>        <span class="hljs-comment">//获取apk中的一个个文件</span><br>        <span class="hljs-type">ZipEntry</span> <span class="hljs-variable">zipEntry</span> <span class="hljs-operator">=</span> zipInputStream.getNextEntry();<br>        <span class="hljs-comment">//遍历完了apk中的文件</span><br>        <span class="hljs-keyword">if</span> (zipEntry == <span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <span class="hljs-comment">// 提取出的文件是classes.dex文件,则读取到bytearray中,显然这里只能处理含单dex文件的apk,多dex的apk待实现</span><br>        <span class="hljs-keyword">if</span> (zipEntry.getName().equals(<span class="hljs-string">&quot;classes.dex&quot;</span>))&#123;<br>            <span class="hljs-type">byte</span>[] bytes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">1024</span>];<br>            <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>                <span class="hljs-comment">//每次读取1024byte,返回的是读取到的byte数</span><br>                <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> zipInputStream.read(bytes);<br>                <span class="hljs-keyword">if</span> (i == -<span class="hljs-number">1</span>)&#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                <span class="hljs-comment">//存放到开辟的byteArrayOutputStream中</span><br>                byteArrayOutputStream.write(bytes,<span class="hljs-number">0</span>, i);<br>            &#125;<br>        &#125;<br>        <span class="hljs-comment">//关闭当前条目并定位到apk中的下一个文件</span><br>        zipInputStream.closeEntry();<br>    &#125;<br>    zipInputStream.close();<br><br>    <span class="hljs-comment">//返回读取到的dex文件</span><br>    <span class="hljs-keyword">return</span> byteArrayOutputStream.toByteArray();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-3-2-2-splitSourceApkFromShellDex"><a href="#3-3-2-2-splitSourceApkFromShellDex" class="headerlink" title="3.3.2.2 splitSourceApkFromShellDex()"></a>3.3.2.2 splitSourceApkFromShellDex()</h4><p>主要功能是从壳dex中分理处源程序apk，存储源程序apk，提取源apk中的本地库文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">splitSourceApkFromShellDex</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] shellDexData)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">shellDexlength</span> <span class="hljs-operator">=</span> shellDexData.length;<br>    <span class="hljs-comment">//开始解析dex文件</span><br>    <span class="hljs-type">byte</span>[] sourceApkSizeByte = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">4</span>];<br>    <span class="hljs-comment">//读取源apk的大小</span><br>    System.arraycopy(shellDexData,shellDexlength - <span class="hljs-number">4</span>, sourceApkSizeByte,<span class="hljs-number">0</span>,<span class="hljs-number">4</span>);<br>    <span class="hljs-comment">//转成bytebuffer,方便4byte转int</span><br>    <span class="hljs-type">ByteBuffer</span> <span class="hljs-variable">wrap</span> <span class="hljs-operator">=</span> ByteBuffer.wrap(sourceApkSizeByte);<br>    <span class="hljs-comment">//将byte转成int, 加壳时,长度我是按小端存储的</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">sourceApkSizeInt</span> <span class="hljs-operator">=</span> wrap.order(ByteOrder.LITTLE_ENDIAN).getInt();<br>    <span class="hljs-comment">//读取源apk</span><br>    <span class="hljs-type">byte</span>[] sourceApkData = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[sourceApkSizeInt];<br>    <span class="hljs-comment">//忘记减4了！</span><br>    System.arraycopy(shellDexData,shellDexlength - sourceApkSizeInt - <span class="hljs-number">4</span>, sourceApkData, <span class="hljs-number">0</span>, sourceApkSizeInt);<br>    <span class="hljs-comment">//解密源apk</span><br>    sourceApkData = decryptoSourceApk(sourceApkData);<br>    <span class="hljs-comment">//写入新建的apk文件中</span><br>    <span class="hljs-type">File</span> <span class="hljs-variable">apkfile</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(apkFileName);<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-type">FileOutputStream</span> <span class="hljs-variable">apkfileOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(apkfile);<br>        apkfileOutputStream.write(sourceApkData);<br>        apkfileOutputStream.close();<br>    &#125;<span class="hljs-keyword">catch</span> (IOException e)&#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IOException</span>(e);<br>    &#125;<br><br>    <span class="hljs-comment">//分析源apk,取出so文件放入libPath目录中</span><br>    <span class="hljs-type">FileInputStream</span> <span class="hljs-variable">fileInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(apkfile);<br>    <span class="hljs-type">BufferedInputStream</span> <span class="hljs-variable">bufferedInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedInputStream</span>(fileInputStream);<br>    <span class="hljs-type">ZipInputStream</span> <span class="hljs-variable">zipInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ZipInputStream</span>(bufferedInputStream);<br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)&#123;<br>        <span class="hljs-type">ZipEntry</span> <span class="hljs-variable">nextEntry</span> <span class="hljs-operator">=</span> zipInputStream.getNextEntry();<br>        <span class="hljs-keyword">if</span> (nextEntry == <span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> nextEntry.getName();<br>        <span class="hljs-keyword">if</span> (name.startsWith(<span class="hljs-string">&quot;lib/&quot;</span>) &amp;&amp; name.endsWith(<span class="hljs-string">&quot;.so&quot;</span>))&#123;<br>            <span class="hljs-comment">//获取文件名并创建相应文件</span><br>            String[] nameSplit = name.split(<span class="hljs-string">&quot;/&quot;</span>);<br>            <span class="hljs-type">String</span> <span class="hljs-variable">soFileStorePath</span> <span class="hljs-operator">=</span> libPath + File.separator + nameSplit[nameSplit.length - <span class="hljs-number">1</span>];<br>            <span class="hljs-type">File</span> <span class="hljs-variable">storeFile</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(soFileStorePath);<br>            storeFile.createNewFile();<br>            <span class="hljs-comment">//读数据到相应so文件中</span><br>            <span class="hljs-type">FileOutputStream</span> <span class="hljs-variable">fileOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(storeFile);<br>            <span class="hljs-type">byte</span>[] bytes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[<span class="hljs-number">1024</span>];<br>            <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)&#123;<br>                <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> zipInputStream.read(bytes);<br>                <span class="hljs-keyword">if</span>(i == -<span class="hljs-number">1</span>)&#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                fileOutputStream.write(bytes,<span class="hljs-number">0</span>,i);<br>            &#125;<br>            <span class="hljs-comment">//存储玩so文件后,关闭so文件的输出缓存区</span><br>            fileOutputStream.flush();<br>            fileOutputStream.close();<br>        &#125;<br>        zipInputStream.closeEntry();<br>    &#125;<br>    zipInputStream.close();<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-3-2-3-decryptoSourceApk"><a href="#3-3-2-3-decryptoSourceApk" class="headerlink" title="3.3.2.3 decryptoSourceApk()"></a>3.3.2.3 decryptoSourceApk()</h4><p>主要功能就是解密源APK，这没啥好解释的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">byte</span>[] decryptoSourceApk(<span class="hljs-type">byte</span>[] sourceApkdata) &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; sourceApkdata.length; i++)&#123;<br>        sourceApkdata[i] ^= <span class="hljs-number">0xff</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> sourceApkdata;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-3-2-4-replaceClassLoaderInLoadedApk"><a href="#3-3-2-4-replaceClassLoaderInLoadedApk" class="headerlink" title="3.3.2.4 replaceClassLoaderInLoadedApk()"></a>3.3.2.4 replaceClassLoaderInLoadedApk()</h4><p>主要功能是替换壳程序的ClassLoader为新建的源程序的DexClassLoader。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">replaceClassLoaderInLoadedApk</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>    <span class="hljs-comment">// 获取应用程序当前的classloader</span><br>    <span class="hljs-type">ClassLoader</span> <span class="hljs-variable">classLoader</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.getClassLoader();<br>    Log.d(TAG, <span class="hljs-string">&quot;classLoader get: &quot;</span> + classLoader.toString());<br>    Log.d(TAG, <span class="hljs-string">&quot;parent classLoader get: &quot;</span> + classLoader.getParent().toString());<br>    <span class="hljs-comment">// 获取ActivityThread类</span><br>    Class&lt;?&gt; ActivityThreadClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.ActivityThread&quot;</span>);<br>    Log.d(TAG, <span class="hljs-string">&quot;ActivityThreadClass: &quot;</span> + ActivityThreadClass.toString());<br>    <span class="hljs-comment">// ActivityThread已经实例化了，我们需要通过反射currentActivityThread()方法获取实例，而不是通过类反射创建实例（他都不是同一个实例，创建没屁用）</span><br>    <span class="hljs-comment">// 1.通过反射获取方法，进一步获取ActivityThread实例</span><br>    <span class="hljs-comment">//            Method currentActivityThreadMethod = ActivityThreadClass.getDeclaredMethod(&quot;currentActivityThread&quot;);</span><br>    <span class="hljs-comment">//            Log.d(TAG, &quot;currentActivityThreadMethod: &quot; + currentActivityThreadMethod.toString());</span><br>    <span class="hljs-comment">//            currentActivityThreadMethod.setAccessible(true);</span><br>    <span class="hljs-comment">//            Object sCurrentActivityThreadObj = currentActivityThreadMethod.invoke(null);//为什么这里可以设置为null</span><br>    <span class="hljs-comment">//            Log.d(TAG, &quot;反射获取方法，进一步获取ActivityThread实例: &quot; + sCurrentActivityThreadObj.toString());</span><br>    <span class="hljs-comment">// 2.直接反射获取ActivityThread字段</span><br>    <span class="hljs-type">Field</span> <span class="hljs-variable">sCurrentActivityThreadField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;sCurrentActivityThread&quot;</span>);<br>    Log.d(TAG, <span class="hljs-string">&quot;sCurrentActivityThread: &quot;</span> + sCurrentActivityThreadField.toString());<br>    sCurrentActivityThreadField.setAccessible(<span class="hljs-literal">true</span>);<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">sCurrentActivityThreadObj</span> <span class="hljs-operator">=</span> sCurrentActivityThreadField.get(<span class="hljs-literal">null</span>);<span class="hljs-comment">//为什么这里可以设置为null</span><br>    Log.d(TAG, <span class="hljs-string">&quot;直接反射获取ActivityThread字段: &quot;</span> + sCurrentActivityThreadObj.toString());<br><br>    <span class="hljs-comment">//获取mPackages,类型为ArrayMap&lt;String, WeakReference&lt;LoadedApk&gt;&gt;, 里面存放了当前应用的LoadedApk对象</span><br>    <span class="hljs-type">Field</span> <span class="hljs-variable">mPackagesField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;mPackages&quot;</span>);<br>    mPackagesField.setAccessible(<span class="hljs-literal">true</span>);<br>    <span class="hljs-comment">//获取当前ActivityThread实例的mPackages字段</span><br>    <span class="hljs-type">ArrayMap</span> <span class="hljs-variable">mPackagesObj</span> <span class="hljs-operator">=</span> (ArrayMap) mPackagesField.get(sCurrentActivityThreadObj);<br>    Log.d(TAG, <span class="hljs-string">&quot;mPackagesObj: &quot;</span> + mPackagesObj.toString());<br><br>    <span class="hljs-comment">//获取mPackages中的当前应用包名</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">currentPackageName</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.getPackageName();<br>    Log.d(TAG, <span class="hljs-string">&quot;currentPackageName: &quot;</span> + currentPackageName);<br><br>    <span class="hljs-comment">// 获取loadedApk实例也有好几种,mInitialApplication mAllApplications mPackages</span><br>    <span class="hljs-comment">// 通过包名获取当前应用的loadedApk实例</span><br>    <span class="hljs-type">WeakReference</span> <span class="hljs-variable">weakReference</span> <span class="hljs-operator">=</span> (WeakReference) mPackagesObj.get(currentPackageName);<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">loadedApkObj</span> <span class="hljs-operator">=</span> weakReference.get();<br>    Log.d(TAG, <span class="hljs-string">&quot;loadedApkObj: &quot;</span> + loadedApkObj.toString());<br><br>    <span class="hljs-comment">//动态加载源程序的dex文件,以当前classloader的父加载器作为parent</span><br>    <span class="hljs-type">DexClassLoader</span> <span class="hljs-variable">dexClassLoader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DexClassLoader</span>(apkFileName,dexPath,libPath, classLoader.getParent());<br>    Log.d(TAG, <span class="hljs-string">&quot;dexClassLoader: &quot;</span> + dexClassLoader.toString());<br>    <span class="hljs-comment">//替换loadedApk实例中的mClassLoader字段</span><br>    Class&lt;?&gt; LoadedApkClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.LoadedApk&quot;</span>);<br>    Log.d(TAG, <span class="hljs-string">&quot;LoadedApkClass: &quot;</span> + LoadedApkClass.toString());<br>    <span class="hljs-type">Field</span> <span class="hljs-variable">mClassLoaderField</span> <span class="hljs-operator">=</span> LoadedApkClass.getDeclaredField(<span class="hljs-string">&quot;mClassLoader&quot;</span>);<br>    mClassLoaderField.setAccessible(<span class="hljs-literal">true</span>);<br>    mClassLoaderField.set(loadedApkObj, dexClassLoader);<br><br>    <span class="hljs-comment">//加载源程序的类</span><br>    <span class="hljs-comment">//可有可无，只是测试看看有没有这个类</span><br>    <span class="hljs-keyword">try</span>&#123;<br>        dexClassLoader.loadClass(<span class="hljs-string">&quot;com.example.sourceapk.MainActivity&quot;</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;com.example.sourceapk.MainActivity: 类加载成功&quot;</span>);<br>    &#125;<span class="hljs-keyword">catch</span> (ClassNotFoundException e)&#123;<br>        Log.d(TAG, <span class="hljs-string">&quot;com.example.sourceapk.MainActivity: &quot;</span> + Log.getStackTraceString(e));<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-3-3-onCreate-中所需要做的工作"><a href="#3-3-3-onCreate-中所需要做的工作" class="headerlink" title="3.3.3 onCreate()中所需要做的工作"></a>3.3.3 onCreate()中所需要做的工作</h3><p>之后是Application的<code>onCreate()</code>方法，这里我们需要替换壳程序的Application，需要事先置LoadedApk中的mApplication为null，这样才能调用<code>makeApplication()</code>方法创建出源程序的Application。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCreate</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-built_in">super</span>.onCreate();<br>    Log.d(TAG, <span class="hljs-string">&quot;SourceApk Application onCreate: &quot;</span> + <span class="hljs-built_in">this</span>);<br><br>    <span class="hljs-comment">//Application实例存在于: LoadedApk中的mApplication字段</span><br>    <span class="hljs-comment">// 以及ActivityThread中的mInitialApplication和mAllApplications和mBoundApplication字段</span><br>    <span class="hljs-comment">//替换Application</span><br><br>    <span class="hljs-comment">//获取源程序的Application类名</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">appClassName</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//获取AndroidManifest.xml 文件中的 &lt;meta-data&gt; 元素</span><br>        <span class="hljs-type">ApplicationInfo</span> <span class="hljs-variable">applicationInfo</span> <span class="hljs-operator">=</span> getPackageManager().getApplicationInfo(<span class="hljs-built_in">this</span>.getPackageName(), PackageManager.GET_META_DATA);<br>        <span class="hljs-type">Bundle</span> <span class="hljs-variable">metaData</span> <span class="hljs-operator">=</span> applicationInfo.metaData;<br>        <span class="hljs-comment">//获取xml文件声明的Application类</span><br>        <span class="hljs-keyword">if</span> (metaData != <span class="hljs-literal">null</span> &amp;&amp; metaData.containsKey(<span class="hljs-string">&quot;APPLICATION_CLASS_NAME&quot;</span>))&#123;<br>            appClassName = metaData.getString(<span class="hljs-string">&quot;APPLICATION_CLASS_NAME&quot;</span>);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            Log.d(TAG, <span class="hljs-string">&quot;xml文件中没有声明Application类名&quot;</span>);<br>            <span class="hljs-comment">//是因为没有自定义application就不好动态加载源程序的application吗?</span><br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (PackageManager.NameNotFoundException e) &#123;<br>        Log.d(TAG, Log.getStackTraceString(e));<br>    &#125;<br>    <span class="hljs-comment">//xml文件中存在自定义application类</span><br>    <span class="hljs-comment">//开始替换</span><br><br>    <span class="hljs-comment">//获取ActivityThread实例</span><br>    <span class="hljs-type">ClassLoader</span> <span class="hljs-variable">classLoader</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.getClassLoader();<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//获取ActivityThread类</span><br>        Class&lt;?&gt; ActivityThreadClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.ActivityThread&quot;</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;ActivityThreadClass: &quot;</span> + ActivityThreadClass.toString());<br>        <span class="hljs-comment">//反射获取sCurrentActivityThread实例</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">sCurrentActivityThreadField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;sCurrentActivityThread&quot;</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;sCurrentActivityThread: &quot;</span> + sCurrentActivityThreadField.toString());<br>        sCurrentActivityThreadField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">sCurrentActivityThreadObj</span> <span class="hljs-operator">=</span> sCurrentActivityThreadField.get(<span class="hljs-literal">null</span>);<span class="hljs-comment">//为什么这里可以设置为null</span><br>        Log.d(TAG, <span class="hljs-string">&quot;直接反射获取ActivityThread字段: &quot;</span> + sCurrentActivityThreadObj.toString());<br><br>        <span class="hljs-comment">//获取mBoundApplication字段 (AppBindData对象)</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mBoundApplicationField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;mBoundApplication&quot;</span>);<br>        mBoundApplicationField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">mBoundApplicationObj</span> <span class="hljs-operator">=</span> mBoundApplicationField.get(sCurrentActivityThreadObj);<br><br>        <span class="hljs-comment">//获取mBoundApplication对象中的info (LoadedApk对象)</span><br>        <span class="hljs-comment">//所以这个和之前通过mPackages字段获取LoadedApk有什么不同???</span><br>        <span class="hljs-comment">//首先获取AppBindData类,它位于ActivityThread类内部</span><br>        Class&lt;?&gt; AppBindDataClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.ActivityThread$AppBindData&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">infoField</span> <span class="hljs-operator">=</span> AppBindDataClass.getDeclaredField(<span class="hljs-string">&quot;info&quot;</span>);<br>        infoField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">infoObj</span> <span class="hljs-operator">=</span> infoField.get(mBoundApplicationObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;infoObj: &quot;</span> + infoObj.toString());<br><br>        <span class="hljs-comment">//把infoObj (LoadedApk对象)中的mApplication设置为null,这样后续才能调用makeApplication()!!!</span><br>        Class&lt;?&gt; LoadedApkClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.LoadedApk&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mApplicationField</span> <span class="hljs-operator">=</span> LoadedApkClass.getDeclaredField(<span class="hljs-string">&quot;mApplication&quot;</span>);<br>        mApplicationField.setAccessible(<span class="hljs-literal">true</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;mApplication: &quot;</span> + mApplicationField.get(infoObj).toString());<br>        mApplicationField.set(infoObj, <span class="hljs-literal">null</span>);<br><br>        <span class="hljs-comment">//获取ActivityThread实例中的mInitialApplication字段,拿到旧的Application(对于要加载的Application来讲)</span><br>        <span class="hljs-comment">//为什么不直接通过刚才的info获取???</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mInitialApplicationField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;mInitialApplication&quot;</span>);<br>        mInitialApplicationField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">mInitialApplicationObj</span> <span class="hljs-operator">=</span> mInitialApplicationField.get(sCurrentActivityThreadObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;mInitialApplicationObj: &quot;</span> + mInitialApplicationObj.toString());<br><br>        <span class="hljs-comment">//获取ActivityThread实例中的mAllApplications字段,然后删除mInitialApplication,也就是旧的application</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mAllApplicationsField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;mAllApplications&quot;</span>);<br>        mAllApplicationsField.setAccessible(<span class="hljs-literal">true</span>);<br>        ArrayList&lt;Application&gt; mAllApplicationsObj = (ArrayList&lt;Application&gt;)mAllApplicationsField.get(sCurrentActivityThreadObj);<br>        mAllApplicationsObj.remove(mInitialApplicationObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;mInitialApplication 从 mAllApplications 中移除成功&quot;</span>);<br><br>        <span class="hljs-comment">//这是要干嘛???</span><br>        <span class="hljs-comment">//获取LoadedApk的mApplicationInfo字段</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mApplicationInfoField</span> <span class="hljs-operator">=</span> LoadedApkClass.getDeclaredField(<span class="hljs-string">&quot;mApplicationInfo&quot;</span>);<br>        mApplicationInfoField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">ApplicationInfo</span> <span class="hljs-variable">appinfoInLoadedApk</span> <span class="hljs-operator">=</span> (ApplicationInfo) mApplicationInfoField.get(infoObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;appinfoInLoadedApk: &quot;</span> + appinfoInLoadedApk.toString());<br><br><br>        <span class="hljs-comment">//获取mBoundApplication对象中的appInfo</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">appInfoField</span> <span class="hljs-operator">=</span> AppBindDataClass.getDeclaredField(<span class="hljs-string">&quot;appInfo&quot;</span>);<br>        appInfoField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">ApplicationInfo</span> <span class="hljs-variable">appinfoInAppBindData</span> <span class="hljs-operator">=</span> (ApplicationInfo) appInfoField.get(mBoundApplicationObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;appinfoInLoadedApk: &quot;</span> + appinfoInAppBindData.toString());<br><br><br>        <span class="hljs-comment">//设置两个appinfo的classname为源程序的application类名,以便后续调用makeApplication()创建源程序的application</span><br>        appinfoInLoadedApk.className = appClassName;<br>        appinfoInAppBindData.className = appClassName;<br>        Log.d(TAG, <span class="hljs-string">&quot;要加载的源程序application类为: &quot;</span> + appClassName);<br><br>        <span class="hljs-comment">//反射调用makeApplication方法创建源程序的application</span><br>        <span class="hljs-type">Method</span> <span class="hljs-variable">makeApplicationMethod</span> <span class="hljs-operator">=</span> LoadedApkClass.getDeclaredMethod(<span class="hljs-string">&quot;makeApplication&quot;</span>, <span class="hljs-type">boolean</span>.class, Instrumentation.class);<br>        Log.d(TAG, <span class="hljs-string">&quot;makeApplicationMethod: &quot;</span> + makeApplicationMethod.toString());<br>        makeApplicationMethod.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Application</span> <span class="hljs-variable">app</span> <span class="hljs-operator">=</span> (Application) makeApplicationMethod.invoke(infoObj, <span class="hljs-literal">false</span>, <span class="hljs-literal">null</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;创建源程序application成功&quot;</span>);<br><br>        <span class="hljs-comment">//将刚创建的Application设置到ActivityThread的mInitialApplication字段</span><br>        mInitialApplicationField.set(sCurrentActivityThreadObj, app);<br>        Log.d(TAG, <span class="hljs-string">&quot;源程序的application成功设置到mInitialApplication字段&quot;</span>);<br><br>        <span class="hljs-comment">//ContentProvider会持有代理的Application,需要特殊处理一下</span><br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mProviderMapField</span> <span class="hljs-operator">=</span> ActivityThreadClass.getDeclaredField(<span class="hljs-string">&quot;mProviderMap&quot;</span>);<br>        Log.d(TAG, <span class="hljs-string">&quot;mProviderMapField: &quot;</span> + mProviderMapField.toString());<br>        mProviderMapField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">ArrayMap</span> <span class="hljs-variable">mProviderMapObj</span> <span class="hljs-operator">=</span> (ArrayMap) mProviderMapField.get(sCurrentActivityThreadObj);<br>        Log.d(TAG, <span class="hljs-string">&quot;mProviderMapObj: &quot;</span> + mProviderMapObj.toString());<br>        <span class="hljs-comment">//获取所有provider,装进迭代器中遍历</span><br>        <span class="hljs-type">Iterator</span> <span class="hljs-variable">iterator</span> <span class="hljs-operator">=</span> mProviderMapObj.values().iterator();<br>        Log.d(TAG, <span class="hljs-string">&quot;iterator: &quot;</span> + iterator.toString());<br>        <span class="hljs-keyword">while</span>(iterator.hasNext())&#123;<br>            <span class="hljs-type">Object</span> <span class="hljs-variable">providerClientRecord</span> <span class="hljs-operator">=</span> iterator.next();<br>            <span class="hljs-comment">//获取ProviderClientRecord中的mLocalProvider字段</span><br>            Class&lt;?&gt; ProviderClientRecordClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.ActivityThread$ProviderClientRecord&quot;</span>);<br>            <span class="hljs-type">Field</span> <span class="hljs-variable">mLocalProviderField</span> <span class="hljs-operator">=</span> ProviderClientRecordClass.getDeclaredField(<span class="hljs-string">&quot;mLocalProvider&quot;</span>);<br>            Log.d(TAG, <span class="hljs-string">&quot;mLocalProviderField: &quot;</span> + mLocalProviderField.toString());<br>            mLocalProviderField.setAccessible(<span class="hljs-literal">true</span>);<br><br>            <span class="hljs-type">Object</span> <span class="hljs-variable">mLocalProviderObj</span> <span class="hljs-operator">=</span> mLocalProviderField.get(providerClientRecord);<br>            <span class="hljs-comment">//mLocalProviderObj可能为空</span><br>            <span class="hljs-keyword">if</span>(mLocalProviderObj != <span class="hljs-literal">null</span>)&#123;<br>                Log.d(TAG, <span class="hljs-string">&quot;mLocalProviderObj: &quot;</span> + mLocalProviderObj.toString());<br>                <span class="hljs-comment">//获取ContentProvider中的mContext字段,设置为新建的Application</span><br>                Class&lt;?&gt; ContentProviderClass = classLoader.loadClass(<span class="hljs-string">&quot;android.content.ContentProvider&quot;</span>);<br>                <span class="hljs-type">Field</span> <span class="hljs-variable">mContextField</span> <span class="hljs-operator">=</span> ContentProviderClass.getDeclaredField(<span class="hljs-string">&quot;mContext&quot;</span>);<br>                mContextField.setAccessible(<span class="hljs-literal">true</span>);<br>                mContextField.set(mLocalProviderObj,app);<br>            &#125;<br><br>        &#125;<br>        Log.d(TAG, <span class="hljs-string">&quot;app: &quot;</span> + app);<br>        <span class="hljs-comment">//开始Application的创建,源程序启动!</span><br>        app.onCreate();<br><br>    &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException e) &#123;<br>        Log.e(TAG, Log.getStackTraceString(e));<br>    &#125; <span class="hljs-keyword">catch</span> (NoSuchFieldException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125; <span class="hljs-keyword">catch</span> (IllegalAccessException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125; <span class="hljs-keyword">catch</span> (NoSuchMethodException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125; <span class="hljs-keyword">catch</span> (InvocationTargetException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、项目过程中出现的问题"><a href="#四、项目过程中出现的问题" class="headerlink" title="四、项目过程中出现的问题"></a>四、项目过程中出现的问题</h1><p><strong>注意！每次安装玩新的apk后，记得把之前代码创建的两个目录删除，否则就是启动之前存在的源apk。</strong></p>
+<h2 id="4-1-问题一"><a href="#4-1-问题一" class="headerlink" title="4.1 问题一"></a>4.1 问题一</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217971.png" srcset="/img/loading.gif" lazyload></p>
+<p>查看了一下提取出的源程序，它不能被正常识别成apk，而且拖到jadx中反编译失败！Bandzip打开报错该文件已损坏！</p>
+<p>010editor打开，发现连pk头都没有！估计是取源程序的时候定位错了！</p>
+<p>额，还真是，定位初始位置的时候少减了4bytes（存储源APK大小的长度）</p>
+<p>（这不是错误出现的原因！）</p>
+<p>之后提取出来的源程序是正常的，能被正常识别，能被jadx反编译出原本代码，但是仍然上图的这个错误。</p>
+<p>难道是壳APK中的ActivityMainfest.xml中没声明该Activity导致的？？？</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217020.png" srcset="/img/loading.gif" lazyload></p>
+<p>果然是这样！我们需要把源程序的Activity声明搬到壳程序中，之后我的壳程序的ActivityMainfest.xml文件如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012217912.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-2-问题二"><a href="#4-2-问题二" class="headerlink" title="4.2 问题二"></a>4.2 问题二</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218279.png" srcset="/img/loading.gif" lazyload></p>
+<p>无法创建application，原因如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218894.png" srcset="/img/loading.gif" lazyload></p>
+<p>源程序的application类找不到？？？</p>
+<p>我测！我大写了，<meta-data>标签中包application类名大写了，应该是sourceapk而不是sourcApk！🥲</p>
+<h2 id="4-3-问题三"><a href="#4-3-问题三" class="headerlink" title="4.3 问题三"></a>4.3 问题三</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218547.png" srcset="/img/loading.gif" lazyload></p>
+<p>有的providerClientRecord对象中的mLocalProvider字段是空的！？？</p>
+<p>还以为是我的原因造成的呢。其实是可以为空的，那么我们只需要在获取到mLocalProvider对象后用加一层判断就行，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//获取所有provider,装进迭代器中遍历</span><br><span class="hljs-type">Iterator</span> <span class="hljs-variable">iterator</span> <span class="hljs-operator">=</span> mProviderMapObj.values().iterator();<br>Log.d(TAG, <span class="hljs-string">&quot;iterator: &quot;</span> + iterator.toString());<br><span class="hljs-keyword">while</span>(iterator.hasNext())&#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">providerClientRecord</span> <span class="hljs-operator">=</span> iterator.next();<br>    <span class="hljs-comment">//获取ProviderClientRecord中的mLocalProvider字段</span><br>    Class&lt;?&gt; ProviderClientRecordClass = classLoader.loadClass(<span class="hljs-string">&quot;android.app.ActivityThread$ProviderClientRecord&quot;</span>);<br>    <span class="hljs-type">Field</span> <span class="hljs-variable">mLocalProviderField</span> <span class="hljs-operator">=</span> ProviderClientRecordClass.getDeclaredField(<span class="hljs-string">&quot;mLocalProvider&quot;</span>);<br>    Log.d(TAG, <span class="hljs-string">&quot;mLocalProviderField: &quot;</span> + mLocalProviderField.toString());<br>    mLocalProviderField.setAccessible(<span class="hljs-literal">true</span>);<br><br>    <span class="hljs-type">Object</span> <span class="hljs-variable">mLocalProviderObj</span> <span class="hljs-operator">=</span> mLocalProviderField.get(providerClientRecord);<br>    <span class="hljs-comment">//mLocalProviderObj可能为空</span><br>    <span class="hljs-keyword">if</span>(mLocalProviderObj != <span class="hljs-literal">null</span>)&#123;<br>        Log.d(TAG, <span class="hljs-string">&quot;mLocalProviderObj: &quot;</span> + mLocalProviderObj.toString());<br>        <span class="hljs-comment">//获取ContentProvider中的mContext字段,设置为新建的Application</span><br>        Class&lt;?&gt; ContentProviderClass = classLoader.loadClass(<span class="hljs-string">&quot;android.content.ContentProvider&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">mContextField</span> <span class="hljs-operator">=</span> ContentProviderClass.getDeclaredField(<span class="hljs-string">&quot;mContext&quot;</span>);<br>        mContextField.setAccessible(<span class="hljs-literal">true</span>);<br>        mContextField.set(mLocalProviderObj,app);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-4-问题四"><a href="#4-4-问题四" class="headerlink" title="4.4. 问题四"></a>4.4. 问题四</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218409.png" srcset="/img/loading.gif" lazyload></p>
+<p>搜索了一下，源程序的MainActivity不应该继承自AppCompatActivity类，需要改成继承自Activity类，或者修改AndroidManifest.xml文件的主题。（参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/lady_zhou/article/details/99590037">解决You need to use a Theme.AppCompat theme (or descendant) with this activity.-CSDN博客</a>）</p>
+<p>我是直接改成继承自Activity类。</p>
+<p>之后成功启动了：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218172.png" srcset="/img/loading.gif" lazyload></p>
+<p>其实到这里就已经可以说加壳脱壳成功了。但是！！！启动后的界面不容乐观</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012218163.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>并非源程序的<code>activity_main.xml</code>中的界面。所以我将源程序<code>activity_main.xml</code>文件复制到壳程序的<code>/res/layout</code>目录下，但是下一个问题接踵而来。</p>
+<h2 id="4-5-问题五"><a href="#4-5-问题五" class="headerlink" title="4.5 问题五"></a>4.5 问题五</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012219334.png" srcset="/img/loading.gif" lazyload></p>
+<p>复制粘贴过来的<code>activity_main.xml</code>有问题，字符串索引有问题？？可是我是直接填字符串常量进去的啊，就根本没用字符串索引。</p>
+<p>尝试之后，是把容器标签<code>&lt;androidx.constraintlayout.widget.ConstraintLayout&gt;</code>换成其他的就行，我换成了<code>&lt;LinearLayout&gt;</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">LinearLayout</span> <span class="hljs-attr">xmlns:android</span>=<span class="hljs-string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">xmlns:app</span>=<span class="hljs-string">&quot;http://schemas.android.com/apk/res-auto&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">xmlns:tools</span>=<span class="hljs-string">&quot;http://schemas.android.com/tools&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;match_parent&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">android:gravity</span>=<span class="hljs-string">&quot;center&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">tools:context</span>=<span class="hljs-string">&quot;com.example.sourceapk.MainActivity&quot;</span>&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">TextView</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_width</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:layout_height</span>=<span class="hljs-string">&quot;wrap_content&quot;</span></span><br><span class="hljs-tag">        <span class="hljs-attr">android:text</span>=<span class="hljs-string">&quot;这是源程序！&quot;</span> /&gt;</span><br><br><span class="hljs-tag">&lt;/<span class="hljs-name">LinearLayout</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>最终成功启动并展示出了源程序界面：</p>
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202312012219334.jpg" srcset="/img/loading.gif" lazyload style="zoom:30%;" />
+
+<p>显然，在上述问题中，绝大数是我粗心造成的！😢</p>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><p>花费了大概一周的时间，从一开始接触第一代壳，前前后后学了不少加壳所需的前置知识，终于在今日也是成功的制作出了一代壳。</p>
+<p>在制作的过程中，还是有很多粗心的地方，一些大小写的问题导致动态加载类失败，当然也注意到反射所用的代码非常雷同，因此可以自定义一个反射类，像那些所参考的文章一样，这样代码就非常简洁了。另一个方面就是，我觉得上面的代码（或者说我所参考的代码）还可以进一步优化，有一些代码为什么这么做我搞不清楚，尚待考究。</p>
+<p>还有就是在代码中反射来反射去的，那些所获取的实例我猜测应该都是同一个，例如LoadedApk、Application实例，存储他们的字段有很多，所以我想，接下来可以验证一下是不是如猜想一样。</p>
+<p>不过我似乎理解了为什么第一代壳又被称为落地加载壳，这是因为它会把源程序从壳程序中分离出来并存储到文件系统中，所以才叫”落地“。由于这一特性，攻击者可以从文件系统中获取源程序。即使我们对源文件加载后删除，攻击者仍然可以通过拦截对应的删除函数阻止删除。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/13767004362/HookDemo/blob/master/document/%E6%8F%92%E4%BB%B6%E5%8C%96%E4%B9%8B%E5%8A%A8%E6%80%81%E6%9B%BF%E6%8D%A2application.md">插件化之动态替换application.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.svip.dev/posts/%E5%8A%A0%E5%A3%B3app%E7%9A%84%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B%E5%8F%8Aclassloader%E4%BF%AE%E6%AD%A3">加壳App的运行流程及ClassLoader修正 | Security (svip.dev)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiangzhihong8/article/details/79724978">https://blog.csdn.net/xiangzhihong8/article/details/79724978</a></p>
+<p>[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-261939.htm">原创]安卓加固方案从落地加载到类指令抽取编写报告-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ae66be381e6f">Android 一二三代壳加固原理分析 - 简书 (jianshu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.520monkey.com/archives/553">Android中的Apk的加固(加壳)原理解析和实现 | 尼古拉斯.赵四 (520monkey.com)</a></p>
+<p>[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-260124.htm">原创]Android App加固原理与技术历程-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/398931026">从第一代到第五代，App加固技术详解 - 知乎 (zhihu.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android%E5%8A%A0%E5%9B%BA/">#Android加固</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android第一代加固壳的原理及实现 —— 落地加载</div>
+      <div>http://example.com/2023/12/01/Android安全/Android第一代加固壳的原理及实现/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/02/Android%E5%AE%89%E5%85%A8/%E5%85%B3%E4%BA%8E%E4%B8%80%E4%BB%A3%E5%A3%B3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%90%86%E8%A7%A3/" title="关于一代壳的一些理解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">关于一代壳的一些理解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Application%E7%B1%BB/" title="Android中的Application类">
+                        <span class="hidden-mobile">Android中的Application类</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、概述Android四大基本组件分别是Activity、Service服务、ContentProvider内容提供者、BroadcastReceiver广播接收器。它们都需要在AndroidManifest.xml配置文件中进行注册。 二、四大组件2.1 ActivityActivity在屏幕上为用户提供了一个GUI界面，允许用户在上面做一些交互性的操作， 比如打电话、照相、发送邮件。  一个A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android四大组件">
+<meta property="og:url" content="http://example.com/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、概述Android四大基本组件分别是Activity、Service服务、ContentProvider内容提供者、BroadcastReceiver广播接收器。它们都需要在AndroidManifest.xml配置文件中进行注册。 二、四大组件2.1 ActivityActivity在屏幕上为用户提供了一个GUI界面，允许用户在上面做一些交互性的操作， 比如打电话、照相、发送邮件。  一个A">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041425246.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041424674.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041423993.png">
+<meta property="article:published_time" content="2023-07-04T06:16:32.000Z">
+<meta property="article:modified_time" content="2023-07-04T06:25:33.789Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041425246.jpg">
+  
+  
+  
+  <title>Android四大组件 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Android四大组件"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-04 14:16" pubdate>
+          2023年7月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Android四大组件</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>Android四大基本组件分别是Activity、Service服务、ContentProvider内容提供者、BroadcastReceiver广播接收器。它们都需要在AndroidManifest.xml配置文件中进行注册。</p>
+<h1 id="二、四大组件"><a href="#二、四大组件" class="headerlink" title="二、四大组件"></a>二、四大组件</h1><h2 id="2-1-Activity"><a href="#2-1-Activity" class="headerlink" title="2.1 Activity"></a>2.1 Activity</h2><p>Activity在屏幕上为用户提供了一个GUI界面，允许用户在上面做一些交互性的操作， 比如打电话、照相、发送邮件。</p>
+<ol>
+<li>一个Android应用一般有多个Activity。</li>
+<li>Activity之间通过Intent进行通信。</li>
+<li>Andorid应用中每个Activity都必须在AndroidManifest.xml配置文件中进行注册，否则系统将不识别也不执行该Activity。</li>
+</ol>
+<h3 id="Activity的相关方法"><a href="#Activity的相关方法" class="headerlink" title="Activity的相关方法"></a>Activity的相关方法</h3><ul>
+<li><strong>onCreate()<strong>：只在Activity创建时调用，通常做一些初始化设置，</strong>不可见</strong>。</li>
+<li><strong>onStart()<strong>：在Activity由不可见变为可见时调用，</strong>可见</strong>，此时用户可以看到界面，但没有获取到焦点，用户不能进行操作。</li>
+<li><strong>onResume()<strong>：此时Activity获取到焦点，能够与用户交互，</strong>可见</strong>。此方法是在与用户进行交互时调用。</li>
+<li><strong>onPause()<strong>：在当前Activity被其它Activity覆盖或锁屏时调用，</strong>可见</strong>，但失去焦点。此时会对状态信息和数据进行保存。</li>
+<li><strong>onStop()<strong>：在Activity不可见时调用，</strong>不可见</strong>，Activity进入到了后台，且Activity对象仍在内存中。</li>
+<li>**onDestroy()**：在Activity销毁时调用。</li>
+<li>**onRestart()**：当处于Stopped状态的活动需要再次展现给用户时调用。</li>
+</ul>
+<h3 id="Activity的生命周期"><a href="#Activity的生命周期" class="headerlink" title="Activity的生命周期"></a>Activity的生命周期</h3><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041425246.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>上述图片中，存在三个周期：</p>
+<ol>
+<li>整个的生命周期：onCreate() → onStart() → onResume() → Activity running → onPause() → onStop() → onDestory()</li>
+<li>可见的生命周期：onStart() → onResume() → Activity running → onPause() → onStop() → onRestart()</li>
+<li>前台的生命周期：onResume() → Activity running → onPause()</li>
+</ol>
+<h3 id="Activity栈"><a href="#Activity栈" class="headerlink" title="Activity栈"></a>Activity栈</h3><p>Android系统采用栈结构来管理应用程序运行过程中所启动的Activity，即Activity栈。</p>
+<p>示例如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041424674.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="Activity的四种状态"><a href="#Activity的四种状态" class="headerlink" title="Activity的四种状态"></a>Activity的四种状态</h3><ol>
+<li><p><strong>Active&#x2F;Running</strong></p>
+<p>当前Activity处在屏幕最前端（在Activity栈的顶部），此时可以与用户进行交互，叫做活动状态或运行状态。</p>
+</li>
+<li><p><strong>Paused</strong></p>
+<p>如果当前Activity被一个新的非全屏的Activity 或者一个透明的Activity 覆盖时，此时的状态叫做暂停状态（Paused）。此时它依然保持活力（保持所有的状态，成员信息，和窗口管理器保持连接），所以它仍然可见，但已经失去了焦点故不可与用户进行交互。当内存不足时，Activity通常会被系统杀死。</p>
+</li>
+<li><p><strong>Stopped</strong></p>
+<p>如果当前的Activity被另一个Activity完全遮挡，此时状态叫做停止状态（Stopped）。它仍然保留所有状态和成员信息，但是它不再对用户可见。当内存不足时，Activity通常会被系统杀死。</p>
+</li>
+<li><p><strong>Killed</strong></p>
+<p>Activity被系统终止进程，将该Activity从内存中删除。</p>
+</li>
+</ol>
+<h3 id="Activity的启动模式"><a href="#Activity的启动模式" class="headerlink" title="Activity的启动模式"></a>Activity的启动模式</h3><ol>
+<li><p><strong>Standard</strong>标准模式 </p>
+<p>Activity的默认启动模式。在该模式下，同一个Activity可以被多次实例化。</p>
+</li>
+<li><p><strong>singleTop</strong> 栈顶单例模式 </p>
+<p>如果需要启动的Activity存在且位于栈顶，则不会重新创建，而是使用栈顶的Activity。但是，如果需要启动的Activity存在但不位于栈顶，那么仍创建新的Activity。</p>
+</li>
+<li><p><strong>singleTask</strong>栈内单例模式</p>
+<p>同一个Activity只被允许在系统中有且仅有一个Activity实例。如果系统中已经有了一个实例， 持有这个实例的任务将移动到顶部，同时intent将被通过onNewIntent()发送。 如果没有，则会创建一个新的Activity并置放在合适的任务中。</p>
+</li>
+<li><p><strong>singleInstance</strong>全局单例模式 </p>
+<p>上面三种模式都是在同一个任务栈中进行的，而这个模式它会另起一个新的任务栈。将一个Activity指定为singleInstance模式，当启动这个Activiy时会使用一个新的任务栈来管理它，与singleTask相同， 同一时刻在系统中只会存在一个这样的Activity实例。</p>
+</li>
+</ol>
+<h2 id="2-2-Service"><a href="#2-2-Service" class="headerlink" title="2.2 Service"></a>2.2 Service</h2><p>Service是一种可以长时间运行在后台的，无界面的服务程序。它可以和其他组件进行交互。Service需要在AndroidManifest.xml配置文件中进行注册。</p>
+<p>举个例子，比如音乐播放器在后台仍然可以进行音乐的播放、暂停、切歌等操作，这些都是由播放音乐的Service进行控制。</p>
+<h3 id="Service的相关方法"><a href="#Service的相关方法" class="headerlink" title="Service的相关方法"></a>Service的相关方法</h3><ul>
+<li>**onCreate()**：Service首次被创建时才会调用该方法。</li>
+<li>**onDestory()**：Service被关闭时会回调该方法。</li>
+<li>**onStartCommand()**：当Service被启动时调用该方法。在此方法中，可以执行如播放媒体文件、下载资源等任务。</li>
+<li>**onbind()**：与目标客户端进行绑定，返回一个 IBinder 对象，app通过该对象与Service组件进行通信。</li>
+<li>**onUnbind()**：只有与Service绑定的所有客户端都取消绑定时，才会调用该方法。</li>
+<li>**stopSelf()**：服务自身调用，用于停止服务。</li>
+<li>**startService()**：客户端请求启动服务，使服务进入“started”状态，即使应用程序已经停止或者已经销毁，服务仍然可以继续运行。</li>
+<li>**stopService()**：客户端请求停止服务，释放所占用的资源。</li>
+<li>**bindService()**：客户端请求绑定服务。</li>
+<li>**unbindService()**：客户端请求解除服务绑定。这个方法用于断开客户端与服务之间的连接。</li>
+</ul>
+<h3 id="Service的生命周期"><a href="#Service的生命周期" class="headerlink" title="Service的生命周期"></a>Service的生命周期</h3><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202307041423993.png" srcset="/img/loading.gif" lazyload></p>
+<p>上述图片中，存在两种周期：</p>
+<ol>
+<li><p><strong>StartService</strong></p>
+<p>onCreate() → onStartCommand() → Service running → onDestory()</p>
+</li>
+<li><p><strong>BindService</strong></p>
+<p>onCreate() → onBind() → …… → onUnbind() → onDestory()</p>
+</li>
+</ol>
+<h3 id="Service的两种启动方式"><a href="#Service的两种启动方式" class="headerlink" title="Service的两种启动方式"></a>Service的两种启动方式</h3><ol>
+<li><strong>StartService</strong><ul>
+<li>系统对同一个Service只会创建一个Service实例。如果Service实例不存在，调用startService则会实例化一个Service对象，否则复用之前创建的Service实例。</li>
+<li>通过stopSelf()或StopService()关闭Service。</li>
+<li>如果调用者直接退出而没有调用StopService，Service会一直在后台运行。该Service的调用者再启动起来后可以通过stopService关闭Service。</li>
+</ul>
+</li>
+<li><strong>BindService</strong><ul>
+<li>系统对同一个Service只会创建一个Service实例。如果Service实例不存在，调用bindService则会实例化一个Service对象，否则复用之前创建的Service实例。</li>
+<li>当Service只与一个客户端绑定时，调用unbindService()或者调用者退出，Service会被销毁。当Service与多个客户端绑定时，只有与所有客户端取消绑定后，Service才会被销毁。</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-3-BroadcastReceiver"><a href="#2-3-BroadcastReceiver" class="headerlink" title="2.3 BroadcastReceiver"></a>2.3 BroadcastReceiver</h2><p>Broadcast是一种广泛运用的在应用程序之间传输信息的机制。而BroadcastReceiver 是对发送出来的Broadcast进行过滤接受并响应的一类组件。可以使用BroadcastReceiver 来让应用对外部的事件做出响应。</p>
+<p>BroadcastReceiver只能执行非常有限的操作，因为它是在主线程中执行的，并且会随着时间的推移而被系统杀死以释放资源。如果BroadcastReceiver需要执行长时间运行的任务，建议使用IntentService或者开启新的线程来执行任务。</p>
+<h3 id="BroadcastReceiver的相关方法"><a href="#BroadcastReceiver的相关方法" class="headerlink" title="BroadcastReceiver的相关方法"></a>BroadcastReceiver的相关方法</h3><ul>
+<li><p>**onReceive()**：BroadcastReceiver 必须实现的方法。在接收到广播时，系统会调用该方法。</p>
+</li>
+<li><p>**setResult()**：设置返回结果和数据。</p>
+</li>
+<li><p>**getResultCode()**：获取BroadcastReceiver 返回结果的状态码。</p>
+</li>
+<li><p>**getResultData()**：获取BroadcastReceiver 返回的数据。</p>
+</li>
+<li><p>**getResultExtras()**：获取BroadcastReceiver 返回的额外数据。</p>
+</li>
+<li><p>**peekService()**：检查服务是否已启动，返回对应的 IBinder对象。</p>
+</li>
+<li><p>**setAbortBroadcast()**：终止广播传递，使其他BroadcastReceiver 接收不到该广播。</p>
+</li>
+<li><p>**getInstance()**：获得广播实例</p>
+</li>
+<li><p>**registerReceiver()**：注册BroadcastReceiver </p>
+</li>
+<li><p>**sendBroadcast()**：发送广播</p>
+</li>
+<li><p>**unregisterReceiver()**：销毁BroadcastReceiver</p>
+</li>
+</ul>
+<h3 id="Broadcast的两种类型"><a href="#Broadcast的两种类型" class="headerlink" title="Broadcast的两种类型"></a>Broadcast的两种类型</h3><ol>
+<li><p><strong>标准广播</strong></p>
+<p>完全异步执行的广播，所有的接收者几乎同时接收到广播消息。这种广播不保证接收者能够同时处理广播，也不能保证接收者按照特定的顺序接收到广播。</p>
+</li>
+<li><p><strong>有序广播</strong></p>
+<p>同步执行的一种广播，发出广播后，同一时间只有一个广播接受者能收到，当这个广播接收者的逻辑执行完后，才会传递到下一个接收者。当然，前面的接受者还可以截断广播的继续传递，那么后续接受者就无法收到广播信息了。</p>
+</li>
+</ol>
+<h3 id="BroadcastReceiver的两种注册方法"><a href="#BroadcastReceiver的两种注册方法" class="headerlink" title="BroadcastReceiver的两种注册方法"></a>BroadcastReceiver的两种注册方法</h3><ol>
+<li><p>静态注册</p>
+<p>在AndroidManifest,xml配置文件中进行注册。</p>
+</li>
+<li><p>动态注册</p>
+<p>在代码中使用 Context.registerReceiver() 进行注册。</p>
+</li>
+</ol>
+<h4 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h4><ul>
+<li>动态注册的广播接收器与注册它的Activity共存亡。</li>
+<li>静态注册的广播接收器与设备共存亡。</li>
+</ul>
+<h2 id="2-4-ContentProvider"><a href="#2-4-ContentProvider" class="headerlink" title="2.4 ContentProvider"></a>2.4 ContentProvider</h2><p>ContentProvider允许应用程序共享数据，并通过URI进行访问。如果一个ContentProvider管理多个数据集，其将会为每个数据集分配一个独立的URI。</p>
+<p>Android所提供的ContentProvider都存放在android.provider这个包里面。</p>
+<p>ContentProvider需要在AndroidManifest.xml配置文件中进行注册。</p>
+<h3 id="ContentProvider的相关方法"><a href="#ContentProvider的相关方法" class="headerlink" title="ContentProvider的相关方法"></a>ContentProvider的相关方法</h3><p>ContentProvider 使用 URI 来定义数据集合，并提供了一些标准方法，如查询、插入、更新和删除等，以便其他应用程序可以通过 ContentResolver 访问和操作数据。ContentResolver 可以通过 Context.getContentResolver() 方法获得。</p>
+<ul>
+<li>**onCreate()**：在 ContentProvider 被创建时调用，会及逆行一些初始化工作。</li>
+<li>**query()**：用于获取 ContentProvider 中的数据。</li>
+<li>**insert()**：用于向 ContentProvider 中插入数据。</li>
+<li>**update()**：用于更新 ContentProvider 中现有的数据。</li>
+<li>**delete()**：用于从 ContentProvider中删除数据。</li>
+</ul>
+<h3 id="URI"><a href="#URI" class="headerlink" title="URI"></a>URI</h3><p>URI(Universal Resource Identifier) 统一资源标识符，每一个 ContentProvider 都对外提供一个能够唯一标识自己数据集的公开URI，这个URI用于表示这个Content Provider提供的数据。</p>
+<p>URI被用来标识数据源和操作类型，它通常由以下几部分组成：</p>
+<ol>
+<li>**方案(scheme)**：用于指定访问资源所需要的协议或类型，例如http、https、file、content等。</li>
+<li>**授权(authority)**：分为主机(host)和端口(port)。主机用于标识要访问的主机名或IP地址，对于本地文件，主机可以是localhost或空。端口可选。</li>
+<li>**路径(Path)**：用于标识要访问的资源在服务器中的位置。它由多个单词组成，并通过’&#x2F;‘分割开来，例如“contacts&#x2F;people&#x2F;3”。后面可以增添查询参数（用于传递键值对形式的数据）和片段标识符(Fragment Identifier，用于表示资源中特定部分，例如HTML中的锚点）。</li>
+</ol>
+<p>URI通常有以下三种形式：</p>
+<ul>
+<li>scheme**:**&#x2F;&#x2F;authority&#x2F;path?query#fragment（用于访问本地资源）</li>
+<li>scheme**:<strong>&#x2F;&#x2F;host</strong>:**port&#x2F;path?query#fragment（用于访问网络资源）</li>
+<li>scheme**:**scheme-specific-part#fragment（用于打电话等服务）</li>
+</ul>
+<p>一个完整的URI示例如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">content:<span class="hljs-regexp">//</span>com.example.provider<span class="hljs-regexp">/contacts/</span>people/<span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/628232942">Android基础知识——四大组件 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/w3cnote/android-tutorial-activity.html">4.1.1 Activity初学乍练 | 菜鸟教程 (runoob.com)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Android四大组件</div>
+      <div>http://example.com/2023/07/04/Android安全/Android四大组件/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%20Intent/" title="Android Intent">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Android Intent</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" title="Android系统架构">
+                        <span class="hidden-mobile">Android系统架构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
