@@ -238,6 +238,67 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/04/26/LLVM%20and%20OLLVM/%E4%BB%8EClang%E5%88%B0Pass%E5%8A%A0%E8%BD%BD%E4%B8%8E%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B5%81%E7%A8%8B/" target="_self">
+          从Clang到Pass加载与执行的流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/26/LLVM%20and%20OLLVM/%E4%BB%8EClang%E5%88%B0Pass%E5%8A%A0%E8%BD%BD%E4%B8%8E%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          一、gdb动调clang文章开始之前，先通过gd动调clang来看一看整个过程是什么样的。 开始调试 1gdb clang   我这里调试的是release版本的clang（不想再编译了），显然提示了找不到clang的调试符号。我建议使用debug版的clang来调试，不然就看不到断点处的源码了，这对调试还是有影响的（有些函数下不了断点，不知道是不是这个原因）。 直接把断点下在main函数处 1g
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-26 16:25" pubdate>
+              2024-04-26
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/LLVM-Pass/">#LLVM Pass</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" target="_self">
           LLVM Pass编写
         </a>
@@ -790,69 +851,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/NDK/">#NDK</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/21/Android%E5%AE%89%E5%85%A8/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%BA%8C)%20-%20KGB%20Messager/" target="_self">
-          Frida入门练习(二) - KGB Message
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/21/Android%E5%AE%89%E5%85%A8/Frida%E5%85%A5%E9%97%A8%E7%BB%83%E4%B9%A0(%E4%BA%8C)%20-%20KGB%20Messager/" target="_self">
-        <div>
-          题目附件：tlamb96&#x2F;kgb_messenger: An Android CTF practice challenge (github.com)  MainActivity 这里我们需要跟踪一下R.string.User，直接点击，可以知道对应的资源id为： 1public static final int User &#x3D; 0x7f0d0000;  根据这个资源id在resources
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-21 20:16" pubdate>
-              2023-12-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Frida/">#Frida</a>
             
           </div>
         

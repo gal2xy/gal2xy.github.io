@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、gdb动调clang文章开始之前，先通过gd动调clang来看一看整个过程是什么样的。 开始调试 1gdb clang   我这里调试的是release版本的clang（不想再编译了），显然提示了找不到clang的调试符号。我建议使用debug版的clang来调试，不然就看不到断点处的源码了，这对调试还是有影响的（有些函数下不了断点，不知道是不是这个原因）。 直接把断点下在main函数处 1g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从Clang到Pass加载与执行的流程">
+<meta property="og:url" content="http://example.com/2024/04/26/LLVM%20and%20OLLVM/%E4%BB%8EClang%E5%88%B0Pass%E5%8A%A0%E8%BD%BD%E4%B8%8E%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、gdb动调clang文章开始之前，先通过gd动调clang来看一看整个过程是什么样的。 开始调试 1gdb clang   我这里调试的是release版本的clang（不想再编译了），显然提示了找不到clang的调试符号。我建议使用debug版的clang来调试，不然就看不到断点处的源码了，这对调试还是有影响的（有些函数下不了断点，不知道是不是这个原因）。 直接把断点下在main函数处 1g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251101158.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251025901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251029924.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251043529.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251047092.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404261458129.png">
+<meta property="article:published_time" content="2024-04-26T08:25:00.000Z">
+<meta property="article:modified_time" content="2024-04-26T08:26:17.717Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="LLVM Pass">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251101158.png">
+  
+  
+  
+  <title>从Clang到Pass加载与执行的流程 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从Clang到Pass加载与执行的流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-26 16:25" pubdate>
+          2024年4月26日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          130 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从Clang到Pass加载与执行的流程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、gdb动调clang"><a href="#一、gdb动调clang" class="headerlink" title="一、gdb动调clang"></a>一、gdb动调clang</h1><p>文章开始之前，先通过gd动调clang来看一看整个过程是什么样的。</p>
+<p>开始调试</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gdb clang<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251101158.png" srcset="/img/loading.gif" lazyload></p>
+<p>我这里调试的是release版本的clang（不想再编译了），显然提示了找不到clang的调试符号。我建议使用debug版的clang来调试，不然就看不到断点处的源码了，这对调试还是有影响的（有些函数下不了断点，不知道是不是这个原因）。</p>
+<p>直接把断点下在main函数处</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">gdb main<br></code></pre></td></tr></table></figure>
+
+<p>重要的来了！clang在执行过程中，会fork子进程，如果直接进行跟踪会出现如下结果：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251025901.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此我们需要通过如下指令在gdb中设置跟踪子进程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">set follow-fork-mode child<br></code></pre></td></tr></table></figure>
+
+<p>然后启动clang并运行我们的Pass，指令如下：</p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">run -mllvm -mypass ~<span class="hljs-regexp">/Desktop/</span>test.cpp -o ~<span class="hljs-regexp">/Desktop/</span>test_debug_clang.ll<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251029924.png" srcset="/img/loading.gif" lazyload></p>
+<p>此时我们还需要对自己的Pass下断点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">b MyPass::runOnFunction<br></code></pre></td></tr></table></figure>
+
+<p>继续运行直到命中我们下的Pass断点指令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">c<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251043529.png" srcset="/img/loading.gif" lazyload></p>
+<p>成功断在了预期位置处，此时我们查看函数调用堆栈，指令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">bt<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404251047092.png" srcset="/img/loading.gif" lazyload></p>
+<p>从上面的函数调用堆栈可以明了的看出Pass从被加载到被执行的整个过程（实际上，它还是缺少了一些函数）。</p>
+<p>接下来我们结合源码来仔细分析一下这个流程。</p>
+<h1 id="二、从clang到Pass加载与执行的流程"><a href="#二、从clang到Pass加载与执行的流程" class="headerlink" title="二、从clang到Pass加载与执行的流程"></a>二、从clang到Pass加载与执行的流程</h1><h2 id="2-1-clang-从源码到IR"><a href="#2-1-clang-从源码到IR" class="headerlink" title="2.1 clang: 从源码到IR"></a>2.1 clang: 从源码到IR</h2><h3 id="2-1-1-main"><a href="#2-1-1-main" class="headerlink" title="2.1.1 main"></a>2.1.1 main</h3><p><code>clang</code>的入口位于<code>clang/tools/driver/driver.cpp</code>中的<code>main</code>函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> Argc, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **Argv)</span> </span>&#123;<br>    ...<br>    <span class="hljs-comment">// 从第二个参数开始搜索第一个非空参数（跳过了参数命令行中的clang）</span><br>    <span class="hljs-keyword">auto</span> FirstArg = llvm::<span class="hljs-built_in">find_if</span>(llvm::<span class="hljs-built_in">drop_begin</span>(Args), [](<span class="hljs-type">const</span> <span class="hljs-type">char</span> *A) &#123; <span class="hljs-keyword">return</span> A != <span class="hljs-literal">nullptr</span>; &#125;);<br>    <span class="hljs-comment">//如果FirstArg以&quot;-cc1&quot;开头</span><br>    <span class="hljs-keyword">if</span> (FirstArg != Args.<span class="hljs-built_in">end</span>() &amp;&amp; <span class="hljs-built_in">StringRef</span>(*FirstArg).<span class="hljs-built_in">startswith</span>(<span class="hljs-string">&quot;-cc1&quot;</span>)) &#123;<br>        <span class="hljs-comment">// If -cc1 came from a response file, remove the EOL sentinels.</span><br>        <span class="hljs-keyword">if</span> (MarkEOLs) &#123;<br>            <span class="hljs-keyword">auto</span> newEnd = std::<span class="hljs-built_in">remove</span>(Args.<span class="hljs-built_in">begin</span>(), Args.<span class="hljs-built_in">end</span>(), <span class="hljs-literal">nullptr</span>);<br>            Args.<span class="hljs-built_in">resize</span>(newEnd - Args.<span class="hljs-built_in">begin</span>());<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">ExecuteCC1Tool</span>(Args);<span class="hljs-comment">//调用ExecuteCC1Tool函数进一步处理</span><br>    &#125;<br>    <span class="hljs-comment">// 在Driver::BuildCompilation()中真正的命令行解析之前，处理需要处理的选项</span><br>    ...<br>	<span class="hljs-comment">//初始化driver</span><br>    <span class="hljs-function">Driver <span class="hljs-title">TheDriver</span><span class="hljs-params">(Path, llvm::sys::getDefaultTargetTriple(), Diags)</span></span>;<br>    ...<br>	<span class="hljs-comment">//如果不需要在新的进程中调用cc1工具</span><br>    <span class="hljs-keyword">if</span> (!UseNewCC1Process) &#123;<br>        TheDriver.CC1Main = &amp;ExecuteCC1Tool;<span class="hljs-comment">//CC1Main指向ExecuteCC1Tool函数</span><br>        llvm::CrashRecoveryContext::<span class="hljs-built_in">Enable</span>();<br>    &#125;<br>	<span class="hljs-comment">//调用BuildCompilation构建编译任务，里面会将-cc1加入到Args中</span><br>    <span class="hljs-function">std::unique_ptr&lt;Compilation&gt; <span class="hljs-title">C</span><span class="hljs-params">(TheDriver.BuildCompilation(Args))</span></span>;<br>    <span class="hljs-type">int</span> Res = <span class="hljs-number">1</span>;<br>    <span class="hljs-type">bool</span> IsCrash = <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">if</span> (C &amp;&amp; !C-&gt;<span class="hljs-built_in">containsError</span>()) &#123;<br>        SmallVector&lt;std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">const</span> Command *&gt;, <span class="hljs-number">4</span>&gt; FailingCommands;<br>        <span class="hljs-comment">//执行编译任务,里面会创建多进程，回到main函数开始的地方，执行ExecuteCC1Tool函数</span><br>        Res = TheDriver.<span class="hljs-built_in">ExecuteCompilation</span>(*C, FailingCommands);<br>        <span class="hljs-comment">// Force a crash to test the diagnostics.</span><br>        ...<br>        <span class="hljs-comment">//处理执行编译命令时的失败情况</span><br>        ...<br>    &#125;<br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中第25行的<code>BuildCompilation</code>函数以及第31行的<code>ExecuteCompilation</code>函数，它们的进一步跟进请参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/23040952">谁说不能与龙一起跳舞：Clang &#x2F; LLVM (3) - 知乎 (zhihu.com)</a>。简单来说，一开始的命令行参数并不会满足代码中第6行的要求（即没有<code>-cc1</code>），从而一开始不会执行<code>ExecuteCC1Tool</code>函数，但通过一系列操作，最终还是执行了<code>ExecuteCC1Tool</code>函数。</p>
+<h3 id="2-1-2-ExecuteCC1Tool"><a href="#2-1-2-ExecuteCC1Tool" class="headerlink" title="2.1.2 ExecuteCC1Tool"></a>2.1.2 ExecuteCC1Tool</h3><p><code>ExecuteCC1Tool</code>的具体实现在<code>clang/tools/driver/driver.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">ExecuteCC1Tool</span><span class="hljs-params">(SmallVectorImpl&lt;<span class="hljs-type">const</span> <span class="hljs-type">char</span> *&gt; &amp;ArgV)</span> </span>&#123;<br>    ...<br>    StringRef Tool = ArgV[<span class="hljs-number">1</span>];<br>    <span class="hljs-type">void</span> *GetExecutablePathVP = (<span class="hljs-type">void</span> *)(<span class="hljs-type">intptr_t</span>)GetExecutablePath;<br>    <span class="hljs-keyword">if</span> (Tool == <span class="hljs-string">&quot;-cc1&quot;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">cc1_main</span>(<span class="hljs-built_in">makeArrayRef</span>(ArgV).<span class="hljs-built_in">slice</span>(<span class="hljs-number">1</span>), ArgV[<span class="hljs-number">0</span>], GetExecutablePathVP);<br>    <span class="hljs-keyword">if</span> (Tool == <span class="hljs-string">&quot;-cc1as&quot;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">cc1as_main</span>(<span class="hljs-built_in">makeArrayRef</span>(ArgV).<span class="hljs-built_in">slice</span>(<span class="hljs-number">2</span>), ArgV[<span class="hljs-number">0</span>],<br>                          GetExecutablePathVP);<br>    <span class="hljs-keyword">if</span> (Tool == <span class="hljs-string">&quot;-cc1gen-reproducer&quot;</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">cc1gen_reproducer_main</span>(<span class="hljs-built_in">makeArrayRef</span>(ArgV).<span class="hljs-built_in">slice</span>(<span class="hljs-number">2</span>), ArgV[<span class="hljs-number">0</span>],<br>                                      GetExecutablePathVP);<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在上一小节中，我们知道了第一个参数是<code>-cc1</code>，因此这里会调用<code>cc1_main</code>函数。</p>
+<h3 id="2-1-3-cc1-main"><a href="#2-1-3-cc1-main" class="headerlink" title="2.1.3 cc1_main"></a>2.1.3 cc1_main</h3><p><code>cc1_main</code>的具体实现在<code>clang/tools/driver/cc1_main.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">cc1_main</span><span class="hljs-params">(ArrayRef&lt;<span class="hljs-type">const</span> <span class="hljs-type">char</span> *&gt; Argv, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *Argv0, <span class="hljs-type">void</span> *MainAddr)</span> </span>&#123;<br>    ...<br>	<span class="hljs-comment">//创建Clang编译器实例</span><br>    <span class="hljs-function">std::unique_ptr&lt;CompilerInstance&gt; <span class="hljs-title">Clang</span><span class="hljs-params">(<span class="hljs-keyword">new</span> CompilerInstance())</span></span>;<br>    <span class="hljs-function">IntrusiveRefCntPtr&lt;DiagnosticIDs&gt; <span class="hljs-title">DiagID</span><span class="hljs-params">(<span class="hljs-keyword">new</span> DiagnosticIDs())</span></span>;<br>    <span class="hljs-comment">//注册了支持对象文件封装的 Clang 模块</span><br>    ...<br>    <span class="hljs-comment">// 一系列初始化</span><br>    ...<br>    <span class="hljs-comment">// 执行clang的前端</span><br>    &#123;<br>        <span class="hljs-function">llvm::TimeTraceScope <span class="hljs-title">TimeScope</span><span class="hljs-params">(<span class="hljs-string">&quot;ExecuteCompiler&quot;</span>)</span></span>;<br>        <span class="hljs-comment">//调用ExecuteCompilerInvocation函数</span><br>        Success = <span class="hljs-built_in">ExecuteCompilerInvocation</span>(Clang.<span class="hljs-built_in">get</span>());<br>    &#125;<br>    <span class="hljs-comment">//后续的清理工作</span><br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里主要是创建<code>clang</code>实例，调用<code>ExecuteCompilerInvocation</code>函数开始编译目标源代码。</p>
+<h3 id="2-1-4-clang-ExecuteCompilerInvocation"><a href="#2-1-4-clang-ExecuteCompilerInvocation" class="headerlink" title="2.1.4 clang::ExecuteCompilerInvocation"></a>2.1.4 clang::ExecuteCompilerInvocation</h3><p><code>ExecuteCompilerInvocation</code>函数的声明在<code>clang/include/clang/FrontendTool/ExecuteCompilerInvocation.h</code>中，具体实现在<code>clang/lib/FrontendTool/ExecuteCompilerInvocation.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ExecuteCompilerInvocation</span><span class="hljs-params">(CompilerInstance *Clang)</span> </span>&#123;<br>    <span class="hljs-comment">// 命令行参数中是否存在-help、-v的参数，是则返回对应的信息</span><br>    ...<br>	<span class="hljs-comment">// 加载必要插件</span><br>    Clang-&gt;<span class="hljs-built_in">LoadRequestedPlugins</span>();<br><br>    <span class="hljs-comment">// 同样还是检查一些参数，例如-mllvm</span><br>	...<br>    <span class="hljs-comment">// 调用CreateFrontendAction函数创建前端操作对象</span><br>    <span class="hljs-function">std::unique_ptr&lt;FrontendAction&gt; <span class="hljs-title">Act</span><span class="hljs-params">(CreateFrontendAction(*Clang))</span></span>;<br>    <span class="hljs-keyword">if</span> (!Act)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>   	<span class="hljs-comment">// 调用ExecuteAction函数，执行前端操作,也就是编译</span><br>    <span class="hljs-type">bool</span> Success = Clang-&gt;<span class="hljs-built_in">ExecuteAction</span>(*Act);<br>    ...<br>    <span class="hljs-keyword">return</span> Success;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里主要是创建<code>FrontendAction</code>对象并执行<code>ExecuteAction</code>函数。</p>
+<h3 id="2-1-5-clang-CompilerInstance-ExecuteAction"><a href="#2-1-5-clang-CompilerInstance-ExecuteAction" class="headerlink" title="2.1.5 clang::CompilerInstance::ExecuteAction"></a>2.1.5 clang::CompilerInstance::ExecuteAction</h3><p><code>CompilerInstance</code>类的声明在<code>clang/include/clang/Frontend/CompilerInstance.h</code>中，具体实现在<code>clang/lib/Frontend/CompilerInstance.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">CompilerInstance::ExecuteAction</span><span class="hljs-params">(FrontendAction &amp;Act)</span> </span>&#123;<br>   	<span class="hljs-comment">//准备工作和选项处理</span><br>	...<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> FrontendInputFile &amp;FIF : <span class="hljs-built_in">getFrontendOpts</span>().Inputs) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">hasSourceManager</span>() &amp;&amp; !Act.<span class="hljs-built_in">isModelParsingAction</span>())<br>            <span class="hljs-built_in">getSourceManager</span>().<span class="hljs-built_in">clearIDTables</span>();<br>		<span class="hljs-comment">//BeginSourceFile开始处理源文件</span><br>        <span class="hljs-keyword">if</span> (Act.<span class="hljs-built_in">BeginSourceFile</span>(*<span class="hljs-keyword">this</span>, FIF)) &#123;<br>            <span class="hljs-comment">//调用Execute函数进行处理</span><br>            <span class="hljs-keyword">if</span> (llvm::Error Err = Act.<span class="hljs-built_in">Execute</span>()) &#123;<br>                <span class="hljs-built_in">consumeError</span>(std::<span class="hljs-built_in">move</span>(Err));<br>            &#125;<br>            <span class="hljs-comment">//结束</span><br>            Act.<span class="hljs-built_in">EndSourceFile</span>();<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">//错误处理</span><br>	...<br>    <span class="hljs-comment">//生成代码输出</span><br>    ...<br>    <span class="hljs-keyword">return</span> !<span class="hljs-built_in">getDiagnostics</span>().<span class="hljs-built_in">getClient</span>()-&gt;<span class="hljs-built_in">getNumErrors</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里通过<code>BeginSourceFile</code>函数加载源文件到内存中了，然后调用了<code>FrontendAction</code>类的<code>Execute</code>函数进行编译。</p>
+<h3 id="2-1-6-clang-FrontendAction-Execute"><a href="#2-1-6-clang-FrontendAction-Execute" class="headerlink" title="2.1.6 clang::FrontendAction::Execute"></a>2.1.6 clang::FrontendAction::Execute</h3><p><code>FrontendAction</code>类的声明在<code>clang/include/clang/Frontend/FrontendAction.h</code>中，具体实现在<code>clang/lib/Frontend/FrontendAction.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">llvm::Error <span class="hljs-title">FrontendAction::Execute</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">//获取编译器实例的引用</span><br>    CompilerInstance &amp;CI = <span class="hljs-built_in">getCompilerInstance</span>();<br><br>    <span class="hljs-keyword">if</span> (CI.<span class="hljs-built_in">hasFrontendTimer</span>()) &#123;<br>        ...<br>        <span class="hljs-built_in">ExecuteAction</span>();<span class="hljs-comment">//</span><br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-built_in">ExecuteAction</span>();<br><br>    <span class="hljs-comment">// If we are supposed to rebuild the global module index, do so now unless</span><br>    <span class="hljs-comment">// there were any module-build failures.</span><br>    ...<br>    <br>    <span class="hljs-keyword">return</span> llvm::Error::<span class="hljs-built_in">success</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该函数进一步调用<code>ASTFrontendAction</code>类的<code>ExecuteAction</code>函数。</p>
+<h3 id="2-1-7-clang-ASTFrontendAction-ExecuteAction"><a href="#2-1-7-clang-ASTFrontendAction-ExecuteAction" class="headerlink" title="2.1.7 clang::ASTFrontendAction::ExecuteAction"></a>2.1.7 clang::ASTFrontendAction::ExecuteAction</h3><p>这个函数在开头的函数调用堆栈图中并没有出现，然而实际上确实调用了（真不明白这个是什么原因），如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404261458129.png" srcset="/img/loading.gif" lazyload></p>
+<p>那么就来看一下这个函数的源码。<code>ASTFrontendAction</code>类的声明在<code>clang/include/clang/Frontend/FrontendAction.h</code>中，具体实现在<code>clang/lib/Frontend/FrontendAction.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ASTFrontendAction::ExecuteAction</span><span class="hljs-params">()</span> </span>&#123;<br>    ...<br>	<span class="hljs-comment">//没有语义分析器则创建</span><br>    <span class="hljs-keyword">if</span> (!CI.<span class="hljs-built_in">hasSema</span>())<br>        CI.<span class="hljs-built_in">createSema</span>(<span class="hljs-built_in">getTranslationUnitKind</span>(), CompletionConsumer);<br>	<span class="hljs-comment">//调用ParseAST分析AST语法树</span><br>    <span class="hljs-built_in">ParseAST</span>(CI.<span class="hljs-built_in">getSema</span>(), CI.<span class="hljs-built_in">getFrontendOpts</span>().ShowStats, CI.<span class="hljs-built_in">getFrontendOpts</span>().SkipFunctionBodies);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要是创建语义分析器，调用 <code>ParseAST</code> 方法，开始解析抽象语法树（AST）。</p>
+<h3 id="2-1-8-clang-ParseAST"><a href="#2-1-8-clang-ParseAST" class="headerlink" title="2.1.8 clang::ParseAST"></a>2.1.8 clang::ParseAST</h3><p><code>ParseAST</code>函数的声明在<code>clang/include/clang/Parse/ParseAST.h</code>中，具体实现在<code>clang/lib/Parse/ParseAST.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">clang::ParseAST</span><span class="hljs-params">(Sema &amp;S, <span class="hljs-type">bool</span> PrintStats, <span class="hljs-type">bool</span> SkipFunctionBodies)</span> </span>&#123;<br>    ...<br>    <span class="hljs-comment">//获取AST消费者</span><br>    ASTConsumer *Consumer = &amp;S.<span class="hljs-built_in">getASTConsumer</span>();<br>	<span class="hljs-comment">//创建解析器</span><br>    <span class="hljs-function">std::unique_ptr&lt;Parser&gt; <span class="hljs-title">ParseOP</span><span class="hljs-params">(<span class="hljs-keyword">new</span> Parser(S.getPreprocessor(), S, SkipFunctionBodies))</span></span>;<br>    Parser &amp;P = *ParseOP.<span class="hljs-built_in">get</span>();<br>	...<br>	<span class="hljs-comment">//设置主源文件，开始处理主源文件中的内容</span><br>    S.<span class="hljs-built_in">getPreprocessor</span>().<span class="hljs-built_in">EnterMainSourceFile</span>();<br>    <span class="hljs-comment">//获取外部AST源，外部AST源通常用于提供额外的语义信息或进行增量编译</span><br>    ExternalASTSource *External = S.<span class="hljs-built_in">getASTContext</span>().<span class="hljs-built_in">getExternalSource</span>();<br>    <span class="hljs-keyword">if</span> (External)<br>        <span class="hljs-comment">//通知外部源开始翻译单元的处理</span><br>        External-&gt;<span class="hljs-built_in">StartTranslationUnit</span>(Consumer);<br>    <span class="hljs-comment">//获取词法分析器</span><br>    <span class="hljs-type">bool</span> HaveLexer = S.<span class="hljs-built_in">getPreprocessor</span>().<span class="hljs-built_in">getCurrentLexer</span>();<br>    <span class="hljs-keyword">if</span> (HaveLexer) &#123;<br>        <span class="hljs-function">llvm::TimeTraceScope <span class="hljs-title">TimeScope</span><span class="hljs-params">(<span class="hljs-string">&quot;Frontend&quot;</span>)</span></span>;<br>        P.<span class="hljs-built_in">Initialize</span>();<br>        Parser::DeclGroupPtrTy ADecl;<span class="hljs-comment">//用于存储解析器解析的顶层声明组</span><br>        Sema::ModuleImportState ImportState;<span class="hljs-comment">//模块导入的状态</span><br>        <span class="hljs-comment">//PotentiallyEvaluated用于在语义分析期间设置表达式求值的上下文</span><br>        <span class="hljs-function">EnterExpressionEvaluationContext <span class="hljs-title">PotentiallyEvaluated</span><span class="hljs-params">(S, Sema::ExpressionEvaluationContext::PotentiallyEvaluated)</span></span>;<br>        <span class="hljs-comment">//解析源文件中的顶层声明，并将它们传递给 AST 消费者进行处理</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">bool</span> AtEOF = P.<span class="hljs-built_in">ParseFirstTopLevelDecl</span>(ADecl, ImportState); !AtEOF; AtEOF = P.<span class="hljs-built_in">ParseTopLevelDecl</span>(ADecl, ImportState)) &#123;<br>            <span class="hljs-keyword">if</span> (ADecl &amp;&amp; !Consumer-&gt;<span class="hljs-built_in">HandleTopLevelDecl</span>(ADecl.<span class="hljs-built_in">get</span>()))<br>                <span class="hljs-keyword">return</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 处理由#pragma weak生成的顶层声明</span><br>    <span class="hljs-keyword">for</span> (Decl *D : S.<span class="hljs-built_in">WeakTopLevelDecls</span>())<br>        Consumer-&gt;<span class="hljs-built_in">HandleTopLevelDecl</span>(<span class="hljs-built_in">DeclGroupRef</span>(D));<br>    Consumer-&gt;<span class="hljs-built_in">HandleTranslationUnit</span>(S.<span class="hljs-built_in">getASTContext</span>());<br><br>    <span class="hljs-comment">//收尾工作</span><br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这部分真正是对源码进行语法树构建，并通过<code>HandleTranslationUnit</code>函数交给<code>AST Consumer</code>处理。</p>
+<h3 id="2-1-9-clang-BackendConsumer-HandleTranslationUnit"><a href="#2-1-9-clang-BackendConsumer-HandleTranslationUnit" class="headerlink" title="2.1.9 clang::BackendConsumer::HandleTranslationUnit"></a>2.1.9 clang::BackendConsumer::HandleTranslationUnit</h3><p><code>BackendConsumer</code>类的声明在<code>clang/include/clang/CodeGen/CodeGenAction.h</code>中，具体实现在<code>clang/lib/CodeGen/CodeGenAction.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BackendConsumer::HandleTranslationUnit</span><span class="hljs-params">(ASTContext &amp;C)</span> </span>&#123;<br>    &#123;<br>        ...<br>		<span class="hljs-comment">//调用了一个叫做 HandleTranslationUnit 的函数来处理翻译单元</span><br>        Gen-&gt;<span class="hljs-built_in">HandleTranslationUnit</span>(C);<br>		...<br>    &#125;<br>    ...<br>    <span class="hljs-comment">//设置 LLVM 的诊断处理程序和配置优化记录文件</span><br>    ...<br>    <span class="hljs-comment">// 链接LinkModule到我们得模块中</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">LinkInModules</span>(<span class="hljs-built_in">getModule</span>()))<br>        <span class="hljs-keyword">return</span>;<br>	<span class="hljs-comment">//遍历模块中的函数</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> &amp;F : <span class="hljs-built_in">getModule</span>()-&gt;<span class="hljs-built_in">functions</span>()) &#123;<br>        <span class="hljs-comment">//通过函数名获取对应的声明</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-type">const</span> Decl *FD = Gen-&gt;<span class="hljs-built_in">GetDeclForMangledName</span>(F.<span class="hljs-built_in">getName</span>())) &#123;<br>            <span class="hljs-comment">//将函数名的哈希值和声明的位置信息存储在ManglingFullSourceLocs中</span><br>            <span class="hljs-keyword">auto</span> Loc = FD-&gt;<span class="hljs-built_in">getASTContext</span>().<span class="hljs-built_in">getFullLoc</span>(FD-&gt;<span class="hljs-built_in">getLocation</span>());<br>            <span class="hljs-keyword">auto</span> NameHash = llvm::<span class="hljs-built_in">hash_value</span>(F.<span class="hljs-built_in">getName</span>());<br>            ManglingFullSourceLocs.<span class="hljs-built_in">push_back</span>(std::<span class="hljs-built_in">make_pair</span>(NameHash, Loc));<br>        &#125;<br>    &#125;<br>	...<br>    <span class="hljs-comment">//EmbedBitcode用于处理-fembed-bitcode参数，目的是用于在生成的obj文件中增加一个用于存放bitcode的section</span><br>    <span class="hljs-built_in">EmbedBitcode</span>(<span class="hljs-built_in">getModule</span>(), CodeGenOpts, llvm::<span class="hljs-built_in">MemoryBufferRef</span>());<br>	<span class="hljs-comment">//clang后端代码生成（.ll或.bc文件）</span><br>    <span class="hljs-built_in">EmitBackendOutput</span>(Diags, HeaderSearchOpts, CodeGenOpts, TargetOpts, LangOpts,<br>                      C.<span class="hljs-built_in">getTargetInfo</span>().<span class="hljs-built_in">getDataLayoutString</span>(), <span class="hljs-built_in">getModule</span>(),<br>                      Action, FS, std::<span class="hljs-built_in">move</span>(AsmOutStream), <span class="hljs-keyword">this</span>);<br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该函数主要是记录了模块中函数的函数名哈希值和声明位置信息，最后调用<code>EmitBackendOutput</code>函数生成中间代码。</p>
+<blockquote>
+<p><strong>什么是模块？</strong></p>
+<p>在LLVM中，”模块（Module）”通常是指一个编译单元或一个源代码文件被编译后生成的中间表示（IR，Intermediate Representation）的集合。在 LLVM 中，每个模块都是一个独立的单元，包含了函数、全局变量、类型定义等信息，可以被独立地优化和编译。</p>
+</blockquote>
+<h3 id="2-1-10-clang-EmitBackendOutput"><a href="#2-1-10-clang-EmitBackendOutput" class="headerlink" title="2.1.10 clang::EmitBackendOutput"></a>2.1.10 clang::EmitBackendOutput</h3><p><code>EmitBackendOutput</code>函数声明在<code>clang/include/clang/CodeGen/BackendUtil.h</code>，具体实现在<code>clang/lib/CodeGen/BackendUtil.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">clang::EmitBackendOutput</span><span class="hljs-params">(DiagnosticsEngine &amp;Diags,</span></span><br><span class="hljs-params"><span class="hljs-function">                              <span class="hljs-type">const</span> HeaderSearchOptions &amp;HeaderOpts,</span></span><br><span class="hljs-params"><span class="hljs-function">                              <span class="hljs-type">const</span> CodeGenOptions &amp;CGOpts,</span></span><br><span class="hljs-params"><span class="hljs-function">                              <span class="hljs-type">const</span> clang::TargetOptions &amp;TOpts,</span></span><br><span class="hljs-params"><span class="hljs-function">                              <span class="hljs-type">const</span> LangOptions &amp;LOpts,</span></span><br><span class="hljs-params"><span class="hljs-function">                              StringRef TDesc, Module *M,</span></span><br><span class="hljs-params"><span class="hljs-function">                              BackendAction Action,</span></span><br><span class="hljs-params"><span class="hljs-function">                              std::unique_ptr&lt;raw_pwrite_stream&gt; OS)</span> </span>&#123;<br>	...<br>    <span class="hljs-comment">//检查是否启用了ThinLTO(链接时优化技术)，并进行相应操作</span><br>    ...<br>	<span class="hljs-comment">//创建了EmitAssemblyHelper实例，用于辅助执行汇编输出的相关操作</span><br>    <span class="hljs-function">EmitAssemblyHelper <span class="hljs-title">AsmHelper</span><span class="hljs-params">(Diags, HeaderOpts, CGOpts, TOpts, LOpts, M)</span></span>;<br>	<span class="hljs-comment">//根据Action执行相应的汇编操作</span><br>    <span class="hljs-keyword">if</span> (CGOpts.LegacyPassManager)<span class="hljs-comment">//旧版本使用LegacyPassManager</span><br>        AsmHelper.<span class="hljs-built_in">EmitAssemblyWithLegacyPassManager</span>(Action, std::<span class="hljs-built_in">move</span>(OS));<br>    <span class="hljs-keyword">else</span><span class="hljs-comment">//新版本</span><br>        AsmHelper.<span class="hljs-built_in">EmitAssembly</span>(Action, std::<span class="hljs-built_in">move</span>(OS));<br>    <span class="hljs-comment">// 验证生成的目标代码是否与目标描述一致</span><br>    <span class="hljs-keyword">if</span> (AsmHelper.TM) &#123;<br>        std::string DLDesc = M-&gt;<span class="hljs-built_in">getDataLayout</span>().<span class="hljs-built_in">getStringRepresentation</span>();<br>        ...<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终通过<code>BackendConsumer</code>将AST转换成了IR代码，之后<code>CGOpts.LegacyPassManager</code>标志选择执行新版本的<code>EmitAssemblyWithLegacyPassManager</code>或是旧版本的<code>EmitAssembly</code>。</p>
+<blockquote>
+<p>Clang 的后端消费者（BackendConsumer）是 Clang 的一部分，它负责将 Clang 前端产生的抽象语法树（AST）转换为 LLVM 的中间表示（IR）</p>
+</blockquote>
+<h2 id="2-2-Pass加载"><a href="#2-2-Pass加载" class="headerlink" title="2.2 Pass加载"></a>2.2 Pass加载</h2><p>很奇怪，这一部分的<code>EmitAssemblyHelper</code>类的函数无法触发断点，且提示没有加载进来该函数。</p>
+<h3 id="2-2-1-EmitAssemblyHelper-EmitAssemblyWithLegacyPassManager"><a href="#2-2-1-EmitAssemblyHelper-EmitAssemblyWithLegacyPassManager" class="headerlink" title="2.2.1 EmitAssemblyHelper::EmitAssemblyWithLegacyPassManager"></a>2.2.1 EmitAssemblyHelper::EmitAssemblyWithLegacyPassManager</h3><p>该函数同样也在<code>clang/lib/CodeGen/BackendUtil.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">EmitAssemblyHelper::EmitAssemblyWithLegacyPassManager</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    ...</span></span><br><span class="hljs-params"><span class="hljs-function">    DebugifyCustomPassManager PerModulePasses;<span class="hljs-comment">//创建模块Pass管理器</span></span></span><br><span class="hljs-params"><span class="hljs-function">    ...</span></span><br><span class="hljs-params"><span class="hljs-function">    PerModulePasses.add(createTargetTransformInfoWrapperPass(getTargetIRAnalysis()));<span class="hljs-comment">//将目标IR分析包装成Pass并加入到模块Pass管理器中</span></span></span><br><span class="hljs-params"><span class="hljs-function">    legacy::FunctionPassManager PerFunctionPasses(TheModule);<span class="hljs-comment">//创建函数Pass管理器</span></span></span><br><span class="hljs-params"><span class="hljs-function">    PerFunctionPasses.add(createTargetTransformInfoWrapperPass(getTargetIRAnalysis()));</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-comment">//创建Pass，并添加到对应的Pass管理器的执行队列中</span></span></span><br><span class="hljs-params"><span class="hljs-function">    CreatePasses(PerModulePasses, PerFunctionPasses);</span></span><br><span class="hljs-params"><span class="hljs-function">    ...</span></span><br><span class="hljs-params"><span class="hljs-function">    legacy::PassManager CodeGenPasses;</span></span><br><span class="hljs-params"><span class="hljs-function">    CodeGenPasses.add(createTargetTransformInfoWrapperPass(getTargetIRAnalysis()));</span></span><br><span class="hljs-params"><span class="hljs-function">    <span class="hljs-comment">//根据Action执行相应操作</span></span></span><br><span class="hljs-params"><span class="hljs-function">	...</span></span><br><span class="hljs-params"><span class="hljs-function">    &#123;...</span></span><br><span class="hljs-params"><span class="hljs-function">        <span class="hljs-comment">//对模块中已声明的函数进行Pass优化</span></span></span><br><span class="hljs-params"><span class="hljs-function">        PerFunctionPasses.doInitialization();</span></span><br><span class="hljs-params"><span class="hljs-function">        <span class="hljs-keyword">for</span> (Function &amp;F : *TheModule)</span></span><br><span class="hljs-params"><span class="hljs-function">            <span class="hljs-keyword">if</span> (!F.isDeclaration())</span></span><br><span class="hljs-params"><span class="hljs-function">                PerFunctionPasses.run(F);</span></span><br><span class="hljs-params"><span class="hljs-function">        PerFunctionPasses.doFinalization();</span></span><br><span class="hljs-params"><span class="hljs-function">    &#125;</span></span><br><span class="hljs-params"><span class="hljs-function">    &#123;...</span></span><br><span class="hljs-params"><span class="hljs-function">        PerModulePasses.run(*TheModule);<span class="hljs-comment">//对每个模块进行Pass优化</span></span></span><br><span class="hljs-params"><span class="hljs-function">    &#125;</span></span><br><span class="hljs-params"><span class="hljs-function">    &#123;...</span></span><br><span class="hljs-params"><span class="hljs-function">        CodeGenPasses.run(*TheModule);</span></span><br><span class="hljs-params"><span class="hljs-function">    &#125;</span></span><br><span class="hljs-params"><span class="hljs-function">    <span class="hljs-comment">//保留输出文件</span></span></span><br><span class="hljs-params"><span class="hljs-function">    ...</span></span><br><span class="hljs-params"><span class="hljs-function">&#125;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>这部分代码主要是创建出两个重要的<code>Pass</code>管理器：<code>PerModulePasses</code>、<code>PerFunctionPasses</code>。然后调用<code>CreatePasses</code>函数创建<code>Pass</code>并添加到对应的<code>Pass</code>管理器的执行队列中（详见2.2.2小节）。之后就是调用<code>PerFunctionPasses.run(F)</code>、<code>PerModulePasses.run(*TheModule)</code>、<code>CodeGenPasses.run(*TheModule)</code>来执行<code>Pass</code>（详见2.3小节，以<code>PerModulePasses.run</code>函数为例进行讲解）。</p>
+<h3 id="2-2-2-EmitAssemblyHelper-CreatePasses"><a href="#2-2-2-EmitAssemblyHelper-CreatePasses" class="headerlink" title="2.2.2 EmitAssemblyHelper::CreatePasses"></a>2.2.2 EmitAssemblyHelper::CreatePasses</h3><p><code>CreatePasses</code>函数同样也在<code>clang/lib/CodeGen/BackendUtil.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">EmitAssemblyHelper::CreatePasses</span><span class="hljs-params">(legacy::PassManager &amp;MPM, legacy::FunctionPassManager &amp;FPM)</span> </span>&#123;<br>    ...<br>	<span class="hljs-comment">//创建PassManagerBuilderWrapper，用于配置和设置 Pass</span><br>    <span class="hljs-function">PassManagerBuilderWrapper <span class="hljs-title">PMBuilder</span><span class="hljs-params">(TargetTriple, CodeGenOpts, LangOpts)</span></span>;<br>    <span class="hljs-comment">// 根据优化等级执行操作</span><br>    ...<br>	<span class="hljs-comment">//设置PMBuilder的一些参数</span><br>    ...<br>    <span class="hljs-comment">// 添加针对特定需求的扩展Pass, 通过Extensions向量来存储，此时并没有进行执行队列中</span><br>	...<br>    <span class="hljs-comment">// Set up the per-function pass manager.</span><br>    ...<br>    <span class="hljs-comment">// Set up the per-module pass manager.</span><br>    ...<br>    <span class="hljs-comment">//将配置好的Pass添加到函数级别和模块级别的Pass管理器中，进入执行队列中</span><br>    PMBuilder.<span class="hljs-built_in">populateFunctionPassManager</span>(FPM);<br>    PMBuilder.<span class="hljs-built_in">populateModulePassManager</span>(MPM);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后调用的<code>populateModulePassManager</code>、<code>populateFunctionPassManager</code>函数将<code>Pass</code>添加到对应管理器的执行队列中（详见2.2.3小节，以<code>populateModulePassManager</code>函数为例进行讲解）。</p>
+<h3 id="2-2-3-PassManagerBuilder-populateModulePassManager"><a href="#2-2-3-PassManagerBuilder-populateModulePassManager" class="headerlink" title="2.2.3 PassManagerBuilder::populateModulePassManager"></a>2.2.3 PassManagerBuilder::populateModulePassManager</h3><p><code>populateModulePassManager</code>函数在<code>llvm/lib/Transforms/IPO/PassManagerBuilder.cpp</code>中。这个函数想必大家都很熟悉，因为在之前的<code>OLLVM</code>移植、编写自己的<code>Pass</code>都需要在这里面进行添加。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">PassManagerBuilder::populateModulePassManager</span><span class="hljs-params">(legacy::PassManagerBase &amp;MPM)</span> </span>&#123;<br>	<span class="hljs-comment">//一系列Pass的添加</span><br>    MPM.<span class="hljs-built_in">add</span>(<span class="hljs-built_in">createAnnotation2MetadataLegacyPass</span>());<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>到这里，可以认为我们的<code>Pass</code>已经创建好了，不再进行进一步深究。</p>
+<h2 id="2-3-Pass执行"><a href="#2-3-Pass执行" class="headerlink" title="2.3 Pass执行"></a>2.3 Pass执行</h2><h3 id="2-3-1-PassManager-run"><a href="#2-3-1-PassManager-run" class="headerlink" title="2.3.1 PassManager::run"></a>2.3.1 PassManager::run</h3><p><code>PerModulePasses.run</code>在<code>llvm/lib/IR/LegacyPassManager.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">PassManager::run</span><span class="hljs-params">(Module &amp;M)</span> </span>&#123;<br>  <span class="hljs-keyword">return</span> PM-&gt;<span class="hljs-built_in">run</span>(M);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终调用<code>PassManagerImpl::run</code>函数</p>
+<h3 id="2-3-2-llvm-legacy-PassManagerImpl"><a href="#2-3-2-llvm-legacy-PassManagerImpl" class="headerlink" title="2.3.2 llvm::legacy::PassManagerImpl"></a>2.3.2 llvm::legacy::PassManagerImpl</h3><p><code>PassManagerImpl</code>类的定义在<code>llvm/include/llvm/IR/LegacyPassManager.h</code>中，具体实现在<code>llvm/lib/IR/LegacyPassManager.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">PassManagerImpl::run</span><span class="hljs-params">(Module &amp;M)</span> </span>&#123;<br>	...<br>    <span class="hljs-comment">//对所有的不可变 Pass 进行初始化</span><br>    <span class="hljs-keyword">for</span> (ImmutablePass *ImPass : <span class="hljs-built_in">getImmutablePasses</span>())<br>        Changed |= ImPass-&gt;<span class="hljs-built_in">doInitialization</span>(M);<span class="hljs-comment">//执行 Pass 的初始化工作</span><br>    <span class="hljs-built_in">initializeAllAnalysisInfo</span>();<span class="hljs-comment">//初始化所有的分析信息</span><br>    <span class="hljs-comment">//遍历了所有包含在 Pass 管理器中的子管理器（Manager）</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> Index = <span class="hljs-number">0</span>; Index &lt; <span class="hljs-built_in">getNumContainedManagers</span>(); ++Index) &#123;<br>        <span class="hljs-comment">//对模块M执行Pass</span><br>        Changed |= <span class="hljs-built_in">getContainedManager</span>(Index)-&gt;<span class="hljs-built_in">runOnModule</span>(M);<br>        M.<span class="hljs-built_in">getContext</span>().<span class="hljs-built_in">yield</span>();<br>    &#125;<br>	<span class="hljs-comment">//对所有的不可变 Pass 进行收尾工作</span><br>    <span class="hljs-keyword">for</span> (ImmutablePass *ImPass : <span class="hljs-built_in">getImmutablePasses</span>())<br>        Changed |= ImPass-&gt;<span class="hljs-built_in">doFinalization</span>(M);<br><br>    <span class="hljs-keyword">return</span> Changed;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该函数主要是对模块执行所有被安排执行的<code>Pass</code>，对应代码中第15~19行，关键函数为<code>runOnModule</code>。</p>
+<blockquote>
+<p><strong>什么是不可变Pass？</strong><br>在 LLVM 中，Pass（通常称为优化 Pass 或者分析 Pass）是指一种对 LLVM IR 进行转换或者分析的模块。Passes 可以用于执行各种任务，例如优化代码、收集统计信息、生成调试信息等。Passes 通常根据其行为被分为两类：可变 Pass 和不可变 Pass。</p>
+<ol>
+<li><strong>可变 Pass（Mutable Pass）</strong>：可变 Pass 是指在执行过程中可以修改 LLVM IR 的 Pass。这意味着它们可以插入、删除或修改指令、函数、基本块等内容。可变 Pass 通常用于优化编译过程，例如执行指令调度、函数内联等。</li>
+<li><strong>不可变 Pass（Immutable Pass）</strong>：不可变 Pass 是指在执行过程中不会修改 LLVM IR 的 Pass。它们只会读取 IR 并执行一些分析或者只读的转换。不可变 Pass 通常用于收集信息、生成报告、进行静态分析等任务。</li>
+</ol>
+</blockquote>
+<h3 id="2-3-3-FPPassManager-runOnModule"><a href="#2-3-3-FPPassManager-runOnModule" class="headerlink" title="2.3.3 FPPassManager::runOnModule"></a>2.3.3 FPPassManager::runOnModule</h3><p><code>FPPassManager</code>类的定义在<code>llvm/include/llvm/IR/LegacyPassManagers.h</code>中，具体实现在<code>llvm/lib/IR/LegacyPassManager.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">FPPassManager::runOnModule</span><span class="hljs-params">(Module &amp;M)</span> </span>&#123;<br>  <span class="hljs-type">bool</span> Changed = <span class="hljs-literal">false</span>;<br> <br>  <span class="hljs-keyword">for</span> (Function &amp;F : M)<br>    Changed |= <span class="hljs-built_in">runOnFunction</span>(F);<br> <br>  <span class="hljs-keyword">return</span> Changed;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用<code>runOnFunction</code>函数对模块中的函数进行Pass操作。</p>
+<h3 id="2-3-4-FPPassManager-runOnFunction"><a href="#2-3-4-FPPassManager-runOnFunction" class="headerlink" title="2.3.4 FPPassManager::runOnFunction"></a>2.3.4 FPPassManager::runOnFunction</h3><p><code>runOnFunction</code>函数具体实现在<code>llvm/lib/IR/LegacyPassManager.cpp</code>中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">FPPassManager::runOnFunction</span><span class="hljs-params">(Function &amp;F)</span> </span>&#123;<br>    <span class="hljs-comment">//首先检查函数是否是一个声明（declaration），如果是的话，说明这个函数只是声明但没有定义，那么就没有必要对其进行优化</span><br>    <span class="hljs-keyword">if</span> (F.<span class="hljs-built_in">isDeclaration</span>()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    ...<br>    Module &amp;M = *F.<span class="hljs-built_in">getParent</span>();<span class="hljs-comment">//获取函数所在模块</span><br>    <span class="hljs-comment">//从模块级别的pass manager中获取继承的分析（analysis）信息</span><br>    <span class="hljs-built_in">populateInheritedAnalysis</span>(TPM-&gt;activeStack);<br><br>    <span class="hljs-comment">// Collect the initial size of the module.</span><br>    ...<br><br>    <span class="hljs-comment">// Store name outside of loop to avoid redundant calls.</span><br>    <span class="hljs-type">const</span> StringRef Name = F.<span class="hljs-built_in">getName</span>();<br>    <span class="hljs-function">llvm::TimeTraceScope <span class="hljs-title">FunctionScope</span><span class="hljs-params">(<span class="hljs-string">&quot;OptFunction&quot;</span>, Name)</span></span>;<br>    <span class="hljs-comment">//遍历需要执行的pass列表</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> Index = <span class="hljs-number">0</span>; Index &lt; <span class="hljs-built_in">getNumContainedPasses</span>(); ++Index) &#123;<br>        FunctionPass *FP = <span class="hljs-built_in">getContainedPass</span>(Index);<span class="hljs-comment">//获取当前pass</span><br>        <span class="hljs-type">bool</span> LocalChanged = <span class="hljs-literal">false</span>;<br>		...<br>        <span class="hljs-comment">//初始化分析 Pass</span><br>        <span class="hljs-built_in">initializeAnalysisImpl</span>(FP);<br>        &#123;<br>            <span class="hljs-function">PassManagerPrettyStackEntry <span class="hljs-title">X</span><span class="hljs-params">(FP, F)</span></span>;<br>            <span class="hljs-function">TimeRegion <span class="hljs-title">PassTimer</span><span class="hljs-params">(getPassTimer(FP))</span></span>;<br>            <span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> EXPENSIVE_CHECKS</span><br>            <span class="hljs-type">uint64_t</span> RefHash = FP-&gt;<span class="hljs-built_in">structuralHash</span>(F);<br>            <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>            LocalChanged |= FP-&gt;<span class="hljs-built_in">runOnFunction</span>(F);<span class="hljs-comment">//执行Pass</span><br>            ...<br>        &#125;<br>        <span class="hljs-comment">//清理工作</span><br>        ...<br>    &#125;<br>    <span class="hljs-keyword">return</span> Changed;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后通过<code>runOnFunction</code>执行对应的<code>Pass</code>（代码中第28行），在当前例子中，也就是执行<code>MyPass</code>的<code>runOnFunction</code>函数。</p>
+<h1 id="三、结语"><a href="#三、结语" class="headerlink" title="三、结语"></a>三、结语</h1><p>以上就是。简而言之，首先<code>clang</code>会先将我们的目标源码转成AST语法树，然后再通过<code>ASTConsumer</code>换成<code>IR</code>代码。之后加载通过<code>CreatePasses</code>函数创建Pass并加入到执行队列中，后续会调用我们熟知的<code>populateModulePassManager</code>，这里注册过我们自定义的<code>Pass</code>。最后就是<code>Pass</code>执行，主要还是通过对应的<code>Pass</code>管理器的<code>runOnModule</code>函数来进行的，它这里面会直接调用我们自定义<code>Pass</code>的<code>runOnModule</code>函数。值得一提的是，<code>Pass</code>的加载与执行的操作都是在<code>EmitAssemblyWithLegacyPassManager</code>或<code>EmitAssembly</code>函数中调用和完成的。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45031801/article/details/134399664">【Linux】GDB保姆级调试指南（什么是GDB？GDB如何使用？）_linux gdb标准输入-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39209008/article/details/126560080">对LLVM Pass进行Debug_vscode llvm pass开发-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/23040952">谁说不能与龙一起跳舞：Clang &#x2F; LLVM (3) - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://leadroyal.cn/p/2207/">llvm学习（二十）：动态注册Pass的加载过程（上） | LeadroyaL’s website</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/31425289">(3 封私信 &#x2F; 1 条消息) Clang里面真正的前端是什么？ - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903591115767821">https://juejin.cn/post/6844903591115767821</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/LLVM-Pass/">#LLVM Pass</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从Clang到Pass加载与执行的流程</div>
+      <div>http://example.com/2024/04/26/LLVM and OLLVM/从Clang到Pass加载与执行的流程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月26日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" title="LLVM Pass编写">
+                        <span class="hidden-mobile">LLVM Pass编写</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
