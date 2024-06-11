@@ -1,0 +1,977 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="II. AUTOMATED BINARY ANALYSIS自动二进制分析技术面临的问题：  Replayability 和 Semantic insight 的权衡取舍  Replayability（可重现性） 漏洞重现存在差异。对整个应用程序的分析可以确定触发漏洞的原因，而对特定模块的分析可能会发现漏洞但无法重现它们。  Semantic insight（语义理解） 对程序行为的语义理解程度不同">
+<meta property="og:type" content="article">
+<meta property="og:title" content="阅读笔记 —— 《Offensive Techniques in Binary Analysis》">
+<meta property="og:url" content="http://example.com/2024/06/11/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/angr%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="II. AUTOMATED BINARY ANALYSIS自动二进制分析技术面临的问题：  Replayability 和 Semantic insight 的权衡取舍  Replayability（可重现性） 漏洞重现存在差异。对整个应用程序的分析可以确定触发漏洞的原因，而对特定模块的分析可能会发现漏洞但无法重现它们。  Semantic insight（语义理解） 对程序行为的语义理解程度不同">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-11T12:19:47.000Z">
+<meta property="article:modified_time" content="2024-06-11T12:22:26.985Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="angr">
+<meta property="article:tag" content="论文研读">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>阅读笔记 —— 《Offensive Techniques in Binary Analysis》 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="阅读笔记 —— 《Offensive Techniques in Binary Analysis》"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-11 20:19" pubdate>
+          2024年6月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          125 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">阅读笔记 —— 《Offensive Techniques in Binary Analysis》</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="II-AUTOMATED-BINARY-ANALYSIS"><a href="#II-AUTOMATED-BINARY-ANALYSIS" class="headerlink" title="II. AUTOMATED BINARY ANALYSIS"></a>II. AUTOMATED BINARY ANALYSIS</h2><p>自动二进制分析技术面临的问题：</p>
+<ol>
+<li><p><strong>Replayability 和 Semantic insight 的权衡取舍</strong></p>
+<ul>
+<li><p><strong>Replayability（可重现性）</strong></p>
+<p>漏洞重现存在差异。对整个应用程序的分析可以确定触发漏洞的原因，而对特定模块的分析可能会发现漏洞但无法重现它们。</p>
+</li>
+<li><p><strong>Semantic insight（语义理解）</strong></p>
+<p>对程序行为的语义理解程度不同。动态分析能够跟踪代码执行但无法理解执行代码的原因或输入的哪部分导致代码这样运行。而符号分析具有更高的语义理解，可以确定导致特定行为的输入。</p>
+</li>
+</ul>
+<p><strong>权衡的影响</strong>：</p>
+<ul>
+<li>高可重现性与低覆盖率相关，因为产生可重放输入的分析技术必须了解如何到达它想要分析的任何代码，这就限制了它所能分析的代码量。</li>
+<li>低可重现性会导致大量误报，这需要通过启发式过滤来处理，但这可能会引入漏报。</li>
+<li>高语义理解需要存储和处理大量数据，这影响了可扩展性，并需要在信息保留和完整性方面做出权衡。</li>
+<li>实现可重复性和高度语义理解的分析会遇到可扩展性问题。保留整个应用程序的语义信息（从入口点到可能采取的所有操作），需要具有与在所有可能条件下执行程序所需的资源在概念上相同的处理能力。这种分析不可扩展，并且为了适用，必须丢弃信息并牺牲Soundness（即保证发现所有潜在漏洞）。</li>
+</ul>
+</li>
+<li><p><strong>环境模型</strong></p>
+<p>​		任何具有高度语义理解的分析都必须对应用程序与其环境的交互进行建模。然而现代操作系统中的交互非常复杂，涉及大量系统调用，而要使分析系统完整，它必须模拟所有这些调用的影响。</p>
+</li>
+</ol>
+<h2 id="III-BACKGROUND-STATIC-VULNERABILITY-DISCOVERY"><a href="#III-BACKGROUND-STATIC-VULNERABILITY-DISCOVERY" class="headerlink" title="III. BACKGROUND: STATIC VULNERABILITY DISCOVERY"></a>III. BACKGROUND: STATIC VULNERABILITY DISCOVERY</h2><p>静态漏洞挖掘技术在不执行程序的情况下对程序进行推理。这些程序是在抽象域上进行解释的，内存中包含其他抽象实体（例如结构、内存的布局，甚至所采用的执行路径）。</p>
+<p>静态分析可以分为两种模型：</p>
+<ul>
+<li><p>将程序属性建模为图（即控制流图）的模型（详见本小节的B）</p>
+</li>
+<li><p>对数据本身进行建模的模型（详见本小节的C）</p>
+</li>
+</ul>
+<p>静态漏洞挖掘技术有两个主要缺点（与 Replayability 和 Semantic insight 的权衡有关）：</p>
+<ol>
+<li><strong>结果不可重放</strong>：静态分析检测必须手动验证，因为无法恢复有关如何触发检测到的漏洞的信息。</li>
+<li><strong>分析倾向于在更简单的数据域上运行</strong>：降低了这些技术的语义洞察力。</li>
+</ol>
+<p>简而言之，它们是 over-approximate，即可以找出漏洞，但是误报率高。</p>
+<h3 id="A-Recovering-Control-Flow"><a href="#A-Recovering-Control-Flow" class="headerlink" title="A. Recovering Control Flow"></a>A. Recovering Control Flow</h3><p>​		<strong>Control Flow Recovery（CFG恢复）</strong>是一种递归算法，它反汇编并分析基本块（假定 $B_a$），识别其可能的出口（即一些后续基本块，假定$B_b$ 和 $B_c$），并将它们添加到 CFG 中（如果尚未添加），将  $B_a$ 连接到 $B_b$ 和 $B_c$，并递归地对 $B_b$ 和 $B_c$ 重复分析，直到没有识别出新的出口。</p>
+<p><strong>CFG恢复算法所面临的挑战</strong>：</p>
+<ul>
+<li><p><strong>间接跳转</strong>：间接跳转的地址存放在寄存器或内存中，受许多因素影响。</p>
+<p>间接跳转可分为以下几类：</p>
+<ul>
+<li>地址待计算的间接跳转</li>
+<li>上下文敏感的间接跳转：例如标准 C 库中的 qsort() 函数，它需要调用方提供回调函数。</li>
+<li>对象敏感的间接跳转：对象敏感度是上下文敏感的一个特例。在面向对象的语言中，对象多态性需要使用虚拟函数，这些虚拟函数通常实现为函数指针的虚拟表，在运行时参考这些指针以确定跳转目标。因此，跳转目标取决于其调用者传递到函数中的对象类型。</li>
+</ul>
+</li>
+<li><p><strong>控制流图的代码覆盖率</strong>：由于存在死代码而变得复杂，这些代码是任何跳转都无法访问的。</p>
+</li>
+</ul>
+<p>根据跳转目标的解析程度，CFG恢复分析有两个属性：</p>
+<ul>
+<li><p><strong>Soundness</strong>：所有跳转情况（包含所有可能的正确情况）都分析到了，可以有误，但不能有漏</p>
+<ul>
+<li><strong>Completeness</strong>：只分析到了所有可能正确的跳转情况的一部分，可以有漏，但不能有误</li>
+</ul>
+</li>
+</ul>
+<h3 id="B-Vulnerability-Detection-with-Flow-Modeling"><a href="#B-Vulnerability-Detection-with-Flow-Modeling" class="headerlink" title="B. Vulnerability Detection with Flow Modeling"></a>B. Vulnerability Detection with Flow Modeling</h3><p><strong>Graph-based vulnerability discovery（基于图的漏洞挖掘）</strong>：</p>
+<p>​		程序属性图（例如，控制流图、数据流图和控制依赖图）可用于识别软件中的漏洞。这些技术依赖于构建 bug 模型（如控制流或数据依赖关系图中的一组节点所表示），并识别此模型在应用程序中的出现。但是，此类技术旨在搜索易受攻击代码的副本，只能够挖掘出已存在的漏洞（且对应bug模型存在）。</p>
+<h3 id="C-Vulnerability-Detection-with-Data-Modeling-（基于数据建模的漏洞挖掘）"><a href="#C-Vulnerability-Detection-with-Data-Modeling-（基于数据建模的漏洞挖掘）" class="headerlink" title="C. Vulnerability Detection with Data Modeling （基于数据建模的漏洞挖掘）"></a>C. Vulnerability Detection with Data Modeling （基于数据建模的漏洞挖掘）</h3><p>​		静态分析还可以对应用程序运行的数据进行抽象推理，常见的分析方法是<strong>值集分析（Value-Set Analysis，VSA）</strong>。VSA 试图识别程序中任何给定点的程序状态的严格过度近似（例如，内存和寄存器中的值）。这可用于了解间接跳转的可能目标或内存写入操作的可能目标。虽然这些近似值缺乏准确性，但它们是合理的。</p>
+<h2 id="IV-BACKGROUND-DYNAMIC-VULNERABILITY-DISCOVERY"><a href="#IV-BACKGROUND-DYNAMIC-VULNERABILITY-DISCOVERY" class="headerlink" title="IV. BACKGROUND: DYNAMIC VULNERABILITY DISCOVERY"></a>IV. BACKGROUND: DYNAMIC VULNERABILITY DISCOVERY</h2><p>动态分析是在实际或模拟环境中检查程序执行的分析。它可分为两大类：</p>
+<ul>
+<li><strong>concrete Execution（具体执行）</strong></li>
+<li><strong>symbolic execution（符号执行）</strong></li>
+</ul>
+<p>这些技术产生的输入具有高度的可重放性，但在语义理解方面各有不同。</p>
+<h3 id="A-Dynamic-Concrete-Execution"><a href="#A-Dynamic-Concrete-Execution" class="headerlink" title="A. Dynamic Concrete Execution"></a>A. Dynamic Concrete Execution</h3><p>动态具体执行是在最少检测的环境（minimally-instrumented environment）中执行程序的概念。在该分析技术中，程序运行在的相同数据域。这些分析通常在单个路径级别进行推理（即，“当给定此特定输入时，程序采取了什么路径”）。因此，<strong>动态具体执行需要用户提供测试用例</strong>。</p>
+<p>相关技术：</p>
+<ol>
+<li><p><strong>Fuzzing（模糊测试）</strong></p>
+<p>Fuzzing向应用程序<strong>提供格式错误的输入</strong>以尝试触发崩溃。最初，这种输入是由硬编码规则生成的，并提供给应用程序，几乎没有对执行进行深入监控。如果应用程序在给定特定输入时崩溃，则认为该输入触发了 bug。否则，输入将进一步随机变异。</p>
+<p>缺点：</p>
+<p>受测试用例要求的影响，如果没有精心设计的测试用例来改变，模糊测试器就很难执行程序最浅显的功能。</p>
+</li>
+<li><p><strong>Coverage-based fuzzing（基于覆盖率的模糊测试）</strong></p>
+<p>基于代码覆盖率的模糊测试器试图生成能够<strong>最大化目标程序中的执行代码</strong>的输入。它们认为执行的代码越多，那么执行到易受攻击的代码的可能性就越高。相关工具：**American Fuzzy Lop (AFL)**。</p>
+<p>缺点：</p>
+<p>缺乏对目标应用程序的语义理解。虽然它能够检测到某段代码尚未执行，但它无法理解输入的哪些部分需要变异才能导致代码被执行。</p>
+</li>
+<li><p><strong>Taint-based fuzzing（基于污点的模糊测试）</strong></p>
+<p>基于污点的模糊测试器<strong>分析应用程序如何处理输入</strong>，以了解在将来的运行中要修改输入的哪些部分。其中一些模糊器将污点跟踪与静态技术相结合，例如数据依赖恢复。另一些则引入了协议分析，以提高模糊测试的覆盖率。</p>
+<p>缺点：</p>
+<p>虽然基于污点的模糊器可以理解应该改变输入的哪些部分以推动程序中给定路径的执行，但它仍然不知道如何改变这个输入。</p>
+</li>
+</ol>
+<h3 id="B-Dynamic-symbolic-Execution"><a href="#B-Dynamic-symbolic-Execution" class="headerlink" title="B. Dynamic symbolic Execution"></a>B. Dynamic symbolic Execution</h3><p>符号技术弥合了静态和动态分析之间的差距，并为应对模糊测试的有限语义理解提供了一种解决方案。</p>
+<p>动态符号执行是符号执行的一个子集，是一种动态技术。它在模拟环境中执行程序，此执行发生在符号变量的抽象域中。当模拟执行时，它们会<strong>在整个程序执行过程中跟踪寄存器和存储器的状态以及对这些变量的约束。每当到达条件分支时，执行都会分叉并跟踪两条路径，将分支条件以及分支条件的逆向分别保存为对应路径的约束。</strong></p>
+<p>优点：</p>
+<p>与模糊测试不同，动态符号执行对目标应用程序具有极高的语义理解力：当正在执行的路径之一触发了我们所希望的条件时，这些技术可以通过这条路径上的所有约束来推理出合适的输入。</p>
+<p>缺点：</p>
+<p>存在路径爆炸问题。</p>
+<p>相关技术：</p>
+<ol>
+<li><p><strong>Classical dynamic symbolic execution</strong></p>
+<p>存在路径爆炸问题，且发现的大多数漏洞都是浅层的。</p>
+</li>
+<li><p><strong>Symbolic-assisted fuzzing（符号辅助模糊测试）</strong></p>
+<p>利用模糊测试解决路径爆炸问题。这种方法利用了模糊测试的速度优势，也加强了模糊测试的语义理解力。这种符号引导的模糊器通过在动态符号执行引擎中处理模糊测试组件标识的输入来修改输入。动态符号执行由于语义理解力强，可以正确变异输入，提供额外的测试用例来触发以前未探索的代码，并允许模糊测试组件继续取得进展（即在代码覆盖率方面）。</p>
+</li>
+<li><p><strong>Under-constrained symbolic execution（欠约束的符号执行）</strong></p>
+<p>解决路径爆炸问题的另一种方法是<strong>仅执行应用程序的一部分</strong>。这种方法被称为欠约束符号执行，可以有效地识别潜在的错误。</p>
+<p>缺点：</p>
+<ul>
+<li>无法确保应用程序各部分的执行具有适当的上下文，这会导致结果中出现许多误报。</li>
+<li>与静态漏洞挖掘技术类似，欠约束符号执行放弃了它检测到的错误的可重放性，以换取可伸缩性。</li>
+</ul>
+</li>
+</ol>
+<h2 id="V-BACKGROUND-EXPLOITATION"><a href="#V-BACKGROUND-EXPLOITATION" class="headerlink" title="V. BACKGROUND: EXPLOITATION"></a>V. BACKGROUND: EXPLOITATION</h2><p>漏洞挖掘分析实际上是挖掘出使程序崩溃的输入，这些输入数据通常会触发软件中的缺陷或漏洞，导致程序无法正常运行，从而崩溃或崩溃异常终止。</p>
+<h3 id="A-Crash-Reproduction（漏洞复现）"><a href="#A-Crash-Reproduction（漏洞复现）" class="headerlink" title="A. Crash Reproduction（漏洞复现）"></a>A. Crash Reproduction（漏洞复现）</h3><p>许多模糊测试器（fuzzer）将对执行进行去随机化。也就是说，它们将对任何随机源进行硬编码，例如可执行文件的 PID、当前时间等等。这样做主要有两个原因。首先，在大多数现代模糊测试方法中，都隐含着一个假设，即提供给应用程序的两个实例的相同输入将两次产生相同的结果。其次，其他技术（如动态符号执行）中的随机性建模并不是一个深入研究的领域。由于去随机化，漏洞挖掘技术所报告的漏洞可能无法在测试环境之外复现。</p>
+<p>不可复现的崩溃输入可分为两类：</p>
+<ul>
+<li><p>Missing data</p>
+<p>漏洞挖掘技术有时会去“猜测”正确的响应值，而不第一时间去从应用程序接收这些值。</p>
+</li>
+<li><p>Missing relationships</p>
+<p>模糊测试等语义理解力较低的技术无法恢复从程序中检索的数据与随后提供给程序的数据之间的关系。</p>
+<p>解决方法：</p>
+<p>必须将去随机化的崩溃输入转换为输入规范，该规范定义如何根据从应用程序接收的数据与后来提供给应用程序的数据之间的关系与应用程序进行通信。一种实现此目的的方法是 Replayer，它计算程序路径的先决条件，以了解如何在实际条件下重现程序路径。</p>
+</li>
+</ul>
+<h3 id="B-Exploit-Generation（生成漏洞利用）"><a href="#B-Exploit-Generation（生成漏洞利用）" class="headerlink" title="B. Exploit Generation（生成漏洞利用）"></a>B. Exploit Generation（生成漏洞利用）</h3><p>并非所有挖掘出的漏洞都是可利用的，了解漏洞是否可利用有助于漏洞的分类（即了解首先要调查和修复哪些漏洞）。测试漏洞是否可利用的明显方法是尝试利用它。</p>
+<h3 id="C-Exploit-Hardening（强化漏洞利用）"><a href="#C-Exploit-Hardening（强化漏洞利用）" class="headerlink" title="C. Exploit Hardening（强化漏洞利用）"></a>C. Exploit Hardening（强化漏洞利用）</h3><p>近年来，二进制强化技术（例如非可执行堆栈区域和地址空间布局随机化 (ASLR)）已严重降低了传统漏洞利用（例如第一代自动漏洞利用引擎生成的漏洞利用）的有效性。因此，即使是可利用的漏洞也可能被现代保护措施缓解。当前的自动漏洞利用技术是在现代缓解技术广泛采用之前设计的，而现代软件保护措施使它们产生的漏洞利用不起作用。为了规避这种情况，已经创建了一些方法来自动强化使用当前技术生成的漏洞利用以抵御此类防御。这些技术的工作原理是将传统的基于 shellcode 的漏洞利用转换为利用返回导向编程（Return-Oriented Programming，简称ROP）的等效漏洞利用。</p>
+<h2 id="VI-ANALYSIS-ENGINE（angr设计分析）"><a href="#VI-ANALYSIS-ENGINE（angr设计分析）" class="headerlink" title="VI. ANALYSIS ENGINE（angr设计分析）"></a>VI. ANALYSIS ENGINE（angr设计分析）</h2><h3 id="A-Design-Goals"><a href="#A-Design-Goals" class="headerlink" title="A. Design Goals"></a>A. Design Goals</h3><p>angr设计目标如下：</p>
+<ul>
+<li>Cross-architecture support（跨架构支持）</li>
+<li>Cross-platform support（跨平台支持）</li>
+<li>Support for different analysis paradigms（支持不同的分析模式）</li>
+<li>Usability（可用性）</li>
+</ul>
+<h3 id="B-Submodule-Intermediate-Representation（IR）"><a href="#B-Submodule-Intermediate-Representation（IR）" class="headerlink" title="B. Submodule: Intermediate Representation（IR）"></a>B. Submodule: Intermediate Representation（IR）</h3><p>为了支持多种架构，我们将架构特定的本机二进制代码转换为中间表示 (IR)，并在其上实施分析。</p>
+<p>angr利用了 Valgrind 项目的 IR 提升器 <strong>libVEX</strong>。libVEX 生成一个称为 VEX 的 IR，专门用于程序分析。我们使用 PyVEX 将 VEX IR 暴露给 Python。通过利用 VEX，我们可以为 32 位和 64 位版本的 ARM、MIPS、PPC 和 x86（后者的 64 位版本为 amd64）处理器提供分析支持。</p>
+<h3 id="C-Submodule-Binary-Loading"><a href="#C-Submodule-Binary-Loading" class="headerlink" title="C. Submodule: Binary Loading"></a>C. Submodule: Binary Loading</h3><p><strong>CLE（CLE Loads Everything）</strong>负责将应用程序二进制文件加载到分析系统。CLE抽象了不同的二进制格式，以处理加载给定的二进制文件及其依赖的任何库、解析动态符号、执行重定位以及正确初始化程序状态。通过 CLE，angr 可以支持大多数系统。</p>
+<h3 id="D-Submodule-Program-State-Representation-x2F-Modification（程序状态表示-x2F-修改）"><a href="#D-Submodule-Program-State-Representation-x2F-Modification（程序状态表示-x2F-修改）" class="headerlink" title="D. Submodule: Program State Representation&#x2F;Modification（程序状态表示&#x2F;修改）"></a>D. Submodule: Program State Representation&#x2F;Modification（程序状态表示&#x2F;修改）</h3><p><strong>SimuVEX</strong> 模块负责表示程序状态（即寄存器和内存、打开文件等中的值的快照）。SimState作为状态插件的集合实现，这些插件由用户在状态创建时指定。目前，存在以下状态插件：</p>
+<ul>
+<li><p><strong>Registers</strong>：SimuVEX 跟踪程序中任何给定点的寄存器值，作为相应程序状态的状态插件。</p>
+</li>
+<li><p><strong>Symbolic memory</strong>：为了启用符号执行，SimuVEX 提供了一个符号内存模型（Mayhem 提出的索引内存模型）作为状态插件。</p>
+</li>
+<li><p><strong>Abstract memory</strong>：静态分析使用抽象内存状态插件对内存进行建模。与实现连续索引内存模型的符号内存不同，抽象内存提供了一个基于区域的内存模型，大多数静态分析都使用该模型。</p>
+</li>
+<li><p><strong>POSIX</strong>：在分析符合 POSIX 的环境的二进制文件时，SimuVEX 会跟踪此状态插件中的系统状态。例如，以符号状态打开的文件。每个文件都表示为一个内存区域和一个符号位置索引。</p>
+</li>
+<li><p><strong>Log</strong>：SimuVEX 跟踪对该插件中的状态（即内存写入、文件读取等）所做的一切的日志。</p>
+</li>
+<li><p><strong>Inspection</strong>：SimuVEX 提供了强大的调试接口，允许在复杂条件下设置断点，包括污点、精确表达式构成和符号条件。此接口还可用于更改 SimuVEX 的行为。例如，可以检测内存读取以模拟内存映射的 I&#x2F;O 设备。</p>
+</li>
+<li><p><strong>Solver</strong>：求解器是一个插件，它通过数据模型提供程序（Claripy）向不同的数据域公开接口。例如，当此插件配置为符号模式时，它会以符号方式解释寄存器、内存和文件中的数据，并在分析应用程序时跟踪路径约束。</p>
+</li>
+<li><p><strong>Architecture</strong>：架构插件提供对分析有用的架构特定信息（即堆栈指针的名称、架构的字数等）。此插件中的信息来自 archinfo 模块。</p>
+</li>
+</ul>
+<p>这些状态插件提供了可以以各种方式组合以支持不同分析的构建块。此外，SimuVEX 实现了分析的基本单元：表示应用程序代码块对程序状态所做的语义更改（在 SimuVEX 术语中，这样的代码块称为 SimRun）。也就是说，SimuVEX 提供了通过 VEX 表示的代码块处理输入状态并生成输出状态（或一组输出状态，以防我们遇到可能产生多个输出状态的块，例如条件跳转）的能力。</p>
+<h3 id="E-Submodule-Data-Model"><a href="#E-Submodule-Data-Model" class="headerlink" title="E. Submodule: Data Model"></a>E. Submodule: Data Model</h3><p>存储在 SimState 的寄存器和内存中的值由 Claripy 模块提供的抽象表示。Claripy 将所有值抽象为表达式的内部表示，并跟踪与该表达式有关的所有操作。</p>
+<p>表达式都可以转换为 Claripy <strong>后端</strong>提供的数据域。Claripy 提供支持具体域（整数和浮点数）、符号域（符号整数和符号浮点数，由 Z3 SMT 求解器提供）、值集分析的值集抽象域的后端。</p>
+<p>面向用户的操作由<strong>前端</strong>提供，例如将后端提供的构造（例如，Z3 后端提供的符号表达式 x+1）解释为 Python 原语（例如，约束求解的结果为 x + 1 的可能整数解）。前端通过不同复杂程度的附加功能来增强后端。Claripy 目前提供了几个前端：</p>
+<ul>
+<li><strong>FullFrontend</strong>：该前端向用户公开符号求解、跟踪约束、使用 Z3 后端求解并缓存结果。</li>
+<li><strong>CompositeFrontend</strong>：可将约束拆分为独立集可减少求解器的负载</li>
+<li><strong>LightFrontend</strong>：该前端不支持约束跟踪，而只是使用 VSA 后端来解释VSA 域中的表达式。</li>
+<li><strong>ReplacementFrontend</strong>：LightFrontend的扩展，添加对 VSA 值约束的支持。获取符号变量的值时，它会将变量与先前确定的范围相交，即对各种可能的约束条件求得的范围做交集再取值。</li>
+<li><strong>HybridFrontend</strong>：FullFrontend 和 ReplacementFrontend的结合体，为符号约束求解提供快速近似支持。</li>
+</ul>
+<p>这种模块化设计使得 Claripy 能够以强大的方式组合各种数据域提供的功能。</p>
+<h3 id="F-Submodule-Full-Program-Analysis（全程序分析）"><a href="#F-Submodule-Full-Program-Analysis（全程序分析）" class="headerlink" title="F. Submodule: Full-Program Analysis（全程序分析）"></a>F. Submodule: Full-Program Analysis（全程序分析）</h3><p>angr提供完整分析，这些分析的入口点是 Project，它表示一个二进制文件及其相关库。从这个对象可以访问其他子模块的所有功能（即创建状态、检查共享对象、检索基本块的中间表示、使用 Python 函数挂接二进制代码等）。此外，还有两个用于全程序分析的主要接口： Path Groups（路径组）和 Analyses（分析）。</p>
+<ul>
+<li><p><strong>Path Groups</strong></p>
+<p>PathGroup 是动态符号执行的接口，它会跟踪路径在应用程序中的运行、拆分或终止。其功能为：跟踪路径拆分和合并时的层次结构、分析哪些路径有用且应在探索中优先考虑、分析哪些路径没有前景且应终止。</p>
+</li>
+<li><p><strong>Analyses</strong></p>
+<p>angr 使用 Analysis 类为任何完整程序分析提供抽象。该类管理静态分析的生命周期，例如控制流图恢复，以及第 IX 节中介绍的复杂动态分析。</p>
+</li>
+</ul>
+<h2 id="VII-IMPLEMENTATION-CFG-RECOVERY"><a href="#VII-IMPLEMENTATION-CFG-RECOVERY" class="headerlink" title="VII. IMPLEMENTATION: CFG RECOVERY"></a>VII. IMPLEMENTATION: CFG RECOVERY</h2><p>angr 会从程序的入口点开始执行迭代 CFG 恢复，并进行一些必要的优化。angr 利用强制执行、向后切片和符号执行的组合来尽可能恢复每个间接跳转的所有跳转目标。此外，它还会生成并存储有关目标应用程序的大量数据，这些数据稍后可用于其他分析，例如数据依赖性跟踪。</p>
+<p>该算法有三个主要缺点：</p>
+<ul>
+<li>速度慢。</li>
+<li>不会自动处理死代码。</li>
+<li>可能会错过只能通过未恢复的间接跳转来访问的代码。</li>
+</ul>
+<p>为了解决这个问题，我们创建了一个辅助算法，该算法使用二进制文件的快速反汇编（不执行任何基本块），然后使用启发式方法来识别函数、函数内控制流和直接函数间控制流转换。然而，辅助算法的准确性要低得多，因为它缺乏有关函数间可达性的信息，不区分上下文，并且无法恢复复杂的间接跳转。</p>
+<p>本论文提出了两种CFG恢复算法：</p>
+<ol>
+<li><strong>CFGAccurate</strong> ：依赖于强制执行的基本方法，并提供两种间接跳转解析方法（向后切片和符号反向遍历）</li>
+<li><strong>CFGFast</strong>：主要使用递归反汇编和启发式来快速识别函数和功能间控制流</li>
+</ol>
+<h3 id="A-Assumptions"><a href="#A-Assumptions" class="headerlink" title="A. Assumptions"></a>A. Assumptions</h3><p>CFGAccurate算法对二进制文件做出以下假设，以优化算法的运行时间：</p>
+<ol>
+<li>程序中的所有代码都可以分布到不同的函数中。</li>
+<li>所有函数要么由显式调用指令（或其等效指令）调用，要么在控制流中以尾部跳转开头。</li>
+<li>无论从何处调用，每个函数的堆栈清理行为都是可预测的。这让 CFGAccurate 可以在分析调用者函数时安全地跳过已经分析过的函数，并保持堆栈平衡。</li>
+</ol>
+<p>这些假设对二进制文件类型施加了限制。假设 1、2 和 3 要求被分析的二进制文件未经混淆并以“正常”方式运行。我们可以在分析混淆或异常的二进制文件时删除这些假设，但这会导致 CFG 恢复的运行时间更长。</p>
+<p>我们的 CFG 恢复代码建立在相关文献提出的技术之上。然而，这些技术做出的假设过于严格或不切实际，不适合现实世界的二进制文件。具体而言，与我们的 CFG 恢复所基于的工作不同，<strong>我们不假设以下任何一项</strong>：</p>
+<ol>
+<li>所有函数都返回到其调用点后的下一条指令。</li>
+<li>间接分支的跳转目标始终由控制流路径决定，而不是由程序状态或上下文决定。例如，一些现有文献假设间接跳转都是计算出来的，而不是作为先前上下文中的函数指针传入的。</li>
+<li>间接跳转的跳转目标表达式必须符合一组常用的习语（idioms）。与现有工作不同，我们不对可应用于指针的操作类型做任何假设。</li>
+<li>在进入函数之前，堆栈指针与从函数返回之后的堆栈指针相同。</li>
+<li>没有两个函数重叠（换句话说，它们不能共享基本块。）。CFGAccurate 可以处理共享代码的函数。</li>
+<li>提供其他信息，例如符号表或重定位信息。</li>
+</ol>
+<p>接下来的几节将描述从二进制文件中恢复控制流图的实际算法。</p>
+<h3 id="B-Iterative-CFG-Generation"><a href="#B-Iterative-CFG-Generation" class="headerlink" title="B. Iterative CFG Generation"></a>B. Iterative CFG Generation</h3><p>CFGAccurate算法使用了四种技术：<strong>强制执行</strong>、<strong>轻量级向后切片</strong>、<strong>符号执行</strong>和<strong>值集分析</strong>。</p>
+<p>假定以下符号：</p>
+<p>$C$：应用程序的入口点的基本块（即初始化的CFG图，此时仅包含入口点处的基本块）。</p>
+<p>$L_j$：存储间接跳转的列表。</p>
+<p>​	在整个 CFG 恢复过程中，CFGAccurate 维护一个间接跳转列表 $L_j$ ，其跳转目标尚未解析。当分析识别出这样的跳转时，它会被添加到 $L_j$中。每种迭代技术（以上所说的四种）终止后，CFGAccurate 都会触发列表中的下一个技术。下一个技术也许可以解决$L_j$中的跳跃，也许可以向$L_j$添加新的未解决的跳跃，也许可以向 $C$ 中添加基本块和边。当所有技术的运行都没有导致$L_j$或$C$变化时，CFGAccurate 终止。</p>
+<h3 id="C-Forced-Execution"><a href="#C-Forced-Execution" class="headerlink" title="C. Forced Execution"></a>C. Forced Execution</h3><p>在CFG恢复的第一阶段使用强制执行，这样可以确保条件分支的两个方向都可以被执行，但无法确保间接跳转目标得到正确解析。</p>
+<p>CFGAccurate 维护一个基本块工作列表 $B_w$ 和一个分析块列表 $B_a$。当分析开始时，它会使用在 $C$（即CFG图） 中但不在 $B_a$ 中的所有基本块来初始化$B_w$ 。每当 CFGAccurate 从$B_w$ 中分析一个基本块时，基本块和来自该块的任何直接跳转都会添加到 $C$。</p>
+<p>但是，间接跳转不能以这种方式处理。在强制执行下，间接跳转的目标可能与程序实际运行的目标不同，因为强制执行将以预料之外的顺序执行代码。因此，每个间接跳转都存储在 $L_j$ 中以供以后分析。</p>
+<p>由于无法解决任何间接跳转，该分析技术可作为快速 CFG 恢复分析，通过使用检测到的基本块和未解决的间接跳转快速为其他分析提供种子。</p>
+<h3 id="D-Symbolic-Execution"><a href="#D-Symbolic-Execution" class="headerlink" title="D. Symbolic Execution"></a>D. Symbolic Execution</h3><p>对于每个跳转 $J ∈ L_j$ ，CFGAccurate 都会向后遍历 CFG，直到找到第一个合并点（即在通往间接跳转的途中汇聚的多条路径）或达到阈值块数（合理的阈值为 8）。在合并点处，它对间接跳转的使用前符号执行技术，并使用约束求解器检索间接跳转目标的可能值。</p>
+<p>如果计算出的可能目标集小于阈值大小（256），则 CFGAccurate 认为跳转已成功解决。如果跳转成功解决，则从 $L_j$ 中删除 $J$ ，并为跳转目标的每个可能值添加边和节点到 CFG 中。</p>
+<h3 id="E-Backward-Slicing（反向切片）"><a href="#E-Backward-Slicing（反向切片）" class="headerlink" title="E. Backward Slicing（反向切片）"></a>E. Backward Slicing（反向切片）</h3><p>angr 的强制执行和符号执行分析由于缺乏上下文而无法解析部分间接跳转，因为这两种技术是以上下文不敏感的方式进行的，如果函数将指针作为参数，并且该指针用作间接跳转的目标，则这些分析技术将无法解析它。</p>
+<p>为了实现更好的Completeness，可以通过反向切片来实现这样一个上下文敏感的组件。CFGAccurate 计算从未解决的跳转开始的反向切片。切片以先前调用时的上下文的开头进行扩展。也就是说，如果正在分析的间接跳转位于函数 $F_a$ 中（该函数同时在 $F_b$ 和 $F_c$ 中被调用），则切片将从 $F_a$ 中的跳转向后延伸并包含两个起始节点：$F_b$ 开头的基本块和 $F_c$ 开头的基本块。</p>
+<p>然后，CFGAccurate 使用 angr 的符号执行引擎执行此切片，并使用约束引擎识别符号跳转的可能目标，对于跳转目标的解决方案集的大小，阈值同样为 256。如果成功解析了跳转目标，则从 $L_j$ 和表示控制流转换的边中移除跳转，并将目标基本块添加到恢复的 CFG 中。</p>
+<h3 id="F-CFGFast"><a href="#F-CFGFast" class="headerlink" title="F. CFGFast"></a>F. CFGFast</h3><p>快速 CFG 生成算法的目标是生成一个具有高代码覆盖率的图，但不关注函数之间的可达性，该算法生成的CFG至少可以识别二进制文件中函数的位置和内容。此图缺少大部分控制流，但是这样的图对于二进制文件的手动和自动分析仍然很有用。</p>
+<p>CFGFast算法步骤如下：</p>
+<ol>
+<li><strong>函数识别</strong>：使用硬编码函数序言签名来识别应用程序内的函数。如果应用程序中包含函数位置的符号，可以用于为CFG提供函数起始位置。此外，表示程序入口点的基本块也会添加到图中。</li>
+<li><strong>递归反汇编</strong>：递归反汇编用于恢复已识别函数内的直接跳转。</li>
+<li><strong>间接跳转解析</strong>：轻量级别名分析、数据流跟踪与预定义策略相结合，用于解析函数内控制流传输。目前CFGFast包括跳转表识别和间接调用目标解析的策略。</li>
+</ol>
+<h2 id="VIII-IMPLEMENTATION-VALUE-SET-ANALYSIS"><a href="#VIII-IMPLEMENTATION-VALUE-SET-ANALYSIS" class="headerlink" title="VIII. IMPLEMENTATION: VALUE SET ANALYSIS"></a>VIII. IMPLEMENTATION: VALUE SET ANALYSIS</h2><p>值集分析 (VSA) 是一种静态分析技术，结合了二进制程序的数值分析和指针分析。它使用一个抽象域（称为值集抽象域）来近似寄存器或抽象位置在每个程序点可能保存的可能值。</p>
+<p>VSA技术会分析一个程序直到达到函数中所有程序点的 fix-point为止。fix-point 表示函数中任何寄存器或抽象内存位置可能具有的所有值的over-approximation（严格过度近似）。</p>
+<p>angr对于原始 VSA 设计进行改进：</p>
+<ul>
+<li><p><strong>创建一组离散的步长间隔</strong></p>
+<p>VSA 的基本数据类型步长间隔本质上是一组数字的近似值。它非常适合近似一组正常的具体值。但是，如果这些值在程序中用作跳转目标，步长间隔的过度近似性质会导致恢复出的 CFG 是 unsoundness。为了有效地解决这个问题，我们开发了一种称为“步长间隔集”的新数据类型，它表示一组未合并在一起的步长间隔。只有当步长间隔集包含超过 K 个元素时，它才会合并为单个步长间隔，其中 K 是一个可以调整的阈值。（始终为k个元素的步长间隔的集合？）</p>
+</li>
+<li><p><strong>将代数求解器应用于路径谓词</strong></p>
+<p>跟踪分支条件有助于我们在条件退出后或合并过程中约束变量，从而产生更精确的分析结果。仿射关系分析可以很好的处理这种情况，但是实现复杂。</p>
+<p>我们的解决方案是实现一个轻量级代数求解器，该求解器在步进间隔域上工作，基于模数算法来处理一些仿射关系。当看到新的路径谓词时（即条件分支），我们会尝试简化并求解它以获得路径谓词中涉及的变量的数字范围。然后，我们对新生成的数字范围和每个相应变量的原始值做交集。这使我们能够在遇到新的分支条件时不断改进值集分析的结果，从而提高最终固定点的精度。</p>
+</li>
+<li><p><strong>采用与符号无关的域</strong></p>
+<p>最初提出的VSA 是在带符号的步长间隔域上运行，该域假设所有值都是符号化的。</p>
+<p>然而会导致如下问题：</p>
+<p>假设$l$ 为下限、以 $h$ 为上限的 $n$ 位步长间隔，我们始终有 $l ∈ [−2^{n−1}, 2^{n−1} − 1] ∧ h ∈ [−2^{n−1}, 2^{n−1} − 1] ∧ l ≤ h$。然而，这会导致无符号算术计算的结果是 over-approximated，即包含大量无用数值，因为我们所求解的跳转地址是无符号的。</p>
+<p>解决这个问题的方法是采用与符号无关的域进行分析。包裹区间分析（Wrapped Interval Analysis）就是这样一种用于分析 LLVM 代码的区间域，它同时处理有符号和无符号数。我们基于此理论建立了与符号无关的步进区间域，并将其应用于 VSA 域。</p>
+</li>
+</ul>
+<p>我们使用 VSA 分三个阶段进行内存损坏检测：</p>
+<ol>
+<li><p>首先，我们在 VSA 期间收集程序中的所有读写访问模式。</p>
+</li>
+<li><p>在这些访问模式的基础上，我们对堆栈和堆区域上的变量执行变量恢复。我们的实现类似于 TIE 中的变量恢复。</p>
+</li>
+<li><p>接下来，我们扫描所有堆栈和堆区域以查找异常缓冲区，包括 </p>
+<p>a) 重叠缓冲区</p>
+<p>b) 越界缓冲区</p>
+<p>然后，我们只需要将所有异常缓冲区报告为潜在内存损坏。</p>
+</li>
+</ol>
+<h2 id="IX-IMPLEMENTATION-DYNAMIC-SYMBOLIC-EXECUTION"><a href="#IX-IMPLEMENTATION-DYNAMIC-SYMBOLIC-EXECUTION" class="headerlink" title="IX. IMPLEMENTATION: DYNAMIC SYMBOLIC EXECUTION"></a>IX. IMPLEMENTATION: DYNAMIC SYMBOLIC EXECUTION</h2><p>angr所实现的动态符号执行模块主要是基于 Mayhem 中描述的技术，遵循了相同的内存模型和路径优先级技术。此模块代表了 angr 的核心功能之一，其他分析（例如 Veritesting 和欠约束符号执行）都使用它作为基础。</p>
+<p>我们使用 Claripy 的 Z3 接口来填充 SimuVEX 提供的符号内存模型（SimSymbolicMemory）。程序中的单个执行路径由 angr 提供的 Path 对象管理，这些对象跟踪路径采取的操作、路径谓词（即条件分支）和各种其他路径信息。这些路径组成的组由 angr 的 PathGroup 功能管理，该功能提供了一个接口，用于管理动态符号执行期间路径的拆分、合并和过滤。</p>
+<p>angr 内置了对 <strong>Veritesting</strong> 的支持，将其实现为 Veritesting 分析，并通过传递给 PathGroup 对象的选项公开对它的透明支持。这种先进的状态合并技术通过静态（和有选择的）合并路径来缓解指数状态爆炸的问题。</p>
+<p>Veritesting 使用高效的路径合并来对抗路径爆炸，这使其能够在产生路径爆炸之前探索到二进制文件中更深的路径。但是，这种路径合并会引入复杂的表达式（例如，如果寄存器 eax 的值在两个待合并路径之间不相同，则合并路径的值必须是编码两个先前值的复杂表达式）并使约束求解器重载。因此，约束求解器的求解时间往往会随着越来越多的合并而增加。由于约束求解是一个NP完备问题，复杂性的增加导致漏洞在合理的时间内变得无法触发。</p>
+<h2 id="X-IMPLEMENTATION-UNDER-CONSTRAINED-SYMBOLIC-EXECUTION"><a href="#X-IMPLEMENTATION-UNDER-CONSTRAINED-SYMBOLIC-EXECUTION" class="headerlink" title="X. IMPLEMENTATION: UNDER-CONSTRAINED SYMBOLIC EXECUTION"></a>X. IMPLEMENTATION: UNDER-CONSTRAINED SYMBOLIC EXECUTION</h2><p>实现了 UC-KLEE 中提出的欠约束符号执行（UCSE），并将其命名为 UC-angr。</p>
+<p>欠约束符号执行（UCSE） 是一种动态符号执行技术，它作用在单个函数上。由于每个函数都是在没有上下文（即实际执行中调用它的参数和全局变量）的情况下生成的，因此分析并不准确且容易出现误报，这就导致UCSE分析无法推断如何到达特定函数，探测出的情况也就不可重放。</p>
+<p>UCSE 将缺少上下文状态的状态标记为欠约束。当此类欠约束数据被用作指针时，将创建一个新的欠约束区域，并将指针指向新区域。这种“按需”内存分配使管理复杂数据结构的代码能够被分析。当发现安全违规行为时（即对堆栈上保存的返回地址进行写入），就会检查所涉及的值是否处于约束不足状态。在某些条件下（即，如果所涉及的所有数据都约束不足），违规行为将被过滤为误报。</p>
+<p>对UCSE进行以下修改：</p>
+<ol>
+<li><p><strong>全局内存约束不足</strong></p>
+<p>原始 UC KLEE 的实现不会将对全局内存的访问视为约束不足。但是，这种内存是程序上下文的一部分，无法用 UCSE 进行预测，因为在分析给定函数时，全局数据可能已经被覆盖。因此，我们将所有全局数据标记为约束不足，从而降低误报率。</p>
+</li>
+<li><p><strong>路径限制器</strong></p>
+<p>最初的 UC-KLEE 的实现有几个内置限制来防止路径爆炸。例如，它们会限制约束不足的指针取消引用的深度，以避免通过约束不足的链接列表进行永不终止的搜索。我们添加了一个额外的限制器：当我们发现某个函数导致路径爆炸时（64个分支），我们会中止对该函数的分析。我们通过硬编码限制来检测这一点，并且当一个函数分支超过这么多的路径时，我们会用立即返回替换该函数，并从该函数的调用点回退分析。这样通过避免路径爆炸可以使得分析变得易于处理，但会使得分析变得更加不准确。</p>
+</li>
+<li><p><strong>误报过滤</strong></p>
+<p>我们在 UC angr 的实现中引入了几个额外的误报过滤器。具体来说，当我们检测到可利用状态时，我们会尝试确保该状态不会因为缺乏欠约束数据的约束而被错误地利用。首先，我们使用附加约束 E 执行约束求解，该约束表示该状态不可利用。然后，我们将每个欠约束的值约束为来自此不可利用状态的可能解决方案。我们将这些约束称为 U。最后，我们删除约束 E，保留约束 U，并检查该状态是否仍可被利用。如果可以，则意味着该函数可能存在一些固有缺陷，并且该缺陷不一定取决于上下文中缺失的数据。由于缺少约束，或者由于未受到约束的数据上下文有限，该缺陷仍然可能是误报。</p>
+</li>
+</ol>
+<h2 id="XI-IMPLEMENTATION-SYMBOLIC-ASSISTED-FUZZING"><a href="#XI-IMPLEMENTATION-SYMBOLIC-ASSISTED-FUZZING" class="headerlink" title="XI. IMPLEMENTATION: SYMBOLIC-ASSISTED FUZZING"></a>XI. IMPLEMENTATION: SYMBOLIC-ASSISTED FUZZING</h2><p>Driller 以 AFL 模糊测试器为基础，以 angr 为符号跟踪器。通过监控 AFL 的性能，决定何时开始符号跟踪 AFL 创建的输入。如果 AFL 在执行一轮输入突变后没有发现新的状态转换，我们认定模糊测试器无法取得进展，并在 AFL 认为是 unique 的所有路径上调用 angr（即任何具有跳转的路径，由源和目标地址的元组标识，其他路径没有），寻找 AFL 无法找到输入的转换。</p>
+<p>Driller 的符号组件是使用 angr 的符号执行引擎实现的，以便根据 AFL 提供的具体输入来符号化跟踪路径。这样就避免了符号执行固有的路径爆炸问题，因为每个具体输入都对应一条路径（符号化的），并且这些输入经过 AFL 的严格过滤，以确保只跟踪有希望的路径。每个具体输入都对应 PathGroup 中的一条单独路径。在 PathGroup 的每个步骤中，都会检查每个分支，以确保最近的跳转指令指向 AFL 之前未知的路径。当发现这样的跳转时，就会要求 SMT 求解器创建一个能够驱动程序执行到这一新跳转指令的输入。这个输入被反馈给 AFL，AFL 会在未来的模糊测试中对其进行变异。这种反馈循环使我们能够平衡昂贵的符号执行时间和廉价的模糊测试时间，并减轻模糊测试对程序操作的低语义理解力。</p>
+<p>AFL 生成的每个输入都会在动态符号执行引擎中进行跟踪，以识别可以通过变异输入到达的代码段。这种变异由符号约束求解器执行，并将输入重新引入 AFL 以进行进一步的执行和突变。由于 DSE 引擎跟踪的单个输入不会分支（因为这样的输入是具体的），因此在跟踪过程中不会出现路径爆炸，并且 AFL 通过过滤掉所有不会增加代码覆盖率的输入来限制传递到 DSE 引擎的输入数。</p>
+<h2 id="XII-IMPLEMENTATION-CRASH-REPRODUCTION"><a href="#XII-IMPLEMENTATION-CRASH-REPRODUCTION" class="headerlink" title="XII. IMPLEMENTATION: CRASH REPRODUCTION"></a>XII. IMPLEMENTATION: CRASH REPRODUCTION</h2><p>借助Replayer提出的方法来恢复输入值（即攻击者发送的值）和输出值（即攻击者从应用程序中泄露的值）之间缺失的关系。</p>
+<p>我们将重放崩溃输入的问题定义为：搜索一个输入规范 $i_s$ ，使其能够将程序从初始状态 $s$ 带到崩溃状态 $q$。</p>
+<p>我们将程序 $P$、初始状态 $s_a$（即可执行文件入口点的状态）、崩溃状态 $q_a$ 和输入规范 $i_a$ （将程序从初始状态 $s_a$ 带到崩溃状态 $q_a$）作为算法的输入。我们的实现使用输入 $i_a$ ，符号执行从 $s_a$ 到 $q_a$ 的路径，记录程序 $P$ 时生成的所有约束。然后在给定约束、执行路径、程序 $P$ 和新的初始状态 $s_b$的情况下，我们可以使用欠约束的符号化输入来符号化执行 $P$，跟随先前记录的执行路径，直到达到新的崩溃状态 $q_b$。此时，可以分析输入和输出上的输入约束，并恢复它们之间的关系。此关系数据用于生成输入规范 $i_s$，从而允许重放崩溃输入。</p>
+<p>Replayer 在崩溃复现中存在两个主要问题：</p>
+<ol>
+<li>在给定的崩溃的情况下，可能无法检索出正确重放崩溃所需的所有数据。</li>
+<li>Replayer 只使用应用程序在去随机化环境中处理崩溃输入时执行的精确路径来生成输入规范。如果二进制文件的执行轨迹根据随机数据的精确值发生变化，则 Replayer 无法计算正确的输入。</li>
+</ol>
+<h2 id="XIII-IMPLEMENTATION-EXPLOIT-GENERATION"><a href="#XIII-IMPLEMENTATION-EXPLOIT-GENERATION" class="headerlink" title="XIII. IMPLEMENTATION: EXPLOIT GENERATION"></a>XIII. IMPLEMENTATION: EXPLOIT GENERATION</h2><p>实现的功能：</p>
+<p>允许创建漏洞利用程序，允许攻击者通过覆盖已保存的指令指针（例如，通过覆盖函数指针或利用堆栈上的缓冲区溢出）来控制程序的执行</p>
+<ul>
+<li><p>易受攻击的状态</p>
+<p>与 AEG&#x2F;Mayhem 不同，但与 AXGEN 类似，我们通过使用 angr 对崩溃的程序输入执行 concolic 执行来生成漏洞。我们推动 concolic 执行向前，迫使它所执行的路径和崩溃输入所执行的路径相同。concolic 执行在程序崩溃时停止，我们检查符号状态以确定崩溃的原因并衡量该崩溃的可利用性。</p>
+</li>
+<li><p>指令指针覆盖技术</p>
+<p>当检测到指令指针中包含符号位时，我们可以限制指令指针指向受控的指令序列（例如 shellcode）或 ROP 小工具，该小工具将堆栈转向符号缓冲区，我们可以在其中执行 ROP 链（由我们的漏洞强化步骤生成）。</p>
+</li>
+</ul>
+<h1 id="XIV-IMPLEMENTATION-EXPLOIT-HARDENING"><a href="#XIV-IMPLEMENTATION-EXPLOIT-HARDENING" class="headerlink" title="XIV. IMPLEMENTATION: EXPLOIT HARDENING"></a>XIV. IMPLEMENTATION: EXPLOIT HARDENING</h1><p>实现了一个ROP链编译器，这样就可以自动生成 ROP playload。</p>
+<p>实现步骤如下：</p>
+<ol>
+<li><p>小工具发掘</p>
+<p>扫描应用程序中每个字节偏移量的所有可执行代码，以识别 ROP 小工具并根据这些工具效果进行分类。例如，指令序列：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-keyword">mov</span> [<span class="hljs-built_in">ebx</span>], <span class="hljs-built_in">eax</span><br><span class="hljs-keyword">pop</span> <span class="hljs-built_in">EBX</span><br><span class="hljs-keyword">RET</span> <br></code></pre></td></tr></table></figure>
+
+<p>将被归类为内存写入和寄存器加载。为了进行分类，我们的分析利用了 angr 的 Path 对象提供的动作历史和 Claripy 提供的符号关系。</p>
+</li>
+<li><p>小工具排列</p>
+<p>然后 ROP 链编译器确定可用于执行高级操作的小工具的排列。例如，将数据推送到堆栈的小工具可以与弹出数据的小工具配对，以创建将数据从一个寄存器移动到另一个寄存器的排列。</p>
+</li>
+<li><p>Playload生成</p>
+<p>ROP 编译器识别出所需的小工具排列集后，会将这些小工具组合到一个链中以执行高级操作（例如，使用指定的参数执行攻击者指定的系统调用）。这是通过在 angr 中将小工具排列写入程序状态，将其输出限制为提供的参数，然后查询 SMT 求解器以获取其输入的解决方案来完成的。</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/angr/">#angr</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>阅读笔记 —— 《Offensive Techniques in Binary Analysis》</div>
+      <div>http://example.com/2024/06/11/论文研读/angr论文/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月11日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/11/%E5%B7%A5%E5%85%B7%E5%85%A5%E9%97%A8/angr%E5%85%A5%E9%97%A8/" title="angr入门">
+                        <span class="hidden-mobile">angr入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
