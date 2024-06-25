@@ -252,6 +252,71 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
+          ollvm反混淆
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
+        <div>
+          一、前言此篇文章只讲思路，具体代码实现见https:&#x2F;&#x2F;github.com&#x2F;gal2xy&#x2F;AngrDeobfuscator。 二、去混淆2.1 去指令替换混淆指令替换一般可以使用llvm的pass进行优化，使用llvm-dis反汇编再使用opt的-o3等级优化。或者使用Miasm框架进行匹配，然后优化处理即可。 2.2 去字符串混淆没怎么了解字符串混淆这一块，就贴一下随风而行aa大佬的文章内容。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-25 21:07" pubdate>
+              2024-06-25
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/OLLVM/">#OLLVM</a>
+            
+              <a href="/tags/angr/">#angr</a>
+            
+              <a href="/tags/%E5%8E%BB%E6%B7%B7%E6%B7%86/">#去混淆</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/" target="_self">
           ROP入门
         </a>
@@ -740,69 +805,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2024-04-17 19:52" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
-          阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
-        <div>
-          改进该论文对于LLVM-IR层的混淆进行了如下两种改进：  指令加花 指令替换  指令加花该论文提出了两种指令加花方法：  叠加跳转 虚假循环  以上花指令以基本块形式进行添加，首先需要对原有的基本块进行拆分，然后在拆分后的基本块之间插入构造的花指令基本块，并通过不透明谓词进行有效的整合。 基本块拆分算法123456789101112131415算法1 Dependency Analysis Al
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:51" pubdate>
               2024-04-17
             </time>
           </div>

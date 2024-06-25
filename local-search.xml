@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>ollvm反混淆</title>
+    <link href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/"/>
+    <url>/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/</url>
+    
+    <content type="html"><![CDATA[<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>此篇文章只讲思路，具体代码实现见<a href="https://github.com/gal2xy/AngrDeobfuscator%E3%80%82">https://github.com/gal2xy/AngrDeobfuscator。</a></p><h1 id="二、去混淆"><a href="#二、去混淆" class="headerlink" title="二、去混淆"></a>二、去混淆</h1><h2 id="2-1-去指令替换混淆"><a href="#2-1-去指令替换混淆" class="headerlink" title="2.1 去指令替换混淆"></a>2.1 去指令替换混淆</h2><p>指令替换一般可以使用<code>llvm</code>的<code>pass</code>进行优化，使用<code>llvm-dis</code>反汇编再使用<code>opt</code>的<code>-o3</code>等级优化。或者使用<code>Miasm</code>框架进行匹配，然后优化处理即可。</p><h2 id="2-2-去字符串混淆"><a href="#2-2-去字符串混淆" class="headerlink" title="2.2 去字符串混淆"></a>2.2 去字符串混淆</h2><p>没怎么了解字符串混淆这一块，就贴一下<strong>随风而行aa</strong>大佬的文章内容。</p><p>字符串加密的的常规解决方式：</p><p><strong>（1）特征搜索</strong></p><p>一般在so中可以直接搜索<code>datadiv_decode</code>，一般很多编写解密函数进行操作是这个函数，针对这种情况，一般可以通过<code>frida hook</code>就可以拿到解密后的值，然后进行<code>patch</code>。</p><p><strong>（2）init_array中解密</strong></p><p>字符串解密操作在<code>init_arrray</code>中进行，一般可以通过模拟执行<code>init_array</code>，然后将解密后的字符串全部保存下来。</p><p><strong>（3）jni_onload解密</strong></p><p>在<code>jni_onload</code>函数中进行解密操作，这时候就要进行<code>inlinehook</code>拿到解密后寄存器的值，也可以进行<code>hook</code>，也可以使用<code>unicorn</code>进行操作。</p><h2 id="2-3-去虚假控制流混淆"><a href="#2-3-去虚假控制流混淆" class="headerlink" title="2.3 去虚假控制流混淆"></a>2.3 去虚假控制流混淆</h2><p>虚假控制流主要是通过<strong>不透明谓词</strong>控制代码流，ollvm中的不透明谓词与输入无关，因此可以通过符号执行来去除虚假块。具体思路为，使用angr执行整个程序，记录下可到达的基本块，其余基本块则是不可达基本块，可以认为使虚假块。接下来就需要对后继块中存在虚假块的基本块进行patch，将最后一条指令（<code>jcc</code>指令）修改成<code>jmp</code>指令。</p><h2 id="2-4-去控制流平坦化混淆"><a href="#2-4-去控制流平坦化混淆" class="headerlink" title="2.4 去控制流平坦化混淆"></a>2.4 去控制流平坦化混淆</h2><p>ollvm中控制流平坦化混淆的效果如下图所示：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202406252106078.png"></p><p>其代码的真实逻辑在：序言块、真实块（相关块）、retn块中。</p><p>整个去混淆思路如下：</p><ol><li><p><strong>区分基本块</strong></p><p>这些基本块在CFG中具有很明显的特征，例如前继基本块为0的是序言块，后继基本块为0的是retn块，后继基本块为预处理器（预分发器）的为真实块，而预处理器的后继基本块为主分发器，而主分发器的前继基本块为序言块。因此，通过这些特征很容区分出这些基本块。</p><p>(不过如果是魔改混淆，则可能需要另找特征进行区分)</p></li><li><p><strong>恢复相关块（包括序言块）之间的跳转关系</strong></p><p>这个可以通过angr的符号执行来恢复。即从每个相关块（包括序言块）进行符号执行，当执行到其他相关块中时，则认为找到了当前相关块的后继相关块。当然，后继块数量可能 &gt; 2，则就需要下断点，更改条件表达式变量的值，使其强制执行我们所需要的分支，，这样才能恢复得全面。</p><p>关于后继块的数量，可以通过块中有无<code>cmov</code>指令指令来判断。</p></li><li><p><strong>修补程序</strong></p><p>把无用块都<code>nop</code>掉。根据得到的跳转关系，如果当前块只有一个后继块，则将当前块中的最后一条指令修改成<code>jmp</code>指令跳转到该后继块，如果当前块存在两个后继块，则将当前块中的<code>cmovxxx</code>指令修改成对应的<code>jcc</code>指令，然后再将后面的指令修改成<code>jmp</code>指令跳转到另一条分支。</p></li></ol><hr><p>参考：</p><p>相关博客参考：</p><p><a href="https://security.tencent.com/index.php/blog/msg/112">利用符号执行去除控制流平坦化 - 博客 - 腾讯安全应急响应中心 (tencent.com)</a></p><p>[<a href="https://bbs.kanxue.com/thread-274532.htm#msg_header_h2_2">原创]Android APP漏洞之战（14）——Ollvm混淆与反混淆-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p><p><a href="https://github.com/WindXaa/Android-Vulnerability-Mining/blob/main/Ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86%E8%84%9A%E6%9C%AC">https://github.com/WindXaa/Android-Vulnerability-Mining/blob/main/Ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86%E8%84%9A%E6%9C%AC</a></p><p>angr API参考：</p><p><a href="https://docs.angr.io/en/latest/analyses/cfg.html">https://docs.angr.io/en/latest/analyses/cfg.html</a></p><p><a href="https://docs.angr.io/en/latest/api.html#angr.knowledge_plugins.cfg.CFGModel.nodes">https://docs.angr.io/en/latest/api.html#angr.knowledge_plugins.cfg.CFGModel.nodes</a></p><p><a href="https://docs.angr.io/en/latest/api.html#angr.knowledge_plugins.cfg.cfg_node.CFGNode">https://docs.angr.io/en/latest/api.html#angr.knowledge_plugins.cfg.cfg_node.CFGNode</a></p><p><a href="https://docs.angr.io/en/latest/api.html#angr.block.CapstoneInsn">https://docs.angr.io/en/latest/api.html#angr.block.CapstoneInsn</a></p><p>am_graph库：</p><p><a href="https://github.com/angr/angr-management/blob/master/angrmanagement/utils/graph.py">https://github.com/angr/angr-management/blob/master/angrmanagement/utils/graph.py</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>LLVM and OLLVM</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>OLLVM</tag>
+      
+      <tag>angr</tag>
+      
+      <tag>去混淆</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>ROP入门</title>
     <link href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/"/>
     <url>/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/</url>
