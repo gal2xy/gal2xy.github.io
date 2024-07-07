@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？ 二、基于Liveness Analysis的想法先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标*的为冗余汇编指令）： 12345678910111213141516171819">
+<meta property="og:type" content="article">
+<meta property="og:title" content="去除反混淆后程序中的冗余汇编代码">
+<meta property="og:url" content="http://example.com/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？ 二、基于Liveness Analysis的想法先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标*的为冗余汇编指令）： 12345678910111213141516171819">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071504079.png">
+<meta property="article:published_time" content="2024-07-07T07:03:58.000Z">
+<meta property="article:modified_time" content="2024-07-07T07:05:40.399Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Liveness Analysis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071504079.png">
+  
+  
+  
+  <title>去除反混淆后程序中的冗余汇编代码 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="去除反混淆后程序中的冗余汇编代码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-07 15:03" pubdate>
+          2024年7月7日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          104 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">去除反混淆后程序中的冗余汇编代码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？</p>
+<h1 id="二、基于Liveness-Analysis的想法"><a href="#二、基于Liveness-Analysis的想法" class="headerlink" title="二、基于Liveness Analysis的想法"></a>二、基于Liveness Analysis的想法</h1><p>先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标<code>*</code>的为冗余汇编指令）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs assembly">  mov     rax, [rbp+var_10]<br>  movsxd  rcx, [rbp+var_14]<br>  movsx   eax, byte ptr [rax+rcx]<br>  add     eax, [rbp+var_18]<br>  mov     [rbp+var_18], eax<br>* mov     rax, offset x<br>* mov     eax, [rax]<br>* mov     rcx, offset y<br>* mov     ecx, [rcx]<br>* mov     edx, eax<br>* sub     edx, 1<br>* imul    eax, edx<br>* and     eax, 1<br>* cmp     eax, 0<br>* setz    al<br>* cmp     ecx, 0Ah<br>* setl    cl <br>* or      al, cl    <br>* test    al, 1      <br>* jnz     loc_401235<br></code></pre></td></tr></table></figure>
+
+<p>最开始的想法是从第20行的汇编指令开始，跟踪与该指令以及后续指令相关的指令。如何跟踪呢？简单想就是跟踪这些指令使用到的寄存器。</p>
+<h2 id="2-1-Liveness-Analysis"><a href="#2-1-Liveness-Analysis" class="headerlink" title="2.1 Liveness Analysis"></a>2.1 Liveness Analysis</h2><p><code>Liveness Analysis</code>是一种数据流分析技术，用于确定程序中的每个变量在程序的不同点上是否“活跃”。“活跃”的意思是变量在某个程序点后将被使用，且在这之前没有被重新定义。这项技术在编译器优化、寄存器分配和死代码消除中起着关键作用。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071504079.png" srcset="/img/loading.gif" lazyload></p>
+<p>本文章中主要用到了里面的<code>def</code>和<code>use</code>集合的想法。</p>
+<ul>
+<li><code>def</code>集合：当前汇编指令显式和隐式改变的寄存器、内存的集合。</li>
+<li><code>use</code>集合：当前汇编指令显式和隐式使用的寄存器、内存的集合。</li>
+</ul>
+<h2 id="2-2-改进Liveness-Analysis以适配"><a href="#2-2-改进Liveness-Analysis以适配" class="headerlink" title="2.2 改进Liveness Analysis以适配"></a>2.2 改进Liveness Analysis以适配</h2><p>然而从图中看，似乎<code>Liveness Analysis</code>技术没有考虑到标志寄存器的改变和使用。对于<code>Liveness Analysis</code>技术能否解决我所预设的问题，我也不太清楚。因此在此基础上，进行如下改进：</p>
+<ul>
+<li>引入标志寄存器来跟踪相关指令，这对于一些条件指令的跟踪是有帮助的。</li>
+<li>对于内存操作数（例如<code>[rbp+var_10]</code>），还应提取其表达式中的寄存器，存入<code>use</code>集合中。因为我认为既要跟踪内存地址是怎么来的，也要跟踪内存地址对应的值是怎么来的。</li>
+<li>对于指令中操作数既不是寄存器，也不是内存的（例如<code>var_4</code>、全局变量<code>x</code>），应认为它们是常量，即不加入<code>use</code>集合中。</li>
+<li>由于指令中出现的寄存器名可能是同一寄存器的不同位数区分（例如<code>rax, eax, ax, ah, al</code>），统一将它们转换成最大位数的寄存器名。</li>
+</ul>
+<p>对刚才那个例子进行<code>def</code>和<code>use</code>集合的分析，结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs assembly">  mov     rax, [rbp+var_10]              def=&#123;rax&#125;       use=&#123;[rbp+var_10], rbp&#125;         <br>  movsxd  rcx, [rbp+var_14]              def=&#123;rcx&#125;       use=&#123;[rbp+var_14], rbp&#125;<br>  movsx   eax, byte ptr [rax+rcx]        def=&#123;rax&#125;       use=&#123;[rax+rcx], rax, rcx&#125;<br>  add     eax, [rbp+var_18]              def=&#123;rax&#125;       use=&#123;rax, [rbp+var_18], rbp&#125; <br>  mov     [rbp+var_18], eax              def=&#123;[rbp+var_18]&#125;       use=&#123;rax, rbp&#125;//理应认为[rbp+var_18]的寻址用到了rbp<br>* mov     rax, offset x                  def=&#123;rax&#125;       use=&#123;&#125;//认为x是具体值，不加入到use集合中<br>* mov     eax, [rax]                     def=&#123;rax&#125;       use=&#123;rax, [rax]&#125;//既要知道内存地址对应的值从哪来的，也要知道内存地址从哪来的<br>* mov     rcx, offset y                  def=&#123;rcx&#125;       use=&#123;&#125;//认为y是具体值，不加入到use集合中<br>* mov     ecx, [rcx]                     def=&#123;rcx&#125;       use=&#123;rcx, [rcx]&#125;<br>* mov     edx, eax                       def=&#123;rdx&#125;       use=&#123;rax&#125;<br>* sub     edx, 1                         def=&#123;rdx&#125;       use=&#123;rdx&#125;<br>* imul    eax, edx                       def=&#123;rax&#125;       use=&#123;rax, rdx&#125;<br>* and     eax, 1                         def=&#123;rax&#125;       use=&#123;rax&#125;<br>* cmp     eax, 0                         def=&#123;rflags&#125;     use=&#123;rax&#125;<br>* setz    al                             def=&#123;rax&#125;       use=&#123;rflags&#125;<br>* cmp     ecx, 0Ah                       def=&#123;rflags&#125;     use=&#123;rcx&#125;<br>* setl    cl                             def=&#123;rcx&#125;       use=&#123;rflags&#125;<br>* or      al, cl                         def=&#123;rax&#125;       use=&#123;rax, rcx&#125;<br>* test    al, 1                          def=&#123;rflags&#125;     use=&#123;rax&#125;<br>* jnz     loc_401235                     def=&#123;&#125;          use=&#123;rflags&#125;<br></code></pre></td></tr></table></figure>
+
+<p>具体跟踪的初步想法是：</p>
+<ol>
+<li>给定某一指令 $I$ ，初始化跟踪集合 $trace &#x3D; use_I$ （指令 $I$ 的 $use$ 集合），初始化相关指令列表 $relevantInsns &#x3D; [I]$。</li>
+<li>往上追溯每条指令，如果 $trace \cap def_{I_i} \neq \emptyset$ ，那么认为指令 $I_i$ 是相关指令，将指令 $I_i$ 加入到 $relevantInsns$中， 同时在 $trace$ 集合删除交集中的元素，并将指令 $I_i$ 的 $use$ 集合中的元素加入进来，即进行如下运算：$trace &#x3D; (trace - (trace \cap def_{I_i})) \cup use_{I_i}$ 。如果 $trace \cap def_{I_i} &#x3D; \emptyset$ ，那么认为指令 $I_i$ 是不相关指令，不进行任何操作。</li>
+<li>在追溯的过程中，如果 $trace &#x3D; \emptyset$ 或者待跟踪指令集为空，则认为跟踪结束。</li>
+</ol>
+<p>感觉说的有些混乱，就那上面这个例子解释一下吧。首先我们假设跟踪的指令为<code>jnz loc_401235</code>，后续步骤如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs assembly">初始化: trace = &#123;rflags&#125;	relevantInsns = [20]	(为了简洁，用行号代替指令)	<br>往上分析:<br>19: trace ∩ use = &#123;rflags&#125;,  是相关指令。   更新 trace = &#123;rax&#125;, relevantInsns = [19, 20]<br>18: trace ∩ use = &#123;rax&#125;,     是相关指令。   更新 trace = &#123;rax, rcx&#125;, relevantInsns = [18, 19, 20]<br>17: trace ∩ use = &#123;rcx&#125;,     是相关指令。   更新 trace = &#123;rax, rflags&#125;, relevantInsns = [17, 18, 19, 20]<br>16: trace ∩ use = &#123;rflags&#125;,  是相关指令。   更新 trace = &#123;rax, rcx&#125;, relevantInsns = [16, 18, 19, 20]<br>15: trace ∩ use = &#123;rax&#125;,     是相关指令。   更新 trace = &#123;rcx, rflags&#125;, relevantInsns = [15, 16, 18, 19, 20]<br>14: trace ∩ use = &#123;rflags&#125;,  是相关指令。   更新 trace = &#123;rax, rcx&#125;, relevantInsns = [14, 15, 16, 18, 19, 20]<br>13: trace ∩ use = &#123;rax&#125;,     是相关指令。   更新 trace = &#123;rax, rcx&#125;, relevantInsns = [13, 14, 15, 16, 18, 19, 20]<br>12: trace ∩ use = &#123;rax&#125;,     是相关指令。   更新 trace = &#123;rax, rcx, rdx&#125;, relevantInsns = [12, 13, 14, 15, 16, 18, 19, 20]<br>11: trace ∩ use = &#123;rdx&#125;,     是相关指令。   更新 trace = &#123;rax, rcx, rdx&#125;, relevantInsns = [11, 12, 13, 14, 15, 16, 18, 19, 20]<br>10: trace ∩ use = &#123;rdx&#125;,     是相关指令。   更新 trace = &#123;rax, rcx&#125;, relevantInsns = [10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>9: trace ∩ use = &#123;rcx&#125;,      是相关指令。   更新 trace = &#123;rax, rcx, [rcx]&#125;, relevantInsns = [9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>8: trace ∩ use = &#123;rcx&#125;,      是相关指令。   更新 trace = &#123;rax, [rcx]&#125;, relevantInsns = [8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>7: trace ∩ use = &#123;rax&#125;,      是相关指令。   更新 trace = &#123;rax, [rax], [rcx]&#125;, relevantInsns = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>6: trace ∩ use = &#123;rax&#125;,      是相关指令。   更新 trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>5: trace ∩ use = &#123;&#125;,         不是相关指令。     trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>4: trace ∩ use = &#123;&#125;,         不是相关指令。     trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>3: trace ∩ use = &#123;&#125;,         不是相关指令。  	 trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>2: trace ∩ use = &#123;&#125;,         不是相关指令。   	 trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>1: trace ∩ use = &#123;&#125;,         不是相关指令。  	 trace = &#123;[rax], [rcx]&#125;, relevantInsns = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20]<br>待分析指令集为空，结束跟踪<br></code></pre></td></tr></table></figure>
+
+<p>对于上述例子，我们的想法成功的追踪到了所有冗余指令。然而当存在<code>cmovcc</code>指令时，我们的想法并不是很理想。</p>
+<h2 id="2-3-cmovcc指令所带来的问题"><a href="#2-3-cmovcc指令所带来的问题" class="headerlink" title="2.3 cmovcc指令所带来的问题"></a>2.3 cmovcc指令所带来的问题</h2><p>以下是控制流平坦化混淆的垃圾汇编指令（其中标<code>*</code>的为冗余汇编指令）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">* mov edx, [rbp+var_4]			def=&#123;rdx&#125; 			use=&#123;[rbp+var_4], rbp&#125;<br>* mov eax, 4A...h 				def=&#123;rdx&#125; 			use=&#123;&#125;<br>* mov ecx, 32..h				def=&#123;rcx&#125; 			use=&#123;&#125;<br>* cmp edx, 2					def=&#123;rflags&#125; 		use=&#123;rdx&#125;<br>* cmovnz eax, ecx				def=&#123;rax&#125; 			use=&#123;rcx,rflags&#125;	或者	def=&#123;&#125;		use=&#123;rflags&#125;<br>* mov [rbp+var_1c], eax  		def=&#123;[rbp+var_1c]&#125; 	use=&#123;rax, rbp&#125;<br>* jmp loc_401418 				def=&#123;&#125; 				use=&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>由于<code>cmovnz</code>存在执行和不执行的情况，因此需要分两种情况讨论：</p>
+<ul>
+<li>当标志寄存器满足<code>cmovnz</code>的条件时，执行<code>cmovnz</code>指令，此时<code>def=&#123;rax&#125;</code>, <code>use=&#123;rcx,rflags&#125;</code>。</li>
+<li>当标志寄存器不满足<code>cmovnz</code>的条件时，不执行<code>cmovnz</code>指令，此时<code>def=&#123;&#125;</code>, <code>use=&#123;rflags&#125;</code>。</li>
+</ul>
+<p>单独分析以上任何一种情况，其结果都不能覆盖所有的冗余指令，但其两者情况的并集能够覆盖所有冗余指令。因此在向上溯源时，需要注意是否时<code>cmovcc</code>指令，如果是，则需要保存当前状态，探索其中一条路径，当该路径探索完毕后，再探索另一种路径。此情况可通过递归实现。</p>
+<h1 id="三、代码实现"><a href="#三、代码实现" class="headerlink" title="三、代码实现"></a>三、代码实现</h1><p>接下来主要展示代码中重要的部分，完整代码请参考<a target="_blank" rel="noopener" href="https://github.com/gal2xy/AssembleCodeTracer%E3%80%82">https://github.com/gal2xy/AssembleCodeTracer。</a></p>
+<h2 id="3-1-汇编指令字典的建立"><a href="#3-1-汇编指令字典的建立" class="headerlink" title="3.1 汇编指令字典的建立"></a>3.1 汇编指令字典的建立</h2><p>对于刚才所展示的例子中，我们可以直观的看出指令的<code>def</code>和<code>use</code>集合，但是计算机不行。这是我所面临的第一个麻烦，解决这个问题，后续分析才能进行下去。为此，我建立了一个简单的汇编指令字典，部分示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;mov&#x27;</span>: &#123;<br>        <span class="hljs-string">&#x27;insns&#x27;</span>: [<span class="hljs-string">&#x27;mov&#x27;</span>, <span class="hljs-string">&#x27;movsx&#x27;</span>, <span class="hljs-string">&#x27;movzx&#x27;</span>, <span class="hljs-string">&#x27;movsxd&#x27;</span>], <span class="hljs-comment"># 类似指令的集合, 由于一些指令的def和use集合可能是相同的，因此这么做是为了避免冗余</span><br>        <span class="hljs-string">&#x27;has_types&#x27;</span>: <span class="hljs-literal">False</span>,							  <span class="hljs-comment"># 该指令格式是否有多个，即操作数个数是否不固定</span><br>        <span class="hljs-string">&#x27;def_exp_index&#x27;</span>: [<span class="hljs-number">0</span>],						  <span class="hljs-comment"># 显式def，即在指令中出现的，存储对应索引值</span><br>        <span class="hljs-string">&#x27;use_exp_index&#x27;</span>: [<span class="hljs-number">1</span>],						  <span class="hljs-comment"># 显式use，即在指令中出现的，存储对应索引值</span><br>        <span class="hljs-string">&#x27;def_imp_reg&#x27;</span>: [],                            <span class="hljs-comment"># 隐式def，即在指令中未出现的但是又被该指令更改了值的</span><br>        <span class="hljs-string">&#x27;use_imp_reg&#x27;</span>: [],                            <span class="hljs-comment"># 隐式use，即在指令中未出现的但是又被该指令使用了的</span><br>&#125;<br><br><span class="hljs-string">&#x27;imul&#x27;</span>: &#123;<br>    <span class="hljs-string">&#x27;insns&#x27;</span>: [<span class="hljs-string">&#x27;imul&#x27;</span>],<br>    <span class="hljs-string">&#x27;has_types&#x27;</span>: <span class="hljs-literal">True</span>,<br>    <span class="hljs-string">&#x27;types&#x27;</span>: &#123;<br>        <span class="hljs-comment"># 指令中的操作数个数为1个</span><br>        <span class="hljs-number">1</span>: &#123;<br>            <span class="hljs-string">&#x27;def_exp_index&#x27;</span>: [],<br>            <span class="hljs-string">&#x27;use_exp_index&#x27;</span>: [<span class="hljs-number">0</span>],<br>            <span class="hljs-string">&#x27;def_imp_reg&#x27;</span>: [<span class="hljs-string">&#x27;rax&#x27;</span>, <span class="hljs-string">&#x27;rflags&#x27;</span>],<br>            <span class="hljs-string">&#x27;use_imp_reg&#x27;</span>: [<span class="hljs-string">&#x27;rax&#x27;</span>],<br>        &#125;,<br>        <span class="hljs-comment"># 指令中的操作数个数为2个</span><br>        <span class="hljs-number">2</span>: &#123;<br>            <span class="hljs-string">&#x27;def_exp_index&#x27;</span>: [<span class="hljs-number">0</span>],<br>            <span class="hljs-string">&#x27;use_exp_index&#x27;</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>],<br>            <span class="hljs-string">&#x27;def_imp_reg&#x27;</span>: [<span class="hljs-string">&#x27;rflags&#x27;</span>],<br>            <span class="hljs-string">&#x27;use_imp_reg&#x27;</span>: [],<br>        &#125;,<br>        <span class="hljs-comment"># 指令中的操作数个数为3个</span><br>        <span class="hljs-number">3</span>: &#123;<br>            <span class="hljs-string">&#x27;def_exp_index&#x27;</span>: [<span class="hljs-number">0</span>],<br>            <span class="hljs-string">&#x27;use_exp_index&#x27;</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>],<br>            <span class="hljs-string">&#x27;def_imp_reg&#x27;</span>: [<span class="hljs-string">&#x27;rflags&#x27;</span>],<br>            <span class="hljs-string">&#x27;use_imp_reg&#x27;</span>: [],<br>        &#125;<br>    &#125;,<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-2-解析指令中的操作数"><a href="#3-2-解析指令中的操作数" class="headerlink" title="3.2 解析指令中的操作数"></a>3.2 解析指令中的操作数</h2><p>由于汇编指令中的操作数有多种类型，且对于不同类型的操作数，我们需要进行不同的操作。</p>
+<ul>
+<li>寄存器类型可以直接放入<code>def</code>和<code>use</code>集合中。</li>
+<li>内存不仅可以直接放入<code>def</code>和<code>use</code>集合中，而且还需要解析其表达式中的寄存器，这些寄存器也要放入<code>def</code>和<code>use</code>集合中。</li>
+<li>立即数则不应放入<code>def</code>和<code>use</code>集合中，应认为它是某一寄存器跟踪结束的标志。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">parseOperand</span>(<span class="hljs-params">operand: <span class="hljs-built_in">str</span></span>):<br><br>    operand = operand.strip()<br><br>    <span class="hljs-comment"># 判断是否为寄存器.后一个捕获r8~r15相关寄存器</span><br>    <span class="hljs-keyword">if</span> re.<span class="hljs-keyword">match</span>(<span class="hljs-string">r&#x27;^[er]?[abcds][xlhpi]$&#x27;</span>, operand) <span class="hljs-keyword">or</span> re.<span class="hljs-keyword">match</span>(<span class="hljs-string">r&#x27;(r[89]|r1[0-5])[dwb]?&#x27;</span>, operand):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;register&#x27;</span><br>    <span class="hljs-comment"># 判断是否为内存操作数</span><br>    <span class="hljs-keyword">elif</span> re.<span class="hljs-keyword">match</span>(<span class="hljs-string">r&#x27;^\[.*\]$&#x27;</span>, operand):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;memory&#x27;</span><br>    <span class="hljs-comment"># 判断是否为立即数</span><br>    <span class="hljs-keyword">elif</span> re.<span class="hljs-keyword">match</span>(<span class="hljs-string">r&#x27;(?:0[xX])?[0-9A-Fa-f]+h?&#x27;</span>, operand):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;immediate&#x27;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;unknown&#x27;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-3-从内存表达式中提取寄存器"><a href="#3-3-从内存表达式中提取寄存器" class="headerlink" title="3.3 从内存表达式中提取寄存器"></a>3.3 从内存表达式中提取寄存器</h2><p>由于指令中的内存可能是一个表达式的情形，例如<code>[2*rax+rbx-1]</code>，我们可以直观的看出，它肯定使用了<code>rax</code>、<code>rbx</code>寄存器，因此我们需要实现一个函数来提取内存表达式中的寄存器。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">findRegInMemOp</span>(<span class="hljs-params">operand: <span class="hljs-built_in">str</span></span>):<br><br>    pattern = <span class="hljs-string">r&#x27;\b([er]?([abcds][xlhpi]|bp|sp)|r[89]|r1[0-5])\b&#x27;</span><br><br>    registers = <span class="hljs-built_in">set</span>([])<br>    <span class="hljs-comment"># 查找内存操作数中的所有寄存器</span><br>    registersInOperand = re.findall(pattern, operand)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;find registers in memory operand: <span class="hljs-subst">&#123;registersInOperand&#125;</span>&#x27;</span>)<span class="hljs-comment"># [(&#x27;rbp&#x27;, &#x27;bp&#x27;)]</span><br><br>    <span class="hljs-keyword">for</span> registersTuple <span class="hljs-keyword">in</span> registersInOperand:<br>        <span class="hljs-keyword">for</span> register <span class="hljs-keyword">in</span> registersTuple:<br>            fullName = findFullRegisterName(register)<br>            <span class="hljs-keyword">if</span> fullName <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>                registers.add(fullName)<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;Warning!!! Unknow register: <span class="hljs-subst">&#123;register&#125;</span>, may be you need define it in registers_db&#x27;</span>)<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;memory operand: <span class="hljs-subst">&#123;operand&#125;</span>, extract registers: <span class="hljs-subst">&#123;registers&#125;</span>&#x27;</span>)<br>    <span class="hljs-keyword">return</span> registers<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-4-获取指令中的def和use集合"><a href="#3-4-获取指令中的def和use集合" class="headerlink" title="3.4 获取指令中的def和use集合"></a>3.4 获取指令中的def和use集合</h2><p>这一步就需要借助到 3.1 所定义的汇编指令字典。整个函数的功能为：</p>
+<ul>
+<li>获取<code>def</code>集合：获取当前指令的<code>def_exp_index</code>键值，根据索引值列表找到对应的具体操作数，并根据操作数的类型进行不同操作。之后再获取当前指令的<code>def_imp_reg</code>键值，将隐式定义的寄存器加入到<code>def</code>集合中。</li>
+<li>获取<code>use</code>集合：同理类似。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">getDefAndUseSet</span>(<span class="hljs-params">insnsDic: <span class="hljs-built_in">dict</span>, operands: <span class="hljs-type">List</span></span>):<br><br>    defSet = <span class="hljs-built_in">set</span>([])<br>    useSet = <span class="hljs-built_in">set</span>([])<br>    <span class="hljs-comment"># 先找显式定义的</span><br>    <span class="hljs-comment"># 遍历需要加入到def集合中的操作数索引</span><br>    <span class="hljs-keyword">for</span> pos <span class="hljs-keyword">in</span> insnsDic[<span class="hljs-string">&#x27;def_exp_index&#x27;</span>]:<br>        <span class="hljs-comment"># 根据操作数的类型决定是否添加到def集合中</span><br>        operandType = parseOperand(operands[pos])<br>        <span class="hljs-keyword">if</span> operandType == <span class="hljs-string">&#x27;register&#x27;</span>:  <span class="hljs-comment"># 寄存器直接加入</span><br>            defSet.add(operands[pos])<br>        <span class="hljs-keyword">elif</span> operandType == <span class="hljs-string">&#x27;memory&#x27;</span>:  <span class="hljs-comment"># 内存操作数</span><br>            defSet.add(operands[pos])<br>            <span class="hljs-comment"># 内存操作数借助的寄存器放入useSet中</span><br>            registers = findRegInMemOp(operands[pos])<br>            useSet.update(registers)<br>        <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># 未知类型，例如label标签</span><br>            <span class="hljs-keyword">continue</span><br>    <span class="hljs-comment"># 再找隐式定义的</span><br>    <span class="hljs-keyword">for</span> register <span class="hljs-keyword">in</span> insnsDic[<span class="hljs-string">&#x27;def_imp_reg&#x27;</span>]:<br>        defSet.add(register)<br><br>    <span class="hljs-comment"># useSet同理</span><br>    <span class="hljs-keyword">for</span> pos <span class="hljs-keyword">in</span> insnsDic[<span class="hljs-string">&#x27;use_exp_index&#x27;</span>]:<br>        <span class="hljs-comment"># 根据操作数的类型决定是否添加到use集合中</span><br>        operandType = parseOperand(operands[pos])<br>        <span class="hljs-keyword">if</span> operandType == <span class="hljs-string">&#x27;register&#x27;</span>:  <span class="hljs-comment"># 寄存器直接加入</span><br>            useSet.add(operands[pos])<br>        <span class="hljs-keyword">elif</span> operandType == <span class="hljs-string">&#x27;memory&#x27;</span>:  <span class="hljs-comment"># 内存操作数，则读取表达式中的寄存器并加入</span><br>            useSet.add(operands[pos])<br>            registers = findRegInMemOp(operands[pos])<br>            useSet.update(registers)<br>        <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># 未知类型，例如label标签</span><br>            <span class="hljs-keyword">continue</span><br><br>    <span class="hljs-keyword">for</span> register <span class="hljs-keyword">in</span> insnsDic[<span class="hljs-string">&#x27;use_imp_reg&#x27;</span>]:<br>        useSet.add(register)<br><br>    <span class="hljs-comment"># 由于寄存器存在高低位之分，所以转成最大的寄存器的名称</span><br>    newDefSet = <span class="hljs-built_in">set</span>([])<br>    <span class="hljs-keyword">for</span> register <span class="hljs-keyword">in</span> defSet:<br>        fullName = findFullRegisterName(register)<br>        <span class="hljs-keyword">if</span> fullName <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>            newDefSet.add(fullName)<br>        <span class="hljs-keyword">else</span>:<span class="hljs-comment"># 其他类型的操作数，例如[rbp+var_4], rflags</span><br>            newDefSet.add(register)<br>	<br>    <span class="hljs-comment"># 将寄存器名全部转成最大位数的寄存器名</span><br>    newUseSet = <span class="hljs-built_in">set</span>([])<br>    <span class="hljs-keyword">for</span> register <span class="hljs-keyword">in</span> useSet:<br>        fullName = findFullRegisterName(register)<br>        <span class="hljs-keyword">if</span> fullName <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>            newUseSet.add(fullName)<br>        <span class="hljs-keyword">else</span>:<br>            newUseSet.add(register)<br><br>    <span class="hljs-keyword">return</span> newDefSet, newUseSet<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-5-跟踪相关汇编指令"><a href="#3-5-跟踪相关汇编指令" class="headerlink" title="3.5 跟踪相关汇编指令"></a>3.5 跟踪相关汇编指令</h2><p>最终算法如下：</p>
+<ol>
+<li>给定待跟踪的指令<code>I</code>，以及所需跟踪的指令范围，初始化 $traceSet &#x3D; useSet_I$，$relevantInsPos&#x3D;{I}$，$startPos &#x3D; pos_I$，其中$pos_I$为指令 $I$ 在$Insns$中的索引值。</li>
+<li>开始向上探索（即$startPos–$），对于每一条指令 $I_i$，$i∈[0, pos_I)$：<ol>
+<li>如果 $traceSet \cap defSet_{I_i} \neq \emptyset$ ，则指令 $I_i$ 为相关指令，更新 $tarceSet &#x3D; (traceSet - defSet_{I_i}) \cup useSet_{I_i}$ 以及 $I_i → relevantInsPos$。（对于<code>cmovcc</code>指令，需先进行如下操作：定义 $newTarceSet &#x3D; traceSet \cup {rflags}$ ，递归调用当前算法，将返回结果当前 $relevantInsPos$合并)</li>
+<li>如果 $traceSet \cap defSet_{I_i} &#x3D; \emptyset$ ，则指令 $I_i$ 为非相关指令，不进行任何操作。</li>
+</ol>
+</li>
+<li>如果 $traceSet &#x3D; \emptyset$或者$startPos &lt; 0$， 则跟踪结束，返回 $relevantInsPos$ ，否则继续进行步骤2。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 跟踪既定汇编指令的相关汇编指令</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">traceInstructionsInBlock</span>(<span class="hljs-params">instructions: <span class="hljs-type">List</span>, defAndUseSet: <span class="hljs-type">List</span>[<span class="hljs-type">Tuple</span>[<span class="hljs-type">Set</span>, <span class="hljs-type">Set</span>]], startPos: <span class="hljs-built_in">int</span>, traceSet=<span class="hljs-literal">None</span></span>):<br>    <span class="hljs-comment"># trace = trace - def + use 集合运算</span><br>    <span class="hljs-keyword">if</span> traceSet <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        traceSet = defAndUseSet[startPos][<span class="hljs-number">1</span>]<span class="hljs-comment"># trace = use</span><br><br>    relevantInsPos = <span class="hljs-built_in">set</span>([startPos])<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;traceSet: <span class="hljs-subst">&#123;traceSet&#125;</span>&#x27;</span>)<br><br>    currPos = startPos - <span class="hljs-number">1</span><br>    <span class="hljs-keyword">while</span> currPos &gt;= <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> traceSet <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<span class="hljs-comment"># 结束标志: tarce集合为空, 或者分析到达基本块首部</span><br>        currDefSet = defAndUseSet[currPos][<span class="hljs-number">0</span>]<br>        currUseSet = defAndUseSet[currPos][<span class="hljs-number">1</span>]<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;instructions: <span class="hljs-subst">&#123;instructions[currPos]&#125;</span>, currDefSet = <span class="hljs-subst">&#123;currDefSet&#125;</span>, currUseSet = <span class="hljs-subst">&#123;currUseSet&#125;</span>&#x27;</span>)<br>        <br>        <span class="hljs-comment"># 求 traceSet 和 currDefSet 的交集，如果不为空，则当前指令是相关指令</span><br>        intersectionSet = traceSet &amp; currDefSet<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;交集: <span class="hljs-subst">&#123;intersectionSet&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(intersectionSet) != <span class="hljs-number">0</span>:<span class="hljs-comment"># 是相关指令</span><br>            <span class="hljs-keyword">if</span> instructions[currPos].startswith(<span class="hljs-string">&#x27;cmov&#x27;</span>): <span class="hljs-comment"># cmov指令特殊，应分两种情况进行讨论</span><br>                <span class="hljs-comment"># 此情况是条件不成立，cmov不执行。</span><br>                <span class="hljs-comment"># 不减交集, 而是直接并use=&#123;rflags&#125;</span><br>                newTraceSet = traceSet | <span class="hljs-built_in">set</span>([<span class="hljs-string">&#x27;rflags&#x27;</span>])<br>                <span class="hljs-comment"># 在该情况的基础上进行探索</span><br>                anotherRelevantInsPos = traceInstructionsInBlock(instructions, defAndUseSet, currPos, traceSet=newTraceSet)<br>                relevantInsPos.update(anotherRelevantInsPos)<br>            <br>            <span class="hljs-comment"># 以下是cmov执行的情况, 以及除cmov指令外的其他指令</span><br>            <span class="hljs-comment"># 做差集, 减去被定义的操作数</span><br>            traceSet = traceSet - intersectionSet<br>            <span class="hljs-comment"># 做并集，加入后续需要跟踪的操作数</span><br>            traceSet = traceSet | currUseSet<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;traceSet: <span class="hljs-subst">&#123;traceSet&#125;</span>&#x27;</span>)<br><br>            <span class="hljs-comment"># 添加当前指令到相关指令集中</span><br>            relevantInsPos.add(currPos)<br><br>        currPos -= <span class="hljs-number">1</span><br><br>    <span class="hljs-keyword">return</span> relevantInsPos<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、不足之处"><a href="#四、不足之处" class="headerlink" title="四、不足之处"></a>四、不足之处</h1><p>当真实汇编指令与垃圾汇编指令构成了标志寄存器的前者定义后者使用的关系时，此算法会造成误判。具体例子如下所示。（其中标<code>*</code>的为冗余汇编指令，其余为真实代码）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">  mov     rax, [rbp + var_10] <br>  movsx   edx, byte ptr [rax + 3]<br>* mov     eax, 7A39EAC0h<br>* mov     ecx, 9BEE23F6h<br>  cmp     edx, 65h <br>* cmovl   eax, ecx<br>* mov      [rbp + var_1C], eax<br>* jmp      loc_401418<br></code></pre></td></tr></table></figure>
+
+<p>由于<code>cmovl</code>指令依赖标志寄存器，因此会将第5行的<code>cmp</code>指令纳入到相关指令集合中（然而第5行的<code>cmp</code>指令是真实代码），以至于后续将其余真实代码也囊括进来，最终造成了误判！这个问题似乎解决不了，所以我认为我这个想法到头来还是失败的。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Liveness-Analysis/">#Liveness Analysis</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>去除反混淆后程序中的冗余汇编代码</div>
+      <div>http://example.com/2024/07/07/LLVM and OLLVM/去除反混淆后程序中的冗余汇编代码/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月7日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" title="ollvm反混淆">
+                        <span class="hidden-mobile">ollvm反混淆</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -252,6 +252,67 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
+          去除反混淆后程序中的冗余汇编代码
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
+        <div>
+          一、前言在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？ 二、基于Liveness Analysis的想法先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标*的为冗余汇编指令）： 12345678910111213141516171819
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-07 15:03" pubdate>
+              2024-07-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Liveness-Analysis/">#Liveness Analysis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
           ollvm反混淆
         </a>
@@ -775,69 +836,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">#环境配置</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
-          阅读笔记 —— 《Obfuscator-LLVM — Software Protection》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
-        <div>
-          LLVMLLVM独立于语言和平台。它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   OLLVMOLL
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:52" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
             
           </div>
         
