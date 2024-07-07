@@ -16,31 +16,30 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目">
+    <meta name="description" content="概述软件混淆是一种有前途的方法，用于在不受信任的环境中保护软件的知识产权和秘密信息。不幸的是，以前的软件混淆技术存在一个主要缺点：它们没有理论基础，因此不清楚其有效性。为此，我们在本文中提出了新的软件混淆技术。这些技术基于**软件程序过程间分析（intraprocedural analysis）的难度。我们的混淆技术的本质在于解决一个新的复杂性问题，即在存在函数指针数组的情况下，精确确定函数指针指">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OLLVM移植到NDK">
-<meta property="og:url" content="http://example.com/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/index.html">
+<meta property="og:title" content="阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》">
+<meta property="og:url" content="http://example.com/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目">
+<meta property="og:description" content="概述软件混淆是一种有前途的方法，用于在不受信任的环境中保护软件的知识产权和秘密信息。不幸的是，以前的软件混淆技术存在一个主要缺点：它们没有理论基础，因此不清楚其有效性。为此，我们在本文中提出了新的软件混淆技术。这些技术基于**软件程序过程间分析（intraprocedural analysis）的难度。我们的混淆技术的本质在于解决一个新的复杂性问题，即在存在函数指针数组的情况下，精确确定函数指针指">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162030284.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162028890.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162139959.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162131982.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162130555.png">
-<meta property="article:published_time" content="2024-04-17T11:48:13.000Z">
-<meta property="article:modified_time" content="2024-04-22T11:43:57.366Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521547.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522082.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522548.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522674.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522078.png">
+<meta property="article:published_time" content="2024-04-17T11:51:32.000Z">
+<meta property="article:modified_time" content="2024-07-07T07:22:39.906Z">
 <meta property="article:author" content="gla2xy">
-<meta property="article:tag" content="OLLVM">
-<meta property="article:tag" content="代码混淆">
-<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="论文研读">
+<meta property="article:tag" content="函数指针混淆">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521547.png">
   
   
   
-  <title>OLLVM移植到NDK - gla2xy&#39;s blog</title>
+  <title>阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》 - gla2xy&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -234,7 +233,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="OLLVM移植到NDK"></span>
+            <span id="subtitle" data-typed-text="阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》"></span>
           
         </div>
 
@@ -250,7 +249,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-17 19:48" pubdate>
+        <time datetime="2024-04-17 19:51" pubdate>
           2024年4月17日 晚上
         </time>
       </span>
@@ -262,7 +261,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          2.5k 字
         
       </span>
     
@@ -273,7 +272,7 @@
         
         
         
-          11 分钟
+          22 分钟
         
       </span>
     
@@ -319,42 +318,89 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">OLLVM移植到NDK</h1>
+            <h1 style="display: none">阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>一开始是直接将ollvm4源码编译后移植到ndk上，按照<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9136f7257e46">跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)</a>上的步骤走，结果仍然报错：</p>
-<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mel">Android Studio fatal <span class="hljs-keyword">error</span>: <span class="hljs-string">&#x27;stdarg.h&#x27;</span> <span class="hljs-keyword">file</span> not found<br></code></pre></td></tr></table></figure>
-
-<p>而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目录，居然会出现jni.h、string库识别不出来的错误（可是它可以在NDK目录中搜索出来）：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">Android Studio fatal <span class="hljs-keyword">error</span>: &#x27;<span class="hljs-built_in">string</span>&#x27; <span class="hljs-built_in">file</span> <span class="hljs-keyword">not</span> found<br></code></pre></td></tr></table></figure>
-
-<p>之后看了Whitebird的博客，猜测可能是版本不匹配的问题。</p>
-<p>所以有必要提醒各位，本文章中所涉及到的NDK是Android Studio自带的，以及LLVM是抑制了OLLVM的，且NDK版本和LLVM版本一致，均为14.0.6。</p>
-<h1 id="二、移植"><a href="#二、移植" class="headerlink" title="二、移植"></a>二、移植</h1><h2 id="2-1-OLLVM移植到LLVM14-x"><a href="#2-1-OLLVM移植到LLVM14-x" class="headerlink" title="2.1 OLLVM移植到LLVM14.x"></a>2.1 OLLVM移植到LLVM14.x</h2><p>OLLVM移植到LLVM14.x参考<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/">https://gal2xy.github.io/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/</a></p>
-<h2 id="2-2-目录复制"><a href="#2-2-目录复制" class="headerlink" title="2.2 目录复制"></a>2.2 目录复制</h2><ol>
-<li><p>将2.1步骤中编译出的LLVM中的bin、lib、include目录复制到NDK的toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;目录下，进行覆盖。</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png" srcset="/img/loading.gif" lazyload></p>
+                <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>软件混淆是一种有前途的方法，用于在不受信任的环境中保护软件的知识产权和秘密信息。不幸的是，以前的软件混淆技术存在一个主要缺点：它们没有理论基础，因此不清楚其有效性。为此，我们在本文中提出了新的软件混淆技术。这些技术基于**<u>软件程序过程间分析（intraprocedural analysis）的难度</u><strong>。</strong><u>我们的混淆技术的本质在于解决一个新的复杂性问题，即在存在函数指针数组的情况下，精确确定函数指针指向的地址</u>。**我们证明了这个问题是NP难的，这一事实为我们的混淆技术提供了理论基础。此外，我们已经实现了一个原型工具，根据我们提出的技术对C程序进行混淆，并在本文中描述了该实现和讨论实验结果。</p>
+<p>函数指针对于软件混淆非常有用，原因如下：</p>
+<ol>
+<li><strong>函数指针的存在显著破坏静态分析，尤其是过程间分析</strong>。这是因为通过函数指针进行的过程调用使得在编译时确定控制流变得困难。因此，大多数传统的静态分析技术无法应对函数指针，通常会忽略它们。</li>
+<li><strong>我们的混淆技术可以提供理论基础</strong>，因为其本质是一个新的复杂性问题，简而言之，就是在存在函数指针数组的情况下，精确确定函数指针指向的地址。本文证明了这个问题是NP难的。</li>
+</ol>
+<p>除了使用函数指针外，本文还提出了两种新的混淆技术来阻碍过程间分析。它们增加了程序中unrealizable路径的数量。因此，它们极大地降低了静态分析的精确性，使得混淆后的程序更难理解。</p>
+<h1 id="防篡改软件"><a href="#防篡改软件" class="headerlink" title="防篡改软件"></a>防篡改软件</h1><p>实现软件防篡改的主要方法可以分为以下三类：</p>
+<ol>
+<li><p>远程执行</p>
+<p>程序的一部分保存在一个安全的可信服务器上，用户远程执行该程序。缺点是服务器压力大，网络通信导致性能差。</p>
 </li>
-<li><p>在NDK目录下，将toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib64目录下的clang文件夹复制到toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib目录下，进行覆盖。</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162030284.png" srcset="/img/loading.gif" lazyload></p>
-<p>没有操作此步骤会报如下错误：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162028890.png" srcset="/img/loading.gif" lazyload>查询发现根本就没有这个目录。</p>
+<li><p>硬件防护</p>
+<p>利用专用硬件来实现软件防篡改。缺点是成本贵。（当然也有用专们开挂的硬件DMA）</p>
+</li>
+<li><p>混淆</p>
+<p>将程序转换成难以理解和非法篡改的形式。软件混淆被认为是在不受信任的环境中保护软件知识产权和秘密信息的最可行的方法。</p>
 </li>
 </ol>
-<h1 id="三、项目混淆配置与测试"><a href="#三、项目混淆配置与测试" class="headerlink" title="三、项目混淆配置与测试"></a>三、项目混淆配置与测试</h1><h2 id="3-1-项目混淆配置"><a href="#3-1-项目混淆配置" class="headerlink" title="3.1 项目混淆配置"></a>3.1 项目混淆配置</h2><p>想要对项目中的.c&#x2F;.cpp代码进行混淆，需要在cpp目录下的CMakeLists.txt中添加混淆配置，例如：</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">set</span>(CMAKE_C_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_C_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br><span class="hljs-keyword">set</span>(CMAKE_CXX_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_CXX_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br></code></pre></td></tr></table></figure>
-
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162139959.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="3-2-测试"><a href="#3-2-测试" class="headerlink" title="3.2 测试"></a>3.2 测试</h2><p>测试代码：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162131982.png" srcset="/img/loading.gif" lazyload></p>
-<p>分析apk中的so文件，该函数对应控制流图如下：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162130555.png" srcset="/img/loading.gif" lazyload></p>
-<p>可见是非常的成功！</p>
-<hr>
-<p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://whitebird0.github.io/post/%E4%BB%8Ellvm%E5%88%B0ollvm%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html">从LLVM到OLLVM学习笔记 | Whitebird’s Home (whitebird0.github.io)</a></p>
+<h1 id="函数指针混淆"><a href="#函数指针混淆" class="headerlink" title="函数指针混淆"></a>函数指针混淆</h1><p>函数指针混淆程序分为三个阶段：</p>
+<ol>
+<li>函数分解（Decomposition of procedures）</li>
+<li>函数指针的使用（Use of function pointers）</li>
+<li>函数指针数组的引入（ Introduction of arrays of function pointers）</li>
+</ol>
+<h2 id="函数分解"><a href="#函数分解" class="headerlink" title="函数分解"></a>函数分解</h2><p>随机选择一个函数，将其分解为较小的函数，并用这些分解后的函数重构原始函数，同时保持原始语义。函数分解的基本原则是随机选择一些连续的语句，并将它们组织成一个新的函数。</p>
+<p>具体步骤如下：</p>
+<ol>
+<li><strong>选择过程</strong>：首先随机选择一个没有全局分支的函数（例如，没有函数调用、goto语句、return语句等）。这样的函数可以包含if语句或for语句，因为它们是函数内的局部分支。</li>
+<li><strong>分解语句</strong>：然后在该函数中进一步选择一系列语句，并将它们组成一个新的函数。新创建的函数必须反映其在原始函数中的功能。在上述简单情况下，可以通过让这些函数共享从原始函数中的局部变量提升为全局变量来完成。</li>
+</ol>
+<p>上述步骤在程序中的多个函数中随机重复。在此阶段，我们可能会在程序中插入虚假函数，使得控制流图和调用图的节点和边的数量变得更多，导致程序的函数间分析变得更加困难。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521547.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="函数指针的使用"><a href="#函数指针的使用" class="headerlink" title="函数指针的使用"></a>函数指针的使用</h2><p>函数之间的调用强制通过函数指针调用，例子如下图所示。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522082.png" srcset="/img/loading.gif" lazyload></p>
+<p>额外增加了不透明谓词混淆，使得在静态分析中很难确定函数指针 <code>fp</code> 所指向的函数地址。</p>
+<h2 id="函数指针数组的引入"><a href="#函数指针数组的引入" class="headerlink" title="函数指针数组的引入"></a>函数指针数组的引入</h2><p>随机将函数地址存储到数组中，并准备表达式通过一些（直接或间接）函数调用来计算每个索引。</p>
+<p>例子如下图所示。图中提供了一个函数指针数组<code>A</code>和一个帮助计算<code>A</code>索引的函数<code>func0</code>，该函数始终返回偶数，因此原始程序的语义得以保持。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522548.png" srcset="/img/loading.gif" lazyload></p>
+<p>对<code>fp</code>的赋值取决于通过<code>fp</code>（先前的值）和指针数组<code>A</code>的相应元素的函数调用。它们的组合显著地削弱了静态分析的效果。</p>
+<h1 id="增加unrealizable路径的混淆"><a href="#增加unrealizable路径的混淆" class="headerlink" title="增加unrealizable路径的混淆"></a>增加unrealizable路径的混淆</h1><p>两种混淆方法</p>
+<ol>
+<li>合并函数调用（ Mergence of procedure calls into one call）</li>
+<li>添加冗余的返回语句（Additions of redundant return-statements）</li>
+</ol>
+<p>以上方法都是为了增加程序的unrealizable路径的数量。</p>
+<h2 id="合并函数调用"><a href="#合并函数调用" class="headerlink" title="合并函数调用"></a>合并函数调用</h2><p>具体步骤如下：</p>
+<ol>
+<li><strong>选择过程调用</strong>：随机选择一个函数中的多个函数调用 $f_{i_1}(…),…,f_{i_n}(…)$，这些函数调用<u>具有相同的返回值类型</u>。</li>
+<li><strong>创建新过程</strong>：创建一个新函数 $f_{n+1}$，将 $f_{i_1}(…),…,f_{i_n}(…)$ 包含在这个新函数中。</li>
+<li><strong>引入位置变量</strong>：引入一个路由变量 $sw$，用来记住在原始过程 $func$ 中 $f_{i_1}(…),…,f_{i_n}(…)$ 被调用的位置。</li>
+<li><strong>替换过程调用</strong>：将 $func$ 中的 $f_{i_1}(…),…,f_{i_n}(…)$ 替换为对新过程 $f_{n+1}$ 的调用。</li>
+<li><strong>传递参数</strong>：如果 $f_{i_1}(…),…,f_{i_n}(…)$ 需要参数，则通过$f_{n+1}$ 的参数传递这些参数。</li>
+</ol>
+<p>具体例子如下图所示。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522674.png" srcset="/img/loading.gif" lazyload></p>
+<p>该例子中的函数调用图如下所示。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522401.png" srcset="/img/loading.gif" lazyload>存在两条unrealizable路径：</p>
+<ul>
+<li>···→ [(15) exit func1] → [(9) return func1] → [(12) exit func3] → [(5) return func3] → ···</li>
+<li>···→ [(18) exit func2] → [(11) return func2] → [(12) exit func3] → [(2) return func3] → ···</li>
+</ul>
+<h1 id="工具框架"><a href="#工具框架" class="headerlink" title="工具框架"></a>工具框架</h1><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522078.png" srcset="/img/loading.gif" lazyload></p>
+<p>工具工作流程：</p>
+<ul>
+<li><p>首先，读取目标程序并借助<code>SUIF2</code>将其转换为<code>IR</code>表示。</p>
+</li>
+<li><p>然后，依次执行<code>ObfuscatePass</code>类的两个方法（<code>do_file_set_block</code>和<code>do_file_block</code>）以进行初始化。</p>
+<ul>
+<li><p><code>do_file_set_block</code>初始化全局数据结构。</p>
+</li>
+<li><p><code>do_file_block</code>调用<code>create_variable</code>、<code>create_function</code>和<code>create_fpointer</code>方法，以生成辅助变量、虚拟函数、函数指针和函数指针数组。</p>
+</li>
+</ul>
+</li>
+<li><p>之后可能会多次调用<code>do_procedure_definition</code>方法对目标程序进行混淆。<code>do_procedure_definition</code>方法通过调用<code>slice_func</code>（函数分解）、<code>import_fpointer</code>（引入函数指针和数组）和<code>complicate_cflow</code>（复杂化调用图的结构），将随机选择的过程转换为混淆的过程。</p>
+</li>
+</ul>
 
                 
               </div>
@@ -373,7 +419,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
   
   
 
@@ -388,11 +434,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/OLLVM/">#OLLVM</a>
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
       
-        <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
-      
-        <a href="/tags/LLVM/">#LLVM</a>
+        <a href="/tags/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%B7%B7%E6%B7%86/">#函数指针混淆</a>
       
     </div>
   
@@ -404,8 +448,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>OLLVM移植到NDK</div>
-      <div>http://example.com/2024/04/17/LLVM and OLLVM/OLLVM移植到NDK/</div>
+      <div>阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</div>
+      <div>http://example.com/2024/04/17/论文研读/OLLVM/Software Obfuscation on a Theoretical Basis and Its Implementation/</div>
     </div>
     <div class="license-meta">
       
@@ -447,9 +491,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/" title="阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》">
+                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/" title="阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</span>
+                        <span class="hidden-mobile">阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -457,8 +501,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" title="OLLVM移植到LLVM14">
-                        <span class="hidden-mobile">OLLVM移植到LLVM14</span>
+                      <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" title="OLLVM移植到NDK">
+                        <span class="hidden-mobile">OLLVM移植到NDK</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

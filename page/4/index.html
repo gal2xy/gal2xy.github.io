@@ -252,6 +252,184 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E7%AC%AC%E4%B8%80%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
+          Android第一代加固壳的原理及实现 —— 落地加载
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E7%AC%AC%E4%B8%80%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
+        <div>
+          一、前言学习加壳之前，建议先把前置知识学习再说。我们需要先学习dex文件结构、java反射、Android中的ClassLoader、Application以及它的加载流程、App启动流程。 不然我真不建议直接莽它，不懂原理只能学到皮毛！ 二、第一代加固壳原理第一代加固壳原理如下图所示：  在图中涉及到三个程序：  待加壳程序的APK（源程序APK） （脱）壳程序APK（负责解密源程序APK并加载
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-01 22:15" pubdate>
+              2023-12-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android%E5%8A%A0%E5%9B%BA/">#Android加固</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Application%E7%B1%BB/" target="_self">
+          Android中的Application类
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/01/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Application%E7%B1%BB/" target="_self">
+        <div>
+          一、Application是什么Application同Activity、Service一样，都是Android系统的组件。当应用程序启动过程中，最先创建的是Application实例（有且仅有一个），它的创建早于应用程序启动以及任何Activity、Service或接收者对象（不包括ContentProvider）的创建。Application的生命周期是整个应用程序中最长的，它的生命周期就等于
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-01 22:13" pubdate>
+              2023-12-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/11/27/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADApplication%E7%9A%84%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/" target="_self">
+          Android中Application的创建流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/27/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADApplication%E7%9A%84%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          一、前言System进程和App进程都运行着一个或多个App，每个App都会有一个对应的Application对象(该对象跟LoadedApk一一对应)。下面分别解析以下两种进程创建Application的过程：  System Server进程 App进程  二、System Server进程在Android系统启动流程一文中，讲到过Zygote通过回调函数进入到System Server阶段，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-27 17:50" pubdate>
+              2023-11-27
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Application/">#Application</a>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/11/25/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84ClassLoader/" target="_self">
           Android中的ClassLoader
         </a>
@@ -669,198 +847,6 @@
               <a href="/tags/Android/">#Android</a>
             
               <a href="/tags/odex/">#odex</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/11/10/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
-          dex文件格式解析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/10/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          一、dex文件中的数据结构1.1 数据类型   类型 含义    u1 表示1byte的无符号数   u2 表示2bytes的无符号数   u4 表示4bytes的无符号数   u8 表示8bytes的无符号数   sleb128 有符号LEB128，可变长度为1~5bytes   uleb128 无符号LEB128，可变长度为1~5bytes   uleb128p1 &#x3D;无符号LEB12
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-10 21:47" pubdate>
-              2023-11-10
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-              <a href="/tags/dex/">#dex</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/13/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Dalvik%E5%92%8CART%E8%99%9A%E6%8B%9F%E6%9C%BA/" target="_self">
-          Android中的Dalvik和ART虚拟机
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/13/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Dalvik%E5%92%8CART%E8%99%9A%E6%8B%9F%E6%9C%BA/" target="_self">
-        <div>
-          DalvikDalvik虚拟机（Dalvik Virtual Machine），简称 DVM，是 Google 专门为 Android 平台开发的虚拟机，它运行在 Android 运行时库中。 DVM 与 JVM 的区别 架构不同 JVM基于栈架构，需要频繁地从栈上读写数据，因此需要更多的指令分派和内存访问次数，这样就会耗费不少 CPU 时间。 DVM基于寄存器架构，数据的访问通过寄存器间的直接传
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-13 22:40" pubdate>
-              2023-09-13
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/13/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/13%E6%97%A5%E6%8A%A5/" target="_self">
-          20230913日报
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/13/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/13%E6%97%A5%E6%8A%A5/" target="_self">
-        <div>
-          延续昨天的DVM和ART的学习笔记，然后又学习了apk的打包流程，之后是apk的安装流程源码分析，没想到这部分很长很长，可以把这部分分为3部分：  PackageInstaller应用的初始化，这部分在UI界面上体现就是我们常看到的安装确认界面，包含需要使用到的权限信息等。 PackageInstaller安装apk，这部分并不是真正的安装，而是创建一个注册一个InstallEventReceiv
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-13 22:28" pubdate>
-              2023-09-13
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
             
           </div>
         

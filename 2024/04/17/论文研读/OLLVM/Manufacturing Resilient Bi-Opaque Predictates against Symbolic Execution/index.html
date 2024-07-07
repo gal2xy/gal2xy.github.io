@@ -16,31 +16,30 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目">
+    <meta name="description" content="概述控制流混淆通过保持语义不变的转换来增加程序复杂性。不透明谓词是实现这种转换的基本工具。然而，我们观察到现实世界中的不透明谓词通常非常简单，并且考虑的安全性很少。最近，这些不安全的不透明谓词受到了基于符号执行的对手的严重攻击，危及了控制流混淆的安全性。因此，本文提出了可以抵抗基于符号执行对手的符号不透明谓词。我们设计了一个通用框架来组合这种不透明谓词，该框架需要在每个不透明谓词中引入具有挑战性的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OLLVM移植到NDK">
-<meta property="og:url" content="http://example.com/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/index.html">
+<meta property="og:title" content="阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》">
+<meta property="og:url" content="http://example.com/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目">
+<meta property="og:description" content="概述控制流混淆通过保持语义不变的转换来增加程序复杂性。不透明谓词是实现这种转换的基本工具。然而，我们观察到现实世界中的不透明谓词通常非常简单，并且考虑的安全性很少。最近，这些不安全的不透明谓词受到了基于符号执行的对手的严重攻击，危及了控制流混淆的安全性。因此，本文提出了可以抵抗基于符号执行对手的符号不透明谓词。我们设计了一个通用框架来组合这种不透明谓词，该框架需要在每个不透明谓词中引入具有挑战性的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162030284.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162028890.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162139959.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162131982.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162130555.png">
-<meta property="article:published_time" content="2024-04-17T11:48:13.000Z">
-<meta property="article:modified_time" content="2024-04-22T11:43:57.366Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522126.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522275.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523255.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523371.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523057.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523819.png">
+<meta property="article:published_time" content="2024-04-17T11:51:32.000Z">
+<meta property="article:modified_time" content="2024-07-07T07:23:31.822Z">
 <meta property="article:author" content="gla2xy">
-<meta property="article:tag" content="OLLVM">
-<meta property="article:tag" content="代码混淆">
-<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="论文研读">
+<meta property="article:tag" content="双重不透明谓词混淆">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522126.png">
   
   
   
-  <title>OLLVM移植到NDK - gla2xy&#39;s blog</title>
+  <title>阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》 - gla2xy&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -234,7 +233,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="OLLVM移植到NDK"></span>
+            <span id="subtitle" data-typed-text="阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》"></span>
           
         </div>
 
@@ -250,7 +249,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-17 19:48" pubdate>
+        <time datetime="2024-04-17 19:51" pubdate>
           2024年4月17日 晚上
         </time>
       </span>
@@ -262,7 +261,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          2.3k 字
         
       </span>
     
@@ -273,7 +272,7 @@
         
         
         
-          11 分钟
+          20 分钟
         
       </span>
     
@@ -319,42 +318,38 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">OLLVM移植到NDK</h1>
+            <h1 style="display: none">阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>一开始是直接将ollvm4源码编译后移植到ndk上，按照<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9136f7257e46">跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)</a>上的步骤走，结果仍然报错：</p>
-<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mel">Android Studio fatal <span class="hljs-keyword">error</span>: <span class="hljs-string">&#x27;stdarg.h&#x27;</span> <span class="hljs-keyword">file</span> not found<br></code></pre></td></tr></table></figure>
-
-<p>而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目录，居然会出现jni.h、string库识别不出来的错误（可是它可以在NDK目录中搜索出来）：</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">Android Studio fatal <span class="hljs-keyword">error</span>: &#x27;<span class="hljs-built_in">string</span>&#x27; <span class="hljs-built_in">file</span> <span class="hljs-keyword">not</span> found<br></code></pre></td></tr></table></figure>
-
-<p>之后看了Whitebird的博客，猜测可能是版本不匹配的问题。</p>
-<p>所以有必要提醒各位，本文章中所涉及到的NDK是Android Studio自带的，以及LLVM是抑制了OLLVM的，且NDK版本和LLVM版本一致，均为14.0.6。</p>
-<h1 id="二、移植"><a href="#二、移植" class="headerlink" title="二、移植"></a>二、移植</h1><h2 id="2-1-OLLVM移植到LLVM14-x"><a href="#2-1-OLLVM移植到LLVM14-x" class="headerlink" title="2.1 OLLVM移植到LLVM14.x"></a>2.1 OLLVM移植到LLVM14.x</h2><p>OLLVM移植到LLVM14.x参考<a target="_blank" rel="noopener" href="https://gal2xy.github.io/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/">https://gal2xy.github.io/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/</a></p>
-<h2 id="2-2-目录复制"><a href="#2-2-目录复制" class="headerlink" title="2.2 目录复制"></a>2.2 目录复制</h2><ol>
-<li><p>将2.1步骤中编译出的LLVM中的bin、lib、include目录复制到NDK的toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;目录下，进行覆盖。</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162134330.png" srcset="/img/loading.gif" lazyload></p>
+                <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>控制流混淆通过保持语义不变的转换来增加程序复杂性。不透明谓词是实现这种转换的基本工具。然而，我们观察到现实世界中的不透明谓词通常非常简单，并且考虑的安全性很少。最近，这些不安全的不透明谓词受到了基于符号执行的对手的严重攻击，危及了控制流混淆的安全性。因此，本文提出了可以抵抗基于符号执行对手的<strong>符号不透明谓词</strong>。我们设计了一个通用框架来组合这种不透明谓词，该框架需要在每个不透明谓词中引入具有挑战性的符号分析问题（例如符号内存）。通过这种方式，我们可以误导符号执行引擎得出错误的结论。我们观察到关于符号不透明谓词的一种新颖的双重不透明特性，这不仅会导致对攻击者的误报问题，还会导致漏报问题。为了评估我们想法的有效性，我们基于Obfuscator-LLVM实现了一个原型混淆工具，并对实际程序进行了实验。我们的评估结果表明，符号不透明谓词对流行的符号执行引擎（如BAP、Triton和Angr）表现出优异的抗性。此外，虽然符号不透明谓词的成本可能因不同问题设置而异，但某些谓词可能非常高效。因此，我们的框架既安全又可用。用户可以遵循该框架，将符号不透明谓词引入他们的混淆工具中，使其更强大。</p>
+<h1 id="双重不透明谓词构造"><a href="#双重不透明谓词构造" class="headerlink" title="双重不透明谓词构造"></a>双重不透明谓词构造</h1><p>命名了两种类型的不透明谓词：</p>
+<ol>
+<li><p>I型不透明谓词：假阴性不透明谓词</p>
+<p>对手未能检测到模糊谓词，错误地将它们识别为正常谓词。换句话说，混淆的控制流图中的模糊谓词未被识别出来。</p>
 </li>
-<li><p>在NDK目录下，将toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib64目录下的clang文件夹复制到toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-86_64&#x2F;lib目录下，进行覆盖。</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162030284.png" srcset="/img/loading.gif" lazyload></p>
-<p>没有操作此步骤会报如下错误：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162028890.png" srcset="/img/loading.gif" lazyload>查询发现根本就没有这个目录。</p>
+<li><p>II型不透明谓词：假阳性不透明谓词</p>
+<p>对手错误地将正常谓词识别为模糊谓词。换句话说，正常的控制流图中的某些谓词被误认为是模糊的。</p>
 </li>
 </ol>
-<h1 id="三、项目混淆配置与测试"><a href="#三、项目混淆配置与测试" class="headerlink" title="三、项目混淆配置与测试"></a>三、项目混淆配置与测试</h1><h2 id="3-1-项目混淆配置"><a href="#3-1-项目混淆配置" class="headerlink" title="3.1 项目混淆配置"></a>3.1 项目混淆配置</h2><p>想要对项目中的.c&#x2F;.cpp代码进行混淆，需要在cpp目录下的CMakeLists.txt中添加混淆配置，例如：</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">set</span>(CMAKE_C_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_C_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br><span class="hljs-keyword">set</span>(CMAKE_CXX_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_CXX_FLAGS&#125; -mllvm -bcf -mllvm -bcf_loop=3 -mllvm -fla -mllvm -split -mllvm -split_num=3&quot;</span>)<br></code></pre></td></tr></table></figure>
-
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162139959.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="3-2-测试"><a href="#3-2-测试" class="headerlink" title="3.2 测试"></a>3.2 测试</h2><p>测试代码：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162131982.png" srcset="/img/loading.gif" lazyload></p>
-<p>分析apk中的so文件，该函数对应控制流图如下：</p>
-<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202404162130555.png" srcset="/img/loading.gif" lazyload></p>
-<p>可见是非常的成功！</p>
-<hr>
-<p>参考：</p>
-<p><a target="_blank" rel="noopener" href="https://whitebird0.github.io/post/%E4%BB%8Ellvm%E5%88%B0ollvm%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html">从LLVM到OLLVM学习笔记 | Whitebird’s Home (whitebird0.github.io)</a></p>
+<p>接下来是介绍几种不透明谓词构造的方法，这些方法<strong>利用符号执行的弱点</strong>来组成不透明的谓词，这样它们就可以逃避基于符号执行的检测。</p>
+<h2 id="符号内存难题"><a href="#符号内存难题" class="headerlink" title="符号内存难题"></a>符号内存难题</h2><p>符号内存是程序分析中的一个难题，因为它涉及指针分析问题。下图是一个示例。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522126.png" srcset="/img/loading.gif" lazyload></p>
+<p>在这个例子中，构造了两个整数数组。符号值 <code>j%7</code> 指向第一个数组中的一个元素，该元素作为第二个数组的偏移量。然后从第二个数组中选择的元素被赋值给一个新变量 <code>i</code>。通过这种方式，<code>i</code> 是一个受符号内存难题保护的符号值，我们可以用 <code>i</code> 来构造符号模糊谓词。</p>
+<p>例如，我们可以构造一个不能被满足的类型I模糊谓词，如 <code>i == j</code>。使用这个模糊谓词，我们可以插入一个虚假的代码块（即 <code>Bogus()</code>），它永远不会被执行。这个谓词的安全性取决于符号执行引擎的能力。如果符号执行引擎没有处理符号内存的机制，它将生成错误的约束模型，并错误地将这个谓词识别为普通谓词。</p>
+<p>为了构造一个类型II模糊谓词，我们首先选择一个普通谓词，例如 <code>j == 7</code>。然后我们通过引入一个与 <code>i</code> 相关的新条件来修改这个谓词，例如 <code>i == 1 &amp;&amp; j == 7</code>。这个修改不会改变原始谓词的语义，因为当 <code>j</code> 等于7时，<code>i == 1</code> 总是为真。这种条件可以很容易生成，因为 <code>i</code> 的值可以从任何 <code>j</code> 计算出来。在汇编代码中，新谓词将被解构成两个谓词 <code>i == 1</code> 和 <code>j == 7</code>。只有当第一个谓词为真时，第二个谓词 <code>j == 7</code> 才会被评估。如果符号执行引擎不支持符号内存，它将无法解决 <code>i == 1</code> 的约束，也无法达到普通谓词 <code>j == 7</code>。</p>
+<h3 id="通用模板生成算法"><a href="#通用模板生成算法" class="headerlink" title="通用模板生成算法"></a>通用模板生成算法</h3><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522275.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="浮点数计算问题"><a href="#浮点数计算问题" class="headerlink" title="浮点数计算问题"></a>浮点数计算问题</h2><p>浮点数用于表示实数近似值的一种数值格式，因此它的精度不准确。基于这一问题，浮点数会对符号执行带来麻烦。由于符号执行引擎在处理浮点数时，必须对浮点数背后的数学概念进行推理，而浮点数和有理数、实数之间的精度和表示方式存在差异，这可能会导致符号执行引擎在分析过程中出现不一致的结果或错误。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523255.png" srcset="/img/loading.gif" lazyload></p>
+<p>上图是一个利用该问题混淆的示例。在这个例子中，因为浮点类型不能精确表示0.1，所以无论我们给 <code>symvar</code> 赋什么值，<code>f == 0.1</code> 都不能满足。为了构造一个类型II谓词，我们可以将谓词 <code>j == 7</code> 改为 <code>(1024 + f == 1024) &amp;&amp; (f &gt; 0) &amp;&amp; (j == 7)</code>。新的谓词旨在欺骗符号执行引擎，使其认为约束 <code>(1024 + f == 1024) &amp;&amp; (f &gt; 0)</code> 不能被满足，这在实数域中是正确的。然而，它在浮点数域中是可以被满足的。例如，<code>f = 0.000007</code> 是一个解。通过这种方式，当 <code>j = 7</code> 时，类型II模糊谓词可以被满足，从而保持语义。如果符号执行引擎不能处理这样的浮点数，它可能会错误地将 <code>f == 0.1</code> 视为普通谓词，而将类型II谓词视为模糊谓词。</p>
+<h2 id="隐蔽传播挑战"><a href="#隐蔽传播挑战" class="headerlink" title="隐蔽传播挑战"></a>隐蔽传播挑战</h2><p>符号执行需要精确跟踪符号值的传播。然而，符号值可能通过许多方式传播，如输入&#x2F;输出(I&#x2F;O)操作。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523371.png" srcset="/img/loading.gif" lazyload></p>
+<p>在这个例子中，符号值 <code>j</code> 通过磁盘上的文件传播，然后赋值给 <code>i</code>。我们可以构建一个类型I不透明谓词 <code>i != j</code>，这将始终为假。如果符号执行引擎无法跟踪这种传播，它会将 <code>i</code> 视为一个常量，并将不透明谓词视为正常谓词。为了构建一个类型II不透明谓词，我们可以将谓词 <code>j == 7</code> 改为 <code>i == 7</code>，其中 <code>i</code> 等于 <code>j</code>。这种修改保持了程序的原始语义。然而，符号执行器可能会将 <code>i</code> 视为常量，从而得出错误的结论。</p>
+<h2 id="并行计算问题"><a href="#并行计算问题" class="headerlink" title="并行计算问题"></a>并行计算问题</h2><p>并行程序（例如多线程、多进程）对于符号执行来说很难处理，因为执行顺序不仅由程序决定，还受主机计算机的影响。因此，我们无法为程序生成静态控制流图，而这是经典符号执行工作的基础。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523057.png" srcset="/img/loading.gif" lazyload></p>
+<p>在这个例子中，我们创建了两个额外的线程来修改符号变量 <code>j</code> 的值：一个线程将 <code>in</code> 增加 1，另一个线程将 <code>in</code> 减少 1。由于并行执行，两个线程同时对 <code>in</code> 的相同值进行计算。<code>i</code> 的值由最后终止的线程决定，在我们的例子中应该是第二个线程。最终，<code>ThreadProp</code> 函数的返回值应该等于 <code>j - 1</code>（<code>Inc</code>的<code>tid</code>被<code>Dec</code>的<code>tid</code>覆盖，最终仅执行<code>Dec</code>）。基于受保护的符号变量 <code>i</code>，我们可以构造一个类型I不透明谓词 <code>i == j</code>，以及一个类型II不透明谓词 <code>i == 6</code>。</p>
+<h1 id="评估表"><a href="#评估表" class="headerlink" title="评估表"></a>评估表</h1><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523819.png" srcset="/img/loading.gif" lazyload></p>
 
                 
               </div>
@@ -373,7 +368,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
   
   
 
@@ -388,11 +383,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/OLLVM/">#OLLVM</a>
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
       
-        <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
-      
-        <a href="/tags/LLVM/">#LLVM</a>
+        <a href="/tags/%E5%8F%8C%E9%87%8D%E4%B8%8D%E9%80%8F%E6%98%8E%E8%B0%93%E8%AF%8D%E6%B7%B7%E6%B7%86/">#双重不透明谓词混淆</a>
       
     </div>
   
@@ -404,8 +397,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>OLLVM移植到NDK</div>
-      <div>http://example.com/2024/04/17/LLVM and OLLVM/OLLVM移植到NDK/</div>
+      <div>阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》</div>
+      <div>http://example.com/2024/04/17/论文研读/OLLVM/Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution/</div>
     </div>
     <div class="license-meta">
       
@@ -447,9 +440,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/" title="阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》">
+                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Impeding%20Malware%20Analysis%20Using%20Conditional%20Code%20Obfuscation/" title="阅读笔记 —— 《Impeding Malware Analysis Using Conditional Code Obfuscation》">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</span>
+                        <span class="hidden-mobile">阅读笔记 —— 《Impeding Malware Analysis Using Conditional Code Obfuscation》</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -457,8 +450,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" title="OLLVM移植到LLVM14">
-                        <span class="hidden-mobile">OLLVM移植到LLVM14</span>
+                      <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/" title="阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》">
+                        <span class="hidden-mobile">阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

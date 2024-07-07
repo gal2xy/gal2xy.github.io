@@ -310,6 +310,87 @@
   
   
   <entry>
+    <title>阅读笔记 —— 《Impeding Malware Analysis Using Conditional Code Obfuscation》</title>
+    <link href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Impeding%20Malware%20Analysis%20Using%20Conditional%20Code%20Obfuscation/"/>
+    <url>/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Impeding%20Malware%20Analysis%20Using%20Conditional%20Code%20Obfuscation/</url>
+    
+    <content type="html"><![CDATA[<h2 id="条件代码的哈希混淆"><a href="#条件代码的哈希混淆" class="headerlink" title="条件代码的哈希混淆"></a>条件代码的哈希混淆</h2><p>使用哈希函数等价替换原有分支条件，隐藏原有信息，示例如下：</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071520284.png"></p><p>图中左侧是原代码，右侧是混淆后的代码。混淆的操作主要是将<code>strcmp(cmd, &quot;startkeylogger&quot;)</code>等价替换为<code>hash(cmd) == H</code>，其中<code>H = hash(&quot;startkeylogger&quot;)</code>，然后增加了一个<code>decrypt_function</code>解密函数，参数<code>encr_log_keys</code>是对应函数的地址，作为待解密地址，<code>cmd</code>为密钥。这样一来，一是隐藏了原本条件中的信息明文，二是加密代码以隐藏代码意图防止被检测。</p><p>然而对于其他的一些条件，例如<code>n &gt; 10 &amp;&amp; n &lt; 20</code>，存在多个满足条件的值，就不能用hash混淆了。因此，能够实现条件代码混淆的条件需要满足如下要求：</p><ul><li>首先，即使是哈希之后的条件代码中的条件顺序也不能被打乱。</li><li>第二，当条件被满足时，应该从条件中得到一个唯一的值。</li><li>第三，该条件必须包含一个具有静态可确定的常量值的操作数。</li></ul><p>鉴于上述这些要求，检查两个数据值相等的操作符（例如’&#x3D;&#x3D;’, strcmp, strncmp, memcmp等）是合适的候选者。</p><p>对于满足上述条件的条件代码，一般情况下，混淆前后的情况如下图所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071520638.png"></p><p>其中$B_E$代码块是被密钥<code>c</code>加密了。只有当<code>X</code>是正确的值，即<code>c</code>，才能触发$Decr(B_E,X)$函数，从而得到原始代码并执行。恶意软件分析器只能通过监视攻击者触发这种行为、猜测正确的输入或破解密码操作来恢复条件密码B。</p><h2 id="寻找条件代码的算法"><a href="#寻找条件代码的算法" class="headerlink" title="寻找条件代码的算法"></a>寻找条件代码的算法</h2><p><strong>目标：</strong> 识别和提取程序中依赖于特定输入条件的代码块，以便进行条件代码混淆。</p><p><strong>步骤：</strong></p><ol><li><strong>识别候选条件：</strong><ul><li>对每个函数 $F_i$ 构建控制流图（CFG） $G_i &#x3D; (V_i, E_i)$，其中 $V_i$ 是基本块集合， $E_i$ 是控制流边集合。</li><li>识别包含条件分支的基本块，这些块有两个输出边。</li><li>使用循环分析排除循环中的条件分支。</li><li>选择包含等式运算符的条件分支作为候选条件，形成候选条件块集合 $C_i$。</li></ul></li><li><strong>确定条件代码块：</strong><ul><li>使用控制依赖分析识别对候选条件 $C$ 的结果有控制依赖的基本块。构建控制依赖图（CDG），其中每个条件块及其结果都有到对其有控制依赖性的块的边。</li><li>找到对候选条件 $C$ 的真结果有控制依赖的基本块集合 $CCode(C)$。</li></ul></li><li><strong>处理过程间依赖：</strong><ul><li>在过程间控制流图中确定可达性。如果候选条件的条件代码块中存在对某个函数$F$ 的调用，将$F$ 及其所有代码块包含在条件代码集合 $CCode(C)$ 中。</li><li>重复这一过程，直到所有可达的函数都被包含在内。</li></ul></li><li><strong>消除嵌套条件：</strong><ul><li>对于任何块 $B \in \text{CCode}(C)$，如果 $B$ 也在其他候选条件 $C’$ 的条件代码集合 $\text{CCode}(C’)$中，且 $C \in \text{CCode}(C’)$，将 $B$ 从 $\text{CCode}(C’)$ 中删除。</li><li>对于函数，执行相同的操作。</li></ul></li><li><strong>应用混淆：</strong><ul><li>先从没有其他候选条件依赖的候选条件开始混淆。</li><li>在每次迭代中，混淆没有未混淆候选条件依赖的候选条件。</li><li>重复这一过程，直到所有候选条件都被混淆。</li></ul></li><li><strong>处理不完整的CFG：</strong><ul><li>如果CFG不完整且代码指针无法静态解析目标，则保守地识别条件代码，不加密潜在目标及其可达的代码块。</li></ul></li></ol><p>对于多次出现在不同候选条件代码集合中的代码块，则通过复制代码并为每个候选条件分别加密，具体如下图所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521680.png"></p><p>对于条件代码是由多个逻辑运算符（如 &amp;&amp;、 ||）组合而成的，可以进行简化，例子如下图所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521367.png"></p><h2 id="工具实现"><a href="#工具实现" class="headerlink" title="工具实现"></a>工具实现</h2><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521120.png"></p><p>主要操作是在<code>Analysis/Transformation Phase</code>阶段和<code>Encryption Phase</code>阶段。</p><ul><li><p><code>Analysis/Transformation Phase</code>阶段</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521216.png"></p><p>以下操作均在IR中进行：</p><ul><li><p>使用hash加密替换条件代码。</p></li><li><p>在被加密的目标代码块$B_M$前插入解密函数<code>Decipher</code>，也是标记函数。同时其参数<code>size</code>用占位符表示。</p></li><li><p>在被加密的目标代码块的后面放置加密密钥$K_c$。</p></li><li><p>在加密密钥$K_c$后面添加<code>End_marker()</code>标记函数。</p></li></ul><p>在IR分析期间，无法预见相应代码在二进制文件中的确切位置以及二进制代码的大小，因此在代码中放置占位符来替换<code>size</code>，以便在<code>Encryption Phase</code>阶段中放置实际值。以及在代码中放置标记函数，用于在<code>Encryption Phase</code>阶段中识别要加密的代码块地址和大小，之后标记函数<code>End_marker()</code>会被<code>NOP</code>掉。</p><p>加密和解密所使用的密钥为<code>Key(X)=hash256(X|N)</code>（或<code>Key(C)=hash256(C|N)</code>），其中<code>N</code>一个随机数，这么做的主要原因如下：</p><ul><li>如果使用<code>hash(c)</code>作为密钥，那么存储在该条件代码中的哈希值就可以用于解密。</li><li>如果使用<code>c</code>作为密钥，则存在密钥长度不为256bit的情况，然而使用<code>hash256</code>可以达到这一要求。</li></ul></li><li><p><code>Encryption Phase</code>阶段</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521089.png"></p><p>搜索标记函数<code>Decipher()</code>和<code>End marker()</code>。找到后，根据标记函数提取密钥$K_c$，并使用<code>NOP</code>指令替换$K_c$和<code>End marker()</code>标记。然后，计算加密块的大小，需是32bytes的倍数，可用刚才的<code>NOP</code>指令空间填充。对于嵌套的条件代码块，递归地搜索要加密的最内嵌套块，并从最内嵌套块到最外层执行加密。</p></li></ul><p>由于混淆后的程序需要运行时解密，因此需要关闭代码页的写保护。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>论文研读</tag>
+      
+      <tag>哈希混淆</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》</title>
+    <link href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/"/>
+    <url>/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/</url>
+    
+    <content type="html"><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>控制流混淆通过保持语义不变的转换来增加程序复杂性。不透明谓词是实现这种转换的基本工具。然而，我们观察到现实世界中的不透明谓词通常非常简单，并且考虑的安全性很少。最近，这些不安全的不透明谓词受到了基于符号执行的对手的严重攻击，危及了控制流混淆的安全性。因此，本文提出了可以抵抗基于符号执行对手的<strong>符号不透明谓词</strong>。我们设计了一个通用框架来组合这种不透明谓词，该框架需要在每个不透明谓词中引入具有挑战性的符号分析问题（例如符号内存）。通过这种方式，我们可以误导符号执行引擎得出错误的结论。我们观察到关于符号不透明谓词的一种新颖的双重不透明特性，这不仅会导致对攻击者的误报问题，还会导致漏报问题。为了评估我们想法的有效性，我们基于Obfuscator-LLVM实现了一个原型混淆工具，并对实际程序进行了实验。我们的评估结果表明，符号不透明谓词对流行的符号执行引擎（如BAP、Triton和Angr）表现出优异的抗性。此外，虽然符号不透明谓词的成本可能因不同问题设置而异，但某些谓词可能非常高效。因此，我们的框架既安全又可用。用户可以遵循该框架，将符号不透明谓词引入他们的混淆工具中，使其更强大。</p><h1 id="双重不透明谓词构造"><a href="#双重不透明谓词构造" class="headerlink" title="双重不透明谓词构造"></a>双重不透明谓词构造</h1><p>命名了两种类型的不透明谓词：</p><ol><li><p>I型不透明谓词：假阴性不透明谓词</p><p>对手未能检测到模糊谓词，错误地将它们识别为正常谓词。换句话说，混淆的控制流图中的模糊谓词未被识别出来。</p></li><li><p>II型不透明谓词：假阳性不透明谓词</p><p>对手错误地将正常谓词识别为模糊谓词。换句话说，正常的控制流图中的某些谓词被误认为是模糊的。</p></li></ol><p>接下来是介绍几种不透明谓词构造的方法，这些方法<strong>利用符号执行的弱点</strong>来组成不透明的谓词，这样它们就可以逃避基于符号执行的检测。</p><h2 id="符号内存难题"><a href="#符号内存难题" class="headerlink" title="符号内存难题"></a>符号内存难题</h2><p>符号内存是程序分析中的一个难题，因为它涉及指针分析问题。下图是一个示例。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522126.png"></p><p>在这个例子中，构造了两个整数数组。符号值 <code>j%7</code> 指向第一个数组中的一个元素，该元素作为第二个数组的偏移量。然后从第二个数组中选择的元素被赋值给一个新变量 <code>i</code>。通过这种方式，<code>i</code> 是一个受符号内存难题保护的符号值，我们可以用 <code>i</code> 来构造符号模糊谓词。</p><p>例如，我们可以构造一个不能被满足的类型I模糊谓词，如 <code>i == j</code>。使用这个模糊谓词，我们可以插入一个虚假的代码块（即 <code>Bogus()</code>），它永远不会被执行。这个谓词的安全性取决于符号执行引擎的能力。如果符号执行引擎没有处理符号内存的机制，它将生成错误的约束模型，并错误地将这个谓词识别为普通谓词。</p><p>为了构造一个类型II模糊谓词，我们首先选择一个普通谓词，例如 <code>j == 7</code>。然后我们通过引入一个与 <code>i</code> 相关的新条件来修改这个谓词，例如 <code>i == 1 &amp;&amp; j == 7</code>。这个修改不会改变原始谓词的语义，因为当 <code>j</code> 等于7时，<code>i == 1</code> 总是为真。这种条件可以很容易生成，因为 <code>i</code> 的值可以从任何 <code>j</code> 计算出来。在汇编代码中，新谓词将被解构成两个谓词 <code>i == 1</code> 和 <code>j == 7</code>。只有当第一个谓词为真时，第二个谓词 <code>j == 7</code> 才会被评估。如果符号执行引擎不支持符号内存，它将无法解决 <code>i == 1</code> 的约束，也无法达到普通谓词 <code>j == 7</code>。</p><h3 id="通用模板生成算法"><a href="#通用模板生成算法" class="headerlink" title="通用模板生成算法"></a>通用模板生成算法</h3><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522275.png"></p><h2 id="浮点数计算问题"><a href="#浮点数计算问题" class="headerlink" title="浮点数计算问题"></a>浮点数计算问题</h2><p>浮点数用于表示实数近似值的一种数值格式，因此它的精度不准确。基于这一问题，浮点数会对符号执行带来麻烦。由于符号执行引擎在处理浮点数时，必须对浮点数背后的数学概念进行推理，而浮点数和有理数、实数之间的精度和表示方式存在差异，这可能会导致符号执行引擎在分析过程中出现不一致的结果或错误。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523255.png"></p><p>上图是一个利用该问题混淆的示例。在这个例子中，因为浮点类型不能精确表示0.1，所以无论我们给 <code>symvar</code> 赋什么值，<code>f == 0.1</code> 都不能满足。为了构造一个类型II谓词，我们可以将谓词 <code>j == 7</code> 改为 <code>(1024 + f == 1024) &amp;&amp; (f &gt; 0) &amp;&amp; (j == 7)</code>。新的谓词旨在欺骗符号执行引擎，使其认为约束 <code>(1024 + f == 1024) &amp;&amp; (f &gt; 0)</code> 不能被满足，这在实数域中是正确的。然而，它在浮点数域中是可以被满足的。例如，<code>f = 0.000007</code> 是一个解。通过这种方式，当 <code>j = 7</code> 时，类型II模糊谓词可以被满足，从而保持语义。如果符号执行引擎不能处理这样的浮点数，它可能会错误地将 <code>f == 0.1</code> 视为普通谓词，而将类型II谓词视为模糊谓词。</p><h2 id="隐蔽传播挑战"><a href="#隐蔽传播挑战" class="headerlink" title="隐蔽传播挑战"></a>隐蔽传播挑战</h2><p>符号执行需要精确跟踪符号值的传播。然而，符号值可能通过许多方式传播，如输入&#x2F;输出(I&#x2F;O)操作。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523371.png"></p><p>在这个例子中，符号值 <code>j</code> 通过磁盘上的文件传播，然后赋值给 <code>i</code>。我们可以构建一个类型I不透明谓词 <code>i != j</code>，这将始终为假。如果符号执行引擎无法跟踪这种传播，它会将 <code>i</code> 视为一个常量，并将不透明谓词视为正常谓词。为了构建一个类型II不透明谓词，我们可以将谓词 <code>j == 7</code> 改为 <code>i == 7</code>，其中 <code>i</code> 等于 <code>j</code>。这种修改保持了程序的原始语义。然而，符号执行器可能会将 <code>i</code> 视为常量，从而得出错误的结论。</p><h2 id="并行计算问题"><a href="#并行计算问题" class="headerlink" title="并行计算问题"></a>并行计算问题</h2><p>并行程序（例如多线程、多进程）对于符号执行来说很难处理，因为执行顺序不仅由程序决定，还受主机计算机的影响。因此，我们无法为程序生成静态控制流图，而这是经典符号执行工作的基础。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523057.png"></p><p>在这个例子中，我们创建了两个额外的线程来修改符号变量 <code>j</code> 的值：一个线程将 <code>in</code> 增加 1，另一个线程将 <code>in</code> 减少 1。由于并行执行，两个线程同时对 <code>in</code> 的相同值进行计算。<code>i</code> 的值由最后终止的线程决定，在我们的例子中应该是第二个线程。最终，<code>ThreadProp</code> 函数的返回值应该等于 <code>j - 1</code>（<code>Inc</code>的<code>tid</code>被<code>Dec</code>的<code>tid</code>覆盖，最终仅执行<code>Dec</code>）。基于受保护的符号变量 <code>i</code>，我们可以构造一个类型I不透明谓词 <code>i == j</code>，以及一个类型II不透明谓词 <code>i == 6</code>。</p><h1 id="评估表"><a href="#评估表" class="headerlink" title="评估表"></a>评估表</h1><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071523819.png"></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>论文研读</tag>
+      
+      <tag>双重不透明谓词混淆</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》</title>
+    <link href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/"/>
+    <url>/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/</url>
+    
+    <content type="html"><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>软件混淆是一种有前途的方法，用于在不受信任的环境中保护软件的知识产权和秘密信息。不幸的是，以前的软件混淆技术存在一个主要缺点：它们没有理论基础，因此不清楚其有效性。为此，我们在本文中提出了新的软件混淆技术。这些技术基于**<u>软件程序过程间分析（intraprocedural analysis）的难度</u><strong>。</strong><u>我们的混淆技术的本质在于解决一个新的复杂性问题，即在存在函数指针数组的情况下，精确确定函数指针指向的地址</u>。**我们证明了这个问题是NP难的，这一事实为我们的混淆技术提供了理论基础。此外，我们已经实现了一个原型工具，根据我们提出的技术对C程序进行混淆，并在本文中描述了该实现和讨论实验结果。</p><p>函数指针对于软件混淆非常有用，原因如下：</p><ol><li><strong>函数指针的存在显著破坏静态分析，尤其是过程间分析</strong>。这是因为通过函数指针进行的过程调用使得在编译时确定控制流变得困难。因此，大多数传统的静态分析技术无法应对函数指针，通常会忽略它们。</li><li><strong>我们的混淆技术可以提供理论基础</strong>，因为其本质是一个新的复杂性问题，简而言之，就是在存在函数指针数组的情况下，精确确定函数指针指向的地址。本文证明了这个问题是NP难的。</li></ol><p>除了使用函数指针外，本文还提出了两种新的混淆技术来阻碍过程间分析。它们增加了程序中unrealizable路径的数量。因此，它们极大地降低了静态分析的精确性，使得混淆后的程序更难理解。</p><h1 id="防篡改软件"><a href="#防篡改软件" class="headerlink" title="防篡改软件"></a>防篡改软件</h1><p>实现软件防篡改的主要方法可以分为以下三类：</p><ol><li><p>远程执行</p><p>程序的一部分保存在一个安全的可信服务器上，用户远程执行该程序。缺点是服务器压力大，网络通信导致性能差。</p></li><li><p>硬件防护</p><p>利用专用硬件来实现软件防篡改。缺点是成本贵。（当然也有用专们开挂的硬件DMA）</p></li><li><p>混淆</p><p>将程序转换成难以理解和非法篡改的形式。软件混淆被认为是在不受信任的环境中保护软件知识产权和秘密信息的最可行的方法。</p></li></ol><h1 id="函数指针混淆"><a href="#函数指针混淆" class="headerlink" title="函数指针混淆"></a>函数指针混淆</h1><p>函数指针混淆程序分为三个阶段：</p><ol><li>函数分解（Decomposition of procedures）</li><li>函数指针的使用（Use of function pointers）</li><li>函数指针数组的引入（ Introduction of arrays of function pointers）</li></ol><h2 id="函数分解"><a href="#函数分解" class="headerlink" title="函数分解"></a>函数分解</h2><p>随机选择一个函数，将其分解为较小的函数，并用这些分解后的函数重构原始函数，同时保持原始语义。函数分解的基本原则是随机选择一些连续的语句，并将它们组织成一个新的函数。</p><p>具体步骤如下：</p><ol><li><strong>选择过程</strong>：首先随机选择一个没有全局分支的函数（例如，没有函数调用、goto语句、return语句等）。这样的函数可以包含if语句或for语句，因为它们是函数内的局部分支。</li><li><strong>分解语句</strong>：然后在该函数中进一步选择一系列语句，并将它们组成一个新的函数。新创建的函数必须反映其在原始函数中的功能。在上述简单情况下，可以通过让这些函数共享从原始函数中的局部变量提升为全局变量来完成。</li></ol><p>上述步骤在程序中的多个函数中随机重复。在此阶段，我们可能会在程序中插入虚假函数，使得控制流图和调用图的节点和边的数量变得更多，导致程序的函数间分析变得更加困难。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071521547.png"></p><h2 id="函数指针的使用"><a href="#函数指针的使用" class="headerlink" title="函数指针的使用"></a>函数指针的使用</h2><p>函数之间的调用强制通过函数指针调用，例子如下图所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522082.png"></p><p>额外增加了不透明谓词混淆，使得在静态分析中很难确定函数指针 <code>fp</code> 所指向的函数地址。</p><h2 id="函数指针数组的引入"><a href="#函数指针数组的引入" class="headerlink" title="函数指针数组的引入"></a>函数指针数组的引入</h2><p>随机将函数地址存储到数组中，并准备表达式通过一些（直接或间接）函数调用来计算每个索引。</p><p>例子如下图所示。图中提供了一个函数指针数组<code>A</code>和一个帮助计算<code>A</code>索引的函数<code>func0</code>，该函数始终返回偶数，因此原始程序的语义得以保持。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522548.png"></p><p>对<code>fp</code>的赋值取决于通过<code>fp</code>（先前的值）和指针数组<code>A</code>的相应元素的函数调用。它们的组合显著地削弱了静态分析的效果。</p><h1 id="增加unrealizable路径的混淆"><a href="#增加unrealizable路径的混淆" class="headerlink" title="增加unrealizable路径的混淆"></a>增加unrealizable路径的混淆</h1><p>两种混淆方法</p><ol><li>合并函数调用（ Mergence of procedure calls into one call）</li><li>添加冗余的返回语句（Additions of redundant return-statements）</li></ol><p>以上方法都是为了增加程序的unrealizable路径的数量。</p><h2 id="合并函数调用"><a href="#合并函数调用" class="headerlink" title="合并函数调用"></a>合并函数调用</h2><p>具体步骤如下：</p><ol><li><strong>选择过程调用</strong>：随机选择一个函数中的多个函数调用 $f_{i_1}(…),…,f_{i_n}(…)$，这些函数调用<u>具有相同的返回值类型</u>。</li><li><strong>创建新过程</strong>：创建一个新函数 $f_{n+1}$，将 $f_{i_1}(…),…,f_{i_n}(…)$ 包含在这个新函数中。</li><li><strong>引入位置变量</strong>：引入一个路由变量 $sw$，用来记住在原始过程 $func$ 中 $f_{i_1}(…),…,f_{i_n}(…)$ 被调用的位置。</li><li><strong>替换过程调用</strong>：将 $func$ 中的 $f_{i_1}(…),…,f_{i_n}(…)$ 替换为对新过程 $f_{n+1}$ 的调用。</li><li><strong>传递参数</strong>：如果 $f_{i_1}(…),…,f_{i_n}(…)$ 需要参数，则通过$f_{n+1}$ 的参数传递这些参数。</li></ol><p>具体例子如下图所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522674.png"></p><p>该例子中的函数调用图如下所示。</p><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522401.png">存在两条unrealizable路径：</p><ul><li>···→ [(15) exit func1] → [(9) return func1] → [(12) exit func3] → [(5) return func3] → ···</li><li>···→ [(18) exit func2] → [(11) return func2] → [(12) exit func3] → [(2) return func3] → ···</li></ul><h1 id="工具框架"><a href="#工具框架" class="headerlink" title="工具框架"></a>工具框架</h1><p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071522078.png"></p><p>工具工作流程：</p><ul><li><p>首先，读取目标程序并借助<code>SUIF2</code>将其转换为<code>IR</code>表示。</p></li><li><p>然后，依次执行<code>ObfuscatePass</code>类的两个方法（<code>do_file_set_block</code>和<code>do_file_block</code>）以进行初始化。</p><ul><li><p><code>do_file_set_block</code>初始化全局数据结构。</p></li><li><p><code>do_file_block</code>调用<code>create_variable</code>、<code>create_function</code>和<code>create_fpointer</code>方法，以生成辅助变量、虚拟函数、函数指针和函数指针数组。</p></li></ul></li><li><p>之后可能会多次调用<code>do_procedure_definition</code>方法对目标程序进行混淆。<code>do_procedure_definition</code>方法通过调用<code>slice_func</code>（函数分解）、<code>import_fpointer</code>（引入函数指针和数组）和<code>complicate_cflow</code>（复杂化调用图的结构），将随机选择的过程转换为混淆的过程。</p></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>论文研读</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>论文研读</tag>
+      
+      <tag>函数指针混淆</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>OLLVM移植到NDK</title>
     <link href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/"/>
     <url>/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/</url>
