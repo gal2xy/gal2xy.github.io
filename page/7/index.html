@@ -252,6 +252,189 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/09/04/CTF/%E5%AE%89%E6%B4%B5%E6%9D%AF2019-crakMe/" target="_self">
+          安洵杯2019-crackMe
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/%E5%AE%89%E6%B4%B5%E6%9D%AF2019-crakMe/" target="_self">
+        <div>
+          一、题解主函数的伪代码如下：  可以看出整个流程是：先输入flag，然后弹出一个警告弹窗，之后有sub_41100F和sub_411136两个函数。第一个函数比较复杂，可能是一堆加密操作，在最后面会进行分析。第二个函数是最终是将两个字符串相比较，如下图所示：  Str2已知，而Str1未知，但是可以发现它在另一处被引用了，如下图所示：  问题就来了，这个函数是怎么被调用的呢，目前来看是不可能执行这
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-04 22:12" pubdate>
+              2023-09-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Reverse/">#Reverse</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/09/04/CTF/NPUCTF2020-%E4%BD%A0%E5%A5%BDsao%E5%95%8A/" target="_self">
+          NPUCTF2020-你好sao啊
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/NPUCTF2020-%E4%BD%A0%E5%A5%BDsao%E5%95%8A/" target="_self">
+        <div>
+          代码意思很明确，让我们输入一个33bytes的字符串，进行加密后，跟已知字符串相比较，如果相等就成功，否则失败。 因为windows上数据存储是小端存储，所以已知字符串的顺序需要手动调整，当然也可以动态调试之后直接从内存中复制过来。 1234567unsigned char ida_chars[] &#x3D;&amp;#123;  0x9E, 0x9B, 0x9C, 0xB5, 0xFE, 0x70, 0xD3
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-04 22:10" pubdate>
+              2023-09-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Reverse/">#Reverse</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/09/04/CTF/GKCTF2021-QQQQT/" target="_self">
+          GKCTF2021-QQQQT
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/GKCTF2021-QQQQT/" target="_self">
+        <div>
+          Exeinfo PE查看exe信息，发现是Enigma Virtual Box。这是啥玩意，网上搜索到了相关信息：  Enigma Virtual Box是软件虚拟化工具，它可以将多个文件封装到应用程序主文件，从而制作成为单执行文件exe  也就是说这个exe文件是通过打包得到的，那么我们应该对其进行解包，工具下载链接如下： EnigmaVBUnpacker v0.59（Enigma Virtua
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-04 22:08" pubdate>
+              2023-09-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Reverse/">#Reverse</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/09/04/CTF/QCTF2018-Xman-babymips/" target="_self">
           QCTF2018-Xman-babymips
         </a>
@@ -643,189 +826,6 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-08-12 14:34" pubdate>
-              2023-08-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
-          Android开发学习笔记(七) —— 详解数据存储全方案
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%B8%83)%20%E2%80%94%E2%80%94%20%E8%AF%A6%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%85%A8%E6%96%B9%E6%A1%88/" target="_self">
-        <div>
-          一、什么是数据持久化数据持久化就是指将那些内存中的瞬时数据保存到存储设备中，保证即使在手机或电脑关机的情况下，这些数据仍然不会丢失。保存在内存中的数据是处于瞬时状态的，而保存在存储设备中的数据是处于持久状态的，持久化技术则提供了一种机制可以让数据在瞬时状态和持久状态之间进行转换。Android系统中主要提供了3种方式用于简单地实现数据持久化功能，即文件存储、SharedPreference存储以及
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-12 14:33" pubdate>
-              2023-08-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
-          Android开发学习笔记(六) —— 重温BroadcastReceiver
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AD)%20%E2%80%94%E2%80%94%20%E9%87%8D%E6%B8%A9BroadcastReceiver/" target="_self">
-        <div>
-          一、什么是BroadcastReceiver广播（Broadcast）是一种广泛运用的在应用程序之间传输信息的机制。而广播接收器（BroadcastReceiver）是Android四大组件之一，用于对发送出来的广播进行过滤接受并响应的一类组件。它允许应用程序在某些事件发生时作出响应，无论应用是否在前台运行。它的工作原理是基于发布-订阅模式。应用程序可以选择注册感兴趣的广播消息，并在消息到达时进行
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-12 14:32" pubdate>
-              2023-08-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
-          Android开发学习笔记(五) —— 温习Service
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E4%BA%94)%20%E2%80%94%E2%80%94%20%E6%B8%A9%E4%B9%A0Service/" target="_self">
-        <div>
-          一、什么是Service服务（Service）是Android四大组件之一（因此需要在AndroidManifest.xml中进行注册，否则系统无法识别该Service），是Android中实现程序后台运行的解决方案，非常适合去执行那些不需要和用户交互（因而也不需要UI界面）而且还要求长期运行的任务，例如播放音乐、下载文件、上传数据等。服务的运行不依赖于任何用户界面，即使程序被切换到后台，或者用户
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-12 14:31" pubdate>
               2023-08-12
             </time>
           </div>
