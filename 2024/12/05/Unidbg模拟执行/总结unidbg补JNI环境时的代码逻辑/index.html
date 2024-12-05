@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、引言fork from [Unidbg 的基本使用（八）](https:&#x2F;&#x2F;www.yuque.com&#x2F;lilac-2hqvv&#x2F;xdwlsg&#x2F;td2t5cvohdedb878?# 《Unidbg 的基本使用（八）》)。 二、处理一对于 JDK 里包含的类库，可以直接复现其方法逻辑。 比如对 SimpleDateFormat 的操作 123456case &quot;java&#x2F;text&#x2F;Simp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="总结unidbg补JNI环境时的代码逻辑">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E6%80%BB%E7%BB%93unidbg%E8%A1%A5JNI%E7%8E%AF%E5%A2%83%E6%97%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、引言fork from [Unidbg 的基本使用（八）](https:&#x2F;&#x2F;www.yuque.com&#x2F;lilac-2hqvv&#x2F;xdwlsg&#x2F;td2t5cvohdedb878?# 《Unidbg 的基本使用（八）》)。 二、处理一对于 JDK 里包含的类库，可以直接复现其方法逻辑。 比如对 SimpleDateFormat 的操作 123456case &quot;java&#x2F;text&#x2F;Simp">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-12-05T09:55:56.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:57:20.054Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>总结unidbg补JNI环境时的代码逻辑 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="总结unidbg补JNI环境时的代码逻辑"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:55" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">总结unidbg补JNI环境时的代码逻辑</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>fork from [Unidbg 的基本使用（八）](<a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/td2t5cvohdedb878#">https://www.yuque.com/lilac-2hqvv/xdwlsg/td2t5cvohdedb878?#</a> 《Unidbg 的基本使用（八）》)。</p>
+<h1 id="二、处理一"><a href="#二、处理一" class="headerlink" title="二、处理一"></a>二、处理一</h1><p>对于 JDK 里包含的类库，可以直接复现其方法逻辑。</p>
+<p>比如对 SimpleDateFormat 的操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/text/SimpleDateFormat-&gt;&lt;init&gt;(Ljava/lang/String;Ljava/util/Locale;)V&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">pattern</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    <span class="hljs-type">Locale</span> <span class="hljs-variable">locale</span> <span class="hljs-operator">=</span> (Locale) vaList.getObjectArg(<span class="hljs-number">1</span>).getValue();<br>    simpleDateFormat = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleDateFormat</span>(pattern, locale);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如对 StringBuilder 的操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/StringBuilder-&gt;append(Ljava/lang/String;)Ljava/lang/StringBuilder;&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    <span class="hljs-keyword">return</span> ProxyDvmObject.createObject(vm, ((StringBuilder) dvmObject.getValue()).append(str));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如 okhttp3，可以 maven 引入然后正常使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okhttp3/Headers-&gt;name(I)Ljava/lang/String;&quot;</span>:&#123;<br>    <span class="hljs-type">Headers</span> <span class="hljs-variable">headers</span> <span class="hljs-operator">=</span> (Headers) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, headers.name(vaList.getIntArg(<span class="hljs-number">0</span>)));<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okhttp3/Headers-&gt;value(I)Ljava/lang/String;&quot;</span>:&#123;<br>    <span class="hljs-type">Headers</span> <span class="hljs-variable">headers</span> <span class="hljs-operator">=</span> (Headers) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, headers.value(vaList.getIntArg(<span class="hljs-number">0</span>)));<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okio/Buffer-&gt;clone()Lokio/Buffer;&quot;</span>:&#123;<br>    <span class="hljs-type">Buffer</span> <span class="hljs-variable">buffer</span> <span class="hljs-operator">=</span> (Buffer) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;okio/Buffer&quot;</span>).newObject(buffer.clone());<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okhttp3/Request-&gt;newBuilder()Lokhttp3/Request$Builder;&quot;</span>: &#123;<br>    <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> (Request) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;okhttp3/Request$Builder&quot;</span>).newObject(request.newBuilder());<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okhttp3/Request$Builder-&gt;header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;&quot;</span>: &#123;<br>    Request.<span class="hljs-type">Builder</span> <span class="hljs-variable">builder</span> <span class="hljs-operator">=</span> (Request.Builder) dvmObject.getValue();<br>    builder.header(vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString(), vaList.getObjectArg(<span class="hljs-number">1</span>).getValue().toString());<br>    <span class="hljs-keyword">return</span> dvmObject;<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;okhttp3/Request$Builder-&gt;build()Lokhttp3/Request;&quot;</span>: &#123;<br>    Request.<span class="hljs-type">Builder</span> <span class="hljs-variable">builder</span> <span class="hljs-operator">=</span> (Request.Builder) dvmObject.getValue();<br>    request = builder.build();<br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;okhttp3/Request&quot;</span>).newObject(request);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、处理二"><a href="#三、处理二" class="headerlink" title="三、处理二"></a>三、处理二</h1><p>样本自定义的类库，可以在<code>JADX</code>、<code>GDA</code>、<code>JEB</code>等工具中反编译，然后把代码逻辑拷贝到 Unidbg 环境里，前文我们就这么处理过 ContainerUtils、SignedQuery，尤其是各种工具类和方法容器。</p>
+<p>有些 Android FrameWork 层的类库也同样可以拷贝过来</p>
+<p>比如 TextUtils 里的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/text/TextUtils-&gt;isEmpty(Ljava/lang/CharSequence;)Z&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    <span class="hljs-keyword">return</span> str == <span class="hljs-literal">null</span> || str.length() == <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如 Android 的 Base64 工具类，可以直接抠出来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/util/Base64-&gt;decode(Ljava/lang/String;I)[B&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">arg</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    <span class="hljs-type">int</span> <span class="hljs-variable">flag</span> <span class="hljs-operator">=</span> vaList.getIntArg(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArray</span>(vm, Base64.decode(arg, flag));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="四、处理三"><a href="#四、处理三" class="headerlink" title="四、处理三"></a>四、处理三</h1><p>有些 Android FrameWork 类库，使用频率很高，JDK 里又没有其对应，我们就需要复写其语义，实现其基本功能。</p>
+<p>比如 SharedPreferences，我们最好写一个小的 demo，实现 Android 中对 SP 的创建、打开、读取、修改、保存这些基本功能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.alibaba.fastjson.JSON;<br><span class="hljs-keyword">import</span> com.alibaba.fastjson.JSONObject;<br><span class="hljs-keyword">import</span> java.io.*;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SharedPreferences</span> &#123;<br>    <span class="hljs-keyword">private</span> JSONObject jsonObject;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> File mFile;<br><br>    SharedPreferences(File file) &#123;<br>        mFile = file;<br>        jsonObject = <span class="hljs-literal">null</span>;<br>        loadFromDisk();<br>    &#125;<br>    <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">loadFromDisk</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (mFile.exists() &amp;&amp; !mFile.canRead()) &#123;<br>            System.out.println(<span class="hljs-string">&quot;Attempt to read preferences file &quot;</span> + mFile + <span class="hljs-string">&quot; without permission&quot;</span>);<br>        &#125;<br>        BufferedInputStream str;<br>        <span class="hljs-keyword">try</span> &#123;<br>            str = <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(mFile), <span class="hljs-number">16</span> * <span class="hljs-number">1024</span>);<br>            readSP(str);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            System.out.println(<span class="hljs-string">&quot;getSharedPreferences:&quot;</span> + e);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getString</span><span class="hljs-params">(String key, String defValue)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">v</span> <span class="hljs-operator">=</span> (String)jsonObject.get(key);<br>        <span class="hljs-keyword">return</span> v != <span class="hljs-literal">null</span> ? v : defValue;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">putString</span><span class="hljs-params">(String key, String value)</span>&#123;<br>        jsonObject.put(key, value);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readSP</span><span class="hljs-params">(InputStream in)</span>&#123;<br>        <span class="hljs-type">char</span>[] buf = <span class="hljs-keyword">new</span> <span class="hljs-title class_">char</span>[<span class="hljs-number">16</span> * <span class="hljs-number">1024</span>];<br>        InputStreamReader input;<br>        <span class="hljs-keyword">try</span> &#123;<br>            input = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(in);<br>            <span class="hljs-type">int</span> <span class="hljs-variable">len</span> <span class="hljs-operator">=</span>input.read(buf);<br>            <span class="hljs-type">String</span> <span class="hljs-variable">text</span> <span class="hljs-operator">=</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(buf,<span class="hljs-number">0</span>, len);<br>            jsonObject = JSON.parseObject(text);<br>        &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以及根据样本所操作的属性和方法，构建对应的类去描述它</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AccessibilityServiceInfo</span> &#123;<br>    <span class="hljs-comment">// 指定您希望服务处理的无障碍事件所属的应用的软件包名称。如果省略此参数，则无障碍服务会被视为可用于处理任何应用的无障碍事件。</span><br>    <span class="hljs-comment">// 即当前无障碍服务作用于哪些app</span><br>    <span class="hljs-keyword">public</span> String[] packageNames;<br>    <span class="hljs-comment">// 当前无障碍服务的名称</span><br>    <span class="hljs-keyword">public</span> String name;<br>    <span class="hljs-comment">// 当前无障碍服务所属App的标签名</span><br>    <span class="hljs-keyword">public</span> CharSequence label;<br>    <span class="hljs-comment">// 当前无障碍服务所属App的包名</span><br>    <span class="hljs-keyword">public</span> String packageName;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AccessibilityServiceInfo</span><span class="hljs-params">(String packageName, String name, CharSequence label, String[] packageNames)</span>&#123;<br>        <span class="hljs-built_in">this</span>.packageName = packageName;<br>        <span class="hljs-built_in">this</span>.name = name;<br>        <span class="hljs-built_in">this</span>.label = label;<br>        <span class="hljs-built_in">this</span>.packageNames = packageNames;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、处理四"><a href="#五、处理四" class="headerlink" title="五、处理四"></a>五、处理四</h1><p>如果其他方法处理不了或者很麻烦，我们会将方法调用”降级“为简单的数据返回或占位或返回 null，这么做有风险，但总比没法继续执行好。</p>
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/bluetooth/BluetoothAdapter-&gt;getDefaultAdapter()Landroid/bluetooth/BluetoothAdapter;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> dvmClass.newObject(signature);<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/telephony/SubscriptionManager-&gt;from(Landroid/content/Context;)Landroid/telephony/SubscriptionManager;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> dvmClass.newObject(signature);<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/net/Uri-&gt;parse(Ljava/lang/String;)Landroid/net/Uri;&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    <span class="hljs-keyword">if</span>(key.equals(<span class="hljs-string">&quot;content://telephony/siminfo&quot;</span>))&#123;<br>        <span class="hljs-keyword">return</span> dvmClass.newObject(key);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 获取packageName信息，后续对比是否有多开助手类app</span><br><span class="hljs-comment">// https://blog.csdn.net/qq_32227681/article/details/110563688</span><br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/content/pm/PackageManager-&gt;getInstalledPackages(I)Ljava/util/List;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="六、尾声"><a href="#六、尾声" class="headerlink" title="六、尾声"></a>六、尾声</h1><p>总体上，补 JNI 环境的代码逻辑方面，就这么几种处理办法。</p>
+<p>这里提供大量的案例可供参考，当不知道如何补 JNI 环境时可以去检索和参考。</p>
+<p>百度网盘链接：<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1G0U8frKK3dotY2cryztFjQ">https://pan.baidu.com/s/1G0U8frKK3dotY2cryztFjQ</a>  提取码：6666 </p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>总结unidbg补JNI环境时的代码逻辑</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/总结unidbg补JNI环境时的代码逻辑/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E5%A4%84%E7%90%86Context%E6%89%80%E9%9C%80%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" title="unidbg处理Context所需注意事项">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">unidbg处理Context所需注意事项</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E4%B8%AD%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%97%B6%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%B0%81%E8%A3%85/" title="unidbg中参数传递时的类型封装">
+                        <span class="hidden-mobile">unidbg中参数传递时的类型封装</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

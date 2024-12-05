@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、引言目标 APK：kuaishou.apk 目标方法：com.kuaishou.dfp.envdetect.jni.Watermelon.jniCommand 目标方法实现：libksse.so 二、任务描述JADX 反编译目标 APK，找到com.kuaishou.dfp.envdetect.jni.Watermelon类，其中的jniCommand就是目标函数，它位于 libksse.so">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从案例中学习unidbg补系统调用（二）">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E8%A1%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、引言目标 APK：kuaishou.apk 目标方法：com.kuaishou.dfp.envdetect.jni.Watermelon.jniCommand 目标方法实现：libksse.so 二、任务描述JADX 反编译目标 APK，找到com.kuaishou.dfp.envdetect.jni.Watermelon类，其中的jniCommand就是目标函数，它位于 libksse.so">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051706687.png">
+<meta property="article:published_time" content="2024-12-05T09:57:24.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:58:30.880Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051706687.png">
+  
+  
+  
+  <title>从案例中学习unidbg补系统调用（二） - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从案例中学习unidbg补系统调用（二）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:57" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          71 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从案例中学习unidbg补系统调用（二）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>目标 APK：kuaishou.apk</p>
+<p>目标方法：com.kuaishou.dfp.envdetect.jni.Watermelon.jniCommand</p>
+<p>目标方法实现：libksse.so</p>
+<h1 id="二、任务描述"><a href="#二、任务描述" class="headerlink" title="二、任务描述"></a>二、任务描述</h1><p>JADX 反编译目标 APK，找到<code>com.kuaishou.dfp.envdetect.jni.Watermelon</code>类，其中的<code>jniCommand</code>就是目标函数，它位于 libksse.so。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">package</span> com.kuaishou.dfp.envdetect.jni;<br><br><span class="hljs-keyword">import</span> android.content.Context;<br><span class="hljs-keyword">import</span> android.util.Base64;<br><span class="hljs-keyword">import</span> com.getkeepsafe.relinker.d;<br><span class="hljs-keyword">import</span> com.kwai.robust.PatchProxy;<br><span class="hljs-keyword">import</span> com.kwai.robust.PatchProxyResult;<br><span class="hljs-keyword">import</span> nz.s;<br><span class="hljs-keyword">import</span> qz.o;<br><br><span class="hljs-comment">/* compiled from: kSourceFile */</span><br><span class="hljs-comment">/* loaded from: classes14.dex */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Watermelon</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">sLibLoadFail</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Watermelon singleton;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> Object <span class="hljs-title function_">jniCommand</span><span class="hljs-params">(<span class="hljs-type">int</span> i6, Object obj, Object obj2, Object obj3)</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> <span class="hljs-type">byte</span>[] ssec(<span class="hljs-type">byte</span>[] bArr, <span class="hljs-type">byte</span>[] bArr2, Object obj);<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Watermelon</span><span class="hljs-params">()</span> &#123;<br>        loadSoLib();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Watermelon <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">apply</span> <span class="hljs-operator">=</span> PatchProxy.apply(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, Watermelon.class, <span class="hljs-string">&quot;1&quot;</span>);<br>        <span class="hljs-keyword">if</span> (apply != PatchProxyResult.class) &#123;<br>            <span class="hljs-keyword">return</span> (Watermelon) apply;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (singleton == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">synchronized</span> (Watermelon.class) &#123;<br>                <span class="hljs-keyword">if</span> (singleton == <span class="hljs-literal">null</span>) &#123;<br>                    singleton = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Watermelon</span>();<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> singleton;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">loadSoLib</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (PatchProxy.applyVoid(<span class="hljs-literal">null</span>, <span class="hljs-built_in">this</span>, Watermelon.class, <span class="hljs-string">&quot;2&quot;</span>)) &#123;<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(Base64.decode(<span class="hljs-string">&quot;a3NzZQ==&quot;</span>, <span class="hljs-number">0</span>));<br>            <span class="hljs-type">Context</span> <span class="hljs-variable">n7</span> <span class="hljs-operator">=</span> s.e().n();<br>            <span class="hljs-keyword">if</span> (n7 != <span class="hljs-literal">null</span>) &#123;<br>                d.a(n7, str);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                System.loadLibrary(str);<br>            &#125;<br>            sLibLoadFail = <span class="hljs-literal">false</span>;<br>            o.c(<span class="hljs-string">&quot;so loaded&quot;</span>);<br>        &#125; <span class="hljs-keyword">catch</span> (Throwable unused) &#123;<br>            o.c(<span class="hljs-string">&quot;so load failed&quot;</span>);<br>            sLibLoadFail = <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>它是一个实例方法，我们这里只关注它怎么被调用的以及返回值。jadx中查找该函数用例，发现嗲用代码如下</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">this.mInodes = (String) <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Watermelon</span>.</span></span>get<span class="hljs-constructor">Instance()</span>.jni<span class="hljs-constructor">Command(1114128, <span class="hljs-params">null</span>, <span class="hljs-params">null</span>, <span class="hljs-params">null</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>使用 Frida hook 其返回值，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java">function <span class="hljs-title function_">call</span><span class="hljs-params">()</span>&#123;<br>    Java.perform(function() &#123;<br>        <span class="hljs-type">let</span> <span class="hljs-variable">Watermelon</span> <span class="hljs-operator">=</span> Java.use(<span class="hljs-string">&quot;com.kuaishou.dfp.envdetect.jni.Watermelon&quot;</span>).getInstance();<br>        <span class="hljs-type">let</span> <span class="hljs-variable">ret</span> <span class="hljs-operator">=</span> Watermelon[<span class="hljs-string">&quot;jniCommand&quot;</span>](<span class="hljs-number">1114128</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>        console.log(<span class="hljs-string">&quot;result:&quot;</span>+ret)<br>    &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">result:687324639::1394160561|987324656::2294160561|587324657::2394160561|9873246::3294160561|987324656::2294160561<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、初始化"><a href="#三、初始化" class="headerlink" title="三、初始化"></a>三、初始化</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">package</span> com.kuaishou;<br><br><span class="hljs-keyword">import</span> com.github.unidbg.AndroidEmulator;<br><span class="hljs-keyword">import</span> com.github.unidbg.arm.backend.Unicorn2Factory;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.AndroidEmulatorBuilder;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.AndroidResolver;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.AbstractJni;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.DalvikModule;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.DvmClass;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.VM;<br><span class="hljs-keyword">import</span> com.github.unidbg.memory.Memory;<br><br><span class="hljs-keyword">import</span> java.io.File;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Watermelon</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractJni</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AndroidEmulator emulator;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Memory memory;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> VM vm;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DvmClass cWatermelon;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Watermelon</span><span class="hljs-params">()</span>&#123;<br><br>        emulator = AndroidEmulatorBuilder<br>                .for32Bit()<br>                .addBackendFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Unicorn2Factory</span>(<span class="hljs-literal">true</span>))<br>                .setProcessName(<span class="hljs-string">&quot;tv.danmaku.bili&quot;</span>)<br>                .build();<br><br>        memory = emulator.getMemory();<br>        memory.setLibraryResolver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br><br>        vm = emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/kuaishou/快手_10.3.40.25268.apk&quot;</span>));<br>        vm.setJni(<span class="hljs-built_in">this</span>);<br>        vm.setVerbose(<span class="hljs-literal">true</span>);<br><br>        <span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dm</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-string">&quot;ksse&quot;</span>, <span class="hljs-literal">true</span>);<br>        cWatermelon = vm.resolveClass(<span class="hljs-string">&quot;com.kuaishou.dfp.envdetect.jni.Watermelon&quot;</span>);<br>        dm.callJNI_OnLoad(emulator);<br><br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">jniCommand</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> cWatermelon.newObject(<span class="hljs-literal">null</span>).callJniMethodObject(emulator, <span class="hljs-string">&quot;jniCommand(ILjava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;&quot;</span>, <span class="hljs-number">1114128</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>)<br>                .getValue()<br>                .toString();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Watermelon</span> <span class="hljs-variable">watermelon</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Watermelon</span>();<br>        System.out.println(<span class="hljs-string">&quot;jniCommand call result: &quot;</span> + watermelon.jniCommand());<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[17:54:14 796]  <span class="hljs-built_in">INFO</span> [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:1114) - stat64 <span class="hljs-attribute">pathname</span>=/data/system, <span class="hljs-attribute">LR</span>=RX@0x1201990d[libksse.so]0x1990d<br>[17:54:14 798]  <span class="hljs-built_in">INFO</span> [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:1114) - stat64 <span class="hljs-attribute">pathname</span>=/data/data/, <span class="hljs-attribute">LR</span>=RX@0x1201990d[libksse.so]0x1990d<br>[17:54:14 798]  <span class="hljs-built_in">INFO</span> [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:1114) - stat64 <span class="hljs-attribute">pathname</span>=/data/data/com.android.shell, <span class="hljs-attribute">LR</span>=RX@0x1201990d[libksse.so]0x1990d<br>[17:54:14 799]  <span class="hljs-built_in">INFO</span> [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:1114) - stat64 <span class="hljs-attribute">pathname</span>=/data/system/install_sessions, <span class="hljs-attribute">LR</span>=RX@0x1201990d[libksse.so]0x1990d<br>[17:54:14 799]  <span class="hljs-built_in">INFO</span> [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:1114) - stat64 <span class="hljs-attribute">pathname</span>=/data/data/com.google.android.webview, <span class="hljs-attribute">LR</span>=RX@0x1201990d[libksse.so]0x1990d<br>JNIEnv-&gt;FindClass(java/lang/String) was called <span class="hljs-keyword">from</span> RX@0x12037b87[libksse.so]0x37b87<br>JNIEnv-&gt;GetMethodID(java/lang/String.&lt;init&gt;([BLjava/lang/String;)V) =&gt; 0x782c535e was called <span class="hljs-keyword">from</span> RX@0x12037b9d[libksse.so]0x37b9d<br>JNIEnv-&gt;NewByteArray(19) was called <span class="hljs-keyword">from</span> RX@0x12037bb3[libksse.so]0x37bb3<br>JNIEnv-&gt;SetByteArrayRegion([B@0x00000000000000000000000000000000000000, 0, 19, RW@0x12223040) was called <span class="hljs-keyword">from</span> RX@0x12037bc7[libksse.so]0x37bc7<br>JNIEnv-&gt;NewStringUTF(<span class="hljs-string">&quot;utf-8&quot;</span>) was called <span class="hljs-keyword">from</span> RX@0x12037bd5[libksse.so]0x37bd5<br>JNIEnv-&gt;NewObjectV(class java/lang/String, &lt;init&gt;([B@0x6e6e6e7c6e6e6e7c6e6e6e7c6e6e6e7c6e6e6e, <span class="hljs-string">&quot;utf-8&quot;</span>) =&gt; <span class="hljs-string">&quot;nnn|nnn|nnn|nnn|nnn&quot;</span>) was called <span class="hljs-keyword">from</span> RX@0x12018283[libksse.so]0x18283<br>jniCommand call result: nnn|nnn|nnn|nnn|nnn<br></code></pre></td></tr></table></figure>
+
+<p>居然跟Frida hook 的结果不一样！返回的结果，同样是通过竖杠分割的五部分，但每部分都是<code>nnn</code>。但是通过 INFO 信息可知，存在对五个文件夹的访问，具体库函数是<code>stat64</code>。它是用于获取文件属性的系统调用</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">stat</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *path, <span class="hljs-keyword">struct</span> stat *buf)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>stat 结构体如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">stat</span> &#123;<br>    <span class="hljs-type">dev_t</span>     st_dev;     <span class="hljs-comment">/* ID of device containing file */</span><br>    <span class="hljs-type">ino_t</span>     st_ino;     <span class="hljs-comment">/* inode number */</span><br>    <span class="hljs-type">mode_t</span>    st_mode;    <span class="hljs-comment">/* protection */</span><br>    <span class="hljs-type">nlink_t</span>   st_nlink;   <span class="hljs-comment">/* number of hard links */</span><br>    <span class="hljs-type">uid_t</span>     st_uid;     <span class="hljs-comment">/* user ID of owner */</span><br>    <span class="hljs-type">gid_t</span>     st_gid;     <span class="hljs-comment">/* group ID of owner */</span><br>    <span class="hljs-type">dev_t</span>     st_rdev;    <span class="hljs-comment">/* device ID (if special file) */</span><br>    <span class="hljs-type">off_t</span>     st_size;    <span class="hljs-comment">/* total size, in bytes */</span><br>    <span class="hljs-type">blksize_t</span> st_blksize; <span class="hljs-comment">/* blocksize for file system I/O */</span><br>    <span class="hljs-type">blkcnt_t</span>  st_blocks;  <span class="hljs-comment">/* number of 512B blocks allocated */</span><br>    <span class="hljs-type">time_t</span>    st_atime;   <span class="hljs-comment">/* time of last access */</span><br>    <span class="hljs-type">time_t</span>    st_mtime;   <span class="hljs-comment">/* time of last modification */</span><br>    <span class="hljs-type">time_t</span>    st_ctime;   <span class="hljs-comment">/* time of last status change */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>这些文件属性可用作信息收集、设备标识等用途。</p>
+<p>具体操作是补一个虚拟文件系统的根目录</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Java">emulator = AndroidEmulatorBuilder<br>                .for32Bit()<br>                .addBackendFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Unicorn2Factory</span>(<span class="hljs-literal">true</span>))<br>                .setProcessName(<span class="hljs-string">&quot;tv.danmaku.bili&quot;</span>)<br>                .setRootDir(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/kuaishou/rootfs&quot;</span>))<br>                .build();<br></code></pre></td></tr></table></figure>
+
+<p>然后在<code>rootfs</code>文件夹下补需要访问的五个文件</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051706687.png" srcset="/img/loading.gif" lazyload></p>
+<p>运行结果如下</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">jniCommand</span> call result: <span class="hljs-number">0</span>::<span class="hljs-number">0</span>|<span class="hljs-number">0</span>::<span class="hljs-number">0</span>|<span class="hljs-number">0</span>::<span class="hljs-number">0</span>|<span class="hljs-number">0</span>::<span class="hljs-number">0</span>|<span class="hljs-number">0</span>::<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>结果中的数值改变了，说明我们补文件夹是有用的。对比一下数值</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dns"><span class="hljs-number">687324639</span><span class="hljs-number">::</span><span class="hljs-number">1394160561</span>|<span class="hljs-number">987324656</span><span class="hljs-number">::</span><span class="hljs-number">2294160561</span>|<span class="hljs-number">587324657</span><span class="hljs-number">::</span><span class="hljs-number">2394160561</span>|<span class="hljs-number">9873246</span><span class="hljs-number">::</span><span class="hljs-number">3294160561</span>|<span class="hljs-number">987324656</span><span class="hljs-number">::</span><span class="hljs-number">2294160561</span><br><span class="hljs-number">0::0</span>|<span class="hljs-number">0::0</span>|<span class="hljs-number">0::0</span>|<span class="hljs-number">0::0</span>|<span class="hljs-number">0::0</span><br></code></pre></td></tr></table></figure>
+
+<p>样本访问了五个文件的属性，函数返回的结果也是五部分，而且格式类似，所以基本可以确定就是从每个文件获取了一个属性。以第一部分为例，将<code>687324639::1394160561</code>逆序反转，就是 1650614931936423786，一个纳秒级的时间戳。<del>（这谁想得到的啊？！）</del></p>
+<p>在 ADB 中查看这几个文件夹的属性，可以发现和每一个文件的 Access 属性对的上，即最后一次访问的时间。</p>
+<p>虽然我们补齐了文件，但是unidbg在文件属性这方面的模拟处理上做的不够好。</p>
+<p>对于普通文件，Unidbg 的文件属性编码如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">fstat</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, StatStructure stat)</span> &#123;<br>    <span class="hljs-type">int</span> st_mode;<br>    <span class="hljs-keyword">if</span> (IO.STDOUT.equals(file.getName())) &#123;<br>        st_mode = IO.S_IFCHR | <span class="hljs-number">0x777</span>;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(Files.isSymbolicLink(file.toPath())) &#123;<br>        st_mode = IO.S_IFLNK;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        st_mode = IO.S_IFREG;<br>    &#125;<br>    stat.st_dev = <span class="hljs-number">1</span>;<br>    stat.st_mode = st_mode;<br>    stat.st_uid = <span class="hljs-number">0</span>;<br>    stat.st_gid = <span class="hljs-number">0</span>;<br>    stat.st_size = file.length();<br>    stat.st_blksize = emulator.getPageAlign();<br>    stat.st_ino = <span class="hljs-number">1</span>;<br>    stat.st_blocks = ((file.length() + emulator.getPageAlign() - <span class="hljs-number">1</span>) / emulator.getPageAlign());<br>    stat.setLastModification(file.lastModified());<br>    stat.pack();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>看起来还不错，对时间做了处理，但 inode、dev 这些没法看，比如 inode 竟然硬编码为 1。</p>
+<p>对于文件夹或者说目录的处理，可以说几乎没处理，可见<code>src/main/java/com/github/unidbg/linux/file/DirectoryFileIO.java</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">fstat</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, StatStructure stat)</span> &#123;<br>    stat.st_mode = IO.S_IFDIR;<br>    stat.st_dev = <span class="hljs-number">0</span>;<br>    stat.st_size = <span class="hljs-number">0</span>;<br>    stat.st_blksize = <span class="hljs-number">0</span>;<br>    stat.st_ino = <span class="hljs-number">0</span>;<br>    stat.pack();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>除了文件类型设置为目录外，其余全部置空，这就是返回<code>0::0|0::0|0::0|0::0|0::0</code>的原因。</p>
+<p>这里可以做验证，胡乱设置一下 Access 时间。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">fstat</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, StatStructure stat)</span> &#123;<br>    stat.st_mode = IO.S_IFDIR;<br>    stat.st_dev = <span class="hljs-number">0</span>;<br>    stat.st_size = <span class="hljs-number">0</span>;<br>    stat.st_blksize = <span class="hljs-number">0</span>;<br>    stat.st_ino = <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">// test</span><br>    stat.setSt_atim(<span class="hljs-number">12345678</span>, <span class="hljs-number">9999</span>);<br>    stat.pack();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>重新运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">ret:999900876::54321|999900876::54321|999900876::54321|999900876::54321|999900876::54321<br></code></pre></td></tr></table></figure>
+
+<p>处理这样的访问文件属性问题，这里可以提供两个思路：</p>
+<ol>
+<li>将对应文件从手机中拷贝到项目目录下，但文件在迁移的过程中，属性等信息都变化和失真了。</li>
+<li>通过 adb shell 或 Hook 等方式从真机获取这些信息，然后做填充；或者不做填充，单纯置空。</li>
+</ol>
+<h1 id="四、参考"><a href="#四、参考" class="headerlink" title="四、参考"></a>四、参考</h1><p>[补系统调用（四）](<a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/ip3v0qlg5b8y620f#">https://www.yuque.com/lilac-2hqvv/xdwlsg/ip3v0qlg5b8y620f?#</a> 《补系统调用（四）》)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从案例中学习unidbg补系统调用（二）</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/从案例中学习unidbg补系统调用（二）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E8%A1%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" title="从案例中学习unidbg补系统调用（一）">
+                        <span class="hidden-mobile">从案例中学习unidbg补系统调用（一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

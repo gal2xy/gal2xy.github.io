@@ -252,15 +252,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" target="_self">
-          LLVM Pass编写
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/Unidbg%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%9E%E8%B7%B5/" target="_self">
+          Unidbg入门介绍
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/22/LLVM%20and%20OLLVM/LLVM-Pass%E7%BC%96%E5%86%99/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/Unidbg%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%9E%E8%B7%B5/" target="_self">
         <div>
-          一、LLVMLLVM的架构图如下：  它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   LLVM独立于语言和平台。如果需要支持一种新
+          一、unidbg介绍1.1 unidbgunidbg 是一个基于 unicorn 的逆向工具，可以黑盒调用安卓和 iOS 中的 so 文件。这使得逆向人员可以在无需了解 so 内部算法原理的情况下，主动调用 so 中的函数，让其中的算法“为我所用”，只需要传入所需的参数、补全运行所需的环境，即可运行出所需要的结果。及由此衍生的辅助分析、算法还原、SO 调试与逆向等等功能。 对于Android逆向来
         </div>
       </a>
 
@@ -268,8 +268,252 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-22 15:43" pubdate>
-              2024-04-22
+            <time datetime="2024-12-05 17:51" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_self">
+          Frida特征检测
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_self">
+        <div>
+          frida检测与防护端口检测检测 frida-server 默认端口 27042 是否开放。 12345678910111213bool detectByDefaultPort()&amp;#123;    struct sockaddr_in sa;    int sock &#x3D; socket(AF_INET , SOCK_STREAM , 0);    memset(&amp;sa, 0, sizeof
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-29 20:03" pubdate>
+              2024-07-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Frida/">#Frida</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/07/29/Frida%20Hook/Frida%20Native%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
+          Frida Native层Hook学习笔记
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Frida%20Hook/Frida%20Native%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
+        <div>
+          Native层的hook如何hook知道函数地址就可以hook和主动调用 如何获取函数地址 利用函数名，通过Module.findExportByName函数获取函数地址。 通过Module.findBaseAddress函数获取所在库函数地址，然后加上函数偏移量即为函数地址。  hook示例12345678910111213141516171819const libName &#x3D; &amp;#x27;li
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-29 20:02" pubdate>
+              2024-07-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Frida/">#Frida</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/07/29/Xposed/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" target="_self">
+          Xposed插件开发
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Xposed/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" target="_self">
+        <div>
+          一、Xposed介绍1.1 引言frida 和 objection 对于App 的修改仅仅只是单次性的，App重启之后，我们就又需要手动使用 frida 或 objection 对 App 进行注入。不过我们有 Xposed 框架，基于此框架开发插件，则可以对 App 实现永久性修改。 1.2 Xposed原理Xposed 本质上是通过替换 Android 系统中的 zygote （或者说是 zy
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-29 20:00" pubdate>
+              2024-07-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Xposed/" class="category-chain-item">Xposed</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Xposed/">#Xposed</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
+          去除反混淆后程序中的冗余汇编代码
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
+        <div>
+          一、前言在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？ 二、基于Liveness Analysis的想法先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标*的为冗余汇编指令）： 12345678910111213141516171819
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-07 15:03" pubdate>
+              2024-07-07
             </time>
           </div>
         
@@ -299,7 +543,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/LLVM-Pass/">#LLVM Pass</a>
+              <a href="/tags/Liveness-Analysis/">#Liveness Analysis</a>
             
           </div>
         
@@ -313,15 +557,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2024/04/19/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/ObfuscationDynamic-LLVM/" target="_self">
-          阅读笔记 —— 《ObfuscatorDynamic-LLVM》
+        <a href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
+          ollvm反混淆
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/19/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/ObfuscationDynamic-LLVM/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
         <div>
-          一些基本概念动态分析技术 调试（debugging） 内存分析（memory profiling） 模糊测试（fuzzing） 动态符号执行（dynamic symbolic execution，简称DSE）  动态符号执行使用自动化方法，执行引擎使用输入的符号表示来求解和引导执行沿着两个分支进行，它会将分支条件作为约束条件，然后使用SMT solver求解所需的输入。它有3个致命缺点：  路径爆
+          一、前言此篇文章只讲思路，具体代码实现见https:&#x2F;&#x2F;github.com&#x2F;gal2xy&#x2F;AngrDeobfuscator。 二、去混淆2.1 去指令替换混淆指令替换一般可以使用llvm的pass进行优化，使用llvm-dis反汇编再使用opt的-o3等级优化。或者使用Miasm框架进行匹配，然后优化处理即可。 2.2 去字符串混淆没怎么了解字符串混淆这一块，就贴一下随风而行aa大佬的文章内容。
         </div>
       </a>
 
@@ -329,426 +573,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-19 16:54" pubdate>
-              2024-04-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/" target="_self">
-          记一次VMware平台虚拟机启动黑屏问题
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/18/%E8%AE%B0%E4%B8%80%E6%AC%A1VMware%E5%B9%B3%E5%8F%B0%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%90%AF%E5%8A%A8%E9%BB%91%E5%B1%8F%E9%97%AE%E9%A2%98/" target="_self">
-        <div>
-          一、前言不知怎么的，我电脑上VMware软件启动虚拟机变得十分慢，每次启动黑屏，等到用户登录界面出现时，已经花了4分钟左右，而且在用户登入界面输入密码回车后，又有一段时间的黑屏，最终才会显示桌面。 按照网络上的教程，大都走了个遍，花费了大量的时间，仍然无济于事。 我执行过如下指令来查看开机启动项的时间记录 1systemd-analyze blame   结果发现最高的也才8秒左右，这显然不是启动
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-18 16:14" pubdate>
-              2024-04-18
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">#环境配置</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
-          阅读笔记 —— 《Obfuscator-LLVM — Software Protection》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Obfuscator-LLVM%E2%80%94Software-Protection/" target="_self">
-        <div>
-          LLVMLLVM独立于语言和平台。它由以下三部分组成：  前端 前端负责解析源码，验证源码的正确性，然后生成IR代码，交付给优化器。LLVM支持两种前端：clang和基于GNU编译器集合解析器的前端  优化器（亦称为中端） 优化器负责删除IR代码中的冗余代码和死代码、内联函数、展开循环、删除死循环、简化控制流图等。之后将结果传送给后端。  后端 根据目标架构生成高效的汇编代码   OLLVMOLL
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:52" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
-          阅读笔记 —— 《改进的基于底层虚拟机混淆器的指令混淆框架》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/%E6%94%B9%E8%BF%9B%E7%9A%84%E5%9F%BA%E4%BA%8E%E5%BA%95%E5%B1%82%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B7%B7%E6%B7%86%E5%99%A8%E7%9A%84%E6%8C%87%E4%BB%A4%E6%B7%B7%E6%B7%86%E6%A1%86%E6%9E%B6/" target="_self">
-        <div>
-          改进该论文对于LLVM-IR层的混淆进行了如下两种改进：  指令加花 指令替换  指令加花该论文提出了两种指令加花方法：  叠加跳转 虚假循环  以上花指令以基本块形式进行添加，首先需要对原有的基本块进行拆分，然后在拆分后的基本块之间插入构造的花指令基本块，并通过不透明谓词进行有效的整合。 基本块拆分算法123456789101112131415算法1 Dependency Analysis Al
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:51" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Impeding%20Malware%20Analysis%20Using%20Conditional%20Code%20Obfuscation/" target="_self">
-          阅读笔记 —— 《Impeding Malware Analysis Using Conditional Code Obfuscation》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Impeding%20Malware%20Analysis%20Using%20Conditional%20Code%20Obfuscation/" target="_self">
-        <div>
-          条件代码的哈希混淆使用哈希函数等价替换原有分支条件，隐藏原有信息，示例如下：  图中左侧是原代码，右侧是混淆后的代码。混淆的操作主要是将strcmp(cmd, &quot;startkeylogger&quot;)等价替换为hash(cmd) &#x3D;&#x3D; H，其中H &#x3D; hash(&quot;startkeylogger&quot;)，然后增加了一个decrypt_function解密函数，参数encr
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:51" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-              <a href="/tags/%E5%93%88%E5%B8%8C%E6%B7%B7%E6%B7%86/">#哈希混淆</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/" target="_self">
-          阅读笔记 —— 《Manufacturing Resilient Bi-Opaque Predictates against Symbolic Execution》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Manufacturing%20Resilient%20Bi-Opaque%20Predictates%20against%20Symbolic%20Execution/" target="_self">
-        <div>
-          概述控制流混淆通过保持语义不变的转换来增加程序复杂性。不透明谓词是实现这种转换的基本工具。然而，我们观察到现实世界中的不透明谓词通常非常简单，并且考虑的安全性很少。最近，这些不安全的不透明谓词受到了基于符号执行的对手的严重攻击，危及了控制流混淆的安全性。因此，本文提出了可以抵抗基于符号执行对手的符号不透明谓词。我们设计了一个通用框架来组合这种不透明谓词，该框架需要在每个不透明谓词中引入具有挑战性的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:51" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-              <a href="/tags/%E5%8F%8C%E9%87%8D%E4%B8%8D%E9%80%8F%E6%98%8E%E8%B0%93%E8%AF%8D%E6%B7%B7%E6%B7%86/">#双重不透明谓词混淆</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/" target="_self">
-          阅读笔记 —— 《Software Obfuscation on a Theoretical Basis and Its Implementation》
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/OLLVM/Software%20Obfuscation%20on%20a%20Theoretical%20Basis%20and%20Its%20Implementation/" target="_self">
-        <div>
-          概述软件混淆是一种有前途的方法，用于在不受信任的环境中保护软件的知识产权和秘密信息。不幸的是，以前的软件混淆技术存在一个主要缺点：它们没有理论基础，因此不清楚其有效性。为此，我们在本文中提出了新的软件混淆技术。这些技术基于**软件程序过程间分析（intraprocedural analysis）的难度。我们的混淆技术的本质在于解决一个新的复杂性问题，即在存在函数指针数组的情况下，精确确定函数指针指
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:51" pubdate>
-              2024-04-17
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
-            
-              <a href="/tags/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E6%B7%B7%E6%B7%86/">#函数指针混淆</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
-          OLLVM移植到NDK
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
-        <div>
-          一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:48" pubdate>
-              2024-04-17
+            <time datetime="2024-06-25 21:07" pubdate>
+              2024-06-25
             </time>
           </div>
         
@@ -780,9 +606,9 @@
             
               <a href="/tags/OLLVM/">#OLLVM</a>
             
-              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
+              <a href="/tags/%E5%8E%BB%E6%B7%B7%E6%B7%86/">#去混淆</a>
             
-              <a href="/tags/LLVM/">#LLVM</a>
+              <a href="/tags/angr/">#angr</a>
             
           </div>
         
@@ -796,15 +622,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" target="_self">
-          OLLVM移植到LLVM14
+        <a href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/" target="_self">
+          ROP入门
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/" target="_self">
         <div>
-          一、前言由于OLLVM只支持到版本4后就不再更新了，然而LLVM已经更新到了版本18了。故本文主要目的是将OLLVM移植到LLVM14上。这里参考了https:&#x2F;&#x2F;github.com&#x2F;buffcow&#x2F;ollvm-project。 根据项目中的提交记录，可以将修改分为三步：  移植ollvm&#x2F;obfuscator&#x2F;lib&#x2F;Transforms&#x2F;Obfusca
+          ROPROP（Return Oriented Programming）即返回导向编程，其主要思想是在 栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。 gadgets 通常是以 ret 结尾的指令序列，通过这样的指令序列，我们可以多次劫持程序控制流，从而运行特定的指令序列，以完成攻击的目的。 返回导向编程这一名称的由来是因为其
         </div>
       </a>
 
@@ -812,8 +638,193 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-04-17 19:41" pubdate>
-              2024-04-17
+            <time datetime="2024-06-16 16:32" pubdate>
+              2024-06-16
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/ROP/">#ROP</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/11/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/angr%E8%AE%BA%E6%96%87/" target="_self">
+          阅读笔记 —— 《Offensive Techniques in Binary Analysis》
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/11/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/angr%E8%AE%BA%E6%96%87/" target="_self">
+        <div>
+          II. AUTOMATED BINARY ANALYSIS自动二进制分析技术面临的问题：  Replayability 和 Semantic insight 的权衡取舍  Replayability（可重现性） 漏洞重现存在差异。对整个应用程序的分析可以确定触发漏洞的原因，而对特定模块的分析可能会发现漏洞但无法重现它们。  Semantic insight（语义理解） 对程序行为的语义理解程度不同
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-11 20:19" pubdate>
+              2024-06-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/" class="category-chain-item">论文研读</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/angr/">#angr</a>
+            
+              <a href="/tags/%E8%AE%BA%E6%96%87%E7%A0%94%E8%AF%BB/">#论文研读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/11/angr%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/angr%E5%85%A5%E9%97%A8/" target="_self">
+          angr入门
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/11/angr%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/angr%E5%85%A5%E9%97%A8/" target="_self">
+        <div>
+          什么AngrAngr 是一个功能强大且灵活的二进制分析框架，广泛应用于逆向工程、安全研究和漏洞检测等领域。它结合了多种技术（例如：静态分析、动态分析、符号执行等）（具体可参考The Art of War: Offensive Techniques in Binary Analysis），支持多种平台和架构，使得用户可以高效地分析和操作二进制文件。 angr 入门文档及API可参考：  https:
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-11 20:16" pubdate>
+              2024-06-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/angr/" class="category-chain-item">angr</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/angr/">#angr</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/11/LLVM%20and%20OLLVM/OLLVM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" target="_self">
+          OLLVM源码解读
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/11/LLVM%20and%20OLLVM/OLLVM%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" target="_self">
+        <div>
+          基础知识IR(intermediate representation)是前端语言生成的中间代码表示，也是Pass操作的对象，它主要包含四个部分：  Module：一个源代码文件被编译后生成的IR代码。 Function：源代码文件中的函数。 BasicBlock：BasicBlock有且仅有一个入口点和一个出口点。入口点是指BasicBlock的第一个指令，而出口点是指BasicBlock的最后一
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-11 20:16" pubdate>
+              2024-06-11
             </time>
           </div>
         
@@ -843,11 +854,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
-            
-              <a href="/tags/LLVM/">#LLVM</a>
+              <a href="/tags/OLLVM-Pass/">#OLLVM Pass</a>
             
           </div>
         
@@ -859,7 +866,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

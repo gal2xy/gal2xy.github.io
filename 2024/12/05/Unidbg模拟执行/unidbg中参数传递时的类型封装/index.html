@@ -1,0 +1,937 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、引言众所周知，在Native层编写代码时，倘若Java层和Native层进行数据传递，则需借助JNI进行类型的转变，它们之间的类型对照表如下： 基本类型对照表    Java Native    Boolean jboolean   Byte jbyte   Char jchar   Short jshort   Integer jint   Long jlong   Float jfloat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unidbg中参数传递时的类型封装">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E4%B8%AD%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%97%B6%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%B0%81%E8%A3%85/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、引言众所周知，在Native层编写代码时，倘若Java层和Native层进行数据传递，则需借助JNI进行类型的转变，它们之间的类型对照表如下： 基本类型对照表    Java Native    Boolean jboolean   Byte jbyte   Char jchar   Short jshort   Integer jint   Long jlong   Float jfloat">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051656779.png">
+<meta property="article:published_time" content="2024-12-05T09:55:10.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:56:56.376Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051656779.png">
+  
+  
+  
+  <title>unidbg中参数传递时的类型封装 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="unidbg中参数传递时的类型封装"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:55" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          118 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">unidbg中参数传递时的类型封装</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>众所周知，在Native层编写代码时，倘若Java层和Native层进行数据传递，则需借助JNI进行类型的转变，它们之间的类型对照表如下：</p>
+<p>基本类型对照表</p>
+<table>
+<thead>
+<tr>
+<th align="center">Java</th>
+<th align="center">Native</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Boolean</td>
+<td align="center">jboolean</td>
+</tr>
+<tr>
+<td align="center">Byte</td>
+<td align="center">jbyte</td>
+</tr>
+<tr>
+<td align="center">Char</td>
+<td align="center">jchar</td>
+</tr>
+<tr>
+<td align="center">Short</td>
+<td align="center">jshort</td>
+</tr>
+<tr>
+<td align="center">Integer</td>
+<td align="center">jint</td>
+</tr>
+<tr>
+<td align="center">Long</td>
+<td align="center">jlong</td>
+</tr>
+<tr>
+<td align="center">Float</td>
+<td align="center">jfloat</td>
+</tr>
+<tr>
+<td align="center">Double</td>
+<td align="center">jdouble</td>
+</tr>
+</tbody></table>
+<p>引用类型对照表</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051656779.png" srcset="/img/loading.gif" lazyload></p>
+<p>同样在unidbg中，也做了几乎完整的等价模拟和映射。</p>
+<ul>
+<li><p>基本类型不进行封装，直接传递即可。</p>
+</li>
+<li><p>引用类型需要封装，情况如下：</p>
+<ul>
+<li>jobject 对应于 DvmObject</li>
+<li>jclass 对应于 DvmClass</li>
+<li>jstring 对应于 StringObject</li>
+<li>jarray 对应于 BaseArray</li>
+<li>jobjectArray 对应于 ArrayObject</li>
+<li>jbyteArray 对应于 ByteArray</li>
+<li>jshortArray 对应于 ShortArray</li>
+<li>jintArray 对应于 IntArray</li>
+<li>……</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、unidbg中传参类型的封装"><a href="#二、unidbg中传参类型的封装" class="headerlink" title="二、unidbg中传参类型的封装"></a>二、unidbg中传参类型的封装</h1><p>在unidbg中，<code>DvmClass</code>类的所有callxxxJniMethodxxx方法最终都调用<code>callJniMethod</code>方法，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> Number <span class="hljs-title function_">callJniMethod</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, VM vm, DvmClass objectType, DvmObject&lt;?&gt; thisObj, String method, Object...args)</span> &#123;<br>	<span class="hljs-comment">//根据方法签名找到对应的函数地址</span><br>    <span class="hljs-type">UnidbgPointer</span> <span class="hljs-variable">fnPtr</span> <span class="hljs-operator">=</span> objectType.findNativeFunction(emulator, method);<br>    vm.addLocalObject(thisObj);<br>    <span class="hljs-comment">//添加 JNIEnv、Jobject/Jclass 作为第一、二个参数，这是 JNI 规范的默认要求</span><br>    List&lt;Object&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(<span class="hljs-number">10</span>);<br>    list.add(vm.getJNIEnv());<br>    list.add(thisObj.hashCode());<br>    <span class="hljs-comment">//处理传参</span><br>    <span class="hljs-keyword">if</span> (args != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">for</span> (Object arg : args) &#123;<br>            <span class="hljs-keyword">if</span> (arg <span class="hljs-keyword">instanceof</span> Boolean) &#123;<br>                <span class="hljs-comment">// Boolean类型，转成1、0</span><br>                list.add((Boolean) arg ? VM.JNI_TRUE : VM.JNI_FALSE);<br>                <span class="hljs-keyword">continue</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(arg <span class="hljs-keyword">instanceof</span> Hashable) &#123;<br>                <span class="hljs-comment">// hashable 类型参数</span><br>                list.add(arg.hashCode()); <span class="hljs-comment">// dvm object</span><br><br>                <span class="hljs-keyword">if</span>(arg <span class="hljs-keyword">instanceof</span> DvmObject) &#123;<br>                    <span class="hljs-comment">// 本身就是DvmObject类型，直接强制转换</span><br>                    vm.addLocalObject((DvmObject&lt;?&gt;) arg);<br>                &#125;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (arg <span class="hljs-keyword">instanceof</span> DvmAwareObject ||<br>                       arg <span class="hljs-keyword">instanceof</span> String ||<br>                       arg <span class="hljs-keyword">instanceof</span> <span class="hljs-type">byte</span>[] ||<br>                       arg <span class="hljs-keyword">instanceof</span> <span class="hljs-type">short</span>[] ||<br>                       arg <span class="hljs-keyword">instanceof</span> <span class="hljs-type">int</span>[] ||<br>                       arg <span class="hljs-keyword">instanceof</span> <span class="hljs-type">float</span>[] ||<br>                       arg <span class="hljs-keyword">instanceof</span> <span class="hljs-type">double</span>[] ||<br>                       arg <span class="hljs-keyword">instanceof</span> Enum) &#123;<br>                <span class="hljs-comment">// String、byte[]等类型通过 ProxyDvmObject.createObject 函数进行封装</span><br>                DvmObject&lt;?&gt; obj = ProxyDvmObject.createObject(vm, arg);<br>                list.add(obj.hashCode());<br>                vm.addLocalObject(obj);<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br><br>            list.add(arg);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> Module.emulateFunction(emulator, fnPtr.peer, list.toArray());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述代码逻辑中，Boolean 类型会转为 0、1， String、byte[] 等类型，会通过<code>ProxyDvmObject.createObject</code>自动封装为 Unidbg JNI 中对应的类型。</p>
+<p>来看<code>createObject</code>函数，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> DvmObject&lt;?&gt; createObject(VM vm, Object value) &#123;<br>    <span class="hljs-keyword">if</span> (value == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> Class&lt;?&gt;) &#123;<span class="hljs-comment">//class类型</span><br>        <span class="hljs-keyword">return</span> getObjectType(vm, (Class&lt;?&gt;) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> DvmObject) &#123;<br>        <span class="hljs-keyword">return</span> (DvmObject&lt;?&gt;) value;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">byte</span>[]) &#123;<span class="hljs-comment">//byte[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArray</span>(vm, (<span class="hljs-type">byte</span>[]) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">short</span>[]) &#123;<span class="hljs-comment">//short[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ShortArray</span>(vm, (<span class="hljs-type">short</span>[]) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">int</span>[]) &#123;<span class="hljs-comment">//int[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntArray</span>(vm, (<span class="hljs-type">int</span>[]) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">float</span>[]) &#123;<span class="hljs-comment">//float[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FloatArray</span>(vm, (<span class="hljs-type">float</span>[]) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">double</span>[]) &#123;<span class="hljs-comment">//double[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DoubleArray</span>(vm, (<span class="hljs-type">double</span>[]) value);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> String) &#123;<span class="hljs-comment">//String[] 类型</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, (String) value);<br>    &#125;<br>    <span class="hljs-comment">//不在上述类型的参数，获取参数的类</span><br>    Class&lt;?&gt; clazz = value.getClass();<br>    <span class="hljs-keyword">if</span> (clazz.isArray()) &#123;<span class="hljs-comment">//如果获取到的参数的类是个数组，说明参数是一个对象数组</span><br>        <span class="hljs-keyword">if</span> (clazz.getComponentType().isPrimitive()) &#123;<span class="hljs-comment">//判断是否是基本类型</span><br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(String.valueOf(value));<br>        &#125;<br>        <span class="hljs-comment">//转成对象数组，对每个元素进行封装</span><br>        Object[] array = (Object[]) value;<br>        DvmObject&lt;?&gt;[] dvmArray = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DvmObject</span>[array.length];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; array.length; i++) &#123;<br>            dvmArray[i] = createObject(vm, array[i]);<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayObject</span>(dvmArray);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProxyDvmObject</span>(vm, value);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但事实上，<code>createObject</code>除了可以处理 string、array 这样的普通对象，也可以处理 map 或其他对象类型。来看<code>ProxyDvmObject</code> 对象的构造逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-title function_">ProxyDvmObject</span><span class="hljs-params">(VM vm, Object value)</span> &#123;<br>    <span class="hljs-built_in">super</span>(getObjectType(vm, value.getClass()), value);<span class="hljs-comment">//根据类型创建DvmObject</span><br>&#125;<br><span class="hljs-comment">//父类的构造方法</span><br><span class="hljs-keyword">protected</span> <span class="hljs-title function_">DvmObject</span><span class="hljs-params">(DvmClass objectType, T value)</span> &#123;<br>    <span class="hljs-built_in">this</span>(objectType == <span class="hljs-literal">null</span> ? <span class="hljs-literal">null</span> : objectType.vm, objectType, value);<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-title function_">DvmObject</span><span class="hljs-params">(BaseVM vm, DvmClass objectType, T value)</span> &#123;<br>    <span class="hljs-built_in">this</span>.vm = vm;<br>    <span class="hljs-built_in">this</span>.objectType = objectType;<br>    <span class="hljs-built_in">this</span>.value = value;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接着看<code>getObjectType</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> DvmClass <span class="hljs-title function_">getObjectType</span><span class="hljs-params">(VM vm, Class&lt;?&gt; clazz)</span> &#123;<br>    <span class="hljs-comment">//获取参数的对应类的父类</span><br>    Class&lt;?&gt; superClass = clazz.getSuperclass();<br>    <span class="hljs-comment">//接口类 + 父类</span><br>    DvmClass[] interfaces = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DvmClass</span>[clazz.getInterfaces().length + (superClass == <span class="hljs-literal">null</span> ? <span class="hljs-number">0</span> : <span class="hljs-number">1</span>)];<br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (superClass != <span class="hljs-literal">null</span>) &#123;<br>        interfaces[i++] = getObjectType(vm, superClass);<br>    &#125;<br>    <span class="hljs-keyword">for</span> (Class&lt;?&gt; cc : clazz.getInterfaces()) &#123;<br>        interfaces[i++] = getObjectType(vm, cc);<br>    &#125;<br>    <span class="hljs-comment">// 通过resolveClass函数加载对应类</span><br>    <span class="hljs-keyword">return</span> vm.resolveClass(clazz.getName().replace(<span class="hljs-string">&#x27;.&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>), interfaces);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>它会对类的父类以及接口类做解析，嵌套式的<code>getObjectType</code>，最后<code>resolveClass</code>得到的<code>DvmClass</code>可通过<code>newObject</code>方法得到最终的<code>DvmObject</code>，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; newObject(Object value) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DvmObject</span>&lt;&gt;(<span class="hljs-built_in">this</span>, value);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>来看<code>resolveClass</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> DvmClass <span class="hljs-title function_">resolveClass</span><span class="hljs-params">(String className, DvmClass... interfaceClasses)</span> &#123;<br>    <span class="hljs-comment">//将className中的 . 替换成 /</span><br>    className = className.replace(<span class="hljs-string">&#x27;.&#x27;</span>, <span class="hljs-string">&#x27;/&#x27;</span>);<br>    <span class="hljs-comment">//在classMap（存放已加载的class）中查找</span><br>    <span class="hljs-type">int</span> <span class="hljs-variable">hash</span> <span class="hljs-operator">=</span> Objects.hash(className);<br>    <span class="hljs-type">DvmClass</span> <span class="hljs-variable">dvmClass</span> <span class="hljs-operator">=</span> classMap.get(hash);<br>    <span class="hljs-comment">//如果有接口类</span><br>    <span class="hljs-type">DvmClass</span> <span class="hljs-variable">superClass</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">if</span> (interfaceClasses != <span class="hljs-literal">null</span> &amp;&amp; interfaceClasses.length &gt; <span class="hljs-number">0</span>) &#123;<br>        superClass = interfaceClasses[<span class="hljs-number">0</span>];<br>        interfaceClasses = Arrays.copyOfRange(interfaceClasses, <span class="hljs-number">1</span>, interfaceClasses.length);<br>    &#125;<br>    <span class="hljs-comment">//该类从未被加载过，先通过DvmClassFactory类的createClass加载，如果未加载成功，则通过BaseVM类的createClass加载</span><br>    <span class="hljs-keyword">if</span> (dvmClass == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">if</span> (dvmClassFactory != <span class="hljs-literal">null</span>) &#123;<br>            dvmClass = dvmClassFactory.createClass(<span class="hljs-built_in">this</span>, className, superClass, interfaceClasses);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (dvmClass == <span class="hljs-literal">null</span>) &#123;<br>            dvmClass = <span class="hljs-built_in">this</span>.createClass(<span class="hljs-built_in">this</span>, className, superClass, interfaceClasses);<br>        &#125;<br>        classMap.put(hash, dvmClass);<br>    &#125;<br>    addGlobalObject(dvmClass);<br>    <span class="hljs-keyword">return</span> dvmClass;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>它先查找<code>classMap</code>确认是否已加载，如果没有加载，则通过<code>createClass</code>函数加载目标类。</p>
+<h1 id="三、类型封装情况分类"><a href="#三、类型封装情况分类" class="headerlink" title="三、类型封装情况分类"></a>三、类型封装情况分类</h1><p>根据前几篇文章的实操以及类型封装过程的追踪，将类型封装的情况分为四类：</p>
+<ol>
+<li><p>基本类型直接传递，int、long、boolean、double 等。</p>
+</li>
+<li><p>下面几种对象类型也可以直接传递</p>
+<ul>
+<li><p>String</p>
+</li>
+<li><p>byte 数组</p>
+</li>
+<li><p>short 数组</p>
+</li>
+<li><p>int 数组</p>
+</li>
+<li><p>float 数组</p>
+</li>
+<li><p>double 数组</p>
+</li>
+<li><p>Enum 枚举类型</p>
+</li>
+</ul>
+<p>也可以自己调用<code>new StringObject(vm, str)</code>、<code>new ByteArray(vm, value)</code>等。</p>
+</li>
+<li><p>如果是 JDK 中包含的类库和方法，比如二维数组、字符串数组、HashMap 等等，直接构造然后使用<code>ProxyDvmObject.createObject(vm, obj);</code>构造出对象。除此之外比如 Okhttp3 之类的第三方类库，导入到本地环境里，也可以使用这个办法。</p>
+</li>
+<li><p>如果是 JDK 中无法包含的类库，比如 Android FrameWork 以及样本自定义的类库，通过<code>resolveClass(className).newObject</code>处理，就像本节的<code>NativeApi</code>那样处理。</p>
+</li>
+</ol>
+<h2 id="3-1-类型一"><a href="#3-1-类型一" class="headerlink" title="3.1 类型一"></a>3.1 类型一</h2><p>首先看基本类型，即所谓的 byte、short、int、long、double、float、boolean、char，只需要直接传递即可，例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getStaticIntField</span><span class="hljs-params">(BaseVM vm, DvmClass dvmClass, String signature)</span> &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;android/content/pm/PackageManager-&gt;GET_SIGNATURES:I&quot;</span>.equals(signature)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0x40</span>;<br>    &#125;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(signature);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，在准备参数，发起函数调用时，<code>Long</code>类型的参数必须显式声明，即在整数后面加<code>L</code>，以供 Unidbg 识别和处理。</p>
+<h2 id="3-2-类型二"><a href="#3-2-类型二" class="headerlink" title="3.2 类型二"></a>3.2 类型二</h2><p>接下来看基本对象——基本类型的包装类、字符串、基本类型数组、对象类型数组等等。</p>
+<p>例一</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: cn/xiaochuankeji/tieba/AppController-&gt;getPackageName()Ljava/lang/String;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:416)<br>	at com.izuiyou.NetWork.callObjectMethodV(NetWork.java:86)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:262)<br></code></pre></td></tr></table></figure>
+
+<p>首先获取包名<code>String packageName = vm.getPackageName();</code>，然后下面两种方案任选一种处理为<code>StringObject</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">StringObject</span> <span class="hljs-variable">stringObject1</span> <span class="hljs-operator">=</span> (StringObject) ProxyDvmObject.createObject(vm, packageName);<br><span class="hljs-type">StringObject</span> <span class="hljs-variable">stringObject2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, packageName);<br></code></pre></td></tr></table></figure>
+
+<p><code>ProxyDvmObject.createObject</code>内部做了类型判断，将 String 转为 StringObject。但使用 StringObject 构造更为更直观。</p>
+<p>例二</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/lang/Integer-&gt;&lt;init&gt;(I)V<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.newObjectV(AbstractJni.java:789)<br>	at com.demo5.MeiTuan.newObjectV(MeiTuan.java:557)<br></code></pre></td></tr></table></figure>
+
+<p>Integer 类是基本类型<code>int</code>所对应的包装类，Unidbg 对部分包装类做了处理，详见<code>unidbg-android/src/main/java/com/github/unidbg/linux/android/dvm/wrapper</code>目录，其中这些类型都提供了<code>valueOf</code>类方法做包装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">case &quot;java/lang/Integer-&gt;&lt;init&gt;(I)V&quot;: &#123;<br>    int i = vaList.getIntArg(0);<br>    return DvmInteger.valueOf(vm, i);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例三</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/net/NetworkInterface-&gt;getHardwareAddress()[B<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethod(AbstractJni.java:921)<br>	at com.demo14.SimpleSign.callObjectMethod(SimpleSign.java:177)<br></code></pre></td></tr></table></figure>
+
+<p><code>[B</code>即 byte[]，在 Unidbg 中对应于<code>ByteArray</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/net/NetworkInterface-&gt;getHardwareAddress()[B&quot;</span>:<br>    <span class="hljs-type">byte</span>[] addr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[]&#123;<span class="hljs-number">0x64</span>, (<span class="hljs-type">byte</span>) <span class="hljs-number">0xBC</span>, <span class="hljs-number">0x0C</span>, <span class="hljs-number">0x65</span>, (<span class="hljs-type">byte</span>) <span class="hljs-number">0xAA</span>, <span class="hljs-number">0x1E</span>&#125;;<br>	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArray</span>(vm, addr);<br></code></pre></td></tr></table></figure>
+
+<p>在<code>unidbg-android/src/main/java/com/github/unidbg/linux/android/dvm/array</code>目录下有对各种基本类型数组的表示和处理。这里也可以用<code>ProxyDvmObject.createObject</code>，就像<code>StringObject</code>一样，它内部会对应做处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">byte</span>[]) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArray</span>(vm, (<span class="hljs-type">byte</span>[]) value);<br>&#125;<br><span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">short</span>[]) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ShortArray</span>(vm, (<span class="hljs-type">short</span>[]) value);<br>&#125;<br><span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">int</span>[]) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IntArray</span>(vm, (<span class="hljs-type">int</span>[]) value);<br>&#125;<br><span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">float</span>[]) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FloatArray</span>(vm, (<span class="hljs-type">float</span>[]) value);<br>&#125;<br><span class="hljs-keyword">if</span> (value <span class="hljs-keyword">instanceof</span> <span class="hljs-type">double</span>[]) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DoubleArray</span>(vm, (<span class="hljs-type">double</span>[]) value);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例四</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: android/os/Build-&gt;SUPPORTED_ABIS:[Ljava/lang/String;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.getStaticObjectField(AbstractJni.java:103)<br>	at com.demo5.MeiTuan.getStaticObjectField(MeiTuan.java:629)<br></code></pre></td></tr></table></figure>
+
+<p>类型是<code>[Ljava/lang/String;</code>，它是个字符串数组。在 Unidbg 中，对象数组通过<code>ArrayObject</code>表示，而且还为字符串数组提供了一个方便的处理函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ArrayObject <span class="hljs-title function_">newStringArray</span><span class="hljs-params">(VM vm, String... strings)</span> &#123;<br>    StringObject[] objects = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>[strings.length];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; strings.length; i++) &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> strings[i];<br>        <span class="hljs-keyword">if</span> (str != <span class="hljs-literal">null</span>) &#123;<br>            objects[i] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, str);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayObject</span>(objects);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用它可以方便的构造字符串数组</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/os/Build-&gt;SUPPORTED_ABIS:[Ljava/lang/String;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> ArrayObject.newStringArray(vm, <span class="hljs-string">&quot;arm64-v8a&quot;</span>, <span class="hljs-string">&quot;armeabi-v7a&quot;</span>, <span class="hljs-string">&quot;armeabi&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>也可以使用<code>ProxyDvmObject.createObject</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/os/Build-&gt;SUPPORTED_ABIS:[Ljava/lang/String;&quot;</span>:&#123;<br>    String[] abis = <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;<span class="hljs-string">&quot;arm64-v8a&quot;</span>, <span class="hljs-string">&quot;armeabi-v7a&quot;</span>, <span class="hljs-string">&quot;armeabi&quot;</span>&#125;;<br>    <span class="hljs-keyword">return</span> ProxyDvmObject.createObject(vm, abis);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>它在内部最终也是转换为了<code>ArrayObject</code>。对于对象数组类型，用<code>ProxyDvmObject.createObject</code>更省事。</p>
+<p>例五</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: android/hardware/SensorManager-&gt;getSensorList(I)Ljava/util/List;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:416)<br>	at com.demo2.Tiny.callObjectMethodV(Tiny.java:334)<br></code></pre></td></tr></table></figure>
+
+<p>这是一个 List，将它转成<code>ArrayListObject</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">case &quot;android/hardware/SensorManager-&gt;getSensorList(I)Ljava/util/List;&quot;:&#123;<br>    int length = 10;<br>    List&lt;DvmObject&lt;?&gt;&gt; SensorList = new ArrayList&lt;&gt;();<br>    for (int i = 0; i &lt; length; i++) &#123;<br>        SensorList.add(vm.resolveClass(&quot;android/hardware/Sensor&quot;).newObject(i));<br>    &#125;<br>    return new ArrayListObject(vm, SensorList);            <br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-3-类型三"><a href="#3-3-类型三" class="headerlink" title="3.3 类型三"></a>3.3 类型三</h2><p>上一种类型，处理起来往往有两方面的选择，而除此之外其余的 JDK 类库，基本只能用<code>ProxyDvmObject.createObject</code>。</p>
+<p>例一</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/util/HashMap-&gt;&lt;init&gt;()V<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.newObject(AbstractJni.java:741)<br>	at com.demo4.TBSecurity.newObject(TBSecurity.java:392)<br></code></pre></td></tr></table></figure>
+
+<p>HashMap 对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/HashMap-&gt;&lt;init&gt;()V&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> ProxyDvmObject.createObject(vm, <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例二</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/util/zip/ZipFile-&gt;getInputStream(Ljava/util/zip/ZipEntry;)Ljava/io/InputStream;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:416)<br>	at com.demo7.TDJNI.callObjectMethodV(TDJNI.java:625)<br></code></pre></td></tr></table></figure>
+
+<p>InputStream 对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/zip/ZipFile-&gt;getInputStream(Ljava/util/zip/ZipEntry;)Ljava/io/InputStream;&quot;</span>:&#123;<br>    <span class="hljs-type">ZipFile</span> <span class="hljs-variable">zipFile</span> <span class="hljs-operator">=</span> (ZipFile) dvmObject.getValue();<br>    <span class="hljs-type">ZipEntry</span> <span class="hljs-variable">entry</span> <span class="hljs-operator">=</span> (ZipEntry) vaList.getObjectArg(<span class="hljs-number">0</span>).getValue()<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">return</span> ProxyDvmObject.createObject(vm, zipFile.getInputStream(entry));<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例三</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/util/Map-&gt;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethod(AbstractJni.java:922)<br>	at com.Bili.NativeLibrary.callObjectMethod(NativeLibrary.java:88)<br></code></pre></td></tr></table></figure>
+
+<p>这里只知道是 Object，而不确定具体是字符串还是其他什么类型，使用<code>ProxyDvmObject.createObject</code>是好选择。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/Map-&gt;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;&quot;</span>:&#123;<br>    <span class="hljs-type">Map</span> <span class="hljs-variable">map</span> <span class="hljs-operator">=</span> (Map) dvmObject.getValue();<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> varArg.getObjectArg(<span class="hljs-number">0</span>).getValue();<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> varArg.getObjectArg(<span class="hljs-number">1</span>).getValue();<br>    <span class="hljs-keyword">return</span> ProxyDvmObject.createObject(vm, map.put(key, value));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-4-类型四"><a href="#3-4-类型四" class="headerlink" title="3.4 类型四"></a>3.4 类型四</h2><p>对于 Android FrameWork 类库中的对象和类，使用<code>resolveClass</code>创建对应的<code>DvmClass</code>和<code>DvmObject</code>比较好。</p>
+<p>例一</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: android/telephony/FtTelephonyAdapter-&gt;getFtTelephony(Landroid/content/Context;)Landroid/telephony/FtTelephony;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:503)<br>	at com.demo7.TDJNI.callStaticObjectMethodV(TDJNI.java:763)<br></code></pre></td></tr></table></figure>
+
+<p>这显然是一个 Android 里的类库，没法在 Unidbg 中实际处理，只能用<code>resolveClass</code>占位。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/telephony/FtTelephonyAdapter-&gt;getFtTelephony(Landroid/content/Context;)Landroid/telephony/FtTelephony;&quot;</span>:&#123;<br>    <span class="hljs-comment">//只需要满足函数的返回值类型即可，具体值等后面报错了再视具体情况解决</span><br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/telephony/FtTelephony&quot;</span>).newObject(<span class="hljs-literal">null</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例二</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: java/lang/Class-&gt;forName(Ljava/lang/String;)Ljava/lang/Class;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:503)<br>	at com.demo7.TDJNI.callStaticObjectMethodV(TDJNI.java:763)<br></code></pre></td></tr></table></figure>
+
+<p><code>Class.forName(className)</code>用于加载类，我们不确定所加载的类是样本自定义的类、Android 框架层类库，还是 JDK 中的标准类库，这种情况里使用<code>resolveClass</code>是好办法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/Class-&gt;forName(Ljava/lang/String;)Ljava/lang/Class;&quot;</span>:&#123;<br>    <span class="hljs-comment">//获取入参</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">className</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    System.out.println(<span class="hljs-string">&quot;Class-&gt;forName:&quot;</span>+className);<br>    <span class="hljs-comment">//使用resolveClass加载对应类</span><br>    <span class="hljs-keyword">return</span> vm.resolveClass(className);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>例三</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: android/content/IntentFilter-&gt;&lt;init&gt;(Ljava/lang/String;)V<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.newObjectV(AbstractJni.java:791)<br>	at com.demo7.TDJNI.newObjectV(TDJNI.java:826)<br></code></pre></td></tr></table></figure>
+
+<p>这里要初始化<code>IntentFilter</code>，同样的 Android 框架层的类库，只能做占位处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/content/IntentFilter-&gt;&lt;init&gt;(Ljava/lang/String;)V&quot;</span>:&#123;<br>    <span class="hljs-comment">//获取入参</span><br>    <span class="hljs-type">String</span> <span class="hljs-variable">intent</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>).getValue().toString();<br>    System.out.println(<span class="hljs-string">&quot;IntentFilter:&quot;</span>+intent);<br>    <span class="hljs-comment">//占位处理</span><br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/content/IntentFilter&quot;</span>).newObject(intent);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以注意到，这里的<code>newObject</code>没有传<code>null</code>，而是把参数传递了进去，这是因为样本初始化了多个<code>IntentFilter</code>，需要一个办法分辨不同的<code>IntentFilter</code>，以及把初始化的内容传递到之后的函数中去。</p>
+<h1 id="四、参考"><a href="#四、参考" class="headerlink" title="四、参考"></a>四、参考</h1><p><a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/uo6guvore38kr29y#r3GW4">Unidbg 的基本使用（四）</a></p>
+<p>[Unidbg 的基本使用（五）](<a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/hiiaukxvr2zuz5mb#">https://www.yuque.com/lilac-2hqvv/xdwlsg/hiiaukxvr2zuz5mb?#</a> 《Unidbg 的基本使用（五）》)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>unidbg中参数传递时的类型封装</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/unidbg中参数传递时的类型封装/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E6%80%BB%E7%BB%93unidbg%E8%A1%A5JNI%E7%8E%AF%E5%A2%83%E6%97%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/" title="总结unidbg补JNI环境时的代码逻辑">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">总结unidbg补JNI环境时的代码逻辑</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%94%EF%BC%89/" title="从案例中学习unidbg的使用（五）">
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（五）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、引言目标 APK：right573.apk 目标方法：com.izuiyou.network.NetCrypto.sign  目标方法实现：libnet_crypto.so 本篇将开始讨论补环境。 二、任务描述jadx反编译apk，得到目标函数 sign 代码如下。 12345678910111213141516package com.izuiyou.network;...public cla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从案例中学习unidbg的使用（三）">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、引言目标 APK：right573.apk 目标方法：com.izuiyou.network.NetCrypto.sign  目标方法实现：libnet_crypto.so 本篇将开始讨论补环境。 二、任务描述jadx反编译apk，得到目标函数 sign 代码如下。 12345678910111213141516package com.izuiyou.network;...public cla">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652733.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652762.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652433.png">
+<meta property="article:published_time" content="2024-12-05T09:53:45.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:55:14.917Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652733.png">
+  
+  
+  
+  <title>从案例中学习unidbg的使用（三） - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从案例中学习unidbg的使用（三）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:53" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          23k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          196 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从案例中学习unidbg的使用（三）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>目标 APK：right573.apk</p>
+<p>目标方法：com.izuiyou.network.NetCrypto.sign </p>
+<p>目标方法实现：libnet_crypto.so</p>
+<p>本篇将开始讨论补环境。</p>
+<h1 id="二、任务描述"><a href="#二、任务描述" class="headerlink" title="二、任务描述"></a>二、任务描述</h1><p>jadx反编译apk，得到目标函数 sign 代码如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.izuiyou.network;<br><br>...<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NetCrypto</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ChangeQuickRedirect changeQuickRedirect;<br><br>    <span class="hljs-keyword">static</span> &#123;<br>        we5.a(ContextProvider.get(), <span class="hljs-string">&quot;net_crypto&quot;</span>);<br>        native_init();<br>    &#125;<br>	<br>    ...<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">native</span> String <span class="hljs-title function_">sign</span><span class="hljs-params">(String str, <span class="hljs-type">byte</span>[] bArr)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里使用 Frida 附加目标进程做主动调用，代码如下。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">callSign</span>(<span class="hljs-params"></span>)&#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">function</span> <span class="hljs-title function_">stringToBytes</span>(<span class="hljs-params">str</span>) &#123;<br>            <span class="hljs-keyword">var</span> javaString = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;java.lang.String&#x27;</span>);<br>            <span class="hljs-keyword">return</span> javaString.$new(str).<span class="hljs-title function_">getBytes</span>();<br>        &#125;<br><br>        <span class="hljs-keyword">let</span> <span class="hljs-title class_">NetCrypto</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.izuiyou.network.NetCrypto&quot;</span>);<br>        <span class="hljs-keyword">let</span> arg1 = <span class="hljs-string">&quot;hello world&quot;</span>;<br>        <span class="hljs-keyword">let</span> arg2 = <span class="hljs-string">&quot;V I 50&quot;</span>;<br>        <span class="hljs-keyword">let</span> ret = <span class="hljs-title class_">NetCrypto</span>.<span class="hljs-title function_">sign</span>(arg1, <span class="hljs-title function_">stringToBytes</span>(arg2));<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;ret:&quot;</span>+ret);<br>    &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出是 v2-b94195d5f3c2ad3a876f13346fa283a0，本篇的目标是使用 Unidbg 复现对 sign 的调用。</p>
+<h1 id="三、初始化"><a href="#三、初始化" class="headerlink" title="三、初始化"></a>三、初始化</h1><p>在 Unidbg 的 unidbg-android&#x2F;src&#x2F;test&#x2F;java 下新建包和类。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs javascript">public <span class="hljs-keyword">class</span> <span class="hljs-title class_">NetCrypto</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">AbstractJni</span> &#123;<br><br>    private final <span class="hljs-title class_">AndroidEmulator</span> emulator;<br>    private final <span class="hljs-title class_">DvmClass</span> cNetCrypto;<br>    private final <span class="hljs-variable constant_">VM</span> vm;<br>    private final <span class="hljs-title class_">Memory</span> memory;<br><br>    public <span class="hljs-title class_">NetCrypto</span>()&#123;<br>        emulator = <span class="hljs-title class_">AndroidEmulatorBuilder</span>.<span class="hljs-title function_">for32Bit</span>()<br>            .<span class="hljs-title function_">addBackendFactory</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Unicorn2Factory</span>(<span class="hljs-literal">true</span>))<br>            .<span class="hljs-title function_">setProcessName</span>(<span class="hljs-string">&quot;cn.xiaochuankeji.tieba&quot;</span>).<span class="hljs-title function_">build</span>();<br><br>        memory = emulator.<span class="hljs-title function_">getMemory</span>();<br>        memory.<span class="hljs-title function_">setLibraryResolver</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br><br>        vm = emulator.<span class="hljs-title function_">createDalvikVM</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/izuiyou/right573.apk&quot;</span>));<br>        vm.<span class="hljs-title function_">setJni</span>(<span class="hljs-variable language_">this</span>);<br>        vm.<span class="hljs-title function_">setVerbose</span>(<span class="hljs-literal">true</span>);<br><br>        <span class="hljs-comment">/* 如果出现load dependency libandroid.so failed</span><br><span class="hljs-comment">           则通过下面代码加载 libandroid.so 虚拟模块, 但需早于目标 SO 加载的时机*/</span><br><span class="hljs-comment">//        new AndroidModule(emulator, vm).register(memory);</span><br><br>        <span class="hljs-title class_">DalvikModule</span> dm = vm.<span class="hljs-title function_">loadLibrary</span>(<span class="hljs-string">&quot;net_crypto&quot;</span>, <span class="hljs-literal">true</span>);<br>        cNetCrypto = vm.<span class="hljs-title function_">resolveClass</span>(<span class="hljs-string">&quot;com/izuiyou/network/NetCrypto&quot;</span>);<br><br>        dm.<span class="hljs-title function_">callJNI_OnLoad</span>(emulator);<br>    &#125;<br><br>    public <span class="hljs-title class_">String</span> <span class="hljs-title function_">sign</span>(<span class="hljs-params"></span>)&#123;<br>        <span class="hljs-title class_">String</span> arg1 = <span class="hljs-string">&quot;hello world&quot;</span>;<br>        byte[] arg2 = <span class="hljs-string">&quot;V I 50&quot;</span>.<span class="hljs-title function_">getBytes</span>(<span class="hljs-title class_">StandardCharsets</span>.<span class="hljs-property">UTF_8</span>);<br>        <span class="hljs-keyword">return</span> cNetCrypto.<span class="hljs-title function_">callStaticJniMethodObject</span>(emulator, <span class="hljs-string">&quot;sign(Ljava/lang/String;[B)Ljava/lang/String;&quot;</span>, arg1, arg2)<br>                .<span class="hljs-title function_">getValue</span>()<br>                .<span class="hljs-title function_">toString</span>();<br>    &#125;<br>    <br>    public <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"><span class="hljs-built_in">String</span>[] args</span>) &#123;<br>        <span class="hljs-title class_">NetCrypto</span> netCrypto = <span class="hljs-keyword">new</span> <span class="hljs-title class_">NetCrypto</span>();<br>        <span class="hljs-title class_">System</span>.<span class="hljs-property">out</span>.<span class="hljs-title function_">println</span>(<span class="hljs-string">&quot;call sign result: &quot;</span> + netCrypto.<span class="hljs-title function_">sign</span>());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>样本 lib 目录下只包含<code>armeabi-v7a</code>的动态库文件，因此这里只能选择 32 位，运行代码发现首行日志提示，libnet_crypto.so 试图加载 libandroid.so 这个依赖库，但没找到。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-attr">[16:54:19 395]</span>  INFO <span class="hljs-selector-attr">[com.github.unidbg.linux.AndroidElfLoader]</span> (AndroidElfLoader:<span class="hljs-number">481</span>) - libnet_crypto<span class="hljs-selector-class">.so</span> load dependency libandroid<span class="hljs-selector-class">.so</span> failed<br></code></pre></td></tr></table></figure>
+
+<p>这里加载失败的 libandroid.so  就是一个系统库，但 Unidbg 并没有在 &#x2F;src&#x2F;main&#x2F;resources&#x2F;sdkxx&#x2F;lib 目录下实现它，而是将其实现为虚拟模块。这是因为并非所有的 SO 都可以被 Unidbg 完备的加载和处理。以当前的 libandroid.so 为例，它依赖于相当多的类库，其中许多和 Android 系统、软硬件、大量的系统调用紧密相关。这使得 Unidbg 很难对它们做妥善、完备的处理，因为 Unidbg 并不是真正完善健全的模拟器。除了 libandroid.so 外，libart.so、libjnigraphics.so 等库都因为这个原因没法完成加载。因此 Unidbg 只默认加载了依赖最少，使用又最多的一批库函数。</p>
+<p>对于 libandroid.so 这样的系统库出现频率很高，Unidbg 提供了一种叫做虚拟模块的机制，提供对这些 SO 一部分函数的模拟实现。目前 Unidbg 提供了  libandroid.so、libjnigraphics.so、libmediandk.so 三个库的虚拟模块。使用它们相当简单，比如此处缺少 libandroid.so，只需要在<strong>早于</strong>目标 SO 加载的时机，添下面这行代码即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidModule</span>(emulator, vm).register(memory);;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="五、补-JNI-环境"><a href="#五、补-JNI-环境" class="headerlink" title="五、补 JNI 环境"></a>五、补 JNI 环境</h1><p>运行代码，报错如下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell">JNIEnv-&gt;GetStaticMethodID(com/izuiyou/common/base/BaseApplication.getAppContext()Landroid/content/Context;) =&gt; <span class="hljs-number">0</span>x2157b33c was called from RX@<span class="hljs-number">0</span>x1204da57[<span class="hljs-type">libnet_crypto.so</span>]<span class="hljs-number">0</span>x4da57<br>[<span class="hljs-number">20</span>:<span class="hljs-number">30</span>:<span class="hljs-number">08</span> <span class="hljs-number">237</span>]  WARN [<span class="hljs-type">com.github.unidbg.linux.ARM32SyscallHandler</span>] (ARM32SyscallHandler:<span class="hljs-number">538</span>) - handleInterrupt intno=<span class="hljs-number">2</span>, NR=<span class="hljs-literal">-452987556</span>, svcNumber=<span class="hljs-number">0</span>x170, PC=unidbg@<span class="hljs-number">0</span>xfffe0794, LR=RX@<span class="hljs-number">0</span>x1204db2f[<span class="hljs-type">libnet_crypto.so</span>]<span class="hljs-number">0</span>x4db2f, syscall=null<br>java.lang.UnsupportedOperationException: com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:<span class="hljs-number">504</span>)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:<span class="hljs-number">438</span>)<br>	at com.github.unidbg.linux.android.dvm.DvmMethod.callStaticObjectMethodV(DvmMethod.java:<span class="hljs-number">59</span>)<br></code></pre></td></tr></table></figure>
+
+<p>Unidbg 通过主动抛出异常来提醒我们补 JNI 环境。</p>
+<h2 id="5-1-分析异常"><a href="#5-1-分析异常" class="headerlink" title="5.1 分析异常"></a>5.1 分析异常</h2><p>对于报错的这第一部分，有意义的是<code>LR</code>，它即 JNI 跳板函数的返回地址，对应于样本发起 JNI 调用的位置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">[<span class="hljs-number">08</span>:<span class="hljs-number">21</span>:<span class="hljs-number">02</span> <span class="hljs-number">080</span>]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:<span class="hljs-number">532</span>) - handleInterrupt intno=<span class="hljs-number">2</span>, NR=<span class="hljs-number">-1073744548</span>, svcNumber=<span class="hljs-number">0x170</span>, PC=unidbg@<span class="hljs-number">0xfffe0794</span>, LR=RX@<span class="hljs-number">0x4004db2f</span>[libnet_crypto.so]<span class="hljs-number">0x4db2f</span>, syscall=null<br></code></pre></td></tr></table></figure>
+
+<p>第二部分是其余部分</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">java.lang.UnsupportedOperationException: com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:503)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:437)<br></code></pre></td></tr></table></figure>
+
+<p>首先是 Unidbg 无法处理的函数其签名<code>com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;</code>，这个格式很清晰，即<code>com/izuiyou/common/base/BaseApplication</code>类的<code>getAppContext</code>方法。</p>
+<p>再看它的调用栈，来自于<code>callStaticObjectMethodV</code>这个 JNI 方法。接下来讨论为什么要补 JNI 环境。</p>
+<h2 id="5-2-补环境的原因"><a href="#5-2-补环境的原因" class="headerlink" title="5.2 补环境的原因"></a>5.2 补环境的原因</h2><p>为什么要补 JNI 环境？</p>
+<p>Unidbg 通过构造<code>JNIEnv</code>，<code>JavaVM</code>结构，辅之以<code>SVC</code>跳板函数，实现了对<code>JNI</code>的拦截和接管。</p>
+<p>但到底如何去模拟 JNI 函数，这是问题的核心。Unidbg 实现了一套 JNI 处理逻辑，当遇到 JNI 调用时，如果是<code>FindClass</code>、<code>NewGlobalRef</code>、<code>GetObjectClass</code>、<code>GetMethodID</code>、<code>GetStringLength</code>、<code>GetStringChars</code>、<code>ReleaseStringChars</code>等等函数，它的可以自洽处理，不需要使用者介入。</p>
+<p>那么补 JNI 环境的需求在哪里？在于如果是<code>callStaticObjectMethod</code>、<code>callObjectMethodV</code>、<code>getObjectField</code>、<code>getStaticIntField</code>等 JNI 函数，<strong>这些函数对样本的 Java 层数据做访问，Unidbg 既未运行 Dex，更没运行 Apk，因为需要借助读者，去填充这些外部信息。</strong></p>
+<p>举个例子，下面是一个小 demo。通过 JNI 访问了样本的<code>com.example.jnidemo.Utils</code>类里的静态字段<code>country</code>。 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;jni.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-function">JNIEXPORT jstring JNICALL</span><br><span class="hljs-function"><span class="hljs-title">Java_com_example_jnidemo_MainActivity_stringFromJNI</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">        JNIEnv* env,</span></span><br><span class="hljs-params"><span class="hljs-function">        jobject <span class="hljs-comment">/* this */</span>)</span> </span>&#123;<br>    jclass clz = env-&gt;<span class="hljs-built_in">FindClass</span>(<span class="hljs-string">&quot;com/example/jnidemo/Utils&quot;</span>);<br>    jfieldID jfieldId = env-&gt;<span class="hljs-built_in">GetStaticFieldID</span>(clz, <span class="hljs-string">&quot;country&quot;</span>, <span class="hljs-string">&quot;Ljava/lang/String;&quot;</span>);<br>    jstring ret = <span class="hljs-built_in">static_cast</span>&lt;jstring&gt;(env-&gt;<span class="hljs-built_in">GetStaticObjectField</span>(clz, jfieldId));<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* c_str = env-&gt;<span class="hljs-built_in">GetStringUTFChars</span>(ret, <span class="hljs-literal">nullptr</span>);<br>    <span class="hljs-keyword">return</span> env-&gt;<span class="hljs-built_in">NewStringUTF</span>(c_str);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Utils 类的代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.example.jnidemo;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Utils</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">country</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;China&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><u>Unidbg 只模拟执行 Native 层，自然无法无法感知和获取到 Utils 类以及其中的 country 字段，所以必须交由使用者自行处理</u>，比如在<code>JADX</code>中反编译样本，找到 Utils 类并静态分析代码，获悉<code>country</code>字段的值，比如直接 Frida Hook 查看等等。</p>
+<p>因为担心用户意识不到补 JNI 的需求，所以通过抛出报错和打印堆栈予以提醒。</p>
+<p>需要注意，并不是所有基于 JNI 发起的函数调用、字段访问都必须由用户处理，我们发现，其中有部分可以被预处理。举一些例子</p>
+<ul>
+<li>Android PackageManager 类里的 GET_SIGNATURES 静态字段 ，它的值固定是 64</li>
+<li>String 类的 getBytes 方法</li>
+<li>List 实现类的 size 方法</li>
+</ul>
+<p>为了减少用户的补 JNI 负担，所以 Unidbg 预处理了数百个常见的 JNI 函数调用和字段访问，逻辑位于<code>src/main/java/com/github/unidbg/linux/android/dvm/AbstractJni.java</code>类里。</p>
+<p>比如<code>callBooleanMethodV</code>，调用返回布尔值的实例方法，预处理了如下方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">callBooleanMethodV</span><span class="hljs-params">(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VaList vaList)</span> &#123;<br>    <span class="hljs-keyword">switch</span> (signature) &#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/Enumeration-&gt;hasMoreElements()Z&quot;</span>:<br>            <span class="hljs-keyword">return</span> ((Enumeration) dvmObject).hasMoreElements();<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/ArrayList-&gt;isEmpty()Z&quot;</span>:<br>            <span class="hljs-keyword">return</span> ((ArrayListObject) dvmObject).isEmpty();<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/Iterator-&gt;hasNext()Z&quot;</span>:<br>            <span class="hljs-type">Object</span> <span class="hljs-variable">iterator</span> <span class="hljs-operator">=</span> dvmObject.getValue();<br>            <span class="hljs-keyword">if</span> (iterator <span class="hljs-keyword">instanceof</span> Iterator) &#123;<br>                <span class="hljs-keyword">return</span> ((Iterator&lt;?&gt;) iterator).hasNext();<br>            &#125;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/String-&gt;startsWith(Ljava/lang/String;)Z&quot;</span>:&#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> (String) dvmObject.getValue();<br>            <span class="hljs-type">StringObject</span> <span class="hljs-variable">prefix</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>);<br>            <span class="hljs-keyword">return</span> str.startsWith(prefix.value);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(signature);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如<code>getObjectField</code>，访问对象类型的实例字段，做了如下处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; getObjectField(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature) &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;android/content/pm/PackageInfo-&gt;signatures:[Landroid/content/pm/Signature;&quot;</span>.equals(signature) &amp;&amp;<br>            dvmObject <span class="hljs-keyword">instanceof</span> PackageInfo) &#123;<br>        <span class="hljs-type">PackageInfo</span> <span class="hljs-variable">packageInfo</span> <span class="hljs-operator">=</span> (PackageInfo) dvmObject;<br>        <span class="hljs-keyword">if</span> (packageInfo.getPackageName().equals(vm.getPackageName())) &#123;<br>            CertificateMeta[] metas = vm.getSignatures();<br>            <span class="hljs-keyword">if</span> (metas != <span class="hljs-literal">null</span>) &#123;<br>                Signature[] signatures = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Signature</span>[metas.length];<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; metas.length; i++) &#123;<br>                    signatures[i] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Signature</span>(vm, metas[i]);<br>                &#125;<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayObject</span>(signatures);<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;android/content/pm/PackageInfo-&gt;versionName:Ljava/lang/String;&quot;</span>.equals(signature) &amp;&amp;<br>            dvmObject <span class="hljs-keyword">instanceof</span> PackageInfo) &#123;<br>        <span class="hljs-type">PackageInfo</span> <span class="hljs-variable">packageInfo</span> <span class="hljs-operator">=</span> (PackageInfo) dvmObject;<br>        <span class="hljs-keyword">if</span> (packageInfo.getPackageName().equals(vm.getPackageName())) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">versionName</span> <span class="hljs-operator">=</span> vm.getVersionName();<br>            <span class="hljs-keyword">if</span> (versionName != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, versionName);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(signature);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这两个调用是获取 Apk 签名信息以及版本信息，Unidbg 之所以能处理，依赖我们传入的 APK，解析出了这些信息。</p>
+<p>在 AbstractJNI 中，下面四类处理为主</p>
+<ul>
+<li>App 基本信息与签名</li>
+<li>JDK 加密解密与数字签名</li>
+<li>字符串和容器类型</li>
+<li>Android FrameWork 类库</li>
+</ul>
+<p>第一类就比如上面的两个，但不止于此，加载和解析 APK 让 Unidbg 获取了大量的信息。</p>
+<p>比如处理获取包名</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; callStaticObjectMethod(BaseVM vm, DvmClass dvmClass, String signature, VarArg varArg) &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;android/app/ActivityThread-&gt;currentPackageName()Ljava/lang/String;&quot;</span>.equals(signature)) &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">packageName</span> <span class="hljs-operator">=</span> vm.getPackageName();<br>        <span class="hljs-keyword">if</span> (packageName != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, packageName);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(signature);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第二类是 JAVA 加解密和数字签名相关的方法，它主要服务于 Apk 签名校验，出现频率很高。</p>
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/security/KeyFactory-&gt;getInstance(Ljava/lang/String;)Ljava/security/KeyFactory;&quot;</span>:&#123;<br>    <span class="hljs-type">StringObject</span> <span class="hljs-variable">algorithm</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">assert</span> algorithm != <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">return</span> dvmClass.newObject(KeyFactory.getInstance(algorithm.value));<br>    &#125; <span class="hljs-keyword">catch</span> (NoSuchAlgorithmException e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;javax/crypto/spec/SecretKeySpec-&gt;&lt;init&gt;([BLjava/lang/String;)V&quot;</span>:&#123;<br>    <span class="hljs-type">byte</span>[] key = (<span class="hljs-type">byte</span>[]) vaList.getObjectArg(<span class="hljs-number">0</span>).value;<br>    <span class="hljs-type">StringObject</span> <span class="hljs-variable">algorithm</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">assert</span> algorithm != <span class="hljs-literal">null</span>;<br>    <span class="hljs-type">SecretKeySpec</span> <span class="hljs-variable">secretKeySpec</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SecretKeySpec</span>(key, algorithm.value);<br>    <span class="hljs-keyword">return</span> dvmClass.newObject(secretKeySpec);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第三类是对基本类型的包装类、字符串、容器类型的处理。</p>
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; newObject(BaseVM vm, DvmClass dvmClass, String signature, VarArg varArg) &#123;<br>    <span class="hljs-keyword">switch</span> (signature) &#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/String-&gt;&lt;init&gt;([B)V&quot;</span>:<br>            <span class="hljs-type">ByteArray</span> <span class="hljs-variable">array</span> <span class="hljs-operator">=</span> varArg.getObjectArg(<span class="hljs-number">0</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(array.getValue()));<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/String-&gt;&lt;init&gt;([BLjava/lang/String;)V&quot;</span>:<br>            array = varArg.getObjectArg(<span class="hljs-number">0</span>);<br>            <span class="hljs-type">StringObject</span> <span class="hljs-variable">string</span> <span class="hljs-operator">=</span> varArg.getObjectArg(<span class="hljs-number">1</span>);<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(array.getValue(), string.getValue()));<br>            &#125; <span class="hljs-keyword">catch</span> (UnsupportedEncodingException e) &#123;<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(e);<br>            &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(signature);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/Integer-&gt;intValue()I&quot;</span>: &#123;<br>    <span class="hljs-type">DvmInteger</span> <span class="hljs-variable">integer</span> <span class="hljs-operator">=</span> (DvmInteger) dvmObject;<br>    <span class="hljs-keyword">return</span> integer.value;<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/List-&gt;size()I&quot;</span>: &#123;<br>    List&lt;?&gt; list = (List&lt;?&gt;) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> list.size();<br>&#125;<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/util/Map-&gt;size()I&quot;</span>:&#123;<br>    Map&lt;?, ?&gt; map = (Map&lt;?, ?&gt;) dvmObject.getValue();<br>    <span class="hljs-keyword">return</span> map.size();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第四类是依赖于 Android FrameWork 的类库，它们没法在普通的 JAVA 环境里良好处理，因此需要做一些粗糙的模拟或占位。</p>
+<p>比如 Android 系统服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/app/Application-&gt;getSystemService(Ljava/lang/String;)Ljava/lang/Object;&quot;</span>: &#123;<br>    <span class="hljs-type">StringObject</span> <span class="hljs-variable">serviceName</span> <span class="hljs-operator">=</span> vaList.getObjectArg(<span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">assert</span> serviceName != <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemService</span>(vm, serviceName.getValue());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>SystemService 的实现如下，就是大量的简单占位，调用其中的方法实际获取数据时，还是要使用者来补。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.github.unidbg.linux.android.dvm.api;<br><br><span class="hljs-keyword">import</span> com.github.unidbg.arm.backend.BackendException;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.DvmClass;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.DvmObject;<br><span class="hljs-keyword">import</span> com.github.unidbg.linux.android.dvm.VM;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SystemService</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">DvmObject</span>&lt;String&gt; &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">WIFI_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;wifi&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">CONNECTIVITY_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;connectivity&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">TELEPHONY_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;phone&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ACCESSIBILITY_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;accessibility&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">KEYGUARD_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;keyguard&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">ACTIVITY_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;activity&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">SENSOR_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;sensor&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">INPUT_METHOD_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;input_method&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">LOCATION_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;location&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">WINDOW_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;window&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">UI_MODE_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;uimode&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">DISPLAY_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;display&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">AUDIO_SERVICE</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;audio&quot;</span>;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">SystemService</span><span class="hljs-params">(VM vm, String serviceName)</span> &#123;<br>        <span class="hljs-built_in">super</span>(getObjectType(vm, serviceName), serviceName);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> DvmClass <span class="hljs-title function_">getObjectType</span><span class="hljs-params">(VM vm, String serviceName)</span> &#123;<br>        <span class="hljs-keyword">switch</span> (serviceName) &#123;<br>            <span class="hljs-keyword">case</span> TELEPHONY_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/telephony/TelephonyManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> WIFI_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/net/wifi/WifiManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> CONNECTIVITY_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/net/ConnectivityManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> ACCESSIBILITY_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/view/accessibility/AccessibilityManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> KEYGUARD_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/app/KeyguardManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> ACTIVITY_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/os/BinderProxy&quot;</span>); <span class="hljs-comment">// android/app/ActivityManager</span><br>            <span class="hljs-keyword">case</span> SENSOR_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/hardware/SensorManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> INPUT_METHOD_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/view/inputmethod/InputMethodManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> LOCATION_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/location/LocationManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> WINDOW_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/view/WindowManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> UI_MODE_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/app/UiModeManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> DISPLAY_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/hardware/display/DisplayManager&quot;</span>);<br>            <span class="hljs-keyword">case</span> AUDIO_SERVICE:<br>                <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/media/AudioManager&quot;</span>);<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BackendException</span>(<span class="hljs-string">&quot;service failed: &quot;</span> + serviceName);<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>关于 AbstractJNI 可以做两点总结。</p>
+<ol>
+<li>确实能让我们免于一些补环境的苦恼</li>
+<li>相较于所有可能的 JNI 访问，它只是杯水车薪，补 JNI 环境这个步骤不可避免。</li>
+</ol>
+<h2 id="5-3-基本规范"><a href="#5-3-基本规范" class="headerlink" title="5.3 基本规范"></a>5.3 基本规范</h2><p>回到最初的报错上</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">JNIEnv-&gt;</span><span class="language-bash">FindClass(com/izuiyou/common/base/BaseApplication) was called from RX@0x4004da21[libnet_crypto.so]0x4da21</span><br><span class="hljs-meta prompt_">JNIEnv-&gt;</span><span class="language-bash">GetStaticMethodID(com/izuiyou/common/base/BaseApplication.getAppContext()Landroid/content/Context;) =&gt; 0x2157b33c was called from RX@0x4004da57[libnet_crypto.so]0x4da57</span><br>[08:21:02 080]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:532) - handleInterrupt intno=2, NR=-1073744548, svcNumber=0x170, PC=unidbg@0xfffe0794, LR=RX@0x4004db2f[libnet_crypto.so]0x4db2f, syscall=null<br>java.lang.UnsupportedOperationException: com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:503)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticObjectMethodV(AbstractJni.java:437)<br>	at com.github.unidbg.linux.android.dvm.DvmMethod.callStaticObjectMethodV(DvmMethod.java:64)<br>	at com.github.unidbg.linux.android.dvm.DalvikVM$113.handle(DalvikVM.java:1810)<br>	at com.github.unidbg.linux.ARM32SyscallHandler.hook(ARM32SyscallHandler.java:131)<br>	at com.github.unidbg.arm.backend.Unicorn2Backend$11.hook(Unicorn2Backend.java:347)<br>	at com.github.unidbg.arm.backend.unicorn.Unicorn$NewHook.onInterrupt(Unicorn.java:109)<br></code></pre></td></tr></table></figure>
+
+<p>函数签名是<code>com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;</code>根据抛出的异常，它来自<code>callStaticObjectMethodV</code>调用。</p>
+<p>如何构造和补 Context 是一个特殊问题，下面这个构造方式在绝大多数情况下可行。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-title class_">DvmObject</span>&lt;?&gt; context = vm.<span class="hljs-title function_">resolveClass</span>(<span class="hljs-string">&quot;android/app/Application&quot;</span>, vm.<span class="hljs-title function_">resolveClass</span>(<span class="hljs-string">&quot;android/content/ContextWrapper&quot;</span>, vm.<span class="hljs-title function_">resolveClass</span>(<span class="hljs-string">&quot;android/content/Context&quot;</span>))).<span class="hljs-title function_">newObject</span>(<span class="hljs-literal">null</span>);<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这么做的话，调用sign函数的结果会与Frida Hook的结果不一致！！！</p>
+</blockquote>
+<p>应该使用如下方法构造Context。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">DvmObject&lt;?&gt; context = vm.resolveClass(<span class="hljs-string">&quot;cn/xiaochuankeji/tieba/AppController&quot;</span>).newObject(<span class="hljs-literal">null</span>);<br></code></pre></td></tr></table></figure>
+
+<p>接下来补环境，我们可以在 AbstractJNI 的 callStaticObjectMethodV 里添加对这个方法的处理，如下所示。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; callStaticObjectMethodV(BaseVM vm, DvmClass dvmClass, String signature, VaList vaList) &#123;<br>    <span class="hljs-keyword">switch</span> (signature)&#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;com/izuiyou/common/base/BaseApplication-&gt;getAppContext()Landroid/content/Context;&quot;</span>: &#123;<br>            <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;cn/xiaochuankeji/tieba/AppController&quot;</span>).newObject(<span class="hljs-literal">null</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.callStaticObjectMethodV(vm, dvmClass, signature, vaList);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-4-开始补环境"><a href="#5-4-开始补环境" class="headerlink" title="5.4 开始补环境"></a>5.4 开始补环境</h2><p>继续运行，遇到了新的 JNI 补环境。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-selector-attr">[21:01:49 894]</span>  WARN <span class="hljs-selector-attr">[com.github.unidbg.linux.ARM32SyscallHandler]</span> (ARM32SyscallHandler:<span class="hljs-number">538</span>) - handleInterrupt intno=<span class="hljs-number">2</span>, NR=-<span class="hljs-number">452987532</span>, svcNumber=<span class="hljs-number">0</span>x11f, PC=unidbg@<span class="hljs-number">0</span>xfffe0284, LR=RX@<span class="hljs-number">0</span>x1204d563<span class="hljs-selector-attr">[libnet_crypto.so]</span><span class="hljs-number">0</span>x4d563, syscall=null<br>java<span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.UnsupportedOperationException</span>: cn/xiaochuankeji/tieba/AppController-&gt;<span class="hljs-built_in">getPackageManager</span>()Landroid/<span class="hljs-attribute">content</span>/pm/PackageManager;<br>	at com<span class="hljs-selector-class">.github</span><span class="hljs-selector-class">.unidbg</span><span class="hljs-selector-class">.linux</span><span class="hljs-selector-class">.android</span><span class="hljs-selector-class">.dvm</span><span class="hljs-selector-class">.AbstractJni</span><span class="hljs-selector-class">.callObjectMethodV</span>(AbstractJni<span class="hljs-selector-class">.java</span>:<span class="hljs-number">417</span>)<br>	at com<span class="hljs-selector-class">.github</span><span class="hljs-selector-class">.unidbg</span><span class="hljs-selector-class">.linux</span><span class="hljs-selector-class">.android</span><span class="hljs-selector-class">.dvm</span><span class="hljs-selector-class">.AbstractJni</span><span class="hljs-selector-class">.callObjectMethodV</span>(AbstractJni<span class="hljs-selector-class">.java</span>:<span class="hljs-number">262</span>)<br></code></pre></td></tr></table></figure>
+
+<p>获取包管理器如何返回？AbstractJNI 里有可供参考的代码。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652733.png" srcset="/img/loading.gif" lazyload></p>
+<p>重写，参考 AbstractJNI 去补 PackageManager。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> DvmObject&lt;?&gt; callObjectMethodV(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VaList vaList) &#123;<br>    <span class="hljs-keyword">switch</span> (signature)&#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;cn/xiaochuankeji/tieba/AppController-&gt;getPackageManager()Landroid/content/pm/PackageManager;&quot;</span>:&#123;<br>            <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/content/pm/PackageManager&quot;</span>)newObject(signature);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.callObjectMethodV(vm, dvmObject, signature, vaList);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，报错如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[21:04:39 169]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452987532, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.UnsupportedOperationException: cn/xiaochuankeji/tieba/AppController-&gt;getPackageName()Ljava/lang/String;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:417)<br></code></pre></td></tr></table></figure>
+
+<p>获取包名，AbstractJNI 里同样有这个处理逻辑。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652762.png" srcset="/img/loading.gif" lazyload></p>
+<p>直接照抄。</p>
+<p>继续运行，报错如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[21:09:54 046]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452987588, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.UnsupportedOperationException: cn/xiaochuankeji/tieba/AppController-&gt;getClass()Ljava/lang/Class;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:417)<br></code></pre></td></tr></table></figure>
+
+<p>同样在 AbstractJNI 里能找到 getClass 的处理逻辑</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051652433.png" srcset="/img/loading.gif" lazyload></p>
+<p>照抄。</p>
+<p>继续运行，报错如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[21:13:01 871]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452987588, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.UnsupportedOperationException: java/lang/Class-&gt;getSimpleName()Ljava/lang/String;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:417)<br></code></pre></td></tr></table></figure>
+
+<p>AbstractJNI 里找不到<code>getSimpleName</code>的处理，但是通过搜索发现，该函数是在获取类的简写名，比如<code>android.content.Context</code>简写名就是<code>Context</code>。<code>DvmClass</code>的<code>getClassName</code>可以获取类名，我们要截取末尾的名字。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/lang/Class-&gt;getSimpleName()Ljava/lang/String;&quot;</span>:&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">className</span> <span class="hljs-operator">=</span> ((DvmClass) dvmObject).getClassName();<br>    String[] name = className.split(<span class="hljs-string">&quot;/&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, name[name.length - <span class="hljs-number">1</span>]);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，报错如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[21:14:39 057]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452988524, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.UnsupportedOperationException: cn/xiaochuankeji/tieba/AppController-&gt;getFilesDir()Ljava/io/File;<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:417)<br></code></pre></td></tr></table></figure>
+
+<p>进行占位处理即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;cn/xiaochuankeji/tieba/AppController-&gt;getFilesDir()Ljava/io/File;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;java/io/File&quot;</span>).newObject(<span class="hljs-literal">null</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然而这样做并没有修不好，运行会报错，提示创建的File为空。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">[21:16:56 017]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452988524, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.NullPointerException: Cannot invoke <span class="hljs-string">&quot;java.io.File.getAbsolutePath()&quot;</span> because <span class="hljs-string">&quot;file&quot;</span> is <span class="hljs-literal">null</span><br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:307)<br></code></pre></td></tr></table></figure>
+
+<p>需进行如下处理（原因尚不可知）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;cn/xiaochuankeji/tieba/AppController-&gt;getFilesDir()Ljava/io/File;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;java/io/File&quot;</span>).newObject(<span class="hljs-string">&quot;/data/data/cn.xiaochuankeji.tieba/files&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，报错如下</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros">JNIEnv-&gt;GetMethodID(java/io/File.getAbsolutePath()Ljava/lang/String;) =&gt; 0xb4553f34 was called <span class="hljs-keyword">from</span> RX@0x1205af99[libnet_crypto.so]0x5af99<br>[21:18:39 172]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:538) - handleInterrupt <span class="hljs-attribute">intno</span>=2, <span class="hljs-attribute">NR</span>=-452988524, <span class="hljs-attribute">svcNumber</span>=0x11f, <span class="hljs-attribute">PC</span>=unidbg@0xfffe0284, <span class="hljs-attribute">LR</span>=RX@0x1204d563[libnet_crypto.so]0x4d563, <span class="hljs-attribute">syscall</span>=<span class="hljs-literal">null</span><br>java.lang.ClassCastException: class java.lang.String cannot be cast <span class="hljs-keyword">to</span> class java.io.File (java.lang.String <span class="hljs-keyword">and</span> java.io.File are <span class="hljs-keyword">in</span> module java.base of loader <span class="hljs-string">&#x27;bootstrap&#x27;</span>)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callObjectMethodV(AbstractJni.java:306)<br>	at com.izuiyou.network.NetCrypto.callObjectMethodV(NetCrypto.java:96)<br></code></pre></td></tr></table></figure>
+
+<p>提示 getAbsolutePath 方法处有问题，无法将 String类 转成 File 类，需进行如下处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;java/io/File-&gt;getAbsolutePath()Ljava/lang/String;&quot;</span>:&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, dvmObject.getValue().toString());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，报错如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">JNIEnv-&gt;</span><span class="language-bash">GetStaticMethodID(android/os/Debug.isDebuggerConnected()Z) =&gt; 0xd74c7fb4 was called from RX@0x40050c1f[libnet_crypto.so]0x50c1f</span><br>[11:04:59 936]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:532) - handleInterrupt intno=2, NR=-1073744460, svcNumber=0x173, PC=unidbg@0xfffe07c4, LR=RX@0x40050cf7[libnet_crypto.so]0x50cf7, syscall=null<br>java.lang.UnsupportedOperationException: android/os/Debug-&gt;isDebuggerConnected()Z<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticBooleanMethodV(AbstractJni.java:191)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticBooleanMethodV(AbstractJni.java:186)<br>	at com.github.unidbg.linux.android.dvm.DvmMethod.callStaticBooleanMethodV(DvmMethod.java:179)<br>	at com.github.unidbg.linux.android.dvm.DalvikVM$116.handle(DalvikVM.java:1884)<br>	at com.github.unidbg.linux.ARM32SyscallHandler.hook(ARM32SyscallHandler.java:131)<br></code></pre></td></tr></table></figure>
+
+<p>检测调试信息，理应返回 false 防止被检测到。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">callStaticBooleanMethodV</span><span class="hljs-params">(BaseVM vm, DvmClass dvmClass, String signature, VaList vaList)</span> &#123;<br>    <span class="hljs-keyword">switch</span> (signature)&#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/os/Debug-&gt;isDebuggerConnected()Z&quot;</span>:&#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.callStaticBooleanMethodV(vm, dvmClass, signature, vaList);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，报错如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">JNIEnv-&gt;GetStaticMethodID(android/os/Process.myPid()I) =&gt; <span class="hljs-number">0xfb198f3e</span> was called from RX@<span class="hljs-number">0x1205b3b5</span>[libnet_crypto.so]<span class="hljs-number">0x5b3b5</span><br>[<span class="hljs-number">21</span>:<span class="hljs-number">25</span>:<span class="hljs-number">00</span> <span class="hljs-number">006</span>]  WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:<span class="hljs-number">538</span>) - handleInterrupt intno=<span class="hljs-number">2</span>, NR=-<span class="hljs-number">452987428</span>, svcNumber=<span class="hljs-number">0x17e</span>, PC=unidbg@<span class="hljs-number">0xfffe0874</span>, LR=RX@<span class="hljs-number">0x1205b4a7</span>[libnet_crypto.so]<span class="hljs-number">0x5b4a7</span>, syscall=<span class="hljs-literal">null</span><br>java.lang.UnsupportedOperationException: android/os/Process-&gt;myPid()I<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticIntMethodV(AbstractJni.java:<span class="hljs-number">211</span>)<br>	at com.github.unidbg.linux.android.dvm.AbstractJni.callStaticIntMethodV(AbstractJni.java:<span class="hljs-number">206</span>)<br>	at com.github.unidbg.linux.android.dvm.DvmMethod.callStaticIntMethodV(DvmMethod.java:<span class="hljs-number">159</span>)<br></code></pre></td></tr></table></figure>
+
+<p>补 myPid 函数，返回 Unidbg 所生成的 PID。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">callStaticIntMethodV</span><span class="hljs-params">(BaseVM vm, DvmClass dvmClass, String signature, VaList vaList)</span> &#123;<br>    <span class="hljs-keyword">switch</span> (signature)&#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/os/Process-&gt;myPid()I&quot;</span>:&#123;<br>            <span class="hljs-keyword">return</span> emulator.getPid();<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.callStaticIntMethodV(vm, dvmClass, signature, vaList);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行测试，得到结果，符合我们的预期。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">call s result:v2-b94195d5f3c2ad3a876f13346fa283a0<br></code></pre></td></tr></table></figure>
+
+<h1 id="六、参考"><a href="#六、参考" class="headerlink" title="六、参考"></a>六、参考</h1><p><a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/bzoykwvuim3hkz2o#kpuq8">补库函数（五）</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/bmf8lm68ffvhrfu0#%20%E3%80%8AUnidbg%20%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89%E3%80%8B">https://www.yuque.com/lilac-2hqvv/xdwlsg/bmf8lm68ffvhrfu0?#%20%E3%80%8AUnidbg%20%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89%E3%80%8B</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从案例中学习unidbg的使用（三）</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/从案例中学习unidbg的使用（三）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E5%9B%9B%EF%BC%89/" title="从案例中学习unidbg的使用（四）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（四）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" title="从案例中学习unidbg的使用（二）">
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（二）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308282040907.jpg">
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308282039742.jpg">
 <meta property="article:published_time" content="2023-08-28T12:36:45.000Z">
-<meta property="article:modified_time" content="2023-08-28T12:42:13.528Z">
+<meta property="article:modified_time" content="2024-10-30T10:45:28.638Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="环境配置">
 <meta property="article:tag" content="AOSP">
@@ -261,7 +261,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          3.5k 字
         
       </span>
     
@@ -272,7 +272,7 @@
         
         
         
-          28 分钟
+          30 分钟
         
       </span>
     
@@ -369,6 +369,12 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">sudo <span class="hljs-keyword">update</span><span class="hljs-operator">-</span>alternatives <span class="hljs-comment">--config java</span><br></code></pre></td></tr></table></figure>
 
 <p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202308282041983.jpg" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>如果上述指令无效且指示仅有一个Java版本，说明我们安装的Java没有注册信息，使用以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8/bin/java 1 <br>sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.8/bin/javac 1<br></code></pre></td></tr></table></figure>
+
+<p>数字1表示优先级为1</p>
+</blockquote>
 <p>最前面带星号的就是当前正在使用的java版本，通过键入编号选择使用哪个版本。</p>
 <p>（参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/zbj18314469395/article/details/86064849">Linux之Ubuntu18.04安装Java JDK8的三种方式_ubuntu安装jdk8_软测小生的博客-CSDN博客</a>中的第三种方法）</p>
 </li>
@@ -436,7 +442,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
   
   
 
@@ -446,7 +452,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
   
   
 
@@ -528,7 +534,7 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/08/24/Android%E5%AE%89%E5%85%A8/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Frida开发环境搭建">
+                      <a href="/2023/08/24/Frida%20Hook/Frida%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Frida开发环境搭建">
                         <span class="hidden-mobile">Frida开发环境搭建</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>

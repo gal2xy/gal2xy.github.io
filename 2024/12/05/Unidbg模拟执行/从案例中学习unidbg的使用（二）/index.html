@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、引言目标 APK：sinaInternational.apk 目标方法：com.sina.weibo.security.calculateS  目标方法实现：libutility.so 二、任务描述jadx反编译apk，得到目标函数 calculateS 代码如下。 1234567891011121314151617181920212223242526272829303132333435363">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从案例中学习unidbg的使用（二）">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、引言目标 APK：sinaInternational.apk 目标方法：com.sina.weibo.security.calculateS  目标方法实现：libutility.so 二、任务描述jadx反编译apk，得到目标函数 calculateS 代码如下。 1234567891011121314151617181920212223242526272829303132333435363">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051647484.png">
+<meta property="article:published_time" content="2024-12-05T09:53:01.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:54:55.178Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051647484.png">
+  
+  
+  
+  <title>从案例中学习unidbg的使用（二） - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="从案例中学习unidbg的使用（二）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:53" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          119 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">从案例中学习unidbg的使用（二）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>目标 APK：sinaInternational.apk</p>
+<p>目标方法：com.sina.weibo.security.calculateS </p>
+<p>目标方法实现：libutility.so</p>
+<h1 id="二、任务描述"><a href="#二、任务描述" class="headerlink" title="二、任务描述"></a>二、任务描述</h1><p>jadx反编译apk，得到目标函数 calculateS 代码如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.sina.weibo.security;<br><br><span class="hljs-keyword">import</span> android.content.Context;<br><span class="hljs-keyword">import</span> android.net.wifi.WifiInfo;<br><span class="hljs-keyword">import</span> android.net.wifi.WifiManager;<br><span class="hljs-keyword">import</span> android.telephony.TelephonyManager;<br><span class="hljs-keyword">import</span> android.text.TextUtils;<br><span class="hljs-keyword">import</span> com.taobao.accs.utl.UtilityImpl;<br><span class="hljs-keyword">import</span> com.umeng.message.MsgConstant;<br><span class="hljs-keyword">import</span> com.weico.international.WApplication;<br><span class="hljs-keyword">import</span> permissions.dispatcher.PermissionUtils;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WeiboSecurityUtils</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">WeiboSecurityUtils</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">mCalculateSLock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String sIValue;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">sImei</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">String</span> <span class="hljs-variable">sMac</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String sSeed;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String sValue;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> String <span class="hljs-title function_">calculateS</span><span class="hljs-params">(Context context, String str, String str2)</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> String <span class="hljs-title function_">getIValue</span><span class="hljs-params">(Context context, String str)</span>;<br><br>    <span class="hljs-keyword">static</span> &#123;<br>        System.loadLibrary(<span class="hljs-string">&quot;utility&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">WeiboSecurityUtils</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">synchronized</span> WeiboSecurityUtils <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        WeiboSecurityUtils weiboSecurityUtils;<br>        <span class="hljs-keyword">synchronized</span> (WeiboSecurityUtils.class) &#123;<br>            <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>                instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeiboSecurityUtils</span>();<br>            &#125;<br>            weiboSecurityUtils = instance;<br>        &#125;<br>        <span class="hljs-keyword">return</span> weiboSecurityUtils;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">calculateSInJava</span><span class="hljs-params">(Context context, String srcArray, String pin)</span> &#123;<br>        String str;<br>        <span class="hljs-keyword">synchronized</span> (mCalculateSLock) &#123;<br>            <span class="hljs-keyword">if</span> (srcArray.equals(sSeed) &amp;&amp; !TextUtils.isEmpty(sValue)) &#123;<br>                str = sValue;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (context != <span class="hljs-literal">null</span>) &#123;<br>                sSeed = srcArray;<br>                sValue = getInstance().calculateS(context.getApplicationContext(), srcArray, pin);<br>                str = sValue;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                str = <span class="hljs-string">&quot;&quot;</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> str;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getIValue</span><span class="hljs-params">(Context context)</span> &#123;<br>        <span class="hljs-keyword">if</span> (!TextUtils.isEmpty(sIValue)) &#123;<br>            <span class="hljs-keyword">return</span> sIValue;<br>        &#125;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">deviceSerial</span> <span class="hljs-operator">=</span> getImei(context);<br>        <span class="hljs-keyword">if</span> (TextUtils.isEmpty(deviceSerial)) &#123;<br>            deviceSerial = getWifiMac(context);<br>        &#125;<br>        <span class="hljs-keyword">if</span> (TextUtils.isEmpty(deviceSerial)) &#123;<br>            deviceSerial = <span class="hljs-string">&quot;000000000000000&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">if</span> (context == <span class="hljs-literal">null</span> || TextUtils.isEmpty(deviceSerial)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>;<br>        &#125;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">iValue</span> <span class="hljs-operator">=</span> getInstance().getIValue(context.getApplicationContext(), deviceSerial);<br>        sIValue = iValue;<br>        <span class="hljs-keyword">return</span> iValue;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getImei</span><span class="hljs-params">(Context context)</span> &#123;<br>        <span class="hljs-keyword">if</span> (TextUtils.isEmpty(sImei) &amp;&amp; context != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">if</span> (PermissionUtils.hasSelfPermissions(WApplication.cContext, MsgConstant.PERMISSION_READ_PHONE_STATE)) &#123;<br>                sImei = ((TelephonyManager) context.getSystemService(<span class="hljs-string">&quot;phone&quot;</span>)).getDeviceId();<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                sImei = <span class="hljs-literal">null</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> sImei;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">getWifiMac</span><span class="hljs-params">(Context context)</span> &#123;<br>        <span class="hljs-keyword">if</span> (TextUtils.isEmpty(sMac) &amp;&amp; context != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-type">WifiInfo</span> <span class="hljs-variable">mac</span> <span class="hljs-operator">=</span> ((WifiManager) context.getApplicationContext().getSystemService(UtilityImpl.NET_TYPE_WIFI)).getConnectionInfo();<br>            sMac = mac != <span class="hljs-literal">null</span> ? mac.getMacAddress() : <span class="hljs-string">&quot;&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> sMac;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用frida Hook 目标函数的返回值，代码如下。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">callcalculateS</span>(<span class="hljs-params"></span>)&#123;<br>  <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-keyword">let</span> <span class="hljs-title class_">WeiboSecurityUtils</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.sina.weibo.security.WeiboSecurityUtils&quot;</span>);<br>    <span class="hljs-keyword">let</span> current_application = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;android.app.ActivityThread&#x27;</span>).<span class="hljs-title function_">currentApplication</span>();<br>    <span class="hljs-keyword">let</span> arg1 = current_application.<span class="hljs-title function_">getApplicationContext</span>();<br>    <span class="hljs-keyword">let</span> arg2 = <span class="hljs-string">&quot;hello world&quot;</span>;<br>    <span class="hljs-keyword">let</span> arg3 = <span class="hljs-string">&quot;123456&quot;</span>;<br>    <span class="hljs-keyword">let</span> ret = <span class="hljs-title class_">WeiboSecurityUtils</span>.$new().<span class="hljs-title function_">calculateS</span>(arg1, arg2, arg3);<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;ret:&quot;</span>+ret);<br>  &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结果为 d74a75bb，本篇目标是使用 Unidbg 复现对 calculateS 的调用。</p>
+<h1 id="三、初始化"><a href="#三、初始化" class="headerlink" title="三、初始化"></a>三、初始化</h1><p>在 Unidbg 的 unidbg-android&#x2F;src&#x2F;test&#x2F;java 下新建包和类。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs javascript">package com.<span class="hljs-property">weibo</span>;<br><br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">AndroidEmulator</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">arm</span>.<span class="hljs-property">backend</span>.<span class="hljs-property">Unicorn2Factory</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">AndroidEmulatorBuilder</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">AndroidResolver</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">dvm</span>.<span class="hljs-property">AbstractJni</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">dvm</span>.<span class="hljs-property">DalvikModule</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">dvm</span>.<span class="hljs-property">DvmClass</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">linux</span>.<span class="hljs-property">android</span>.<span class="hljs-property">dvm</span>.<span class="hljs-property">VM</span>;<br><span class="hljs-keyword">import</span> com.<span class="hljs-property">github</span>.<span class="hljs-property">unidbg</span>.<span class="hljs-property">memory</span>.<span class="hljs-property">Memory</span>;<br><br><span class="hljs-keyword">import</span> java.<span class="hljs-property">io</span>.<span class="hljs-property">File</span>;<br><br>public <span class="hljs-keyword">class</span> <span class="hljs-title class_">WeiBo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">AbstractJni</span> &#123;<br>    private final <span class="hljs-title class_">AndroidEmulator</span> emulator;<br>    private final <span class="hljs-title class_">DvmClass</span> <span class="hljs-title class_">WeiboSecurityUtils</span>;<br>    private final <span class="hljs-variable constant_">VM</span> vm;<br>    private final <span class="hljs-title class_">Memory</span> memory;<br><br>    public <span class="hljs-title class_">WeiBo</span>() &#123;<br>        emulator = <span class="hljs-title class_">AndroidEmulatorBuilder</span><br>                .<span class="hljs-title function_">for32Bit</span>()<br>                .<span class="hljs-title function_">addBackendFactory</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Unicorn2Factory</span>(<span class="hljs-literal">true</span>))<br>                .<span class="hljs-title function_">setProcessName</span>(<span class="hljs-string">&quot;com.weico.international&quot;</span>)<br>                .<span class="hljs-title function_">build</span>();<br>        memory = emulator.<span class="hljs-title function_">getMemory</span>();<br>        memory.<span class="hljs-title function_">setLibraryResolver</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br>        vm = emulator.<span class="hljs-title function_">createDalvikVM</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/weibo/sinaInternational.apk&quot;</span>));<br>        vm.<span class="hljs-title function_">setJni</span>(<span class="hljs-variable language_">this</span>);<br>        vm.<span class="hljs-title function_">setVerbose</span>(<span class="hljs-literal">true</span>);<br>        <span class="hljs-title class_">DalvikModule</span> dm = vm.<span class="hljs-title function_">loadLibrary</span>(<span class="hljs-string">&quot;utility&quot;</span>, <span class="hljs-literal">true</span>);<br>        <span class="hljs-title class_">WeiboSecurityUtils</span> = vm.<span class="hljs-title function_">resolveClass</span>(<span class="hljs-string">&quot;com/sina/weibo/security/WeiboSecurityUtils&quot;</span>);<br>        dm.<span class="hljs-title function_">callJNI_OnLoad</span>(emulator);<br>    &#125;<br><br>    public <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span>(<span class="hljs-params"><span class="hljs-built_in">String</span>[] args</span>) &#123;<br>        <span class="hljs-title class_">WeiBo</span> wb = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeiBo</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>apk lib 目录下只包含<code>armeabi</code>动态库，所以没得选，只能是<code>ARM32</code>。这篇讨论创建虚拟机对象、加载 SO 这两件事。</p>
+<h2 id="3-1-创建虚拟机"><a href="#3-1-创建虚拟机" class="headerlink" title="3.1 创建虚拟机"></a>3.1 创建虚拟机</h2><p>Unidbg 的<code>VM</code>主要用于处理 JNI 逻辑，这里我们通过如下方式创建。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">vm = emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/weibo/sinaInternational.apk&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<p><code>createDalvikVM</code>有两个重载方法，建议使用第二个。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//创建虚拟机</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">dalvikVM</span> <span class="hljs-operator">=</span> emulator.createDalvikVM();<br><span class="hljs-comment">//创建虚拟机并指定APK文件</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">dalvikVM</span> <span class="hljs-operator">=</span> emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;apk file path&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<p>加载 APK 这一行为让很多人对 Unidbg 产生了误解，觉得它不是 SO 模拟器，而是应用级的模拟器，就像雷电或夜神模拟器那样。</p>
+<p>事实上，Unidbg 加载 Apk 并非要做执行 DEX 甚至是运行 Apk 这样的大事，相反，它只是在做一些小事，主要包括下面两部分</p>
+<ol>
+<li><strong>解析 Apk 基本信息，减少使用者在补 JNI 环境上的工作量。</strong>Unidbg 会解析 Apk 的版本名、版本号、包名、 Apk 签名等信息。如果样本通过 JNI 调用获取这些信息，Unidbg 会替我们做处理。如果没有加载 Apk，这些逻辑就需要我们去补环境，平添了不少工作量。</li>
+<li><strong>解析和管理 Apk 资源文件</strong>，加载 Apk 后可以通过 <code>openAsset</code>获取 APK <code>assets</code>目录下的文件。如果样本通过<code>AAssetManager_open</code>等函数访问 apk 的<code>assets</code>，Unidbg 会替我们做处理。</li>
+</ol>
+<p>综上所述，创建虚拟机时加载 Apk 更省事。除此之外，Unidbg 使用 <a target="_blank" rel="noopener" href="https://github.com/hsiafan/apk-parser">apk-parser</a> 这个开源项目完成 Apk 的解析工作，读者可以在自己的项目里使用它。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">&lt;dependency&gt;<br>    &lt;groupId&gt;net.dongliu&lt;/groupId&gt;<br>    &lt;artifactId&gt;apk-parser&lt;/artifactId&gt;<br>    &lt;version&gt;<span class="hljs-number">2.6</span><span class="hljs-number">.10</span>&lt;/version&gt;<br>&lt;/dependency&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-加载-SO"><a href="#3-2-加载-SO" class="headerlink" title="3.2 加载 SO"></a>3.2 加载 SO</h2><p>我们通过 loadLibrary API 将 SO 加载到 Unidbg 中，它有数个重载方法，下面两个使用最多。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//参数一: 动态库或可执行ELF文件</span><br><span class="hljs-comment">//参数二: 是否必须执行 init_proc、init_array 这些初始化函数</span><br>DalvikModule <span class="hljs-title function_">loadLibrary</span><span class="hljs-params">(File elfFile, <span class="hljs-type">boolean</span> forceCallInit)</span>;<br><br><span class="hljs-comment">//参数一：动态库或可执行ELF的文件名</span><br><span class="hljs-comment">//参数二: 是否必须执行 init_proc、init_array 这些初始化函数</span><br>DalvikModule <span class="hljs-title function_">loadLibrary</span><span class="hljs-params">(String libname, <span class="hljs-type">boolean</span> forceCallInit)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>可以发现区别在于第一个参数，前者传入文件后者传入动态库的名字。</p>
+<p>后者在使用上近似于 JAVA 的<code>System.loadLibrary(soName)</code>，名字要掐头去尾，如 libkwsgmain.so 对应为 kwsgmain。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">vm.loadLibrary(<span class="hljs-string">&quot;kwsgmain&quot;</span>, <span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
+
+<p><code>loadLibrary</code>内部会为<code>libname</code>再添头添尾。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> DalvikModule <span class="hljs-title function_">loadLibrary</span><span class="hljs-params">(String libname, <span class="hljs-type">boolean</span> forceCallInit)</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">soName</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;lib&quot;</span> + libname + <span class="hljs-string">&quot;.so&quot;</span>;<br>    <span class="hljs-type">LibraryFile</span> <span class="hljs-variable">libraryFile</span> <span class="hljs-operator">=</span> findLibrary(soName);<br>    <span class="hljs-keyword">if</span> (libraryFile == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;load library failed: &quot;</span> + libname);<br>    &#125;<br>    <span class="hljs-type">Module</span> <span class="hljs-variable">module</span> <span class="hljs-operator">=</span> emulator.getMemory().load(libraryFile, forceCallInit);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DalvikModule</span>(<span class="hljs-built_in">this</span>, <span class="hljs-keyword">module</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只传入名字如何找到对应的 SO 文件并进行加载？这其实依赖于 3.1 所提到的加载 Apk，<strong>Unidbg 会去 Apk 的 lib 目录下找寻目标 SO，如果不加载 APK 就没法处理</strong>，下面看看具体代码。</p>
+<p>首先是 32 位的处理，去找<code>armeabi-v7a</code>以及<code>armeabi</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">byte</span>[] loadLibraryData(Apk apk, String soName) &#123;<br>    <span class="hljs-type">byte</span>[] soData = apk.getFileData(<span class="hljs-string">&quot;lib/armeabi-v7a/&quot;</span> + soName);<br>    <span class="hljs-keyword">if</span> (soData != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">if</span> (log.isDebugEnabled()) &#123;<br>            log.debug(<span class="hljs-string">&quot;resolve armeabi-v7a library: &quot;</span> + soName);<br>        &#125;<br>        <span class="hljs-keyword">return</span> soData;<br>    &#125;<br>    soData = apk.getFileData(<span class="hljs-string">&quot;lib/armeabi/&quot;</span> + soName);<br>    <span class="hljs-keyword">if</span> (soData != <span class="hljs-literal">null</span> &amp;&amp; log.isDebugEnabled()) &#123;<br>        log.debug(<span class="hljs-string">&quot;resolve armeabi library: &quot;</span> + soName);<br>    &#125;<br>    <span class="hljs-keyword">return</span> soData;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>再看看 64 位，去<code>arm64-v8a</code>下找。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">byte</span>[] loadLibraryData(Apk apk, String soName) &#123;<br>    <span class="hljs-type">byte</span>[] soData = apk.getFileData(<span class="hljs-string">&quot;lib/arm64-v8a/&quot;</span> + soName);<br>    <span class="hljs-keyword">if</span> (soData != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">if</span> (log.isDebugEnabled()) &#123;<br>            log.debug(<span class="hljs-string">&quot;resolve arm64-v8a library: &quot;</span> + soName);<br>        &#125;<br>        <span class="hljs-keyword">return</span> soData;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>loadLibrary</code>还有一个重载，直接传入字节数组。它的主要应用场景是<strong>加载从真实环境中 Dump 出的内存</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">loadLibrary(String libname, <span class="hljs-type">byte</span>[] raw, <span class="hljs-type">boolean</span> forceCallInit)<br></code></pre></td></tr></table></figure>
+
+<p>这个 API 缺少维护和优化，并不好用。</p>
+<p>在一般情况下，建议使用传入动态库名字的那一个，因为它能更好的处理 SO 的依赖模块。</p>
+<h2 id="3-3-加载依赖模块"><a href="#3-3-加载依赖模块" class="headerlink" title="3.3 加载依赖模块"></a>3.3 加载依赖模块</h2><p>几乎没有 SO 可以不依赖任何外部库就正常工作，比如各种各样的 C 标准库函数、Android FrameWork 提供的一些库，以及样本的自定义库等等。</p>
+<p><strong>可以在 IDA 反汇编界面的头部查看依赖库信息</strong>，又或者使用 objdump、readelf 等工具也可。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051647484.png" srcset="/img/loading.gif" lazyload></p>
+<p>尽管都会依赖外部 SO，但在这两篇文章里，我们似乎都没有用<code>loadlibrary</code>加载所需的这些 SO。这是因为在 SO 的装载逻辑里，往往会解析依赖库，检查依赖库是否加载到当前内存中，如果未加载就尝试加载等等。</p>
+<p>Android linker 会这么做，Unidbg 的 ElfLoader 当然也会这么做。尝试加载外部 SO 时，Android Linker 会查找<code>/vendor/lib</code>这样的系统库目录以及<code>/data/app/packageName/base.apk/lib/armeabi-v7a</code>这样的用户库目录。</p>
+<p>Unidbg 的 ELF Loader 也做了类似处理，但逻辑上要简单很多。</p>
+<p>对于系统库 SO，Unidbg 存在着一个系统库环境，包含着以 libc.so 为代表的常见 SO。用户需要通过<code>setLibraryResolver</code>确认使用哪一个系统库文件，参数可选是 23 和 19。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 模拟器的内存操作接口</span><br><span class="hljs-keyword">final</span> <span class="hljs-type">Memory</span> <span class="hljs-variable">memory</span> <span class="hljs-operator">=</span> emulator.getMemory();<br><span class="hljs-comment">// 设置系统类库</span><br>memory.setLibraryResolver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br></code></pre></td></tr></table></figure>
+
+<p>23 和 19 分别对应于 sdk23（Android 6.0 支持64位） 和 sdk19（Android 4.4 不支持64位）的运行库环境，它们都在<code>unidbg-android/src/main/resources/android</code>目录下。如果希望使用更高版本的运行时库，可以参考<code>unidbg-android/pull.sh</code>，使用自己测试机的类库。</p>
+<p>接下来看看 Unidbg 寻找依赖 SO 的代码逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">LibraryFile</span> <span class="hljs-variable">neededLibraryFile</span> <span class="hljs-operator">=</span> libraryFile.resolveLibrary(emulator, neededLibrary);<br><span class="hljs-keyword">if</span> (libraryResolver != <span class="hljs-literal">null</span> &amp;&amp; neededLibraryFile == <span class="hljs-literal">null</span>) &#123;<br>    neededLibraryFile = libraryResolver.resolveLibrary(emulator, neededLibrary);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第二处 resolveLibrary 用于寻找系统库路径下是否有对应 SO</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> LibraryFile <span class="hljs-title function_">resolveLibrary</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, String libraryName, <span class="hljs-type">int</span> sdk, Class&lt;?&gt; resClass)</span> &#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">lib</span> <span class="hljs-operator">=</span> emulator.is32Bit() ? <span class="hljs-string">&quot;lib&quot;</span> : <span class="hljs-string">&quot;lib64&quot;</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;/android/sdk&quot;</span> + sdk + <span class="hljs-string">&quot;/&quot;</span> + lib + <span class="hljs-string">&quot;/&quot;</span> + libraryName.replace(<span class="hljs-string">&#x27;+&#x27;</span>, <span class="hljs-string">&#x27;p&#x27;</span>);<br>    <span class="hljs-type">URL</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> resClass.getResource(name);<br>    <span class="hljs-keyword">if</span> (url != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URLibraryFile</span>(url, libraryName, sdk, emulator.is64Bit());<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>第一处 resolveLibrary 用于寻找用户库路径下是否有对应 SO。上一小节说用 libname 比 libFile 更适合处理依赖模块的原因就在这里。</p>
+<p>如果采用 libFile 方式加载，那就会在 libFile 的同级目录下寻找对应 SO。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> LibraryFile <span class="hljs-title function_">resolveLibrary</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, String soName)</span> &#123;<br>    <span class="hljs-type">File</span> <span class="hljs-variable">file</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(elfFile.getParentFile(), soName);<br>    <span class="hljs-keyword">return</span> file.canRead() ? <span class="hljs-keyword">new</span> <span class="hljs-title class_">ElfLibraryFile</span>(file, is64Bit) : <span class="hljs-literal">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果采用 libname 方式加载，那就会在 lib 目录下寻找对应 SO。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> LibraryFile <span class="hljs-title function_">resolveLibrary</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, String soName)</span> &#123;<br>    <span class="hljs-type">byte</span>[] libData = baseVM.loadLibraryData(apk, soName);<br>    <span class="hljs-keyword">return</span> libData == <span class="hljs-literal">null</span> ? <span class="hljs-literal">null</span> : <span class="hljs-keyword">new</span> <span class="hljs-title class_">ApkLibraryFile</span>(baseVM, <span class="hljs-built_in">this</span>.apk, soName, libData, packageName, is64Bit);<br>&#125;<br><br><span class="hljs-comment">// 32 位</span><br><span class="hljs-type">byte</span>[] loadLibraryData(Apk apk, String soName) &#123;<br>    <span class="hljs-type">byte</span>[] soData = apk.getFileData(<span class="hljs-string">&quot;lib/armeabi-v7a/&quot;</span> + soName);<br>    <span class="hljs-keyword">if</span> (soData != <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">if</span> (log.isDebugEnabled()) &#123;<br>            log.debug(<span class="hljs-string">&quot;resolve armeabi-v7a library: &quot;</span> + soName);<br>        &#125;<br>        <span class="hljs-keyword">return</span> soData;<br>    &#125;<br>    soData = apk.getFileData(<span class="hljs-string">&quot;lib/armeabi/&quot;</span> + soName);<br>    <span class="hljs-keyword">if</span> (soData != <span class="hljs-literal">null</span> &amp;&amp; log.isDebugEnabled()) &#123;<br>        log.debug(<span class="hljs-string">&quot;resolve armeabi library: &quot;</span> + soName);<br>    &#125;<br>    <span class="hljs-keyword">return</span> soData;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>那么使用 libFile 加载时，使用者不仅要在 lib 下拷贝出目标 SO，最好也将其他 SO 拷贝出来，以防存在依赖，通过 libname 加载则不需要考虑这个问题。</strong></p>
+<p>当然读者也可以手动加载多个 SO，像下面这样。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">vm.loadLibrary(<span class="hljs-string">&quot;kwsgmain&quot;</span>, <span class="hljs-literal">true</span>);<br>vm.loadLibrary(<span class="hljs-string">&quot;abc&quot;</span>, <span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
+
+<h1 id="四、发起调用"><a href="#四、发起调用" class="headerlink" title="四、发起调用"></a>四、发起调用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">callcalculateS</span><span class="hljs-params">()</span>&#123;<br>	DvmObject&lt;?&gt; context = vm.resolveClass(<span class="hljs-string">&quot;android/app/Application&quot;</span>, vm.resolveClass(<span class="hljs-string">&quot;android/content/ContextWrapper&quot;</span>, vm.resolveClass(<span class="hljs-string">&quot;android/content/Context&quot;</span>))).newObject(<span class="hljs-literal">null</span>);<br>	<span class="hljs-type">String</span> <span class="hljs-variable">arg2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello world&quot;</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">arg3</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;123456&quot;</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">ret</span> <span class="hljs-operator">=</span> WeiboSecurityUtils.newObject(<span class="hljs-literal">null</span>).callJniMethodObject(emulator, <span class="hljs-string">&quot;calculateS&quot;</span>, context, arg2, arg3).getValue().toString();<br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>参数 2、3 都是字符串，按照前篇所述直接传入就行。参数 1 是 Android 中最常见的 Context，为什么要这么处理？？？</p>
+<p>运行后报错信息如下</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">JNIEnv-&gt;<span class="hljs-constructor">FindClass(<span class="hljs-params">android</span><span class="hljs-operator">/</span><span class="hljs-params">content</span><span class="hljs-operator">/</span><span class="hljs-params">pm</span><span class="hljs-operator">/</span>PackageManager)</span> was called from RX@<span class="hljs-number">0x12002c79</span><span class="hljs-literal">[<span class="hljs-identifier">libutility</span>.<span class="hljs-identifier">so</span>]</span><span class="hljs-number">0x2c79</span><br>WARN <span class="hljs-literal">[<span class="hljs-identifier">com</span>.<span class="hljs-identifier">github</span>.<span class="hljs-identifier">unidbg</span>.<span class="hljs-identifier">linux</span>.ARM32S<span class="hljs-identifier">yscallHandler</span>]</span>...<br>java.lang.UnsupportedOperationException: android/content/ContextWrapper-&gt;get<span class="hljs-constructor">PackageManager()</span>Landroid/content/pm/PackageManager;<br>	at com.github.unidbg.linux.android.dvm.<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AbstractJni</span>.</span></span>call<span class="hljs-constructor">ObjectMethod(AbstractJni.<span class="hljs-params">java</span>:933)</span><br>	at com.github.unidbg.linux.android.dvm.<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AbstractJni</span>.</span></span>call<span class="hljs-constructor">ObjectMethod(AbstractJni.<span class="hljs-params">java</span>:867)</span><br>	at com.github.unidbg.linux.android.dvm.<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">DvmMethod</span>.</span></span>call<span class="hljs-constructor">ObjectMethod(DvmMethod.<span class="hljs-params">java</span>:69)</span><br></code></pre></td></tr></table></figure>
+
+<p><u>显然，我们定义的Application类没有实现getPackageManager函数，因此我们需要在callObjectMethod函数中实现这个函数，简单的实现则是返回它所需要的值（一般用于占位即可）</u>，补环境代码如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">@Override<br>public DvmObject&lt;?&gt; <span class="hljs-title function_">callObjectMethod</span><span class="hljs-params">(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VarArg varArg)</span> &#123;<br>    <span class="hljs-keyword">switch</span> (signature)&#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;android/content/ContextWrapper-&gt;getPackageManager()Landroid/content/pm/PackageManager;&quot;</span>:&#123;<br>            <span class="hljs-keyword">return</span> vm.resolveClass(<span class="hljs-string">&quot;android/content/pm/PackageManager&quot;</span>).newObject(null);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> super.callObjectMethod(vm, dvmObject, signature, varArg);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>继续运行，出现报错</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">Invalid <span class="hljs-selector-tag">address</span> <span class="hljs-number">0</span>x12175000 passed to free: value not allocated<br><span class="hljs-selector-attr">[crash]</span>A/libc: Invalid <span class="hljs-selector-tag">address</span> <span class="hljs-number">0</span>x12175000 passed to free: value not allocated<br>Exception <span class="hljs-keyword">in</span> thread <span class="hljs-string">&quot;main&quot;</span> java<span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.NullPointerException</span>: Cannot invoke <span class="hljs-string">&quot;com.github.unidbg.linux.android.dvm.DvmObject.getValue()&quot;</span> because the return value of <span class="hljs-string">&quot;com.github.unidbg.linux.android.dvm.DvmObject.callJniMethodObject(com.github.unidbg.Emulator, String, Object[])&quot;</span> is null<br>	at com<span class="hljs-selector-class">.sina</span><span class="hljs-selector-class">.weibo</span><span class="hljs-selector-class">.security</span><span class="hljs-selector-class">.WeiboSecurityUtils</span><span class="hljs-selector-class">.calculateS</span>(WeiboSecurityUtils<span class="hljs-selector-class">.java</span>:<span class="hljs-number">47</span>)<br>	at com<span class="hljs-selector-class">.sina</span><span class="hljs-selector-class">.weibo</span><span class="hljs-selector-class">.security</span><span class="hljs-selector-class">.WeiboSecurityUtils</span><span class="hljs-selector-class">.main</span>(WeiboSecurityUtils<span class="hljs-selector-class">.java</span>:<span class="hljs-number">64</span>)<br></code></pre></td></tr></table></figure>
+
+<p>这个意思是传递给free函数的地址0x12175000是无效的，导致内存释放失败。遇到这个报错，最简单的处理办法就是 hook free 函数，替换它的实现，让它返回 0，即释放成功。当然也可以对报错的待释放内存做处理，比如只有指针地址是 0x12175000 释放失败时。补环境代码如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//在构造函数中添加</span><br>emulator.attach().addBreakPoint(dm.getModule().findSymbolByName(<span class="hljs-string">&quot;free&quot;</span>).getAddress(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">BreakPointCallback</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">onHit</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> address)</span> &#123;<br>        <span class="hljs-type">Arm32RegisterContext</span> <span class="hljs-variable">registerContext</span> <span class="hljs-operator">=</span> emulator.getContext();<br>        emulator.getBackend().reg_write(ArmConst.UC_ARM_REG_R0, <span class="hljs-number">0</span>);<br>        emulator.getBackend().reg_write(ArmConst.UC_ARM_REG_PC, registerContext.getLR());<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;);<br><span class="hljs-comment">//或者</span><br><span class="hljs-comment">// 编写patchFree()，在构造函数中调用</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">patchFree</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">IWhale</span> <span class="hljs-variable">whale</span> <span class="hljs-operator">=</span> Whale.getInstance(emulator);<br>    <span class="hljs-type">Symbol</span> <span class="hljs-variable">free</span> <span class="hljs-operator">=</span> memory.findModule(<span class="hljs-string">&quot;libc.so&quot;</span>).findSymbolByName(<span class="hljs-string">&quot;free&quot;</span>);<br><br>    whale.inlineHookFunction(free, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> HookStatus <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> originFunction)</span> &#123;<br>            System.out.println(<span class="hljs-string">&quot;WInlineHookFunction free = &quot;</span> + emulator.getContext().getPointerArg(<span class="hljs-number">0</span>));<br>            <span class="hljs-type">long</span> <span class="hljs-variable">addr</span> <span class="hljs-operator">=</span> emulator.getContext().getPointerArg(<span class="hljs-number">0</span>).peer;<br>            <span class="hljs-keyword">if</span> (addr == <span class="hljs-number">0x12175000</span> || addr == <span class="hljs-number">0x12176000</span>)&#123;<br>                <span class="hljs-keyword">return</span> HookStatus.LR(emulator, <span class="hljs-number">0</span>);<br>            &#125;<br>            <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">return</span> HookStatus.RET(emulator,originFunction);<br>            &#125;<br><br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行出结果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">call s result:d74a75bb<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h1><p><a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/vy2p4ts1oq8sxxgb">Unidbg 的基本使用（二）</a></p>
+<p>[补库函数（五）](<a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/bzoykwvuim3hkz2o#">https://www.yuque.com/lilac-2hqvv/xdwlsg/bzoykwvuim3hkz2o?#</a> 《补库函数（五）》)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>从案例中学习unidbg的使用（二）</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/从案例中学习unidbg的使用（二）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89/" title="从案例中学习unidbg的使用（三）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（三）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" title="从案例中学习unidbg的使用（一）">
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407071504079.png">
 <meta property="article:published_time" content="2024-07-07T07:03:58.000Z">
-<meta property="article:modified_time" content="2024-07-07T07:05:40.399Z">
+<meta property="article:modified_time" content="2024-12-04T14:18:47.876Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="Liveness Analysis">
 <meta name="twitter:card" content="summary_large_image">
@@ -255,7 +255,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          12k 字
+          13k 字
         
       </span>
     
@@ -266,7 +266,7 @@
         
         
         
-          104 分钟
+          106 分钟
         
       </span>
     
@@ -406,6 +406,10 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">  mov     rax, [rbp + var_10] <br>  movsx   edx, byte ptr [rax + 3]<br>* mov     eax, 7A39EAC0h<br>* mov     ecx, 9BEE23F6h<br>  cmp     edx, 65h <br>* cmovl   eax, ecx<br>* mov      [rbp + var_1C], eax<br>* jmp      loc_401418<br></code></pre></td></tr></table></figure>
 
 <p>由于<code>cmovl</code>指令依赖标志寄存器，因此会将第5行的<code>cmp</code>指令纳入到相关指令集合中（然而第5行的<code>cmp</code>指令是真实代码），以至于后续将其余真实代码也囊括进来，最终造成了误判！这个问题似乎解决不了，所以我认为我这个想法到头来还是失败的。</p>
+<p>2024&#x2F;12补</p>
+<p>现代反汇编器都会提供充分的指令和寄存器分析，比如当前指令属于哪一类（读写、比较、加减、乘除等等）、是否影响标志位、会读取哪些寄存器、会对哪些寄存器产生修改等等。Capstone 是反汇编器的集大成者，自然也包括这些分析。下面看一下代码实现，<code>regs_access</code>会返回两个列表，第一个 list 是当前指令所读取的寄存器，第二个 list 是当前指令所修改的寄存器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Java">regs_read, regs_written = insn.regs_access()<br></code></pre></td></tr></table></figure>
+
 
                 
               </div>
@@ -494,7 +498,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/29/Android%E5%AE%89%E5%85%A8/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" title="Xposed插件开发">
+                      <a href="/2024/07/29/Xposed/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" title="Xposed插件开发">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">Xposed插件开发</span>
                         <span class="visible-mobile">上一篇</span>

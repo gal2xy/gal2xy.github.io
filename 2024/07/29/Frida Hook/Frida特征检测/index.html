@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="frida检测与防护端口检测检测 frida-server 默认端口 27042 是否开放。 12345678910111213bool detectByDefaultPort()&amp;#123;    struct sockaddr_in sa;    int sock &#x3D; socket(AF_INET , SOCK_STREAM , 0);    memset(&amp;sa, 0, sizeof">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frida特征检测">
+<meta property="og:url" content="http://example.com/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="frida检测与防护端口检测检测 frida-server 默认端口 27042 是否开放。 12345678910111213bool detectByDefaultPort()&amp;#123;    struct sockaddr_in sa;    int sock &#x3D; socket(AF_INET , SOCK_STREAM , 0);    memset(&amp;sa, 0, sizeof">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407292230178.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407292230574.png">
+<meta property="article:published_time" content="2024-07-29T12:03:12.000Z">
+<meta property="article:modified_time" content="2024-12-05T10:01:04.327Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Frida">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407292230178.png">
+  
+  
+  
+  <title>Frida特征检测 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Frida特征检测"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-29 20:03" pubdate>
+          2024年7月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Frida特征检测</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="frida检测与防护"><a href="#frida检测与防护" class="headerlink" title="frida检测与防护"></a>frida检测与防护</h1><h2 id="端口检测"><a href="#端口检测" class="headerlink" title="端口检测"></a>端口检测</h2><p>检测 frida-server 默认端口 27042 是否开放。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">detectByDefaultPort</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> sa;<br>    <span class="hljs-type">int</span> sock = <span class="hljs-built_in">socket</span>(AF_INET , SOCK_STREAM , <span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">memset</span>(&amp;sa, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(sa));<br>    sa.sin_family = AF_INET;<br>    sa.sin_port = <span class="hljs-built_in">htons</span>(<span class="hljs-number">27047</span>);<br>    <span class="hljs-built_in">inet_aton</span>(<span class="hljs-string">&quot;127.0.0.1&quot;</span>, &amp;(sa.sin_addr));<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">connect</span>(sock , (<span class="hljs-keyword">struct</span> sockaddr*)&amp;sa , <span class="hljs-keyword">sizeof</span> sa) != <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; Found frida-server: running on default port&quot;</span>, TAG);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="进程名检测"><a href="#进程名检测" class="headerlink" title="进程名检测"></a>进程名检测</h2><p>遍历运行的进程列表(&#x2F;proc目录下)，检测进程名是否包含 “frida-server” 。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs Java">bool <span class="hljs-title function_">detectByProcessName</span><span class="hljs-params">()</span>&#123;<br>    std::vector&lt;std::string&gt; pids;<br>    std::<span class="hljs-type">string</span> <span class="hljs-variable">target_name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;frida&quot;</span>;<br>    DIR* proc_dir = opendir(<span class="hljs-string">&quot;/proc&quot;</span>);<br>    std::<span class="hljs-type">string</span> <span class="hljs-variable">current_pid</span> <span class="hljs-operator">=</span> std::to_string(getpid());<span class="hljs-comment">//当前进程pid</span><br>    <span class="hljs-comment">//获取所有进程id</span><br>    <span class="hljs-keyword">if</span> (proc_dir != nullptr)&#123;<br>        struct dirent* entry;<br>        <span class="hljs-keyword">while</span>((entry = readdir(proc_dir)) != nullptr)&#123;<br>            <span class="hljs-comment">// 文件是否是目录</span><br>            <span class="hljs-keyword">if</span> (entry-&gt;d_type == DT_DIR)&#123;<br>                std::string <span class="hljs-title function_">dir_name</span><span class="hljs-params">(entry-&gt;d_name)</span>;<br>                <span class="hljs-comment">//如果目录名是数字,则为进程文件，还需要排除当前进程，因为当前进程的应用名为FridaDetector,包含目标字符串</span><br>                <span class="hljs-keyword">if</span> (std::all_of(dir_name.begin(), dir_name.end(), ::isdigit) &amp;&amp; dir_name != current_pid) &#123;<br>                    pids.push_back(dir_name);<br>                &#125;<br>            &#125;<br>        &#125;<br>        closedir(proc_dir);<br>    &#125;<br>    <span class="hljs-comment">//判断进程名是否包含frida字样</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; pids.size(); i++) &#123;<br>        <span class="hljs-comment">//创建输入文件流对象, 用于读取数据</span><br>        std::<span class="hljs-type">string</span> <span class="hljs-variable">comm_path</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;/proc/&quot;</span> + pids[i] + <span class="hljs-string">&quot;/comm&quot;</span>;<br>        std::ifstream <span class="hljs-title function_">comm_file</span><span class="hljs-params">(comm_path)</span>;<br>        <span class="hljs-keyword">if</span> (comm_file.is_open()) &#123;<span class="hljs-comment">//是否成功打开对应文件</span><br>            std::string process_name;<br>            std::getline(comm_file, process_name);<span class="hljs-comment">//读一行</span><br>            comm_file.close();<br>            <span class="hljs-comment">//LOGD(&quot;%s =&gt; %s: pid is %s&quot;, TAG, process_name.c_str(), pids[i].c_str());</span><br>            <span class="hljs-keyword">if</span> (process_name.find(target_name) != std::string::npos) &#123;<br>                LOGD(<span class="hljs-string">&quot;%s =&gt; Found frida-server: pid is %s&quot;</span>, TAG, pids[i].c_str());<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="双进程守护"><a href="#双进程守护" class="headerlink" title="双进程守护"></a>双进程守护</h2><p>应用程序可通过开启双进程守护，即让子进程附加父进程，从而使得 frida 不能 attach 目标进程，但 frida 可通过 spawn 方式启动，从而让子进程无法附加到父进程（那如果子进程附加不上父进程，导致整个应用进程关闭呢？）。</p>
+<h2 id="D-Bus-协议通信"><a href="#D-Bus-协议通信" class="headerlink" title="D-Bus 协议通信"></a>D-Bus 协议通信</h2><p>frida 使用 D-Bus 协议通信，这个通信协议并不常见，因此可以遍历 &#x2F;proc&#x2F;net&#x2F;tcp 文件，或者直接从 0-65535 向每个开放的端口发送 D-Bus 认证消息，哪个端口回复了 REJECT，哪个端口上就运行了 frida-server。（为啥一样的代码，而我的却没有回复消息？？）</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">detectByDBus</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-type">int</span> sock;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> sa;<br>    <span class="hljs-type">char</span> res[<span class="hljs-number">7</span>];<br>    <span class="hljs-comment">//初始化 sockaddr_in 结构体</span><br>    <span class="hljs-built_in">memset</span>(&amp;sa, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(sa));<br>    sa.sin_family = AF_INET;<span class="hljs-comment">//AF_INET表示使用 IPv4 地址</span><br>    <span class="hljs-built_in">inet_aton</span>(<span class="hljs-string">&quot;127.0.0.1&quot;</span>, &amp;sa.sin_addr);<span class="hljs-comment">//将 IP 地址字符串 &quot;127.0.0.1&quot; 转换为网络字节序的二进制形式, 并将其存储在 sa.sin_addr 中</span><br>    <span class="hljs-comment">//遍历端口，发送d-bus认证消息，回复了REJECT的端口就是frida-server</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt;= <span class="hljs-number">65535</span>; ++i) &#123;<br>        sock = <span class="hljs-built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="hljs-number">0</span>);<br>        sa.sin_port = <span class="hljs-built_in">htons</span>(i);<span class="hljs-comment">//设置端口号， htons(i) 将主机字节序转换为网络字节序</span><br>        <span class="hljs-comment">//尝试使用 connect 函数连接到指定的 IP 地址和端口号</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">connect</span>(sock, (<span class="hljs-keyword">struct</span> sockaddr*)(&amp;sa), <span class="hljs-keyword">sizeof</span> sa) != <span class="hljs-number">-1</span>)&#123;<br>            <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; Connect on port %d&quot;</span>, TAG, i);<br>            <span class="hljs-built_in">memset</span>(res, <span class="hljs-number">0</span>, <span class="hljs-number">7</span>);<br>            <span class="hljs-comment">//发送 d-bus 认证消息</span><br>            <span class="hljs-built_in">send</span>(sock, <span class="hljs-string">&quot;\x00&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-literal">NULL</span>);<br>            <span class="hljs-built_in">send</span>(sock, <span class="hljs-string">&quot;AUTH\r\n&quot;</span>, <span class="hljs-number">6</span>, <span class="hljs-literal">NULL</span>);<br>            <span class="hljs-built_in">usleep</span>(<span class="hljs-number">1000</span>); <span class="hljs-comment">// Give it some time to answer</span><br>            <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; send Message on port %d&quot;</span>, TAG, i);<br>            <span class="hljs-comment">//接收数据到res中</span><br>            <span class="hljs-comment">//接收不到消息！！！？？？</span><br>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">recv</span>(sock, res, <span class="hljs-number">6</span>, MSG_DONTWAIT) != <span class="hljs-number">-1</span>)&#123;<br>                <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; recv Message on port %d: %s&quot;</span>, TAG, i, res);<br>                <span class="hljs-keyword">if</span> (<span class="hljs-built_in">strcmp</span>(res, <span class="hljs-string">&quot;REJECT&quot;</span>) == <span class="hljs-number">0</span>)&#123;<br>                    <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; Found frida-server: running on port %d&quot;</span>, TAG, i);<br>                    <span class="hljs-built_in">close</span>(sock);<br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>                &#125;<br>            &#125;<span class="hljs-keyword">else</span>&#123;<br>                <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; can&#x27;t recv Message on port %d&quot;</span>, TAG, i);<br>            &#125;<br>            <span class="hljs-built_in">close</span>(sock);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="扫描-maps-文件"><a href="#扫描-maps-文件" class="headerlink" title="扫描 maps 文件"></a>扫描 maps 文件</h2><p>被 frida 附加的进程，在 proc&#x2F;self&#x2F;maps 文件中会多出如下文件（很奇怪为什么图中是 deleted ）：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407292230178.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此通过扫描 maps 文件是否存在“frida”字样可以判断进程是否被 frida 附加。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">detectByMaps</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-function">std::ifstream <span class="hljs-title">maps_file</span><span class="hljs-params">(<span class="hljs-string">&quot;/proc/self/maps&quot;</span>)</span></span>;<br>    <span class="hljs-keyword">if</span> (maps_file.<span class="hljs-built_in">is_open</span>()) &#123;<br>        std::string line;<br>        <span class="hljs-keyword">while</span> (std::<span class="hljs-built_in">getline</span>(maps_file, line)) &#123;<br>            <span class="hljs-keyword">if</span> (line.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;frida&quot;</span>) != std::string::npos) &#123;<br>                <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot; %s =&gt; Found Frida agent in current process by scanf /proc/self/maps&quot;</span>, TAG);<br>                maps_file.<span class="hljs-built_in">close</span>();<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br>        maps_file.<span class="hljs-built_in">close</span>();<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="扫描-task-目录"><a href="#扫描-task-目录" class="headerlink" title="扫描 task 目录"></a>扫描 task 目录</h2><p>在 &#x2F;proc&#x2F;pid&#x2F;task 目录下存储的是当前进程下的线程相关信息，文件结构类似 &#x2F;proc&#x2F;pid 目录。如果 frida 附加到了当前进程，那么在 task 目录下，就会存在运行 gmain、gdbus、gum-js-loop、pool-frida等的线程。</p>
+<ul>
+<li>gmain：Frida 使用 Glib 库，其中的主事件循环被称为 GMainLoop。在 Frida 中，gmain 表示 GMainLoop 的线程。</li>
+<li>gdbus：GDBus 是 Glib 提供的一个用于 D-Bus 通信的库。在 Frida 中，gdbus 表示 GDBus 相关的线程。</li>
+<li>gum-js-loop：Gum 是 Frida 的运行时引擎，用于执行注入的 JavaScript 代码。gum-js-loop 表示 Gum 引擎执行 JavaScript 代码的线程。</li>
+<li>pool-frida：Frida 中的某些功能可能会使用线程池来处理任务，pool-frida 表示 Frida 中的线程池。</li>
+</ul>
+<p>因此通过扫描 task 目录下的线程的 comm 文件或 status 文件，看是否存在上述字符。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">detectByTask</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-comment">//获取当前线程的task目录</span><br>    DIR* task_dir = <span class="hljs-built_in">opendir</span>(<span class="hljs-string">&quot;/proc/self/task&quot;</span>);<br>    std::vector&lt;std::string&gt; pids;<br>    std::string current_pid = std::<span class="hljs-built_in">to_string</span>(<span class="hljs-built_in">getpid</span>());<span class="hljs-comment">//当前进程pid</span><br>    <span class="hljs-keyword">if</span> (task_dir != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-keyword">struct</span> <span class="hljs-title class_">dirent</span>* entry;<br>        <span class="hljs-keyword">while</span>((entry = <span class="hljs-built_in">readdir</span>(task_dir)) != <span class="hljs-literal">nullptr</span>)&#123;<br>            <span class="hljs-keyword">if</span> (entry-&gt;d_type == DT_DIR)&#123;<br>                <span class="hljs-function">std::string <span class="hljs-title">dir_name</span><span class="hljs-params">(entry-&gt;d_name)</span></span>;<br>                <span class="hljs-comment">//如果目录名是数字,则为进程目录</span><br>                <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">all_of</span>(dir_name.<span class="hljs-built_in">begin</span>(), dir_name.<span class="hljs-built_in">end</span>(), ::isdigit)) &#123;<br>                    pids.<span class="hljs-built_in">push_back</span>(dir_name);<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-built_in">closedir</span>(task_dir);<br>    &#125;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; pids.<span class="hljs-built_in">size</span>(); i++) &#123;<br>        std::string comm_path = <span class="hljs-string">&quot;/proc/self/task/&quot;</span> + pids[i] + <span class="hljs-string">&quot;/comm&quot;</span>;<br>        <span class="hljs-function">std::ifstream <span class="hljs-title">comm_file</span><span class="hljs-params">(comm_path)</span></span>;<br>        <span class="hljs-comment">//打开comm文件，查看进程名</span><br>        <span class="hljs-keyword">if</span> (comm_file.<span class="hljs-built_in">is_open</span>()) &#123;<br>            std::string process_name;<br>            std::<span class="hljs-built_in">getline</span>(comm_file, process_name);<span class="hljs-comment">//读一行</span><br>            comm_file.<span class="hljs-built_in">close</span>();<br>            <span class="hljs-keyword">if</span> (process_name.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;gmain&quot;</span>) != std::string::npos || process_name.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;gdbus&quot;</span>) != std::string::npos<br>                || process_name.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;gum-js-loop&quot;</span>) != std::string::npos || process_name.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;pool-frida&quot;</span>) != std::string::npos) &#123;<br>                <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; Found Frida agent in current process by scanf /proc/self/task, process_name: %s&quot;</span>, TAG, process_name.<span class="hljs-built_in">c_str</span>());<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="内存搜索"><a href="#内存搜索" class="headerlink" title="内存搜索"></a>内存搜索</h2><p>借助 &#x2F;proc&#x2F;self&#x2F;maps 文件，在内存中扫描 frida 库特征，例如字符串 “LIBFRIDA”、“rpc”等。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">detectByScanfMemory</span><span class="hljs-params">()</span></span>&#123;<br>    std::string target_name = <span class="hljs-string">&quot;LIBFRIDA&quot;</span>;<span class="hljs-comment">//可指定多个特征字符串</span><br>    <span class="hljs-type">char</span> permission[<span class="hljs-number">512</span>];<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start, end;<br>    <span class="hljs-function">std::ifstream <span class="hljs-title">maps_file</span><span class="hljs-params">(<span class="hljs-string">&quot;/proc/self/maps&quot;</span>)</span></span>;<br>    <span class="hljs-keyword">if</span> (maps_file.<span class="hljs-built_in">is_open</span>()) &#123;<br>        std::string line;<br>        <span class="hljs-keyword">while</span> (std::<span class="hljs-built_in">getline</span>(maps_file, line)) &#123;<br>            <span class="hljs-built_in">sscanf</span>(line.<span class="hljs-built_in">c_str</span>(), <span class="hljs-string">&quot;%lx-%lx %s&quot;</span>, &amp;start, &amp;end, permission);<br>            <span class="hljs-comment">//如果可执行</span><br>            <span class="hljs-keyword">if</span> (permission[<span class="hljs-number">2</span>] == <span class="hljs-string">&#x27;x&#x27;</span>) &#123;<br>                <span class="hljs-type">size_t</span> region_size = end - start;<br>                <span class="hljs-type">char</span>* buffer = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[region_size];<br>                <span class="hljs-comment">// 使用 /proc/self/mem 读取内存区域</span><br>                <span class="hljs-function">std::ifstream <span class="hljs-title">mem_file</span><span class="hljs-params">(<span class="hljs-string">&quot;/proc/self/mem&quot;</span>, std::ios::binary)</span></span>;<br>                <span class="hljs-keyword">if</span> (mem_file.<span class="hljs-built_in">is_open</span>()) &#123;<br>                    <span class="hljs-comment">//从start ~ end的内存区域中搜索target_name字符串，如果存在则返回true</span><br>                    mem_file.<span class="hljs-built_in">seekg</span>(start);<br>                    mem_file.<span class="hljs-built_in">read</span>(buffer, region_size);<br>                    <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; search memory: %lx - %lx&quot;</span>, TAG, start, end);<br>                    <span class="hljs-comment">// 在内存区域中搜索 target_name</span><br>                    <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">search</span>(buffer, buffer + region_size, target_name.<span class="hljs-built_in">begin</span>(), target_name.<span class="hljs-built_in">end</span>()) != buffer + region_size) &#123;<br>                        <span class="hljs-keyword">delete</span>[] buffer;<br>                        mem_file.<span class="hljs-built_in">close</span>();<br>                        maps_file.<span class="hljs-built_in">close</span>();<br>                        <span class="hljs-built_in">LOGD</span>(<span class="hljs-string">&quot;%s =&gt; Found target string in memory: %s&quot;</span>, TAG, target_name.<span class="hljs-built_in">c_str</span>());<br>                        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>                    &#125;<br>                    mem_file.<span class="hljs-built_in">close</span>();<br>                &#125;<br>                <span class="hljs-keyword">delete</span>[] buffer;<br>            &#125;<br>        &#125;<br>        maps_file.<span class="hljs-built_in">close</span>();<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="inlinehook检测"><a href="#inlinehook检测" class="headerlink" title="inlinehook检测"></a>inlinehook检测</h2><p>通过 IDA 分析被 frida 调试的进程（需先frida附加到进程再使用 IDA 调试），会发现被 hook 的函数的开头改成了一串16进制数，例如</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202407292230574.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们可以通过检测每个函数的开头是否有<code>0xd61f020058000050</code>这样的一段代码来判断进程是否被frida 附加了。具体参考<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-269862.htm">从inlinehook角度检测frida-Android安全-看雪-安全社区|安全招聘|kanxue.com</a>。</p>
+<h2 id="自定义-syscall-防-hook"><a href="#自定义-syscall-防-hook" class="headerlink" title="自定义 syscall 防 hook"></a>自定义 syscall 防 hook</h2><p>当然，以上检测方法中使用到的函数如果被 frida hook，显然就绕过了这些检测，因此对于最关键的函数，例如open、read函数等，需要自定义相应的 syscall，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs assembly">#include &quot;bionic_asm.h&quot;<br><br>.text<br>    .globl my_openat<br>    .type my_openat,function<br>my_openat:<br>    .cfi_startproc<br>    mov ip, r7<br>    .cfi_register r7, ip<br>    ldr r7, =__NR_openat<br>    swi #0<br>    mov r7, ip<br>    .cfi_restore r7<br>    cmn r0, #(4095 + 1)<br>    bxls lr<br>    neg r0, r0<br>    b __set_errno_internal<br>    .cfi_endproc<br>    .size my_openat, .-my_openat;<br><br>.text<br>    .globl my_read<br>    .type my_read,function<br>my_read:<br>    .cfi_startproc<br>    mov     ip, r7<br>    .cfi_register r7, ip<br>    ldr     r7, =__NR_read<br>    swi     #0<br>    mov     r7, ip<br>    .cfi_restore r7<br>    cmn     r0, #(MAX_ERRNO + 1)<br>    bxls    lr<br>    neg     r0, r0<br>    b       __set_errno_internal<br>    .cfi_endproc<br>    .size my_read, .-my_read;<br></code></pre></td></tr></table></figure>
+
+<p>具体使用可参考<a target="_blank" rel="noopener" href="https://github.com/qtfreet00/AntiFrida%E5%92%8Chttps://github.com/muellerberndt/frida-detection">https://github.com/qtfreet00/AntiFrida和https://github.com/muellerberndt/frida-detection</a></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于 frida 的检测点远远不止这些，想要深入了解就需要阅读 frida 源码。然而对于 frida 反检测，也需要阅读 frida 源码，修改掉其中的特征，从而达到反检测目的。</p>
+<hr>
+<p>参考：</p>
+<p>[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-217482.htm">翻译]多种特征检测 Frida-外文翻译-看雪-安全社区|安全招聘|kanxue.com</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-278145-1.htm">https://bbs.kanxue.com/thread-278145-1.htm</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1783400-1-1.html">frida 检测 - 『移动安全区』 - 吾爱破解 - LCG - LSG |安卓破解|病毒分析|www.52pojie.cn</a></p>
+<p><a target="_blank" rel="noopener" href="https://xxr0ss.github.io/post/frida_detection/">https://xxr0ss.github.io/post/frida_detection/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/qtfreet00/AntiFrida">https://github.com/qtfreet00/AntiFrida</a></p>
+<p><a target="_blank" rel="noopener" href="https://frida.re/slides/osdc-2015-the-engineering-behind-the-reverse-engineering.pdf">https://frida.re/slides/osdc-2015-the-engineering-behind-the-reverse-engineering.pdf</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-269862.htm">从inlinehook角度检测frida-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Frida/">#Frida</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Frida特征检测</div>
+      <div>http://example.com/2024/07/29/Frida Hook/Frida特征检测/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月29日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/Unidbg%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%9E%E8%B7%B5/" title="Unidbg入门介绍">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Unidbg入门介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/29/Frida%20Hook/Frida%20Native%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" title="Frida Native层Hook学习笔记">
+                        <span class="hidden-mobile">Frida Native层Hook学习笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

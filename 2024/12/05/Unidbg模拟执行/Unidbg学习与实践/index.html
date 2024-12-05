@@ -1,0 +1,878 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、unidbg介绍1.1 unidbgunidbg 是一个基于 unicorn 的逆向工具，可以黑盒调用安卓和 iOS 中的 so 文件。这使得逆向人员可以在无需了解 so 内部算法原理的情况下，主动调用 so 中的函数，让其中的算法“为我所用”，只需要传入所需的参数、补全运行所需的环境，即可运行出所需要的结果。及由此衍生的辅助分析、算法还原、SO 调试与逆向等等功能。 对于Android逆向来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unidbg入门介绍">
+<meta property="og:url" content="http://example.com/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/Unidbg%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、unidbg介绍1.1 unidbgunidbg 是一个基于 unicorn 的逆向工具，可以黑盒调用安卓和 iOS 中的 so 文件。这使得逆向人员可以在无需了解 so 内部算法原理的情况下，主动调用 so 中的函数，让其中的算法“为我所用”，只需要传入所需的参数、补全运行所需的环境，即可运行出所需要的结果。及由此衍生的辅助分析、算法还原、SO 调试与逆向等等功能。 对于Android逆向来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051634394.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051634351.png">
+<meta property="article:published_time" content="2024-12-05T09:51:47.000Z">
+<meta property="article:modified_time" content="2024-12-05T09:59:32.168Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Unidbg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051634394.png">
+  
+  
+  
+  <title>Unidbg入门介绍 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Unidbg入门介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-05 17:51" pubdate>
+          2024年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          160 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Unidbg入门介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、unidbg介绍"><a href="#一、unidbg介绍" class="headerlink" title="一、unidbg介绍"></a>一、unidbg介绍</h1><h2 id="1-1-unidbg"><a href="#1-1-unidbg" class="headerlink" title="1.1 unidbg"></a>1.1 unidbg</h2><p>unidbg 是一个基于 unicorn 的逆向工具，可以黑盒调用安卓和 iOS 中的 so 文件。这使得逆向人员可以在无需了解 so 内部算法原理的情况下，主动调用 so 中的函数，让其中的算法“为我所用”，只需要传入所需的参数、补全运行所需的环境，即可运行出所需要的结果。及由此衍生的辅助分析、算法还原、SO 调试与逆向等等功能。</p>
+<p>对于Android逆向来说，unidbg的特点有以下几种：</p>
+<ol>
+<li>模拟 JNI 调用的 API，因此可以调用<code>JNI_OnLoad</code>函数。</li>
+<li>支持<code>JavaVM</code>和<code>JNIEnv</code>。</li>
+<li>支持模拟系统调用指令。</li>
+<li>支持<code>ARM32</code>和<code>ARM64</code>。</li>
+<li>支持基于<code>Dobby</code>的inline hook。</li>
+<li>支持基于<code>xHook</code>的GOT hook。</li>
+<li><code>unicorn</code>后端支持简单的控制台调试器，gdb stub，指令追踪和内存读写追踪。</li>
+<li>支持<code>dynarmic</code>快速的后端。</li>
+</ol>
+<h2 id="1-2-unicorn"><a href="#1-2-unicorn" class="headerlink" title="1.2 unicorn"></a>1.2 unicorn</h2><p>Unicorn 是一个轻量级, 多平台, 多架构的 CPU 模拟器框架，可支持的架构包括 x86、ARM、MIPS 和 PowerPC 等，是一个强大的逆向工程和动态分析工具。</p>
+<h1 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h1><p>unidbg 项目地址：<a target="_blank" rel="noopener" href="https://github.com/zhkl0228/unidbg">https://github.com/zhkl0228/unidbg</a></p>
+<h1 id="三、unidbg入门用例"><a href="#三、unidbg入门用例" class="headerlink" title="三、unidbg入门用例"></a>三、unidbg入门用例</h1><h2 id="3-1-基本框架"><a href="#3-1-基本框架" class="headerlink" title="3.1 基本框架"></a>3.1 基本框架</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TTEncrypt</span>&#123;<br> <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AndroidEmulator emulator;<br> <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> VM vm;<br> <br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Module <span class="hljs-keyword">module</span>;<br> 	<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DvmClass TTEncryptUtils;<br> <br>    TTEncrypt()&#123;<br>        <span class="hljs-comment">// 创建模拟器</span><br>        emulator = AndroidEmulatorBuilder.for32Bit()<span class="hljs-comment">//32bit</span><br>                .addBackendFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DynarmicFactory</span>(<span class="hljs-literal">true</span>))<span class="hljs-comment">//添加后端工厂，见项目目录中的backend目录下</span><br>                .setProcessName(<span class="hljs-string">&quot;com.qidian.dldl.official&quot;</span>)<br>                .build();<span class="hljs-comment">//创建实例</span><br> <br>        <span class="hljs-type">Memory</span> <span class="hljs-variable">memory</span> <span class="hljs-operator">=</span> emulator.getMemory();<span class="hljs-comment">// 模拟器的内存操作接口</span><br>        <br>        memory.setLibraryResolver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>)); <span class="hljs-comment">// 设置系统类库解析，即SDK版本</span><br> <br>        <span class="hljs-comment">// 创建Android虚拟机</span><br>        vm = emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;sssss.apk&quot;</span>));<br> 		vm.setVerbose(<span class="hljs-literal">true</span>);<span class="hljs-comment">//设置是否打印Jni调用细节</span><br> <br>		<span class="hljs-comment">// 加载so库到unicorn虚拟内存，加载成功以后会默认调用init_array等函数（第二个参数决定）</span><br>        <span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dm</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/example_binaries/libttEncrypt.so&quot;</span>), <span class="hljs-literal">false</span>);<br> 		dm.callJNI_OnLoad(emulator); <span class="hljs-comment">// 手动执行JNI_OnLoad函数(如果不存在动态加载函数可不使用)</span><br>        <span class="hljs-keyword">module</span> = dm.getModule(); <span class="hljs-comment">// 加载好的so库对应为一个模块</span><br>        <br>        <span class="hljs-comment">// 加载目标类，相当于findClass</span><br>        TTEncryptUtils = vm.resolveClass(<span class="hljs-string">&quot;com/bytedance/frameworks/core/encrypt/TTEncryptUtils&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-2-unidbg中的函数"><a href="#3-2-unidbg中的函数" class="headerlink" title="3.2 unidbg中的函数"></a>3.2 unidbg中的函数</h2><h3 id="3-2-1-AndroidEmulator相关函数"><a href="#3-2-1-AndroidEmulator相关函数" class="headerlink" title="3.2.1 AndroidEmulator相关函数"></a>3.2.1 AndroidEmulator相关函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">// AndroidEmulator实例创建</span><br><span class="hljs-type">AndroidEmulator</span> <span class="hljs-variable">emulator</span> <span class="hljs-operator">=</span> AndroidEmulatorBuilder<br>                <span class="hljs-comment">//指定32位CPU</span><br>                .for32Bit() <br>                <span class="hljs-comment">//添加后端，推荐使用Dynarmic，运行速度快，但并不支持某些新特性</span><br>                .addBackendFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DynarmicFactory</span>(<span class="hljs-literal">true</span>)) <br>                <span class="hljs-comment">//指定进程名，推荐以安卓包名做进程名</span><br>                .setProcessName(<span class="hljs-string">&quot;com.github.unidbg&quot;</span>)<br>                <span class="hljs-comment">//设置根路径</span><br>                .setRootDir(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;target/rootfs/default&quot;</span>))<br>                <span class="hljs-comment">//生成AndroidEmulator实例</span><br>                .build();<br><br><span class="hljs-comment">// 获取内存操作接口</span><br><span class="hljs-type">Memory</span> <span class="hljs-variable">memory</span> <span class="hljs-operator">=</span> emulator.getMemory();<br> <br><span class="hljs-comment">// 获取进程id</span><br><span class="hljs-type">int</span> <span class="hljs-variable">pid</span> <span class="hljs-operator">=</span> emulator.getPid();<br> <br><span class="hljs-comment">//创建虚拟机</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">dalvikVM</span> <span class="hljs-operator">=</span> emulator.createDalvikVM();<br> <br><span class="hljs-comment">//创建虚拟机并指定APK文件</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">dalvikVM1</span> <span class="hljs-operator">=</span> emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;path of apkfile&quot;</span>));<br> <br><span class="hljs-comment">//获取已经创建的虚拟机</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">dalvikVM2</span> <span class="hljs-operator">=</span> emulator.getDalvikVM();<br> <br><span class="hljs-comment">//显示当前所有寄存器的状态 带参可指定寄存器</span><br>emulator.showRegs();<br> <br><span class="hljs-comment">// 获取后端CPU</span><br><span class="hljs-type">Backend</span> <span class="hljs-variable">backend</span> <span class="hljs-operator">=</span> emulator.getBackend();<br> <br><span class="hljs-comment">//获取进程名</span><br><span class="hljs-type">String</span> <span class="hljs-variable">processName</span> <span class="hljs-operator">=</span> emulator.getProcessName();<br> <br><span class="hljs-comment">// 获取寄存器信息</span><br><span class="hljs-type">RegisterContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> emulator.getContext();<br> <br><span class="hljs-comment">//Trace 读取内存(从 begin 到 end)</span><br>emulator.traceRead(<span class="hljs-type">long</span> begin, <span class="hljs-type">long</span> end [, TraceReadListener listener]);<br> <br><span class="hljs-comment">// trace 写内存</span><br>emulator.traceWrite(<span class="hljs-type">long</span> begin, <span class="hljs-type">long</span> end [, TraceWriteListener listener]);<br><br><span class="hljs-comment">//trace 汇编</span><br>emulator.traceCode(<span class="hljs-type">long</span> begin, <span class="hljs-type">long</span> end [, TraceCodeListener listener]);<br><br><span class="hljs-comment">// 是否在运行</span><br><span class="hljs-type">boolean</span> <span class="hljs-variable">running</span> <span class="hljs-operator">=</span> emulator.isRunning();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-2-Memory相关函数"><a href="#3-2-2-Memory相关函数" class="headerlink" title="3.2.2 Memory相关函数"></a>3.2.2 Memory相关函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">// 模拟器的内存操作接口</span><br><span class="hljs-type">Memory</span> <span class="hljs-variable">memory</span> <span class="hljs-operator">=</span> emulator.getMemory();<br><br><span class="hljs-comment">// 指定安卓sd版本 只支持sdk19和sdk23</span><br>memory.setLibraryResolver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br> <br><span class="hljs-comment">// 拿到一个指针 指向内存地址 通过该指针可操作内存</span><br><span class="hljs-type">UnidbgPointer</span> <span class="hljs-variable">pointer</span> <span class="hljs-operator">=</span> memory.pointer(<span class="hljs-number">0x11111111</span>);<br> <br><span class="hljs-comment">//获取当前内存映射的情况</span><br>Collection&lt;MemoryMap&gt; memoryMap = memory.getMemoryMap();<br> <br><span class="hljs-comment">//根据模块名获取某个模块</span><br><span class="hljs-type">Module</span> <span class="hljs-variable">sss</span> <span class="hljs-operator">=</span> memory.findModule(<span class="hljs-string">&quot;module name&quot;</span>);<br> <br><span class="hljs-comment">// 根据地址获取某个模块</span><br><span class="hljs-type">Module</span> <span class="hljs-variable">moduleByAddress</span> <span class="hljs-operator">=</span> memory.findModuleByAddress(<span class="hljs-number">0x111111</span>);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-3-VM相关函数"><a href="#3-2-3-VM相关函数" class="headerlink" title="3.2.3 VM相关函数"></a>3.2.3 VM相关函数</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//推荐指定apk文件,unidbg会自动做许多固定的操作</span><br><span class="hljs-type">VM</span> <span class="hljs-variable">vm</span> <span class="hljs-operator">=</span> emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;path of apk&quot;</span>));<br><br><span class="hljs-comment">// 是否输出jni运行日志</span><br>vm.setVerbose(<span class="hljs-literal">true</span>);<br> <br><span class="hljs-comment">//加载so模块 参数二设置是否自动调用init函数</span><br><span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dalvikModule</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;path of so file&quot;</span>), <span class="hljs-literal">true</span>);<br> <br><span class="hljs-comment">// 设置jni交互接口，参数需要实现jni接口，推荐使用this(this所在当前类需要继承AbstractJni)</span><br>vm.setJni(<span class="hljs-built_in">this</span>);<br> <br><span class="hljs-comment">//获取JNIEnv指针，可以作为参数传递</span><br><span class="hljs-type">Pointer</span> <span class="hljs-variable">jniEnv</span> <span class="hljs-operator">=</span> vm.getJNIEnv();<br> <br><span class="hljs-comment">//获取JavaVM 指针，可作为参数传递</span><br><span class="hljs-type">Pointer</span> <span class="hljs-variable">javaVM</span> <span class="hljs-operator">=</span> vm.getJavaVM();<br> <br><span class="hljs-comment">//调用jni_onload函数</span><br>dalvikModule.callJNI_OnLoad(emulator);<br>vm.callJNI_OnLoad(emulator,dalvikModule.getModule());<br><br><span class="hljs-comment">//向VM添加全局对象，返回该对象的hash值</span><br><span class="hljs-type">int</span> <span class="hljs-variable">dvmObjHash</span> <span class="hljs-operator">=</span> vm.addGlobalObject(dvmObj);<br><br><span class="hljs-comment">//获取虚拟机中的对象，参数为该对象的hash值</span><br>DvmObject&lt;?&gt; object = vm.getObject(dvmObjHash);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-4-符号调用"><a href="#3-2-4-符号调用" class="headerlink" title="3.2.4 符号调用"></a>3.2.4 符号调用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Java">DvmObject&lt;?&gt; obj = vm.resolveClass(<span class="hljs-string">&quot;com/example/demo01/MainActivity&quot;</span>).newObject(<span class="hljs-literal">null</span>);<br><span class="hljs-type">String</span> <span class="hljs-variable">signSting</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;123456&quot;</span>;<br><span class="hljs-comment">//符号调用</span><br><span class="hljs-type">DvmObject</span> <span class="hljs-variable">dvmObject</span> <span class="hljs-operator">=</span> obj.callJniMethodObject(emulator, <span class="hljs-string">&quot;jniMd52([B)Ljava/lang/String;&quot;</span>, signSting.getBytes(StandardCharsets.UTF_8));<br><span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> (String) dvmObject.getValue();<br>System.out.println(<span class="hljs-string">&quot;[symble] Call the so md5 function result is ==&gt; &quot;</span> + result);<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-5-地址调用"><a href="#3-2-5-地址调用" class="headerlink" title="3.2.5 地址调用"></a>3.2.5 地址调用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs Java">ArrayList&lt;Object&gt; args = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><span class="hljs-type">Pointer</span> <span class="hljs-variable">jniEnv</span> <span class="hljs-operator">=</span> vm.getJNIEnv();<br><span class="hljs-type">DvmObject</span> <span class="hljs-variable">object1</span> <span class="hljs-operator">=</span> ProxyDvmObject.createObject(vm, <span class="hljs-built_in">this</span>);<br>args.add(jniEnv);<br>args.add(<span class="hljs-literal">null</span>);<br>args.add(vm.addLocalObject(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringObject</span>(vm, <span class="hljs-string">&quot;123456&quot;</span>)));<br><span class="hljs-comment">//地址调用</span><br><span class="hljs-type">Number</span> <span class="hljs-variable">number</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">module</span>.callFunction(emulator, <span class="hljs-number">0x11AE8</span> + <span class="hljs-number">1</span>, args.toArray());<br>System.out.println(<span class="hljs-string">&quot;[addr] number is ==&gt; &quot;</span> + number.intValue());<br>DvmObject&lt;?&gt; object = vm.getObject(number.intValue());<br>System.out.println(<span class="hljs-string">&quot;[addr] Call the so md5 function result is ==&gt; &quot;</span> + object.getValue());<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、unidbg中的Hook"><a href="#四、unidbg中的Hook" class="headerlink" title="四、unidbg中的Hook"></a>四、unidbg中的Hook</h1><p>Unidbg 支持的Hook可以分为两大类：</p>
+<ul>
+<li>Unidbg 内置的第三方Hook框架，包括xHook&#x2F;Whale&#x2F;HookZz&#x2F;Dobby</li>
+<li>Unicorn Hook 以及 Unidbg基于它封装的Console Debugger</li>
+</ul>
+<p>第一类是Unidbg支持并内置的第三方Hook框架，有Dobby(前身HookZz)&#x2F;Whale这样的Inline Hook框架，也有xHook这样的PLT Hook 框架。</p>
+<p>第二类是当Unidbg的底层引擎选择为Unicorn时（默认引擎），Unicorn自带的Hook功能。Unicorn提供了各种级别和粒度的Hook，内存Hook&#x2F;指令&#x2F;基本块 Hook&#x2F;异常Hook 等等，十分强大和好用，而且Unidbg基于它封装了更便于使用的Console Debugger。</p>
+<h2 id="4-1-HookZz"><a href="#4-1-HookZz" class="headerlink" title="4.1 HookZz"></a>4.1 HookZz</h2><p>HookZz现在叫Dobby。Unidbg中是HookZz和Dobby是两个独立的Hook库，因为作者认为HookZz在arm32上支持较好，Dobby在arm64上支持较好。HookZz是inline hook方案，因此可以Hook Sub_xxx，缺点是短函数可能出bug，受限于inline Hook 原理。</p>
+<p><strong>method hook</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">IHookZz</span> <span class="hljs-variable">hookZz</span> <span class="hljs-operator">=</span> HookZz.getInstance(emulator); <span class="hljs-comment">// 加载HookZz</span><br><span class="hljs-comment">// inline wrap导出函数</span><br>hookZz.wrap(<span class="hljs-keyword">module</span>.findSymbolByName(<span class="hljs-string">&quot;ss_encrypt&quot;</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">WrapCallback</span>&lt;RegisterContext&gt;() &#123;<br>    <span class="hljs-comment">//目标函数执行之前</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">preCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, RegisterContext ctx, HookEntryInfo info)</span> &#123;<br>        <span class="hljs-type">Pointer</span> <span class="hljs-variable">pointer</span> <span class="hljs-operator">=</span> ctx.getPointerArg(<span class="hljs-number">2</span>);<br>        <span class="hljs-type">int</span> <span class="hljs-variable">length</span> <span class="hljs-operator">=</span> ctx.getIntArg(<span class="hljs-number">3</span>);<br>        <span class="hljs-type">byte</span>[] key = pointer.getByteArray(<span class="hljs-number">0</span>, length);<br>        Inspector.inspect(key, <span class="hljs-string">&quot;ss_encrypt key&quot;</span>);<br>    &#125;<br>    <span class="hljs-comment">//目标函数执行之后</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, RegisterContext ctx, HookEntryInfo info)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;ss_encrypt.postCall R0=&quot;</span> + ctx.getLongArg(<span class="hljs-number">0</span>));<br>    &#125;<br>&#125;,<span class="hljs-literal">true</span>);<br><span class="hljs-comment">// replace 函数</span><br>hookZz.replace(<span class="hljs-keyword">module</span>.findSymbolByName(<span class="hljs-string">&quot;Java_com_example_demo_MainActivity_stringFromJNI&quot;</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> HookStatus <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> originFunction)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;stringFromJNI call pre&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.onCall(emulator, originFunction);<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, HookContext context)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;stringFromJNI call after&quot;</span>);<br>        <span class="hljs-built_in">super</span>.postCall(emulator, context);<br>    &#125;<br>&#125;, <span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
+
+<p>其中<code>replace</code>函数的第三个参数<code>enablePostCall</code>是一个<code>Boolean</code>类型，其值表示是否使<code>ReplaceCallback</code>的<code>postCall</code>函数生效。</p>
+<p><strong>inline hook</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">//Arm32RegisterContext 对应 32 位</span><br>hookZz.instrument(<span class="hljs-keyword">module</span>.base + <span class="hljs-number">0x00000F5C</span> + <span class="hljs-number">1</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstrumentCallback</span>&lt;Arm32RegisterContext&gt;() &#123;<br>     <span class="hljs-comment">// 通过base+offset inline wrap内部函数，在IDA看到为sub_xxx那些</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dbiCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, Arm32RegisterContext ctx, HookEntryInfo info)</span> &#123;<br>        <span class="hljs-comment">//打印寄存器内容</span><br>        System.out.println(<span class="hljs-string">&quot;R3=&quot;</span> + ctx.getLongArg(<span class="hljs-number">3</span>) + <span class="hljs-string">&quot;, R10=0x&quot;</span> + Long.toHexString(ctx.getR10Long()));<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>如果需要修改入参或者返回结果，需要将 context 转成 EditableArm64RegisterContext 或 EditableArm32RegisterContext。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">Symbol</span> <span class="hljs-variable">lrand48</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">module</span>.findSymbolByName(<span class="hljs-string">&quot;lrand48&quot;</span>);<br>hookZz.replace(lrand48, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, HookContext context)</span> &#123;<br>        <span class="hljs-type">EditableArm32RegisterContext</span> <span class="hljs-variable">ctx</span> <span class="hljs-operator">=</span> emulator.getContext();<br>        log.info(<span class="hljs-string">&quot;lrand48 return:&quot;</span> + ctx.getIntArg(<span class="hljs-number">0</span>));<br>        ctx.setR0(<span class="hljs-number">1</span>);<br>    &#125;<br>&#125;, <span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-2-Dobby"><a href="#4-2-Dobby" class="headerlink" title="4.2 Dobby"></a>4.2 Dobby</h2><p>Dobby的前身是HookZz，具备HookZz的功能。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">Dobby</span> <span class="hljs-variable">dobby</span> <span class="hljs-operator">=</span> Dobby.getInstance(emulator);<br><span class="hljs-type">Symbol</span> <span class="hljs-variable">stringFromJNI</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">module</span>.findSymbolByName(<span class="hljs-string">&quot;Java_com_example_demo_MainActivity_stringFromJNI&quot;</span>);<br><span class="hljs-comment">/*method hook*/</span><br>dobby.replace(stringFromJNI, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> HookStatus <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> originFunction)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Doddy replace hooked&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.onCall(emulator, originFunction);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, HookContext context)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;stringFromJNI finished&quot;</span>);<br>        <span class="hljs-built_in">super</span>.postCall(emulator, context);<br>    &#125;<br>&#125;,<span class="hljs-literal">true</span>);<br><span class="hljs-comment">/*inline hook*/</span><br>dobby.instrument(...)<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-3-XHook"><a href="#4-3-XHook" class="headerlink" title="4.3 XHook"></a>4.3 XHook</h2><p>XHook 是一个针对 Android 平台 ELF 的 <strong>PLT (Procedure Linkage Table) hook</strong> 库，即它<strong>只能用于 hook 导入函数</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">IxHook</span> <span class="hljs-variable">xHook</span> <span class="hljs-operator">=</span> XHookImpl.getInstance(emulator); <span class="hljs-comment">// 加载xHook，支持Import hook</span><br><span class="hljs-comment">// hook libttEncrypt.so的导入函数strlen</span><br>xHook.register(<span class="hljs-string">&quot;libttEncrypt.so&quot;</span>, <span class="hljs-string">&quot;strlen&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123; <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> HookStatus <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, HookContext context, <span class="hljs-type">long</span> originFunction)</span> &#123;<br>        <span class="hljs-type">Pointer</span> <span class="hljs-variable">pointer</span> <span class="hljs-operator">=</span> context.getPointerArg(<span class="hljs-number">0</span>);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> pointer.getString(<span class="hljs-number">0</span>);<br>        System.out.println(<span class="hljs-string">&quot;strlen=&quot;</span> + str);<br>        context.push(str);<br>        <span class="hljs-keyword">return</span> HookStatus.RET(emulator, originFunction);<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, HookContext context)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;strlen=&quot;</span> + context.pop() + <span class="hljs-string">&quot;, ret=&quot;</span> + context.getIntArg(<span class="hljs-number">0</span>));<br>    &#125;<br>&#125;, <span class="hljs-literal">true</span>);<br>xHook.refresh(); <span class="hljs-comment">// 使Import hook生效</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-4-Whale"><a href="#4-4-Whale" class="headerlink" title="4.4 Whale"></a>4.4 Whale</h2><p>Whale 支持 inline hooking 和 method hooking。</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">IWhale</span> <span class="hljs-variable">whale</span> <span class="hljs-operator">=</span> Whale.getInstance(emulator);<br><span class="hljs-type">Symbol</span> <span class="hljs-variable">free</span> <span class="hljs-operator">=</span> memory.findModule(<span class="hljs-string">&quot;libc.so&quot;</span>).findSymbolByName(<span class="hljs-string">&quot;free&quot;</span>);<br><span class="hljs-comment">/*inline hook*/</span><br>whale.inlineHookFunction(free, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReplaceCallback</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> HookStatus <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> originFunction)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;WInlineHookFunction free = &quot;</span> + emulator.getContext().getPointerArg(<span class="hljs-number">0</span>));<br>        <span class="hljs-type">long</span> <span class="hljs-variable">addr</span> <span class="hljs-operator">=</span> emulator.getContext().getPointerArg(<span class="hljs-number">0</span>).peer;<br>        <span class="hljs-keyword">if</span> (addr == <span class="hljs-number">0x12175000</span> || addr == <span class="hljs-number">0x12176000</span>)&#123;<br>            <span class="hljs-keyword">return</span> HookStatus.LR(emulator, <span class="hljs-number">0</span>);<br>        &#125;<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> HookStatus.RET(emulator,originFunction);<br>        &#125;<br>    &#125;<br>&#125;);<br><span class="hljs-comment">/*导入函数hook*/</span><br>whale.importHookFunction(...);<br><span class="hljs-comment">/*method hook*/</span><br>whale.replace(...);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-5-UnicornHook"><a href="#4-5-UnicornHook" class="headerlink" title="4.5 UnicornHook"></a>4.5 UnicornHook</h2><p>Unidbg 是基于 Unicorn 的项目，因此也具备 UnicornHook，Unicorn原生的Hook功能强大，而且不容易被检测。使用UnicornHook进行inline hook时也不需要考虑是否 + 1，会自动转换。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs Java">emulator.getBackend().hook_add_new(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CodeHook</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">hook</span><span class="hljs-params">(Backend backend, <span class="hljs-type">long</span> address, <span class="hljs-type">int</span> size, Object user)</span> &#123;<br>        <span class="hljs-type">RegisterContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> emulator.getContext();<br>        <span class="hljs-keyword">if</span> (address == <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0x1FF4</span>)&#123;<span class="hljs-comment">// hook的目标地址</span><br>            <span class="hljs-type">Pointer</span> <span class="hljs-variable">md5Ctx</span> <span class="hljs-operator">=</span> context.getPointerArg(<span class="hljs-number">0</span>);<br>            Inspector.inspect(md5Ctx.getByteArray(<span class="hljs-number">0</span>, <span class="hljs-number">32</span>), <span class="hljs-string">&quot;md5Ctx&quot;</span>);<br>            <span class="hljs-type">Pointer</span> <span class="hljs-variable">plainText</span> <span class="hljs-operator">=</span> context.getPointerArg(<span class="hljs-number">1</span>);<br>            <span class="hljs-type">int</span> <span class="hljs-variable">length</span> <span class="hljs-operator">=</span> context.getIntArg(<span class="hljs-number">2</span>);<br>            Inspector.inspect(plainText.getByteArray(<span class="hljs-number">0</span>, length), <span class="hljs-string">&quot;plainText&quot;</span>);<br>        &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (address == <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0x2004</span>)&#123;<br>            <span class="hljs-type">Pointer</span> <span class="hljs-variable">cipherText</span> <span class="hljs-operator">=</span> context.getPointerArg(<span class="hljs-number">1</span>);<br>            Inspector.inspect(cipherText.getByteArray(<span class="hljs-number">0</span>, <span class="hljs-number">16</span>), <span class="hljs-string">&quot;cipherText&quot;</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onAttach</span><span class="hljs-params">(UnHook unHook)</span> &#123;<br>        <span class="hljs-comment">// 这里可以进行一些初始化工作</span><br>        System.out.println(<span class="hljs-string">&quot;attach&quot;</span>);<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">detach</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-comment">// 这里可以进行一些收尾工作</span><br>        System.out.println(<span class="hljs-string">&quot;detach&quot;</span>);<br>    &#125;<br>&#125;, <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0x1FE8</span><span class="hljs-comment">/*start*/</span>, <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0x2004</span><span class="hljs-comment">/*end*/</span>, emulator)<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-6-SystemPropertyHook"><a href="#4-6-SystemPropertyHook" class="headerlink" title="4.6 SystemPropertyHook"></a>4.6 SystemPropertyHook</h2><p>为了方便处理应用访问设备属性（例如ro.build.id），Unidbg实现了SystemPropertyHook，使用方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">SystemPropertyHook</span> <span class="hljs-variable">systemPropertyHook</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemPropertyHook</span>(emulator);<br>systemPropertyHook.setPropertyProvider(<span class="hljs-keyword">new</span> <span class="hljs-title class_">SystemPropertyProvider</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getProperty</span><span class="hljs-params">(String key)</span> &#123;<br>        <span class="hljs-keyword">switch</span> (key)&#123;<br>            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;ro.build.id&quot;</span>:&#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;get id&quot;</span>;<br>            &#125;<br>            <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;ro.build.version.sdk&quot;</span>:&#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;get sdk&quot;</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;);<br><span class="hljs-comment">//使hook生效</span><br>memory.addHookListener(systemPropertyHook);<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="五、打印函数调用栈"><a href="#五、打印函数调用栈" class="headerlink" title="五、打印函数调用栈"></a>五、打印函数调用栈</h1><p>hook目标函数，添加如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Java">emulator.getUnwinder().unwind();<br></code></pre></td></tr></table></figure>
+
+<p>输出示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[0x040000000][0x040001ff4][libxiaojianbang.so][0x01ff4]Java_com_xiaojianbang_ndk_NativeHelper_md5 + 0xc8<br>[0x040000000][0x040003b24][Libxiaojianbang.so][0x03b24]MD5Final(MD5_CTX*,unsigned char*) + 0xac<br>[0x040000000][0x040002000][Libxiaojianbang.so][0x02000]Java_com_xiaojianbang_ndk_NativeHelper_md5 + 0xd4<br>[0x040000000][0x040003b34][Libxiaojianbang.so][0x03b34]MD5Final(MD5_CTX*,unsigned char*) + 0xbc<br>[0x040000000][0x040002000][Libxiaojianbang.so][0x02000]Java_com_xiaojianbang_ndk_NativeHelper_md5 + 0xd4<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="六、Console-Debugger"><a href="#六、Console-Debugger" class="headerlink" title="六、Console Debugger"></a>六、Console Debugger</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">Debugger</span> <span class="hljs-variable">attach</span> <span class="hljs-operator">=</span> emulator.attach();<br>attach.addBreakPoint(<span class="hljs-keyword">module</span>.base + <span class="hljs-number">0xC365</span>); <span class="hljs-comment">//断点地址</span><br></code></pre></td></tr></table></figure>
+
+<p>同样也是基于unicorn的console debugger，因此断点位置不需要考虑是否 + 1，会自动转换。</p>
+<p>console模式下支持如下指令：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-keyword">c</span>： 继续<br>n： 跨过<br>s|si:步入<br>bt：回溯<br><br>st hex：搜索堆栈<br>shw hex:搜索可写堆<br>shr hex：搜索可读堆<br>shx-hex：搜索可执行堆<br><br>m（op）[size]：显示内存，默认大小为<span class="hljs-number">0x70</span>，大小可以是十六进制或十进制<br>mr<span class="hljs-number">0</span>-mr<span class="hljs-number">7</span>，mfp，mip，msp[size]：显示指定寄存器的内存<br>m（address）[size]：显示指定地址的内存，地址必须以<span class="hljs-number">0</span><span class="hljs-keyword">x</span>开头<br><br>wr<span class="hljs-number">0</span>-wr<span class="hljs-number">7</span>，wfp，wip，wsp＜value＞：写入指定寄存器<br>wb（address）<span class="hljs-punctuation">,</span>ws（address）<span class="hljs-punctuation">,</span>wi（address）＜value＞：写入指定地址的（字节、短、整数）内存，地址必须以<span class="hljs-number">0</span><span class="hljs-keyword">x</span>开头<br>wx（address）＜hex＞：将字节写入指定地址的内存，地址必须以<span class="hljs-number">0</span><span class="hljs-keyword">x</span>开头<br><br>b（address）：添加临时断点，地址必须以<span class="hljs-number">0</span><span class="hljs-keyword">x</span>开头，可以是模块偏移量<br>b： 添加寄存器PC的断点<br>r： 删除寄存器PC的断点<br>blr：添加寄存器LR的临时断点<br><br>p (assembly):位于PC地址的修补程序集<br><span class="hljs-symbol">where:</span> 显示java堆栈跟踪<br>trace[<span class="hljs-keyword">begin</span>-<span class="hljs-keyword">end</span>]：设置跟踪指令<br>traceRead[<span class="hljs-keyword">begin</span>-<span class="hljs-keyword">end</span>]：设置跟踪内存读取<br>traceWrite〔<span class="hljs-keyword">begin</span>-<span class="hljs-keyword">end</span>〕：设置跟踪内存写入<br>vm：查看加载的模块<br>vbs：查看断点<br>d|dis:显示反汇编<br>d（<span class="hljs-number">0</span><span class="hljs-keyword">x</span>）：在指定地址显示反汇编<br><span class="hljs-symbol">stop:</span> 停止模拟<br>run[arg]：运行测试<br><span class="hljs-keyword">gc</span>：运行System.<span class="hljs-keyword">gc</span>（）<br><span class="hljs-symbol">threads:</span> 显示线程列表<br><span class="hljs-keyword">cc</span> size：将<span class="hljs-keyword">asm</span>从PC-PC+size字节转换为<span class="hljs-keyword">c</span>函数<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="七、监控内存读写"><a href="#七、监控内存读写" class="headerlink" title="七、监控内存读写"></a>七、监控内存读写</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">String</span> <span class="hljs-variable">traceFile</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;myMonitorFile&quot;</span>;<br><span class="hljs-type">PrintStream</span> <span class="hljs-variable">traceStream</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    traceStream = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PrintStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(traceFile), <span class="hljs-literal">true</span>);<br>&#125; <span class="hljs-keyword">catch</span> (FileNotFoundException e) &#123;<br>    e.printStackTrace();<br>&#125;<br><span class="hljs-comment">//监控目标内存读写，并将信息输出定向到指定文件中</span><br>emulator.traceRead(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base + <span class="hljs-keyword">module</span>.size).setRedirect(traceStream);<span class="hljs-comment">//读</span><br>emulator.traceWrite(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base + <span class="hljs-keyword">module</span>.size).setRedirect(traceStream);<span class="hljs-comment">//写</span><br></code></pre></td></tr></table></figure>
+
+<p>输出的信息格式：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">[<span class="hljs-number">16</span>:<span class="hljs-number">39</span>:<span class="hljs-number">35</span> <span class="hljs-number">404</span>] Memory READ <span class="hljs-meta">at</span> <span class="hljs-number">0x12033d94</span>, data size = <span class="hljs-number">4</span>, data value = <span class="hljs-number">0x12151ec0</span>, PC=RX@<span class="hljs-number">0x1203116c</span>[libszstone<span class="hljs-number">.</span>so]<span class="hljs-number">0x3116c</span>, LR=RX@<span class="hljs-number">0x1212f617</span>[libc<span class="hljs-number">.</span>so]<span class="hljs-number">0x58617</span><br></code></pre></td></tr></table></figure>
+
+<p>主要是读的位置、读了几个字节、读了什么值、发生读操作的地址、读操作完成后的返回地址。</p>
+<h1 id="八、trace"><a href="#八、trace" class="headerlink" title="八、trace"></a>八、trace</h1><h2 id="8-1-traceCode"><a href="#8-1-traceCode" class="headerlink" title="8.1 traceCode"></a>8.1 traceCode</h2><p>汇编代码追踪。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">traceFile</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;myTraceCodeFile&quot;</span>;<br><span class="hljs-type">PrintStream</span> <span class="hljs-variable">traceStream</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    traceStream = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PrintStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(traceFile), <span class="hljs-literal">true</span>);<br>&#125; <span class="hljs-keyword">catch</span> (FileNotFoundException e) &#123;<br>    e.printStackTrace();<br>&#125;<br><span class="hljs-comment">//追踪目标库的汇编代码，并将信息输出定向到指定文件中</span><br>emulator.traceCode(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base + <span class="hljs-keyword">module</span>.size).setRedirect(traceStream);<br></code></pre></td></tr></table></figure>
+
+<p>要注意 trace 的时机，如果我们想 trace 从某个函数开始的执行流，那就让 traceCode 早于它执行即可。比如想 trace 从 JNI_OnLoad 开始的目标 SO 执行流，在如下的代码位置添加 trace 即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dm</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-string">&quot;mx&quot;</span>, <span class="hljs-literal">true</span>);<br><span class="hljs-keyword">module</span> = dm.getModule();<br>security = vm.resolveClass(<span class="hljs-string">&quot;com/mengxiang/arch/security/MXSecurity&quot;</span>);<br><span class="hljs-comment">// trace</span><br>emulator.traceCode(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base + <span class="hljs-keyword">module</span>.size);<br>dm.callJNI_OnLoad(emulator);<br></code></pre></td></tr></table></figure>
+
+<p>如果想到更早的时机开启追踪，即追踪 init_proc、init_array 这些初始化函数的执行情况，那就需要将 traceCode 放到 loadLibrary 之前调用，但此时还没有获取到<code>module</code>对象。因此最正确的处理办法是使用模块监听器，在模块加载的第一时间开始 trace 。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">memory.addModuleListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ModuleListener</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onLoaded</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, Module <span class="hljs-keyword">module</span>)</span> &#123;<br>        <span class="hljs-keyword">if</span>(<span class="hljs-keyword">module</span>.name.equals(<span class="hljs-string">&quot;libmx.so&quot;</span>))&#123;<br>            emulator.traceCode(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base+<span class="hljs-keyword">module</span>.size);<br>        &#125;<br>    &#125;<br>&#125;);<br><span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dm</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-string">&quot;mx&quot;</span>, <span class="hljs-literal">true</span>);<br><span class="hljs-keyword">module</span> = dm.getModule();<br>security = vm.resolveClass(<span class="hljs-string">&quot;com/mengxiang/arch/security/MXSecurity&quot;</span>);<br>dm.callJNI_OnLoad(emulator);<br></code></pre></td></tr></table></figure>
+
+<p>如果想只 trace 某个函数内的汇编，这里分为两种情况：</p>
+<ol>
+<li><p>只关注某地址处的某一函数调用，而不关注于该函数在别处的调用。</p>
+<p>例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:000000000000E530                 MOV             X0, X19<br>.text:000000000000E534                 MOV             X2, X21<br>.text:000000000000E538                 LDR             X1, [X8] ; &quot;SHA1&quot;<br>.text:000000000000E53C                 BL              ._Z6digestP7_JNIEnvPKcP11_jbyteArray ; digest(_JNIEnv *,char const*,_jbyteArray *)<br>.text:000000000000E540                 LDR             X8, [X19]<br>.text:000000000000E544                 MOV             X1, X0<br>.text:000000000000E548                 LDR             X2, [X8,#0x538]<br>.text:000000000000E54C                 B               loc_E55C<br></code></pre></td></tr></table></figure>
+
+<p>只关注 0xE53C 处的 digest 函数调用，那么需要在 0xE53C 开始 traceCode，0xE540 处停止 trace。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">traceDigest</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">long</span> <span class="hljs-variable">callAddr</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0xE53C</span>;<br><br>    emulator.attach().addBreakPoint(callAddr, <span class="hljs-keyword">new</span> <span class="hljs-title class_">BreakPointCallback</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">onHit</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> address)</span> &#123;<br>            traceHook = emulator.traceCode(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base+<span class="hljs-keyword">module</span>.size);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;);<br><br>    emulator.attach().addBreakPoint(callAddr + <span class="hljs-number">4</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">BreakPointCallback</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">onHit</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> address)</span> &#123;<br>            traceHook.stopTrace();<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>关注某一函数的所有调用，那么在进入该函数前开始 traceCode，离开该函数停止 trace。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">traceDigest</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-comment">// digest 函数地址</span><br>    <span class="hljs-type">long</span> <span class="hljs-variable">callAddr</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">module</span>.base + <span class="hljs-number">0xd804</span>;<br><br>    emulator.attach().addBreakPoint(callAddr, <span class="hljs-keyword">new</span> <span class="hljs-title class_">BreakPointCallback</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">onHit</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> address)</span> &#123;<br>            <span class="hljs-type">RegisterContext</span> <span class="hljs-variable">registerContext</span> <span class="hljs-operator">=</span> emulator.getContext();<br>            <span class="hljs-comment">// 开启 traceCode</span><br>            traceHook = emulator.traceCode(<span class="hljs-keyword">module</span>.base, <span class="hljs-keyword">module</span>.base+<span class="hljs-keyword">module</span>.size);<br>            <span class="hljs-comment">// 在 digest 函数执行完后的返回地址处下断点，取消 traceCode</span><br>            <span class="hljs-comment">// 由于返回地址可以是module中任意一点</span><br>            <span class="hljs-comment">// 那为什么不在 digest 函数的最后一条指令处结束 traceCode，虽然会损失最后一条指令的 trace,但最后一条指令一般是 ret</span><br>            emulator.attach().addBreakPoint(registerContext.getLR(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">BreakPointCallback</span>() &#123;<br>                <span class="hljs-meta">@Override</span><br>                <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">onHit</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> address)</span> &#123;<br>                    traceHook.stopTrace();<br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>                &#125;<br>            &#125;);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="8-2-traceFunctionCall"><a href="#8-2-traceFunctionCall" class="headerlink" title="8.2 traceFunctionCall"></a>8.2 traceFunctionCall</h2><p>顾名思义，跟踪函数的调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">// function trace</span><br><span class="hljs-type">Debugger</span> <span class="hljs-variable">debugger</span> <span class="hljs-operator">=</span> emulator.attach();<br>debugger.traceFunctionCall(<span class="hljs-keyword">module</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">FunctionCallListener</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> callerAddress, <span class="hljs-type">long</span> functionAddress)</span> &#123;<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">postCall</span><span class="hljs-params">(Emulator&lt;?&gt; emulator, <span class="hljs-type">long</span> callerAddress, <span class="hljs-type">long</span> functionAddress, Number[] args)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;onCallFinish caller=&quot;</span> + UnidbgPointer.pointer(emulator, callerAddress) + <span class="hljs-string">&quot;, function=&quot;</span> + UnidbgPointer.pointer(emulator, functionAddress));<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>两个时机都可以访问 callerAddress 和 functionAddress，postCall 时机还可以访问 args，即参数。</p>
+<p>打印结果如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">onCallFinish caller=RX@0x4000d954[libmx.so]0xd954, function=RX@0x4000dab4[libmx.so]0xdab4<br>onCallFinish caller=RX@0x4000db30[libmx.so]0xdb30, function=RX@0x4000d620[libmx.so]0xd620<br>onCallFinish caller=RX@0x4000d954[libmx.so]0xd954, function=RX@0x4000dab4[libmx.so]0xdab4<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="九、日志系统"><a href="#九、日志系统" class="headerlink" title="九、日志系统"></a>九、日志系统</h1><h2 id="9-1-日志系统"><a href="#9-1-日志系统" class="headerlink" title="9.1 日志系统"></a>9.1 日志系统</h2><p>Unidbg 中使用 Apache 的开源项目 <a target="_blank" rel="noopener" href="https://mvnrepository.com/artifact/log4j/log4j/1.2.17">log4j</a> 和 <a target="_blank" rel="noopener" href="https://mvnrepository.com/artifact/commons-logging/commons-logging/1.2">commons-logging</a> 处理日志。Unidbg 的绝大多数代码逻辑都提供了信息展示，但<strong>只在<code>DEBUG</code>日志等级下才做输出打印</strong>。Unidbg 基于模块去管理输出，想了解哪部分日志，就指定具体的类为 DEBUG 等级。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">import</span> org.apache.log4j.Level;<br><span class="hljs-keyword">import</span> org.apache.log4j.Logger;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">NetWork</span> <span class="hljs-variable">nw</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NetWork</span>();<br>    Logger.getLogger(ARM32SyscallHandler.class).setLevel(Level.DEBUG);<br>    Logger.getLogger(AndroidSyscallHandler.class).setLevel(Level.DEBUG);<br>    <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> nw.callSign();<br>    System.out.println(<span class="hljs-string">&quot;call s result:&quot;</span>+result);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>比如上面的代码，就是对 ARM32 下的系统调用类、系统调用父类做日志输出。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051634394.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果希望输出所有模块的日志，可以修改<code>unidbg-android/src/test/resources/log4j.properties</code>文件，将 unidbg 的日志等级从 INFO 改为 DEBUG。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"># 修改前<br>log4j.logger.com.github.unidbg=INFO<br># 修改后<br>log4j.logger.com.github.unidbg=DEBUG<br></code></pre></td></tr></table></figure>
+
+<p>那么不管是系统调用、指针管理、多线程，还是多线程处理器等等，所有组件的日志都会打印出来。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412051634351.png" srcset="/img/loading.gif" lazyload></p>
+<p>但一般不会这么做，过多过杂的日志输出对使用者并无益处，还会拖累 Unidbg 执行的速度。</p>
+<h2 id="9-2-虚拟机日志"><a href="#9-2-虚拟机日志" class="headerlink" title="9.2 虚拟机日志"></a>9.2 虚拟机日志</h2><p>除了常规日志，Unidbg 还有另一套日志输出，主要打印 JNI 、Syscall 调用相关的内容。它和常规日志的输出有重叠，但内容更详细一些。我们通过 vm.setVerbose 开启或关闭它。在一般情况下，我们都会开启这个日志。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> <span class="hljs-title function_">WeiBo</span><span class="hljs-params">()</span> &#123;<br>    emulator = AndroidEmulatorBuilder<br>        .for32Bit()<br>        .addBackendFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Unicorn2Factory</span>(<span class="hljs-literal">true</span>))<br>        .setProcessName(<span class="hljs-string">&quot;com.weico.international&quot;</span>)<br>        .build();<br>    <span class="hljs-type">Memory</span> <span class="hljs-variable">memory</span> <span class="hljs-operator">=</span> emulator.getMemory();<br>    memory.setLibraryResolver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AndroidResolver</span>(<span class="hljs-number">23</span>));<br>    vm = emulator.createDalvikVM(<span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;unidbg-android/src/test/resources/weibo/sinaInternational.apk&quot;</span>));<br>    vm.setJni(<span class="hljs-built_in">this</span>);<br>    <span class="hljs-comment">// 设置是否打印以 JNI 为主的虚拟机调用细节</span><br>    vm.setVerbose(<span class="hljs-literal">false</span>);<br>    <span class="hljs-type">DalvikModule</span> <span class="hljs-variable">dm</span> <span class="hljs-operator">=</span> vm.loadLibrary(<span class="hljs-string">&quot;utility&quot;</span>, <span class="hljs-literal">true</span>);<br>    WeiboSecurityUtils = vm.resolveClass(<span class="hljs-string">&quot;com/sina/weibo/security/WeiboSecurityUtils&quot;</span>);<br>    dm.callJNI_OnLoad(emulator);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.seeflower.dev/archives/67/">【转载】Unidbg Hook 大全 - SeeFlowerX</a></p>
+<p><a target="_blank" rel="noopener" href="https://whitebird0.github.io/post/unidbg%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html">https://whitebird0.github.io/post/unidbg%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html</a></p>
+<p>[<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-281703.htm#msg_header_h2_2">原创]unidbg入门笔记-Android安全-看雪-安全社区|安全招聘|kanxue.com</a></p>
+<p>[Unidbg 的日志系统](<a target="_blank" rel="noopener" href="https://www.yuque.com/lilac-2hqvv/xdwlsg/yaxqgh#">https://www.yuque.com/lilac-2hqvv/xdwlsg/yaxqgh?#</a> 《Unidbg 的日志系统》)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Unidbg/">#Unidbg</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Unidbg入门介绍</div>
+      <div>http://example.com/2024/12/05/Unidbg模拟执行/Unidbg学习与实践/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月5日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" title="从案例中学习unidbg的使用（一）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">从案例中学习unidbg的使用（一）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" title="Frida特征检测">
+                        <span class="hidden-mobile">Frida特征检测</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
