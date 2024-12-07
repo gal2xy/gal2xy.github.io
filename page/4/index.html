@@ -252,6 +252,71 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
+          OLLVM移植到NDK
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0NDK/" target="_self">
+        <div>
+          一、前言一开始是直接将ollvm4源码编译后移植到ndk上，按照跟着铁头干混淆2 ubuntu20.04编译ollvm - 简书 (jianshu.com)上的步骤走，结果仍然报错： 1Android Studio fatal error: &amp;#x27;stdarg.h&amp;#x27; file not found  而且如果直接将OLLVM的bin，lib，include目录覆盖到NDK中的对应的目
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-04-17 19:48" pubdate>
+              2024-04-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/OLLVM/">#OLLVM</a>
+            
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86/">#代码混淆</a>
+            
+              <a href="/tags/LLVM/">#LLVM</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/04/17/LLVM%20and%20OLLVM/OLLVM%E7%A7%BB%E6%A4%8D%E5%88%B0LLVM14/" target="_self">
           OLLVM移植到LLVM14
         </a>
@@ -803,74 +868,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/10/Android%E5%8A%A0%E5%9B%BA%E5%A3%B3/Android%E7%AC%AC%E4%BA%8C%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
-          Android第二代加固壳的原理及实现 —— 不落地加载
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/10/Android%E5%8A%A0%E5%9B%BA%E5%A3%B3/Android%E7%AC%AC%E4%BA%8C%E4%BB%A3%E5%8A%A0%E5%9B%BA%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" target="_self">
-        <div>
-          一、对第一代壳的改良在第一代加固壳中，会将源程序APK存储到文件系统中，然后再通过DexClassLoader动态加载。这种落地加载方式存在很大问题，一是容易在文件系统中获取到源程序APK，二是两次加载源程序APK到内存中，效率低。 第二代壳就是为了解决上述问题，做到不落地加载，即不使用文件系统作为中转站，而是直接将内存中的源APK字节码进行加载。 那么问题就来了，怎样解决加载内存dex的难题呢？
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-10 16:30" pubdate>
-              2023-12-10
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%8A%A0%E5%9B%BA/">#Android加固</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/#board">14</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
