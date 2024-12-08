@@ -16,12 +16,12 @@
   <meta name="author" content="gla2xy">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、引言在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难，尝试使用 jadx 动调，只能看到目标对象是 $Proxyx@xxxx，无法知道具体类是啥。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。 二、事前准备2.1 使 APK 可调试正常情况下 release 包是不允许调试">
+    <meta name="description" content="一、引言在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。 二、事前准备2.1 使 APK 可调试正常情况下 release 包是不允许调试的，所以必须先让 APK  可调试，一般有两种方法：  反编译 APK，修改 Android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android Studio 动调 APK">
 <meta property="og:url" content="http://example.com/2024/12/07/Android%E5%AE%89%E5%85%A8/Android%20Studio%E5%8A%A8%E8%B0%83APK/index.html">
 <meta property="og:site_name" content="gla2xy&#39;s blog">
-<meta property="og:description" content="一、引言在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难，尝试使用 jadx 动调，只能看到目标对象是 $Proxyx@xxxx，无法知道具体类是啥。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。 二、事前准备2.1 使 APK 可调试正常情况下 release 包是不允许调试">
+<meta property="og:description" content="一、引言在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。 二、事前准备2.1 使 APK 可调试正常情况下 release 包是不允许调试的，所以必须先让 APK  可调试，一般有两种方法：  反编译 APK，修改 Android">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412071718076.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412071719366.png">
@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412071721739.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202412071721537.png">
 <meta property="article:published_time" content="2024-12-07T09:22:55.000Z">
-<meta property="article:modified_time" content="2024-12-07T09:25:17.326Z">
+<meta property="article:modified_time" content="2024-12-08T03:04:05.184Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="Android Studio">
 <meta property="article:tag" content="动调APK">
@@ -270,7 +270,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.4k 字
+          1.3k 字
         
       </span>
     
@@ -281,7 +281,7 @@
         
         
         
-          12 分钟
+          11 分钟
         
       </span>
     
@@ -332,7 +332,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难，尝试使用 jadx 动调，只能看到目标对象是 $Proxyx@xxxx，无法知道具体类是啥。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。</p>
+                <h1 id="一、引言"><a href="#一、引言" class="headerlink" title="一、引言"></a>一、引言</h1><p>在逆向过程中，发现一些实例对象和方法是动态代理创建并调用的，这就使得静态分析非常困难。而 Android Studio 却能够很好的处理这一问题。因此本文将讲述如何使用 Android Studio 动态调试 APK。</p>
 <h1 id="二、事前准备"><a href="#二、事前准备" class="headerlink" title="二、事前准备"></a>二、事前准备</h1><h2 id="2-1-使-APK-可调试"><a href="#2-1-使-APK-可调试" class="headerlink" title="2.1 使 APK 可调试"></a>2.1 使 APK 可调试</h2><p>正常情况下 release 包是不允许调试的，所以必须先让 APK  可调试，一般有两种方法：</p>
 <ul>
 <li>反编译 APK，修改 AndroidManifest.xml 文件中的android:debuggable 为 true ，再重打包。</li>
