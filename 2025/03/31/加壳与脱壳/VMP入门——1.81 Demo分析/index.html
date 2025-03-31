@@ -1,0 +1,1001 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言本文主要是通过分析VMProtect 1.81 Demo版加密后的程序，讲述VMP的基本结构，并尝试分析虚拟代码的功能以及虚拟代码还原。 二、虚拟机结构虚拟机保护技术是将程序的可执行代码转化为自定义的中间操作码（一字节或多字节），用以保护源程序不被逆向和篡改，这些中间操作码通过虚拟机解释执行，实现程序原来的功能。在这种情况下，如果要逆向程序，就需要对整个虚拟机结构进行逆向，理解程序功能，还">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VMP入门: VMP1.81 Demo分析">
+<meta property="og:url" content="http://example.com/2025/03/31/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/VMP%E5%85%A5%E9%97%A8%E2%80%94%E2%80%941.81%20Demo%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言本文主要是通过分析VMProtect 1.81 Demo版加密后的程序，讲述VMP的基本结构，并尝试分析虚拟代码的功能以及虚拟代码还原。 二、虚拟机结构虚拟机保护技术是将程序的可执行代码转化为自定义的中间操作码（一字节或多字节），用以保护源程序不被逆向和篡改，这些中间操作码通过虚拟机解释执行，实现程序原来的功能。在这种情况下，如果要逆向程序，就需要对整个虚拟机结构进行逆向，理解程序功能，还">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202503312014193.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202503312014409.png">
+<meta property="article:published_time" content="2025-03-31T12:10:32.000Z">
+<meta property="article:modified_time" content="2025-03-31T12:21:11.782Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="VMP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202503312014193.png">
+  
+  
+  
+  <title>VMP入门: VMP1.81 Demo分析 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="VMP入门: VMP1.81 Demo分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-31 20:10" pubdate>
+          2025年3月31日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          23k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          195 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">VMP入门: VMP1.81 Demo分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>本文主要是通过分析VMProtect 1.81 Demo版加密后的程序，讲述VMP的基本结构，并尝试分析虚拟代码的功能以及虚拟代码还原。</p>
+<h1 id="二、虚拟机结构"><a href="#二、虚拟机结构" class="headerlink" title="二、虚拟机结构"></a>二、虚拟机结构</h1><p>虚拟机保护技术是将程序的可执行代码转化为自定义的中间操作码（一字节或多字节），用以保护源程序不被逆向和篡改，这些中间操作码通过虚拟机解释执行，实现程序原来的功能。在这种情况下，如果要逆向程序，就需要对整个虚拟机结构进行逆向，理解程序功能，还需要结合操作码进行分析，整个程序逆向工程将会十分繁琐。以下是一个一般虚拟机结构：</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202503312014193.png" srcset="/img/loading.gif" lazyload></p>
+<p>虚拟机解释执行流程如下：</p>
+<ol>
+<li>将真实环境的上下文入栈，初始化虚拟机运行所需要的环境，例如初始化VIP、VSP等。</li>
+<li>根据VIP获取下一条虚拟指令的操作码，根据虚拟指令的操作码，跳转到对应VM Handler。</li>
+<li>执行VM Handler，更新虚拟指令指针。</li>
+<li>虚拟堆栈检查，检查虚拟栈空间是否充足。</li>
+<li>重复执行2~4直至执行完所有虚拟指令字节码。</li>
+<li>还原真实环境的上下文，退出虚拟机。</li>
+</ol>
+<p>与虚拟机相关的数据结构如下：</p>
+<ul>
+<li><strong>VIP</strong>：虚拟指令指针，相当于x86-64中的RIP寄存器，指向下一条将要被执行的虚拟指令的地址。一般使用RSI寄存器来保存VIP。</li>
+<li><strong>VSP</strong>：虚拟堆栈指针，相当于x86-64中的RSP寄存器，用来保存虚拟堆栈栈顶指针。一般使用RBP寄存器来保存VSP。</li>
+<li><strong>VM Stack</strong>：虚拟堆栈，基于栈的虚拟机的一切指令的执行都借助虚拟栈来完成，例如加法指令，需要事先将两个操作数入栈，然后在栈上进行运算。</li>
+<li><strong>VM Registers&#x2F;VM Context</strong>：虚拟寄存器组，或者称之为虚拟机的上下文。一般使用RDI寄存器来指向虚拟寄存器组所在地址。</li>
+<li><strong>VM Instruction</strong>：虚拟指令，也称为虚拟字节码，是虚拟机解释并随后执行的字节。每条虚拟指令至少由一个或多个字节。</li>
+<li><strong>VM Opcode</strong>：虚拟指令操作码，每条虚拟指令中的第一个字节。</li>
+<li><strong>IMM</strong>：虚拟指令中的立即数，这些立即数可能充当常量值、虚拟寄存器的索引值等。</li>
+<li><strong>VM Handler</strong>：用于执行真实指令的虚拟代码片段，例如一个ADD指令对应一个VM Handler。根据 VM Opcode 选取对应的VM Handler来解释执行该操作码的具体功能。</li>
+<li><strong>VM Handler Table</strong>：存放所有VM Handler的偏移地址的表。</li>
+<li><strong>VM Opcode Table</strong>：存放虚拟指令字节码的表。</li>
+</ul>
+<h1 id="三、案例分析"><a href="#三、案例分析" class="headerlink" title="三、案例分析"></a>三、案例分析</h1><p>本案例的样本来自于<a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-713219-1-1.html">如何分析虚拟机系列(1)：新手篇VMProtect 1.81 Demo - 吾爱破解 - 52pojie.cn</a>。样本的汇编代码如下，就是一个简单的加减同一个常量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p<br>.text:00401000                 mov     eax, dword_403000; 值为 0deadbeefh<br>.text:00401005                 add     eax, 12345678h<br>.text:0040100A                 sub     eax, 12345678h<br>.text:0040100F                 mov     dword_403000, eax<br>.text:00401014                 retn<br>.text:00401014 sub_401000      endp<br></code></pre></td></tr></table></figure>
+
+<p>经过VMP保护后，变成如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.text:00401000 ; void sub_401000()<br>.text:00401000 sub_401000      proc near               ; CODE XREF: start↓p<br>.text:00401000                 push    offset byte_404781<br>.text:00401005                 call    sub_40472C<br>.text:0040100A<br>.text:0040100A loc_40100A:                             ; CODE XREF: sub_40472C+2B↓j<br>.text:0040100A                                         ; DATA XREF: .vmp0:jpt_404757↓o<br>.text:0040100A                 mov     esi, [ebp+0]    ; jumptable 00404757 cases 126,128,146,149,246,255<br>.text:0040100D                 add     ebp, 4<br>.text:00401010                 jmp     loc_40474E<br>.text:00401010 sub_401000      end<br></code></pre></td></tr></table></figure>
+
+<p>这里有个典型的VMP入口特征：push call。push压入栈的数据是虚拟指令操作码表（VM Opcode Table）所在地址，然后通过call sub_40472C进入VM Entry。byte_404781 如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:00404781 byte_404781     db 0Eh, 0E8h, 81h       ; DATA XREF: sub_401000↑o<br>.vmp0:00404784                 dd 5C765DA9h, 3E0A1A1Eh, 3A36262Eh, 602122Ah, 3000E822h<br>.vmp0:00404798                 dd 16790040h, 34567869h, 1E7A1412h, 5678E836h, 97341234h<br>.vmp0:004047AC                 dd 5C066B4Dh, 1121973Eh, 4C3C0622h, 0EB161121h, 1E11F7EAh<br>.vmp0:004047C0                 dd 326B2020h, 78081577h, 36325C32h, 30006904h, 0ED0040h<br>.vmp0:004047D4                 dd 4382010h, 8342C24h, 0E1001Ch, 8 dup(0)<br>.vmp0:00404800                 dd 200h dup(?)<br></code></pre></td></tr></table></figure>
+
+<h2 id="VM-Entry分析"><a href="#VM-Entry分析" class="headerlink" title="VM Entry分析"></a>VM Entry分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:0040472C                 push    esi<br>.vmp0:0040472D                 push    edi<br>.vmp0:0040472E                 push    esp<br>.vmp0:0040472F                 push    ebx<br>.vmp0:00404730                 push    eax<br>.vmp0:00404731                 push    edx<br>.vmp0:00404732                 push    ebp<br>.vmp0:00404733                 pushf<br>.vmp0:00404734                 push    ecx<br></code></pre></td></tr></table></figure>
+
+<p>首先一个很典型的特征就是VMP在创建虚拟机环境时，会将真实环境中寄存器的值入栈保存。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:00404735                 push    ds:dword_404649<br>.vmp0:0040473B                 push    0<br></code></pre></td></tr></table></figure>
+
+<p>以上两条指令把要被操作的数据压入栈，这是基于栈的虚拟机的一个特点：数据的操作需要在栈上进行。那么可以确定这里应该是虚拟栈了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:00404740                 mov     esi, [esp+2Ch+arg_0] ;arg_0 = dword ptr  4<br></code></pre></td></tr></table></figure>
+
+<p>初始化esi，通过画堆栈图分析，可知 esi 的值为 byte_404781，也就是虚拟指令操作码表（VM Opcode Table）的基址。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:00404744                 mov     ebp, esp<br>.vmp0:00404746                 sub     esp, 0C0h<br>.vmp0:0040474C                 mov     edi, esp<br></code></pre></td></tr></table></figure>
+
+<p>初始化 ebp 的值为 esp，指向虚拟栈的栈顶，然后创建一个新的栈帧，用于当作虚拟寄存器使用，edi指向虚拟寄存器的基址。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.vmp0:0040474E loc_40474E:                             <br>.vmp0:0040474E                 add     esi, [ebp+0]		;index of vm opcode<br></code></pre></td></tr></table></figure>
+
+<p>之后是获取虚拟栈栈顶数据，即虚拟指令操作码的偏移地址，然后加上虚拟操作码表的基址，此时 esi 指向第一个将要被执行的虚拟指令操作码。</p>
+<h2 id="VM-Dispatcher分析"><a href="#VM-Dispatcher分析" class="headerlink" title="VM Dispatcher分析"></a>VM Dispatcher分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov     al, [esi]		;get vm opcode<br>movzx   eax, al	<br>inc     esi				;index + 1<br>jmp     ds:jpt_404757[eax*4] ; jmp to vm handler<br></code></pre></td></tr></table></figure>
+
+<p>根据虚拟指令操作码跳转到对应的VM Handler来执行相应功能。jpt_404757 是一个函数地址表，存放的是VM Handlers的偏移。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202503312014409.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="VM-Handler分析"><a href="#VM-Handler分析" class="headerlink" title="VM Handler分析"></a>VM Handler分析</h2><h3 id="ADD——加法"><a href="#ADD——加法" class="headerlink" title="ADD——加法"></a>ADD——加法</h3><h4 id="ADDB——两个单字节数相加"><a href="#ADDB——两个单字节数相加" class="headerlink" title="ADDB——两个单字节数相加"></a>ADDB——两个单字节数相加</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40476F:<br>mov     al, [ebp+0]<br>sub     ebp, 2<br>add     [ebp+4], al<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈栈顶的两个单字节数相加，结果存入后者所在位置，标志寄存器入真实栈，然后将真实栈顶元素（标志寄存器的值）存入到虚拟栈顶处。</p>
+<blockquote>
+<p>参与加法运算的是[源ebp+2] 、[源ebp]的两个字节相加，而不是[源ebp+1] 、[源ebp]的两个字节相加，可能的原因是虚拟栈按两字节对齐。</p>
+</blockquote>
+<h4 id="ADDW——两个双字节数相加"><a href="#ADDW——两个双字节数相加" class="headerlink" title="ADDW——两个双字节数相加"></a>ADDW——两个双字节数相加</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4045FC:<br>mov     ax, [ebp+0]<br>sub     ebp, 2<br>add     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈栈顶两个双字节数相加。此时虚拟栈提升两字节。虚拟栈顶的前四字节为运算产生的标志位，后两字节为运算产生的值。</p>
+<h4 id="ADDDW——两个四字节数相加"><a href="#ADDDW——两个四字节数相加" class="headerlink" title="ADDDW——两个四字节数相加"></a>ADDDW——两个四字节数相加</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404000:<br>mov     eax, [ebp+0]<br>add     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈栈顶两个四字节数相加。此时虚拟栈顶的位置不变。</p>
+<h3 id="SHR——逻辑右移"><a href="#SHR——逻辑右移" class="headerlink" title="SHR——逻辑右移"></a>SHR——逻辑右移</h3><h4 id="SHRB——单字节数逻辑右移"><a href="#SHRB——单字节数逻辑右移" class="headerlink" title="SHRB——单字节数逻辑右移"></a>SHRB——单字节数逻辑右移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404680:<br>mov     al, [ebp+0]<br>mov     cl, [ebp+2]<br>sub     ebp, 2<br>shr     al, cl<br>mov     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶取出两个单字节数据，进行逻辑右移运算。将结果零扩展至双字节（右移结果存储在al中，但入栈的却是ax）。此时虚拟栈提升两字节。</p>
+<h4 id="SHRW——双字节数逻辑右移"><a href="#SHRW——双字节数逻辑右移" class="headerlink" title="SHRW——双字节数逻辑右移"></a>SHRW——双字节数逻辑右移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40454E:<br>mov     ax, [ebp+0]<br>mov     cl, [ebp+2]<br>sub     ebp, 2<br>shr     ax, cl<br>mov     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取出双字节数据、单字节数据（作为位移值），进行逻辑右移运算。此时虚拟栈提升两字节。</p>
+<h4 id="SHRDW——四字节数逻辑右移"><a href="#SHRDW——四字节数逻辑右移" class="headerlink" title="SHRDW——四字节数逻辑右移"></a>SHRDW——四字节数逻辑右移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404077:<br>mov     eax, [ebp+0]<br>mov     cl, [ebp+4]<br>sub     ebp, 2<br>shr     eax, cl<br>mov     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶依次取四字节数据、一字节数据（作为位移值），进行逻辑右移运算。此时虚拟栈提升两字节。</p>
+<h3 id="SHRD——双精度逻辑右移"><a href="#SHRD——双精度逻辑右移" class="headerlink" title="SHRD——双精度逻辑右移"></a>SHRD——双精度逻辑右移</h3><h4 id="SHRDDW——四字节双精度逻辑右移"><a href="#SHRDDW——四字节双精度逻辑右移" class="headerlink" title="SHRDDW——四字节双精度逻辑右移"></a>SHRDDW——四字节双精度逻辑右移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404610:<br>mov     eax, [ebp+0]<br>mov     edx, [ebp+4]<br>mov     cl, [ebp+8]<br>add     ebp, 2<br>shrd    eax, edx, cl<br>mov     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶依次取两个四字节数据、一个一字节数据，进行双精度右移，这里仅将高位eax放入栈中。此时虚拟栈缩小两字节。</p>
+<h3 id="SHL——逻辑左移"><a href="#SHL——逻辑左移" class="headerlink" title="SHL——逻辑左移"></a>SHL——逻辑左移</h3><h4 id="SHLB——单字节数逻辑左移"><a href="#SHLB——单字节数逻辑左移" class="headerlink" title="SHLB——单字节数逻辑左移"></a>SHLB——单字节数逻辑左移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4045C0:<br>mov     al, [ebp+0]<br>mov     cl, [ebp+2]<br>sub     ebp, 2<br>shl     al, cl<br>mov     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取出两个单字节数据，进行逻辑左移运算。将结果零扩展为双字节（结果存储在al，但入栈的却是ax）。此时虚拟栈提升两字节。</p>
+<h4 id="SHLW——双字节数逻辑左移"><a href="#SHLW——双字节数逻辑左移" class="headerlink" title="SHLW——双字节数逻辑左移"></a>SHLW——双字节数逻辑左移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404698:<br>mov     ax, [ebp+0]<br>mov     cl, [ebp+2]<br>sub     ebp, 2<br>shl     ax, cl<br>mov     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈的栈顶中依次取出双字节数据、单字节数据（位移值），进行逻辑左移。此时虚拟栈提升两字节。</p>
+<h4 id="SHLDW——四字节数逻辑左移"><a href="#SHLDW——四字节数逻辑左移" class="headerlink" title="SHLDW——四字节数逻辑左移"></a>SHLDW——四字节数逻辑左移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4046EF:<br>mov     eax, [ebp+0]<br>mov     cl, [ebp+4]<br>sub     ebp, 2<br>shl     eax, cl<br>mov     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈的栈顶中依次取出四字节数据、单字节数据（位移值），进行逻辑左移。此时虚拟栈提升两字节。</p>
+<h3 id="SHLD——双精度逻辑左移"><a href="#SHLD——双精度逻辑左移" class="headerlink" title="SHLD——双精度逻辑左移"></a>SHLD——双精度逻辑左移</h3><h4 id="SHLDDW——四字节双精度逻辑左移"><a href="#SHLDDW——四字节双精度逻辑左移" class="headerlink" title="SHLDDW——四字节双精度逻辑左移"></a>SHLDDW——四字节双精度逻辑左移</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4046BF:<br>mov     eax, [ebp+0]<br>mov     edx, [ebp+4]<br>mov     cl, [ebp+8]<br>add     ebp, 2<br>shld    eax, edx, cl<br>mov     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶依次取两个四字节数据、一个一字节数据，进行双精度左移。此时虚拟栈缩小两字节。</p>
+<h3 id="NAnd——先非后与"><a href="#NAnd——先非后与" class="headerlink" title="NAnd——先非后与"></a>NAnd——先非后与</h3><h4 id="NAndB——两个单字节数据先非后与"><a href="#NAndB——两个单字节数据先非后与" class="headerlink" title="NAndB——两个单字节数据先非后与"></a>NAndB——两个单字节数据先非后与</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404591:<br>mov     ax, [ebp+0]<br>mov     dx, [ebp+2]<br>not     al<br>not     dl<br>sub     ebp, 2<br>and     al, dl<br>mov     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取出两个双字节数据，实际上是低位一字节先进行非运算，然后再进行与运算。此时虚拟栈提升两字节。</p>
+<h4 id="NAndW——两个双字节数据先非后与"><a href="#NAndW——两个双字节数据先非后与" class="headerlink" title="NAndW——两个双字节数据先非后与"></a>NAndW——两个双字节数据先非后与</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404041:<br>not     dword ptr [ebp+0]<br>mov     ax, [ebp+0]<br>sub     ebp, 2<br>and     [ebp+4], ax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>对虚拟栈栈顶的四字节取反，然后分成两个双字节数进行与运算。此时虚拟栈提升两字节。</p>
+<h4 id="NAndDW——两个四字节数据先非后与"><a href="#NAndDW——两个四字节数据先非后与" class="headerlink" title="NAndDW——两个四字节数据先非后与"></a>NAndDW——两个四字节数据先非后与</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40451A:<br>mov     eax, [ebp+0]<br>mov     edx, [ebp+4]<br>not     eax<br>not     edx<br>and     eax, edx<br>mov     [ebp+4], eax<br>pushf<br>pop     dword ptr [ebp+0]<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶依次取两个四字节数据，先进行非运算，然后与运算。此时虚拟栈顶位置不变。</p>
+<h3 id="PushConst——虚拟指令中的立即数入栈"><a href="#PushConst——虚拟指令中的立即数入栈" class="headerlink" title="PushConst——虚拟指令中的立即数入栈"></a>PushConst——虚拟指令中的立即数入栈</h3><h4 id="PushConstB——单字节立即数入栈"><a href="#PushConstB——单字节立即数入栈" class="headerlink" title="PushConstB——单字节立即数入栈"></a>PushConstB——单字节立即数入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4044E4:<br>movzx   eax, byte ptr [esi]<br>sub     ebp, 2<br>mov     [ebp+0], ax<br>add     esi, 1<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟指令中的操作数（单字节），零扩展至单字，然后入栈。此时虚拟栈提升两字节。</p>
+<h4 id="PushConstW——双字节立即数入栈"><a href="#PushConstW——双字节立即数入栈" class="headerlink" title="PushConstW——双字节立即数入栈"></a>PushConstW——双字节立即数入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40464D:<br>mov     ax, [esi]<br>lea     esi, [esi+2]<br>sub     ebp, 2<br>mov     [ebp+0], ax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟指令中操作数（两字节），将其入栈。此时虚拟栈提升两字节。</p>
+<h4 id="PushConstDW——四字节数入栈"><a href="#PushConstDW——四字节数入栈" class="headerlink" title="PushConstDW——四字节数入栈"></a>PushConstDW——四字节数入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40462B:<br>mov     eax, [esi]<br>sub     ebp, 4<br>lea     esi, [esi+4]<br>mov     [ebp+0], eax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟指令中操作数（四字节），将其入栈。此时虚拟栈提升四字节。</p>
+<h4 id="PushConstCBDE——单字节立即数符号扩展至四字节并入栈"><a href="#PushConstCBDE——单字节立即数符号扩展至四字节并入栈" class="headerlink" title="PushConstCBDE——单字节立即数符号扩展至四字节并入栈"></a>PushConstCBDE——单字节立即数符号扩展至四字节并入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40453B:<br>mov     al, [esi]<br>cbw<br>cwde<br>sub     ebp, 4<br>lea     esi, [esi+1]<br>mov     [ebp+0], eax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟指令中操作数（单字节），符号扩展成双字，然后入栈。此时虚拟栈提升四字节。</p>
+<h4 id="PushConstCWDE——双字节立即数符号扩展至四字节并入栈"><a href="#PushConstCWDE——双字节立即数符号扩展至四字节并入栈" class="headerlink" title="PushConstCWDE——双字节立即数符号扩展至四字节并入栈"></a>PushConstCWDE——双字节立即数符号扩展至四字节并入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4044BE:<br>mov     ax, [esi]<br>cwde<br>add     esi, 2<br>sub     ebp, 4<br>mov     [ebp+0], eax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟指令中的操作数（两字节），符号扩展至双字，然后入栈。此时虚拟栈提升四字节。</p>
+<h3 id="PushReg——将指定虚拟寄存器的值入栈"><a href="#PushReg——将指定虚拟寄存器的值入栈" class="headerlink" title="PushReg——将指定虚拟寄存器的值入栈"></a>PushReg——将指定虚拟寄存器的值入栈</h3><h4 id="PushRegB——取指定虚拟寄存器的单字节数据入栈"><a href="#PushRegB——取指定虚拟寄存器的单字节数据入栈" class="headerlink" title="PushRegB——取指定虚拟寄存器的单字节数据入栈"></a>PushRegB——取指定虚拟寄存器的单字节数据入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4044D0:<br>mov     al, [esi]<br>mov     al, [edi+eax]<br>sub     ebp, 2<br>sub     esi, 0FFFFFFFFh<br>mov     [ebp+0], ax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟指令中取出操作数（单字节），作为虚拟寄存器的索引值，然后取出对应的虚拟寄存器中的值（单字节），将其入栈。此时虚拟栈提升两字节。</p>
+<blockquote>
+<p>sub     esi, 0FFFFFFFFh等价于 add		esi, 1</p>
+</blockquote>
+<h4 id="PushRegW——取指定虚拟寄存器的双字节数据入栈"><a href="#PushRegW——取指定虚拟寄存器的双字节数据入栈" class="headerlink" title="PushRegW——取指定虚拟寄存器的双字节数据入栈"></a>PushRegW——取指定虚拟寄存器的双字节数据入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4045E9:<br>mov     al, [esi]<br>inc     esi<br>mov     ax, [edi+eax]<br>sub     ebp, 2<br>mov     [ebp+0], ax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟指令中取出操作数（单字节），作为虚拟寄存器的索引值，取出对应虚拟寄存器的数据（双字节），将其入栈。此时虚拟栈提升两字节。</p>
+<h4 id="PushRegDW——取指定虚拟寄存器的四字节数据入栈"><a href="#PushRegDW——取指定虚拟寄存器的四字节数据入栈" class="headerlink" title="PushRegDW——取指定虚拟寄存器的四字节数据入栈"></a>PushRegDW——取指定虚拟寄存器的四字节数据入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4045AF:<br>and     al, 3Ch<br>mov     edx, [edi+eax]<br>sub     ebp, 4<br>mov     [ebp+0], edx<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟指令的操作码（单字节）与常量0x3C进行与运算，作为虚拟寄存器的索引值，取出对应虚拟寄存器中的值（四字节），将其入栈。此时虚拟栈提升四字节。</p>
+<h3 id="PopReg——将栈顶数据加载到指定虚拟寄存器中"><a href="#PopReg——将栈顶数据加载到指定虚拟寄存器中" class="headerlink" title="PopReg——将栈顶数据加载到指定虚拟寄存器中"></a>PopReg——将栈顶数据加载到指定虚拟寄存器中</h3><h4 id="PopRegB——加载栈顶一字节数据到指定虚拟寄存器中"><a href="#PopRegB——加载栈顶一字节数据到指定虚拟寄存器中" class="headerlink" title="PopRegB——加载栈顶一字节数据到指定虚拟寄存器中"></a>PopRegB——加载栈顶一字节数据到指定虚拟寄存器中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404568:<br>mov     al, [esi]<br>mov     dx, [ebp+0]<br>sub     esi, 0FFFFFFFFh<br>add     ebp, 2<br>mov     [edi+eax], dl<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟指令中取出一字节操作数作为虚拟寄存器索引，取虚拟栈栈顶的两字节数据，将其存储到对应虚拟寄存器中，实际存储低位（一字节）。此时虚拟栈缩小两字节。</p>
+<h4 id="PopRegW——加载栈顶两字节数据到指定虚拟寄存器中"><a href="#PopRegW——加载栈顶两字节数据到指定虚拟寄存器中" class="headerlink" title="PopRegW——加载栈顶两字节数据到指定虚拟寄存器中"></a>PopRegW——加载栈顶两字节数据到指定虚拟寄存器中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4046DA:<br>mov     al, [esi]<br>add     esi, 1<br>mov     dx, [ebp+0]<br>add     ebp, 2<br>mov     [edi+eax], dx<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟指令中取出一字节操作数作为虚拟寄存器索引，然后取虚拟栈栈顶的两字节数据，将其存入对应虚拟寄存器中。此时虚拟栈缩小两字节。</p>
+<h4 id="PopRegDW——加载栈顶四字节数据到指定虚拟寄存器中"><a href="#PopRegDW——加载栈顶四字节数据到指定虚拟寄存器中" class="headerlink" title="PopRegDW——加载栈顶四字节数据到指定虚拟寄存器中"></a>PopRegDW——加载栈顶四字节数据到指定虚拟寄存器中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404058:<br>and     al, 3Ch<br>mov     edx, [ebp+0]<br>add     ebp, 4<br>mov     [edi+eax], edx<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>虚拟指令的操作码（一字节）与0x3C进行与运算，取出虚拟栈栈顶的四字节数据，将其存放到指定的虚拟寄存器中。此时虚拟栈缩小四字节。</p>
+<h3 id="PushVSP——虚拟栈指针入栈"><a href="#PushVSP——虚拟栈指针入栈" class="headerlink" title="PushVSP——虚拟栈指针入栈"></a>PushVSP——虚拟栈指针入栈</h3><h4 id="PushVSPW——虚拟栈指针低位两字节入栈"><a href="#PushVSPW——虚拟栈指针低位两字节入栈" class="headerlink" title="PushVSPW——虚拟栈指针低位两字节入栈"></a>PushVSPW——虚拟栈指针低位两字节入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40463B:<br>mov     eax, ebp<br>sub     ebp, 2<br>mov     [ebp+0], ax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈的栈顶指针入栈（低位两字节）。此时虚拟栈提升两字节。</p>
+<h4 id="PushVSPDW——虚拟栈指针四字节入栈"><a href="#PushVSPDW——虚拟栈指针四字节入栈" class="headerlink" title="PushVSPDW——虚拟栈指针四字节入栈"></a>PushVSPDW——虚拟栈指针四字节入栈</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4046B2:<br>mov     eax, ebp<br>sub     ebp, 4<br>mov     [ebp+0], eax<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈的栈顶指针入栈（四字节）。此时虚拟栈提升四字节。</p>
+<h3 id="PopVSP——将栈顶数据加载到虚拟栈指针寄存器中"><a href="#PopVSP——将栈顶数据加载到虚拟栈指针寄存器中" class="headerlink" title="PopVSP——将栈顶数据加载到虚拟栈指针寄存器中"></a>PopVSP——将栈顶数据加载到虚拟栈指针寄存器中</h3><h4 id="PopVSPW——加载栈顶两字节数据到虚拟栈指针寄存器中"><a href="#PopVSPW——加载栈顶两字节数据到虚拟栈指针寄存器中" class="headerlink" title="PopVSPW——加载栈顶两字节数据到虚拟栈指针寄存器中"></a>PopVSPW——加载栈顶两字节数据到虚拟栈指针寄存器中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404532:<br>mov     bp, [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈栈顶的两字节数据加载到虚拟栈指针寄存器中。此时虚拟栈顶变化未知。</p>
+<h4 id="PopVSPDW——加载栈顶四字节数据到虚拟栈指针寄存器中"><a href="#PopVSPDW——加载栈顶四字节数据到虚拟栈指针寄存器中" class="headerlink" title="PopVSPDW——加载栈顶四字节数据到虚拟栈指针寄存器中"></a>PopVSPDW——加载栈顶四字节数据到虚拟栈指针寄存器中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40457C:<br>mov     ebp, [ebp+0]<br>jmp     loc_40400F<br></code></pre></td></tr></table></figure>
+
+<p>虚拟栈栈顶的四字节数据加载到虚拟栈指针寄存器中。此时虚拟栈顶变化未知。</p>
+<h3 id="Store——写内存"><a href="#Store——写内存" class="headerlink" title="Store——写内存"></a>Store——写内存</h3><h4 id="StoreB——单字节数据写入指定内存中"><a href="#StoreB——单字节数据写入指定内存中" class="headerlink" title="StoreB——单字节数据写入指定内存中"></a>StoreB——单字节数据写入指定内存中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4044AE:<br>mov     eax, [ebp+0]<br>mov     dl, [ebp+4]<br>add     ebp, 6<br>mov     [eax], dl<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取四字节数据（内存地址）、一字节数据（待存储的值），将一字节数据存储到四字节数据所指向的内存中。此时虚拟栈缩小六字节。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40475E:<br>mov     eax, [ebp+0]<br>mov     dl, [ebp+4]<br>add     ebp, 6<br>mov     ss:[eax], dl<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h4 id="StoreW——双字节数据写入指定内存中"><a href="#StoreW——双字节数据写入指定内存中" class="headerlink" title="StoreW——双字节数据写入指定内存中"></a>StoreW——双字节数据写入指定内存中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4044F6:<br>mov     eax, [ebp+0]<br>mov     dx, [ebp+4]<br>add     ebp, 6<br>mov     [eax], dx<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取四字节数据（内存地址）、两字节数据（待存储的值），将两字节数据存储到四字节数据所指向的内存中。此时虚拟栈缩小六字节。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404706:<br>mov     eax, [ebp+0]<br>mov     dx, [ebp+4]<br>add     ebp, 6<br>mov     ss:[eax], dx<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h4 id="StoreDW——四字节数据写入指定内存中"><a href="#StoreDW——四字节数据写入指定内存中" class="headerlink" title="StoreDW——四字节数据写入指定内存中"></a>StoreDW——四字节数据写入指定内存中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404670:<br>mov     eax, [ebp+0]<br>mov     edx, [ebp+4]<br>add     ebp, 8<br>mov     [eax], edx<br>jmp     loc_404751<br><br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈栈顶依次取两个四字节数据，前者作为内存地址，后者作为待存储的值，然后将值存储到对应内存中。此时虚拟栈缩小八字节。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_4045D8:<br>mov     eax, [ebp+0]<br>mov     edx, [ebp+4]<br>add     ebp, 8<br>mov     ss:[eax], edx<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h3 id="Load——读内存"><a href="#Load——读内存" class="headerlink" title="Load——读内存"></a>Load——读内存</h3><h4 id="LoadB——加载指定内存的单字节数据到虚拟堆栈中"><a href="#LoadB——加载指定内存的单字节数据到虚拟堆栈中" class="headerlink" title="LoadB——加载指定内存的单字节数据到虚拟堆栈中"></a>LoadB——加载指定内存的单字节数据到虚拟堆栈中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40465F:<br>mov     edx, [ebp+0]<br>add     ebp, 2<br>mov     al, [edx]<br>mov     [ebp+0], ax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈顶中取出四字节数据作为内存地址，从对应地址中取出单字节数据，零扩展至单字后将其入栈。此时虚拟栈缩小两字节。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40449C:<br>mov     edx, [ebp+0]<br>add     ebp, 2<br>mov     al, ss:[edx]<br>mov     [ebp+0], ax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h4 id="LoadW——加载指定内存的双字节数据到虚拟堆栈中"><a href="#LoadW——加载指定内存的双字节数据到虚拟堆栈中" class="headerlink" title="LoadW——加载指定内存的双字节数据到虚拟堆栈中"></a>LoadW——加载指定内存的双字节数据到虚拟堆栈中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404508:<br>mov     eax, [ebp+0]<br>add     ebp, 2<br>mov     ax, [eax]<br>mov     [ebp+0], ax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>从虚拟栈中依次取四字节数据作为内存地址，取出对应内存的两字节数据，将其压入栈。此时虚拟栈缩小两字节。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404719:<br>mov     eax, [ebp+0]<br>add     ebp, 2<br>mov     ax, ss:[eax]<br>mov     [ebp+0], ax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h4 id="LoadDW——加载指定内存的四字节数据到虚拟堆栈中"><a href="#LoadDW——加载指定内存的四字节数据到虚拟堆栈中" class="headerlink" title="LoadDW——加载指定内存的四字节数据到虚拟堆栈中"></a>LoadDW——加载指定内存的四字节数据到虚拟堆栈中</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404584:<br>mov     eax, [ebp+0]<br>mov     eax, [eax]<br>mov     [ebp+0], eax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>取虚拟栈栈顶的四字节数据作为内存地址，然后取对应内存地址的四字节数据，将其压入栈。此时虚拟栈顶位置不变。</p>
+<p>另一种使用堆栈段寄存器 ss 的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_404069:<br>mov     eax, [ebp+0]<br>mov     eax, ss:[eax]<br>mov     [ebp+0], eax<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<h2 id="VM-Exit分析"><a href="#VM-Exit分析" class="headerlink" title="VM Exit分析"></a>VM Exit分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs assembly">loc_40408E:<br>mov     esp, ebp<br>pop     edx		;被覆盖<br>pop     ebx		;被覆盖<br>pop     ecx<br>popf<br>pop     ebp<br>pop     edx<br>pop     eax<br>pop     ebx<br>pop     esi<br>pop     edi<br>pop     esi<br>retn<br></code></pre></td></tr></table></figure>
+
+<p>按照vm_entry入栈顺序进行逆序出栈，还原本机环境。</p>
+<h2 id="VM-Check分析"><a href="#VM-Check分析" class="headerlink" title="VM Check分析"></a>VM Check分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs assembly">//栈空间是否充足<br>loc_40400F:<br>lea     eax, [edi+50h]<br>cmp     ebp, eax<br>ja      loc_404751<br>// 栈空间调整<br>mov     edx, esp<br>lea     ecx, [edi+40h]<br>sub     ecx, edx<br>lea     eax, [ebp-80h]<br>and     al, 0FCh<br>sub     eax, ecx<br>mov     esp, eax<br>pushf<br>push    esi<br>mov     esi, edx<br>lea     edi, [eax+ecx-40h]<br>push    edi<br>mov     edi, eax<br>cld<br>rep movsb<br>pop     edi<br>pop     esi<br>popf<br>jmp     loc_404751<br></code></pre></td></tr></table></figure>
+
+<p>先检查栈空间是否充足，如果充足的话，跳转到vm_dispatcher，否则进行栈空间调整然后再跳转到vm_dispatcher。</p>
+<h2 id="虚拟代码还原"><a href="#虚拟代码还原" class="headerlink" title="虚拟代码还原"></a>虚拟代码还原</h2><h3 id="虚拟代码还原成一级虚拟指令"><a href="#虚拟代码还原成一级虚拟指令" class="headerlink" title="虚拟代码还原成一级虚拟指令"></a>虚拟代码还原成一级虚拟指令</h3><p>这里借助OllyDBG的Trace功能，跟踪程序执行的代码流，使用方法如下：</p>
+<ol>
+<li>在菜单栏中点击 E 按钮（或者快捷键Alt+E）打开可执行模块窗口，右键主模块，选择”添加模块到运行跟踪协议“（ Limit run trace protocol to selected module），表示 Trace 时记录该模块的所有地址，其他模块（如系统模块）不进行记录。</li>
+<li>在菜单栏中点击选项-&gt;选项按钮（或者快捷键Alt+o），选择运行跟踪页面（Run Trace），勾选记住内存（Remember memory）。</li>
+<li>在菜单栏中点击跟踪-&gt;跟进(Trace -&gt; Trace into ，或者快捷键 Ctrl + F11)，开始记录程序运行时的代码流。</li>
+<li>在菜单栏中点击 … 按钮，打开运行跟踪窗口，右键日子记录文件（Log to file）， 在保存时勾选添加可用目录（Add available contents） 和独立列标签（Separate columns with tabs）。</li>
+</ol>
+<p>通过VM Handler的分析，已经知晓了这些指令类型，通过地址与一级虚拟指令的映射关系，可以初步根据代码流将虚拟代码还原成一级虚拟指令代码流，但是这些一级虚拟指令在不同环境下，操作数是不同的，因此还需要根据OD Trace到的寄存器和内存再做进一步优化。我这里偷点懒，使用的方法仅针对该样本，并不是一个通用的方法：找到一级虚拟指令地址后，选取该Handler中合适的指令，从记录到的上下文环境中提取操作数，手动执行运算得到结果。</p>
+<p>具体代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Dict</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">insnContext</span>:<br>    insn: <span class="hljs-built_in">str</span><br>    addr: <span class="hljs-built_in">int</span><br>    memory: <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]<br>    regs: <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, insn: <span class="hljs-built_in">str</span>, addr: <span class="hljs-built_in">int</span>, memory: <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>], regs: <span class="hljs-type">Dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]</span>):<br>        self.insn = insn<br>        self.addr = addr<br>        self.memory = memory<br>        self.regs = regs<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">getRegValue</span>(<span class="hljs-params">self, reg: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>        <span class="hljs-keyword">return</span> self.regs.get(reg)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">getMemValue</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:<br>        key, value = <span class="hljs-built_in">next</span>(<span class="hljs-built_in">iter</span>(self.memory.items()))<br>        <span class="hljs-keyword">return</span> value<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">parseInsnStream</span>(<span class="hljs-params">insn_stream: <span class="hljs-built_in">bytes</span></span>) -&gt; insnContext:<br>    insn_line = insn_stream.split(<span class="hljs-string">b&#x27;\t&#x27;</span>)<br>    addr = <span class="hljs-built_in">int</span>(insn_line[<span class="hljs-number">1</span>].decode(), <span class="hljs-number">16</span>)<br>    insn = insn_line[<span class="hljs-number">2</span>].decode()<br>    <span class="hljs-comment"># 使用正则表达式提取内存地址和对应的值</span><br>    memory = <span class="hljs-built_in">dict</span>(re.findall(<span class="hljs-string">r&#x27;\[([a-fA-F0-9]&#123;8&#125;)]=([a-fA-F0-9]&#123;8&#125;)&#x27;</span>, insn_line[<span class="hljs-number">3</span>].decode()))<br>    <span class="hljs-comment"># 使用正则表达式提取寄存器和对应的值</span><br>    regs = <span class="hljs-built_in">dict</span>(re.findall(<span class="hljs-string">r&#x27;([a-zA-Z]&#123;3&#125;)=([a-fA-F0-9]&#123;8&#125;)&#x27;</span>, insn_line[<span class="hljs-number">4</span>].decode()))<br>    context = insnContext(insn, addr, memory, regs)<br>    <span class="hljs-keyword">return</span> context<br><br>vm_handlers = &#123;<br>    <span class="hljs-number">0x40476F</span>: <span class="hljs-string">&quot;ADDB&quot;</span>,<br>    <span class="hljs-number">0x4045FC</span>: <span class="hljs-string">&quot;ADDW&quot;</span>,<br>    <span class="hljs-number">0x404000</span>: <span class="hljs-string">&quot;ADDDW&quot;</span>,<br>    <span class="hljs-number">0x404680</span>: <span class="hljs-string">&quot;SHRB&quot;</span>,<br>    <span class="hljs-number">0x40454E</span>: <span class="hljs-string">&quot;SHRW&quot;</span>,<br>    <span class="hljs-number">0x404077</span>: <span class="hljs-string">&quot;SHRDW&quot;</span>,<br>    <span class="hljs-number">0x404610</span>: <span class="hljs-string">&quot;SHRDDW&quot;</span>,<br>    <span class="hljs-number">0X4045C0</span>: <span class="hljs-string">&quot;SHLB&quot;</span>,<br>    <span class="hljs-number">0x404698</span>: <span class="hljs-string">&quot;SHLW&quot;</span>,<br>    <span class="hljs-number">0x4046EF</span>: <span class="hljs-string">&quot;SHLDW&quot;</span>,<br>    <span class="hljs-number">0x4046BF</span>: <span class="hljs-string">&quot;SHLDDW&quot;</span>,<br>    <span class="hljs-number">0x404591</span>: <span class="hljs-string">&quot;NAndB&quot;</span>,<br>    <span class="hljs-number">0x404041</span>: <span class="hljs-string">&quot;NAndW&quot;</span>,<br>    <span class="hljs-number">0x40451A</span>: <span class="hljs-string">&quot;NAndDW&quot;</span>,<br>    <span class="hljs-number">0x4044E4</span>: <span class="hljs-string">&quot;PushConstB&quot;</span>,<br>    <span class="hljs-number">0x40464D</span>: <span class="hljs-string">&quot;PushConstW&quot;</span>,<br>    <span class="hljs-number">0x40462B</span>: <span class="hljs-string">&quot;PushConstDW&quot;</span>,<br>    <span class="hljs-number">0x40453B</span>: <span class="hljs-string">&quot;PushConstCBDE&quot;</span>,<br>    <span class="hljs-number">0x4044BE</span>: <span class="hljs-string">&quot;PushConstCWDE&quot;</span>,<br>    <span class="hljs-number">0x4044D0</span>: <span class="hljs-string">&quot;PushRegB&quot;</span>,<br>    <span class="hljs-number">0x4045E9</span>: <span class="hljs-string">&quot;PushRegW&quot;</span>,<br>    <span class="hljs-number">0x4045AF</span>: <span class="hljs-string">&quot;PushRegDW&quot;</span>,<br>    <span class="hljs-number">0x404568</span>: <span class="hljs-string">&quot;PopRegB&quot;</span>,<br>    <span class="hljs-number">0x4046DA</span>: <span class="hljs-string">&quot;PopRegW&quot;</span>,<br>    <span class="hljs-number">0x404058</span>: <span class="hljs-string">&quot;PopRegDW&quot;</span>,<br>    <span class="hljs-number">0x40463B</span>: <span class="hljs-string">&quot;PushVSPW&quot;</span>,<br>    <span class="hljs-number">0x4046B2</span>: <span class="hljs-string">&quot;PushVSPDW&quot;</span>,<br>    <span class="hljs-number">0x404532</span>: <span class="hljs-string">&quot;PopVSPW&quot;</span>,<br>    <span class="hljs-number">0x40457C</span>: <span class="hljs-string">&quot;PopVSPDW&quot;</span>,<br>    <span class="hljs-number">0x4044AE</span>: <span class="hljs-string">&quot;StoreB&quot;</span>,<br>    <span class="hljs-number">0x40475E</span>: <span class="hljs-string">&quot;StoreB&quot;</span>,<br>    <span class="hljs-number">0x4044F6</span>: <span class="hljs-string">&quot;StoreW&quot;</span>,<br>    <span class="hljs-number">0x404706</span>: <span class="hljs-string">&quot;StoreW&quot;</span>,<br>    <span class="hljs-number">0x404670</span>: <span class="hljs-string">&quot;StoreDW&quot;</span>,<br>    <span class="hljs-number">0x4045D8</span>: <span class="hljs-string">&quot;StoreDW&quot;</span>,<br>    <span class="hljs-number">0x40465F</span>: <span class="hljs-string">&quot;LoadB&quot;</span>,<br>    <span class="hljs-number">0x40449C</span>: <span class="hljs-string">&quot;LoadB&quot;</span>,<br>    <span class="hljs-number">0x404508</span>: <span class="hljs-string">&quot;LoadW&quot;</span>,<br>    <span class="hljs-number">0x404719</span>: <span class="hljs-string">&quot;LoadW&quot;</span>,<br>    <span class="hljs-number">0x404584</span>: <span class="hljs-string">&quot;LoadDW&quot;</span>,<br>    <span class="hljs-number">0x404069</span>: <span class="hljs-string">&quot;LoadDW&quot;</span><br>&#125;<br>handler_keys = vm_handlers.keys()<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">r&quot;.\trace.txt&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    insn_stream = f.readlines()[<span class="hljs-number">1</span>:-<span class="hljs-number">2</span>]<br><br>step = <span class="hljs-number">0</span><br>end = <span class="hljs-built_in">len</span>(insn_stream)<br><span class="hljs-keyword">while</span> step &lt; end:<br>    ctx = parseInsnStream(insn_stream[step])<br>    step += <span class="hljs-number">1</span><br>    <span class="hljs-keyword">if</span> ctx.addr <span class="hljs-keyword">in</span> handler_keys:<br>        vm_insn_info = <span class="hljs-string">&#x27;&#x27;</span><br>        mnemonic = vm_handlers.get(ctx.addr)<br>        <span class="hljs-keyword">if</span> mnemonic == <span class="hljs-string">&quot;PushRegDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step + <span class="hljs-number">2</span>])<br>            reg_value = ctx.getRegValue(<span class="hljs-string">&#x27;EDX&#x27;</span>)<br>            reg_index = <span class="hljs-built_in">int</span>(ctx.getRegValue(<span class="hljs-string">&#x27;EAX&#x27;</span>), <span class="hljs-number">16</span>) / <span class="hljs-number">4</span> <span class="hljs-comment"># 32位系统</span><br>            vm_insn_info = <span class="hljs-string">&quot;PushRegDW R%d;      R%d = 0x%s&quot;</span> % (reg_index, reg_index, reg_value)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;PopRegDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step + <span class="hljs-number">2</span>])<br>            reg_value = ctx.getRegValue(<span class="hljs-string">&#x27;EDX&#x27;</span>)<br>            reg_index = <span class="hljs-built_in">int</span>(ctx.getRegValue(<span class="hljs-string">&#x27;EAX&#x27;</span>), <span class="hljs-number">16</span>) / <span class="hljs-number">4</span><br>            vm_insn_info = <span class="hljs-string">&quot;PopRegDW R%d;       [ebp] = 0x%s&quot;</span> % (reg_index, reg_value)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;PushConstDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step + <span class="hljs-number">2</span>])<br>            imm = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            vm_insn_info = <span class="hljs-string">&quot;PushConstDW 0x%s;&quot;</span> % imm<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;PushConstCWDE&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step + <span class="hljs-number">3</span>])<br>            imm = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            vm_insn_info = <span class="hljs-string">&quot;PushConstCWDE 0x%s;&quot;</span> % imm<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;ADDDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step])<br>            ebp_0 = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            ebp_4 = ctx.getMemValue()<br>            result = <span class="hljs-built_in">hex</span>(<span class="hljs-built_in">int</span>(ebp_4, <span class="hljs-number">16</span>) + <span class="hljs-built_in">int</span>(ebp_0, <span class="hljs-number">16</span>))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">8</span>).upper()<br>            vm_insn_info = <span class="hljs-string">&quot;ADDDW [ebp+4], [ebp+0];     [ebp+4] = 0x%s, [ebp] = 0x%s, [ebp+4]+[ebp] = 0x%s&quot;</span> % (ebp_4, ebp_0, result)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;LoadDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step])<br>            mem_addr = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            mem_value = ctx.getMemValue()<br>            vm_insn_info = <span class="hljs-string">&quot;LoadDW [[ebp]];     [ebp] = 0x%s, [[ebp]] = 0x%s&quot;</span> % (mem_addr, mem_value)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;StoreDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step + <span class="hljs-number">2</span>])<br>            value = ctx.getRegValue(<span class="hljs-string">&quot;EDX&quot;</span>)<br>            mem_addr = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            vm_insn_info = <span class="hljs-string">&quot;StoreDW [[ebp+0]], [ebp+4];     [ebp] = 0x%s, [ebp+4] = 0x%s&quot;</span> % (mem_addr, value)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;NAndDW&quot;</span>:<br>            ctx = parseInsnStream(insn_stream[step])<br>            ebp_0 = ctx.getRegValue(<span class="hljs-string">&quot;EAX&quot;</span>)<br>            ebp_4 = ctx.getMemValue()<br>            result = <span class="hljs-built_in">hex</span>(((~<span class="hljs-built_in">int</span>(ebp_4, <span class="hljs-number">16</span>)) &amp; (~<span class="hljs-built_in">int</span>(ebp_0, <span class="hljs-number">16</span>)) &amp; <span class="hljs-number">0xffffffff</span>))[<span class="hljs-number">2</span>:].zfill(<span class="hljs-number">8</span>).upper()<br>            vm_insn_info = <span class="hljs-string">&quot;NAndDW [ebp+4], [ebp+0];     [ebp] = 0x%s, [ebp+4] = 0x%s, ~[ebp+4] &amp; ~[ebp]=0x%s&quot;</span> % (ebp_0, ebp_4, result)<br>        <span class="hljs-keyword">elif</span> mnemonic == <span class="hljs-string">&quot;PushVSPDW&quot;</span>:<br>            ebp = ctx.getRegValue(<span class="hljs-string">&#x27;EBP&#x27;</span>)<br>            vm_insn_info = <span class="hljs-string">&#x27;PushVSPDW;      EBP = %s&#x27;</span> % ebp <br>	    <span class="hljs-keyword">else</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;unknow vm insntruction at address %s, vm_insn is %s&quot;</span> % (<span class="hljs-built_in">hex</span>(ctx.addr).upper(), mnemonic))<br>            <span class="hljs-keyword">continue</span><br>        <span class="hljs-built_in">print</span>(vm_insn_info)<br></code></pre></td></tr></table></figure>
+
+<p>最终得到一级虚拟指令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs assembly">PopRegDW R3;       [ebp] = 0x00000000<br>PushConstDW 0x765DA981;<br>ADDDW [ebp+4], [ebp+0];     [ebp+4] = 0x00000000, [ebp] = 0x765DA981, [ebp+4]+[ebp] = 0x765da981<br>PopRegDW R7;       [ebp] = 0x00000206<br>PopRegDW R6;       [ebp] = 0x765DA981<br>PopRegDW R2;       [ebp] = 0x00401015<br>PopRegDW R15;       [ebp] = 0x00000246<br>PopRegDW R11;       [ebp] = 0x0019FF84<br>PopRegDW R9;       [ebp] = 0x00401015<br>PopRegDW R13;       [ebp] = 0x0019FFCC<br>PopRegDW R14;       [ebp] = 0x003F9000<br>PopRegDW R10;       [ebp] = 0x0019FF64<br>PopRegDW R4;       [ebp] = 0x00401015<br>PopRegDW R0;       [ebp] = 0x00401015<br>PopRegDW R1;       [ebp] = 0x0040100A<br>PopRegDW R8;       [ebp] = 0x00404781<br>PushConstDW 0x00403000;<br>LoadDW [[ebp]];     [ebp] = 0x00403000, [[ebp]] = 0xDEADBEEF<br>PopRegDW R5;       [ebp] = 0xDEADBEEF<br>PushConstDW 0x12345678;<br>PushRegDW R5;      R5 = 0xDEADBEEF<br>ADDDW [ebp+4], [ebp+0];     [ebp+4] = 0x12345678, [ebp] = 0xDEADBEEF, [ebp+4]+[ebp] = 0xF0E21567<br>PopRegDW R7;       [ebp] = 0x00000292<br>PopRegDW R13;       [ebp] = 0xF0E21567<br>PushConstDW 0x12345678;<br>PushRegDW R13;      R13 = 0xF0E21567<br>PushVSPDW;      EBP = 0019FF6C<br>LoadDW [[ebp]];     [ebp] = 0x0019FF6C, [[ebp]] = 0xF0E21567<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0xF0E21567, [ebp+4] = 0xF0E21567, ~[ebp+4] &amp; ~[ebp]=0x0F1DEA98<br>PopRegDW R1;       [ebp] = 0x00000202<br>ADDDW [ebp+4], [ebp+0];     [ebp+4] = 0x12345678, [ebp] = 0x0F1DEA98, [ebp+4]+[ebp] = 0x21524110<br>PopRegDW R15;       [ebp] = 0x00000212<br>PushVSPDW;      EBP = 0019FF70<br>LoadDW [[ebp]];     [ebp] = 0x0019FF70, [[ebp]] = 0x21524110<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0x21524110, [ebp+4] = 0x21524110, ~[ebp+4] &amp; ~[ebp]=0xDEADBEEF<br>PopRegDW R8;       [ebp] = 0x00000282<br>PopRegDW R1;       [ebp] = 0xDEADBEEF<br>PushRegDW R15;      R15 = 0x00000212<br>PushVSPDW;      EBP = 0019FF70<br>LoadDW [[ebp]];     [ebp] = 0x0019FF70, [[ebp]] = 0x00000212<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0x00000212, [ebp+4] = 0x00000212, ~[ebp+4] &amp; ~[ebp]=0xFFFFFDED;<br>PopRegDW R5;       [ebp] = 0x00000286<br>PushConstCWDE 0xFFFFF7EA;<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0xFFFFF7EA, [ebp+4] = 0xFFFFFDED, ~[ebp+4] &amp; ~[ebp]=0x00000010;<br>PopRegDW R7;       [ebp] = 0x00000202<br>PushRegDW R8;      R8 = 0x00000282<br>PushRegDW R8;      R8 = 0x00000282<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0x00000282, [ebp+4] = 0x00000282, ~[ebp+4] &amp; ~[ebp]=0xFFFFFD7D<br>PopRegDW R12;       [ebp] = 0x00000286<br>PushConstCWDE 0x00000815;<br>NAndDW [ebp+4], [ebp+0];     [ebp] = 0x00000815, [ebp+4] = 0xFFFFFD7D, ~[ebp+4] &amp; ~[ebp]=0x00000282<br>PopRegDW R12;       [ebp] = 0x00000206<br>ADDDW [ebp+4], [ebp+0];     [ebp+4] = 0x00000010, [ebp] = 0x00000282, [ebp+4]+[ebp] = 0x00000292<br>PopRegDW R12;       [ebp] = 0x00000202<br>PopRegDW R13;       [ebp] = 0x00000292<br>PushRegDW R1;      R1 = 0xDEADBEEF<br>PushConstDW 0x00403000;<br>StoreDW [[ebp+0]], [ebp+4];     [ebp] = 0x00403000, [ebp+4] = 0xDEADBEEF<br>PushRegDW R0;      R0 = 0x00401015          R0  = esi<br>PushRegDW R4;      R4 = 0x00401015          R4  = edi<br>PushRegDW R8;      R8 = 0x00000282          R8  = vm eflag<br>PushRegDW R14;      R14 = 0x003F9000        R14 = ebx<br>PushRegDW R1;      R1 = 0xDEADBEEF          <br>PushRegDW R9;      R9 = 0x00401015          R9  = edx<br>PushRegDW R11;      R11 = 0x0019FF84        R11 = ebp<br>PushRegDW R13;      R13 = 0x00000292<br>PushRegDW R2;      R2 = 0x00401015          R2  = ecx<br>PushRegDW R7;      R7 = 0x00000202<br>PushRegDW R0;      R0 = 0x00401015          R0  = esi<br></code></pre></td></tr></table></figure>
+
+<h3 id="一级虚拟指令还原成二级虚拟指令"><a href="#一级虚拟指令还原成二级虚拟指令" class="headerlink" title="一级虚拟指令还原成二级虚拟指令"></a>一级虚拟指令还原成二级虚拟指令</h3><p>一级虚拟指令还原成二级虚拟指令的方法是利用<strong>虚拟堆栈平衡</strong>，即<strong>二级虚拟指令执行后，虚拟栈保持平衡</strong>。具体步骤如下：</p>
+<ol>
+<li>从第一条一级虚拟指令执行前开始，记下虚拟栈栈顶指针相对偏移为0（或某一值）</li>
+<li>执行一级虚拟指令，根据对应一级虚拟指令的栈指针变化情况，更新虚拟栈栈顶指针相对偏移。</li>
+<li>直至虚拟栈栈顶指针的相对偏移重新变为0（或重新变为原值），执行过的一级虚拟指令片段就对应一个二级虚拟指令。</li>
+</ol>
+<p>需注意：</p>
+<ul>
+<li>连续的虚拟出栈指令和连续的虚拟入栈指令，认为这部分指令是虚拟寄存器环境还原和保存。</li>
+<li>虚拟栈平衡不能以一级虚拟入栈指令结束。</li>
+<li>虚拟栈平衡不能以一级虚拟运算指令结束。</li>
+</ul>
+<p>对于刚才还原出的一级虚拟指令样本，先从最后面分析，往上连续的PushReg指令一般都是虚拟寄存器入栈，用于后续恢复真实环境。那么，切割出一级虚拟指令片段如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">PushRegDW R0;		R0  = esi<br>PushRegDW R4;		R4  = edi<br>PushRegDW R8;		<br>PushRegDW R14;		R14 = ebx<br>PushRegDW R1;		<br>PushRegDW R9;		R9  = edx<br>PushRegDW R11;		R11 = ebp<br>PushRegDW R13;		<br>PushRegDW R2;		R2  = ecx<br>PushRegDW R7;		<br>PushRegDW R0;		R0  = esi<br></code></pre></td></tr></table></figure>
+
+<p>那么根据这个，就需要往前寻找相同数量且连续的PopReg指令，对应一级虚拟指令片段如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs assembly">PopRegDW R2;		R2  = ecx<br>PopRegDW R15;		R15 = eflag<br>PopRegDW R11;		R11 = ebp<br>PopRegDW R9;		R9  = edx<br>PopRegDW R13;		R13 = eax<br>PopRegDW R14;		R14 = ebx<br>PopRegDW R10;		R10 = esp<br>PopRegDW R4;		R4  = edi<br>PopRegDW R0;		R0  = esi<br>PopRegDW R1;		R1  = call sub_40472C的返回地址<br>PopRegDW R8;		R8  = byte_404781, 即VM Opcode Table<br></code></pre></td></tr></table></figure>
+
+<p>这里根据VM Entry处的代码进行了虚拟寄存器与真实寄存器之间的映射。</p>
+<p>找到了虚拟栈到虚拟寄存器的映射后，就可以从这里开始往下利用虚拟栈平衡划分一级虚拟指令片段了，这里挑出几个片段进行分析。</p>
+<ol>
+<li><pre><code class="assembly">//此处记虚拟栈指针偏移为0
+PushConstDW 0x00403000;			-4			
+LoadDW [[ebp]];					-4			[ebp] = 0x00403000, [[ebp]] = 0xDEADBEEF
+PopRegDW R5;					0			[ebp] = 0xDEADBEEF
+// 虚拟栈指针偏移重新变为0，以上一级虚拟指令片段对应一个二级虚拟指令
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><br>以上片段可还原成二级虚拟指令<br><br>```assembly<br><span class="hljs-keyword">MOV</span> <span class="hljs-built_in">R5</span>, [<span class="hljs-number">0x00403000</span>]<span class="hljs-comment">; 值为0xDEADBEEF</span><br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="assembly">//此处记虚拟栈指针偏移为0
+PushConstDW 0x12345678;		-4
+PushRegDW R5;      			-8			R5 = 0xDEADBEEF
+ADDDW [ebp+4], [ebp+0];     -8			[ebp+4] = 0x12345678, [ebp] = 0xDEADBEEF, [ebp+4]+[ebp] = 0xF0E21567
+PopRegDW R7;       			-4			[ebp] = 0x00000292
+PopRegDW R13;       		0			[ebp] = 0xF0E21567
+// 虚拟栈指针偏移重新变为0，以上一级虚拟指令片段对应一个二级虚拟指令
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs tp"><br>以上片段可还原成二级虚拟指令<br><br>```assembly<br>ADDDW <span class="hljs-keyword">R</span><span class="hljs-number">13</span>, <span class="hljs-keyword">R</span><span class="hljs-number">5</span>, <span class="hljs-number">0x12345678</span>;	<span class="hljs-keyword">R</span><span class="hljs-number">13</span> = <span class="hljs-keyword">R</span><span class="hljs-number">5</span> + <span class="hljs-number">0x12345678</span><br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><pre><code class="assembly">//此处记虚拟栈指针偏移为0
+PushConstDW 0x12345678;		-4
+
+PushRegDW R13;      		-8		R13 = 0xF0E21567
+PushVSPDW;      			-12		EBP = 0019FF6C
+LoadDW [[ebp]];     		-12		[ebp] = 0x0019FF6C, [[ebp]] = 0xF0E21567
+NAndDW [ebp+4], [ebp+0];    -12		[ebp] = 0xF0E21567, [ebp+4] = 0xF0E21567, ~[ebp+4] &amp; ~[ebp]=0x0F1DEA98
+PopRegDW R1;       			-8		[ebp] = 0x00000202
+
+ADDDW [ebp+4], [ebp+0];     -8		[ebp+4] = 0x12345678, [ebp] = 0x0F1DEA98, [ebp+4]+[ebp] = 0x21524110
+PopRegDW R15;       		-4		[ebp] = 0x00000212
+
+PushVSPDW;      			-8		EBP = 0019FF70
+LoadDW [[ebp]];     		-8		[ebp] = 0x0019FF70, [[ebp]] = 0x21524110
+NAndDW [ebp+4], [ebp+0];    -8		[ebp] = 0x21524110, [ebp+4] = 0x21524110, ~[ebp+4] &amp; ~[ebp]=0xDEADBEEF
+PopRegDW R8;       			-4		[ebp] = 0x00000282
+PopRegDW R1;       			0		[ebp] = 0xDEADBEEF
+// 虚拟栈指针偏移重新变为0，以上一级虚拟指令片段对应一个二级虚拟指令
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><br>以上片段可还原成二级虚拟指令<br><br>```assembly<br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">R1</span>, ~(~<span class="hljs-built_in">R13</span> + <span class="hljs-number">0x12345678</span>)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+对于有符号整数`x`，根据补码规则可得`−x=∼x+1`，进一步有`∼x=−(x+1)`，通过这个化简上述二级虚拟指令，可得
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs assembly">sub R1, R13, 0x12345678;		R13 - 0x12345678<br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><p>&#96;&#96;&#96;assembly<br>&#x2F;&#x2F;此处记虚拟栈指针偏移为0<br>&#x2F;&#x2F; <del>R15		ADDDW产生的eflag<br>PushRegDW R15;      		-4		R15 &#x3D; 0x00000212;<br>PushVSPDW;      			-8		EBP &#x3D; 0019FF70<br>LoadDW [[ebp]];     		-8		[ebp] &#x3D; 0x0019FF70, [[ebp]] &#x3D; 0x00000212<br>NAndDW [ebp+4], [ebp+0];    -8		[ebp] &#x3D; 0x00000212, [ebp+4] &#x3D; 0x00000212, ~[ebp+4] &amp; ~[ebp]&#x3D;0xFFFFFDED;<br>PopRegDW R5;       			-4		[ebp] &#x3D; 0x00000286<br>&#x2F;&#x2F; ~0xFFFFF7EA &amp; R15, 结果为0x00000010, AF标志位为1<br>PushConstCWDE 0xFFFFF7EA;	-8<br>NAndDW [ebp+4], [ebp+0];    -8		[ebp] &#x3D; 0xFFFFF7EA, [ebp+4] &#x3D; 0xFFFFFDED, ~[ebp+4] &amp; ~[ebp]&#x3D;0x00000010;<br>PopRegDW R7;       			-4		[ebp] &#x3D; 0x00000202<br>&#x2F;&#x2F; ~R8	NAndDW产生的eflag<br>PushRegDW R8;      			-8		R8 &#x3D; 0x00000282<br>PushRegDW R8;      			-12		R8 &#x3D; 0x00000282<br>NAndDW [ebp+4], [ebp+0];    -12		[ebp] &#x3D; 0x00000282, [ebp+4] &#x3D; 0x00000282, ~[ebp+4] &amp; ~[ebp]&#x3D;0xFFFFFD7D<br>PopRegDW R12;       		-8		[ebp] &#x3D; 0x00000286<br>&#x2F;&#x2F; ~0x00000815 &amp; R8<br>PushConstCWDE 0x00000815;	-12<br>NAndDW [ebp+4], [ebp+0];    -12		[ebp] &#x3D; 0x00000815, [ebp+4] &#x3D; 0xFFFFFD7D, ~[ebp+4] &amp; ~[ebp]&#x3D;0x00000282<br>PopRegDW R12;       		-8		[ebp] &#x3D; 0x00000206<br>&#x2F;&#x2F; (</del>0xFFFFF7EA &amp; R15) + (~0x00000815 &amp; R8)		~0xFFFFF7EA &#x3D; 0x00000815	两个eflag合并<br>ADDDW [ebp+4], [ebp+0];     -8		[ebp+4] &#x3D; 0x00000010, [ebp] &#x3D; 0x00000282, [ebp+4]+[ebp] &#x3D; 0x00000292<br>PopRegDW R12;       		-4		[ebp] &#x3D; 0x00000202<br>PopRegDW R13;       		0		[ebp] &#x3D; 0x00000292<br>&#x2F;&#x2F; 虚拟栈指针偏移重新变为0，以上一级虚拟指令片段对应一个二级虚拟指令</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br>   这部分代码进行了复杂的标志位计算，然而其产生的结果在后续代码中并没有用到，因此是一段混淆代码。对于标志位的计算，一般与条件跳转指令有关，即先通过逻辑运算提取某一标志位是否为<span class="hljs-number">1</span>（例如ZF），然后根据这个结果计算目标跳转指令，接着就是执行条件跳转指令。<br><br>至于最上面那个一级虚拟指令片段，通过分析发现其虚拟栈并没有平衡，原因在于，VM Entry处在保存真实环境时，额外入栈了两个数据，加上这两个<span class="hljs-keyword">push</span>指令就平衡了。<br><br><span class="hljs-string">```</span>assembly<br>//<span class="hljs-number">0</span><br><span class="hljs-keyword">push</span>    <span class="hljs-built_in">ds</span>:dword_404649<span class="hljs-comment">; 				-4</span><br><span class="hljs-keyword">push</span>    <span class="hljs-number">0</span><span class="hljs-comment">;								-8</span><br><br>PopRegDW <span class="hljs-built_in">R3</span><span class="hljs-comment">;							-4</span><br>PushConstDW <span class="hljs-number">0x765DA981</span><span class="hljs-comment">;					-8</span><br>ADDDW [<span class="hljs-built_in">ebp</span>+<span class="hljs-number">4</span>], [<span class="hljs-built_in">ebp</span>+<span class="hljs-number">0</span>]<span class="hljs-comment">;					-8</span><br>PopRegDW <span class="hljs-built_in">R7</span><span class="hljs-comment">;							-4</span><br>PopRegDW <span class="hljs-built_in">R6</span><span class="hljs-comment">;							0</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>不过后续并没有用到该ADDDW虚拟指令产生的结果和标志位，因此认定为这个片段为混淆指令片段。</p>
+<p>最终去除混淆代码以及虚拟寄存器与真实寄存器映射（Pop和Push指令，这个主要是在多个虚拟机中跟踪真实寄存器），还原出的二级虚拟指令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov R5, [0x00403000]; 			值为0xDEADBEEF<br>ADDDW R13, R5, 0x12345678;		R13 = R5 + 0x12345678<br>sub R1, R13, 0x12345678;		R1 = R13 - 0x12345678<br>mov [0x00403000], R1; 			将值存回原位<br></code></pre></td></tr></table></figure>
+
+<p>此时的二级虚拟指令可以说是与源指令一模一样了，所实现的功能并无差异。</p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>对于虚拟代码还原，首要是识别处虚拟机的相关数据结构，例如虚拟栈指针、虚拟字节码指针、虚拟字节码表等等，然后人工分析处VM Handler的功能，当然，对于VM Handler的分析，可以借助AI来完成，需要告知虚拟机的相关数据结构，使AI的回答能够更精确。分析完虚拟机的结构以及相关数据结构后，可以尝试提取虚拟机结构的特征，比如VM Dispatcher存在VM Handler Table的使用，然后可以尝试编写代码自动化虚拟机结构的识别。之后借助模拟执行来获取整个代码流的执行情况，根据这个还原出虚拟代码流的一级虚拟指令。</p>
+<p>对于一级虚拟指令还原成二级虚拟指令，需要利用到虚拟栈平衡这一特征来划分一级虚拟指令片段，这些片段对应一条或多条二级虚拟指令（复杂的逻辑运算可以尝试简化）。这里我总结了一点规律，如有不对的地方，恳请斧正：</p>
+<p><strong>因为基于栈的虚拟机，对于一个完整的二级虚拟指令，首先是将操作数据入栈，然后在栈中进行运算，然后将运算产生的标志位或运算结果出栈，因此对于push操作，可以认定是二级虚拟指令开始的标志，对于pop操作，可以认定是二级虚拟指令结束标志。但仍需要注意的是，运算指令后跟随的第一个出栈指令，是将运算产生的标志位出栈，如果后续没有第二个出栈指令，即运算结果仍然保留在虚拟栈中，则有可能该运算结果仍参与后续的指令的执行，因此还需往后进行虚拟栈平衡分析（test、cmp除外，它们只在意运算产生的标志位）</strong></p>
+<p>对于模拟执行得到的本机指令以及还原出的一级虚拟指令中，可能存在无用代码，可以借助<strong>变量存活分析（Live-variable analysis）</strong>识别出无用代码并删除，达到简化代码目的。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-713219-1-1.html">如何分析虚拟机系列(1)：新手篇VMProtect 1.81 Demo - 吾爱破解 - 52pojie.cn</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.back.engineering/17/05/2021">https://blog.back.engineering/17/05/2021</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/" class="category-chain-item">加壳与脱壳</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/VMP/">#VMP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>VMP入门: VMP1.81 Demo分析</div>
+      <div>http://example.com/2025/03/31/加壳与脱壳/VMP入门——1.81 Demo分析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/18/ida/WPeChatGPT%E8%BE%85%E5%8A%A9IDA%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/" title="WPeChatGPT: IDA插件辅助逆向分析">
+                        <span class="hidden-mobile">WPeChatGPT: IDA插件辅助逆向分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
