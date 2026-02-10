@@ -252,6 +252,372 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E8%A1%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" target="_self">
+          从案例中学习unidbg补系统调用（一）
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E8%A1%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" target="_self">
+        <div>
+          一、引言目标 APK：dewu.apk 目标方法：com.shizhuang.stone.main.SzSdk.lf 目标方法实现：libszstone.so 二、任务描述unidbg 模拟执行如下函数。 1public static native byte[] lf(String str, int i2, int i3);    三、初始化基本框架以及补 JNI 环境代码如下 123456789
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:56" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E5%A4%84%E7%90%86Context%E6%89%80%E9%9C%80%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" target="_self">
+          unidbg处理Context所需注意事项
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E5%A4%84%E7%90%86Context%E6%89%80%E9%9C%80%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" target="_self">
+        <div>
+          一、引言fork from Unidbg 的基本使用（九） 二、初探 Context报错如下 123WARN [com.github.unidbg.linux.ARM32SyscallHandler] (ARM32SyscallHandler:532) - handleInterrupt intno&#x3D;2, NR&#x3D;-1073744548, svcNumber&#x3D;0x170, PC&#x3D;unidbg@0xf
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:56" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E6%80%BB%E7%BB%93unidbg%E8%A1%A5JNI%E7%8E%AF%E5%A2%83%E6%97%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/" target="_self">
+          总结unidbg补JNI环境时的代码逻辑
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E6%80%BB%E7%BB%93unidbg%E8%A1%A5JNI%E7%8E%AF%E5%A2%83%E6%97%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/" target="_self">
+        <div>
+          一、引言fork from [Unidbg 的基本使用（八）](https:&#x2F;&#x2F;www.yuque.com&#x2F;lilac-2hqvv&#x2F;xdwlsg&#x2F;td2t5cvohdedb878?# 《Unidbg 的基本使用（八）》)。 二、处理一对于 JDK 里包含的类库，可以直接复现其方法逻辑。 比如对 SimpleDateFormat 的操作 123456case &quot;java&#x2F;text&#x2F;Simp
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:55" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E4%B8%AD%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%97%B6%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%B0%81%E8%A3%85/" target="_self">
+          unidbg中参数传递时的类型封装
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/unidbg%E4%B8%AD%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%97%B6%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%B0%81%E8%A3%85/" target="_self">
+        <div>
+          一、引言众所周知，在Native层编写代码时，倘若Java层和Native层进行数据传递，则需借助JNI进行类型的转变，它们之间的类型对照表如下： 基本类型对照表    Java Native    Boolean jboolean   Byte jbyte   Char jchar   Short jshort   Integer jint   Long jlong   Float jfloat
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:55" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%94%EF%BC%89/" target="_self">
+          从案例中学习unidbg的使用（五）
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%94%EF%BC%89/" target="_self">
+        <div>
+          一、引言目标 APK：dazhongdianping.apk 目标类：com.meituan.android.common.mtguard.NBridge$SIUACollector 目标方法：见第二小节 目标方法实现：libmtguard.so 二、任务介绍JADX反编译 APK，找到com.meituan.android.common.mtguard.NBridge类，其中有一个叫SIUACo
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:54" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E5%9B%9B%EF%BC%89/" target="_self">
+          从案例中学习unidbg的使用（四）
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E5%9B%9B%EF%BC%89/" target="_self">
+        <div>
+          一、引言目标 APK：bilibili.apk 目标方法：com.bilibili.nativelibrary.LibBili.s 目标方法实现：libbili.so 二、任务介绍JADX反编译 apk，找到com.bilibili.nativelibrary.LibBili类，其中的 s 方法是本篇的目标函数。它是一个静态方法，参数是 Map，返回值是 SignedQuery 对象。 12345
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-05 17:54" pubdate>
+              2024-12-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Unidbg/" class="category-chain-item">Unidbg</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unidbg/">#Unidbg</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2024/12/05/Unidbg%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/%E4%BB%8E%E6%A1%88%E4%BE%8B%E4%B8%AD%E5%AD%A6%E4%B9%A0unidbg%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89/" target="_self">
           从案例中学习unidbg的使用（三）
         </a>
@@ -483,376 +849,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Unidbg/">#Unidbg</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_self">
-          Frida特征检测
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Frida%20Hook/Frida%E7%89%B9%E5%BE%81%E6%A3%80%E6%B5%8B/" target="_self">
-        <div>
-          frida检测与防护端口检测检测 frida-server 默认端口 27042 是否开放。 12345678910111213bool detectByDefaultPort()&amp;#123;    struct sockaddr_in sa;    int sock &#x3D; socket(AF_INET , SOCK_STREAM , 0);    memset(&amp;sa, 0, sizeof
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-29 20:03" pubdate>
-              2024-07-29
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Frida/">#Frida</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/07/29/Frida%20Hook/Frida%20Native%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-          Frida Native层Hook学习笔记
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Frida%20Hook/Frida%20Native%E5%B1%82Hook%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-        <div>
-          Native层的hook如何hook知道函数地址就可以hook和主动调用 如何获取函数地址 利用函数名，通过Module.findExportByName函数获取函数地址。 通过Module.findBaseAddress函数获取所在库函数地址，然后加上函数偏移量即为函数地址。  hook示例12345678910111213141516171819const libName &#x3D; &amp;#x27;li
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-29 20:02" pubdate>
-              2024-07-29
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Frida/">#Frida</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/07/29/Xposed/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" target="_self">
-          Xposed插件开发
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/Xposed/Xposed%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" target="_self">
-        <div>
-          一、Xposed介绍1.1 引言frida 和 objection 对于App 的修改仅仅只是单次性的，App重启之后，我们就又需要手动使用 frida 或 objection 对 App 进行注入。不过我们有 Xposed 框架，基于此框架开发插件，则可以对 App 实现永久性修改。 1.2 Xposed原理Xposed 本质上是通过替换 Android 系统中的 zygote （或者说是 zy
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-29 20:00" pubdate>
-              2024-07-29
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Xposed/" class="category-chain-item">Xposed</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Xposed/">#Xposed</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
-          去除反混淆后程序中的冗余汇编代码
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/07/LLVM%20and%20OLLVM/%E5%8E%BB%E9%99%A4%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%90%8E%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E5%86%97%E4%BD%99%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81/" target="_self">
-        <div>
-          一、前言在之前去混淆的过程中，发现去混淆的程序中，伪代码与原程序伪代码相差无几，然而如果仔细观察汇编代码的话，可以发现存在较多的冗余代码，即混淆过程中产生的垃圾代码。那么如何去除这些冗余汇编指令呢？ 二、基于Liveness Analysis的想法先给出我们需要解决一个例子（这是一个虚假控制流混淆中的部分代码，其中标*的为冗余汇编指令）： 12345678910111213141516171819
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-07 15:03" pubdate>
-              2024-07-07
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Liveness-Analysis/">#Liveness Analysis</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
-          ollvm反混淆
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/25/LLVM%20and%20OLLVM/ollvm%E5%8F%8D%E6%B7%B7%E6%B7%86/" target="_self">
-        <div>
-          一、前言此篇文章只讲思路，具体代码实现见https:&#x2F;&#x2F;github.com&#x2F;gal2xy&#x2F;AngrDeobfuscator。 二、去混淆2.1 去指令替换混淆指令替换一般可以使用llvm的pass进行优化，使用llvm-dis反汇编再使用opt的-o3等级优化。或者使用Miasm框架进行匹配，然后优化处理即可。 2.2 去字符串混淆没怎么了解字符串混淆这一块，就贴一下随风而行aa大佬的文章内容。
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-06-25 21:07" pubdate>
-              2024-06-25
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/OLLVM/">#OLLVM</a>
-            
-              <a href="/tags/%E5%8E%BB%E6%B7%B7%E6%B7%86/">#去混淆</a>
-            
-              <a href="/tags/angr/">#angr</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/" target="_self">
-          ROP入门
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/06/16/PWN/ROP%E5%85%A5%E9%97%A8/" target="_self">
-        <div>
-          ROPROP（Return Oriented Programming）即返回导向编程，其主要思想是在 栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。 gadgets 通常是以 ret 结尾的指令序列，通过这样的指令序列，我们可以多次劫持程序控制流，从而运行特定的指令序列，以完成攻击的目的。 返回导向编程这一名称的由来是因为其
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-06-16 16:32" pubdate>
-              2024-06-16
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/ROP/">#ROP</a>
             
           </div>
         

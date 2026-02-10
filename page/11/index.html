@@ -252,6 +252,378 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/07/17/Android%E5%AE%89%E5%85%A8/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
+          Android应用程序启动流程(一)
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/17/Android%E5%AE%89%E5%85%A8/Android%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
+        <div>
+          一、前言要想启动一个应用程序，首先要保证这个应用程序所需要的应用程序进程已经启动。Activity Manager Service(AMS)在启动应用程序时会检查这个应用程序所需要的应用进程是否存在，不存在就会请求Zygote进程启动所需要的应用程序进程。当应用程序进程启动完后，就会接着启动应用程序，也就是启动根Activity，这部分将在下一篇文章中分析。本篇文章就先来分析一下应用程序进程的启动
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-17 10:47" pubdate>
+              2023-07-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/07/15/Android%E5%AE%89%E5%85%A8/Pixel4%E5%88%B7Lineage%20OS/" target="_self">
+          Pixel4刷Lineage OS和root
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/15/Android%E5%AE%89%E5%85%A8/Pixel4%E5%88%B7Lineage%20OS/" target="_self">
+        <div>
+          一、前言刷机前建议先看看这个视频（玩机必看！带你入坑安卓刷机，小白也能看懂的ROOT基础指南来啦！_哔哩哔哩_bilibili），了解刷机的一些基础知识。pixle刷LineageOS系统的话可以参考：两条命令教你刷入LineageOS，小白也能上手！_哔哩哔哩_bilibili。 二、Pixel4刷LineageOS系统及MindTheGapps2.1 准备工作 在官网中找对应设备的总页面：De
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-15 22:29" pubdate>
+              2023-07-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/%E5%88%B7%E6%9C%BA/">#刷机</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
+          Android系统启动流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          一、引言在分析Android系统架构的文章中，我们只是静态分析了Android系统架构，虽然可以了解Android架构地层次和功能，但不足以了解Android整个系统运行时各层次之间的信息传递和交互，即不能真正看穿Android的运行机理，故还需进一步学习。 所以新开一篇文章结合Android 8.0源码来讲述Android系统启动流程。 二、Android系统启动流程这是一张Android系统启
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-04 14:30" pubdate>
+              2023-07-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%20Intent/" target="_self">
+          Android Intent
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%20Intent/" target="_self">
+        <div>
+          一、概述Intent是Android四大组件通信桥梁，它负责在组件之间传递消息和数据，是一个消息传递对象。通过使用Intent，可以启动另一个活动Activity、服务Service、广播接收器BroadcastReceiver，以及发送和接收数据。 二、Intent的两种类型显式Intent多用来实现一个应用内部的跳转，而隐式intent多用来实现应用与应用之间的跳转  显示Intent 明确指
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-04 14:27" pubdate>
+              2023-07-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/" target="_self">
+          Android四大组件
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/" target="_self">
+        <div>
+          一、概述Android四大基本组件分别是Activity、Service服务、ContentProvider内容提供者、BroadcastReceiver广播接收器。它们都需要在AndroidManifest.xml配置文件中进行注册。 二、四大组件2.1 ActivityActivity在屏幕上为用户提供了一个GUI界面，允许用户在上面做一些交互性的操作， 比如打电话、照相、发送邮件。  一个A
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-04 14:16" pubdate>
+              2023-07-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" target="_self">
+          Android系统架构
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/07/04/Android%E5%AE%89%E5%85%A8/Android%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" target="_self">
+        <div>
+          一、Android系统架构1.1 概述Google在Android 8版本时开展了 Treble 计划，对Android系统进行了重新架构，将安卓系统框架与Vendor层解耦，力求彻底解决安卓碎片化的问题，这是安卓系统架构最大的变化。 Android 8前后两者区别在于Android 8 之后的系统架构多了一层硬件抽象层(HAL)。，其目的是将物理硬件与操作系统分离，使开发人员可以更加方便地编写硬
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-07-04 11:00" pubdate>
+              2023-07-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/07/04/CTF/BUUCTF_Reverse_Prombles%20Of%20Page%20Two/" target="_self">
           BUUCTF-Reverse——Prombles Of Page Two
         </a>
@@ -489,338 +861,6 @@
               <a href="/tags/Wilson/">#Wilson</a>
             
               <a href="/tags/Common-Private-Exponent/">#Common Private Exponent</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/10/06/CTF/GXYCTF2019-CommonModulusAttack/" target="_self">
-          GXYCTF2019-CommonModulusAttack
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/10/06/CTF/GXYCTF2019-CommonModulusAttack/" target="_self">
-        <div>
-          此为BUU上的一道题。  分析一下各函数功能 1234567891011oldtest():产生20个随机数，写入old.txt中generate_init_state(): 功能易懂，但字太多不写了。gen_states():生成p,q,n,加密m，将n写入product中，c写入statesencrypt():CBC加密gen_new_states():将states的前24个数据按顺序进行C
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-06 15:54" pubdate>
-              2022-10-06
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/LCG/">#LCG</a>
-            
-              <a href="/tags/Hastad%E6%94%BB%E5%87%BB/">#Hastad攻击</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/10/03/CTF/2022%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4/" target="_self">
-          2022第五空间
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/10/03/CTF/2022%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B4/" target="_self">
-        <div>
-          2022第五空间网络安全大赛5_vgcd1234567891011121314151617181920212223242526272829303132333435from random import getrandbits, seedfrom Crypto.Util.number import getPrime, inverse, bytes_to_long, isPrimefrom os imp
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-03 21:42" pubdate>
-              2022-10-03
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E7%94%9F%E6%97%A5%E6%94%BB%E5%87%BB/">#生日攻击</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/10/03/CTF/2022%E6%B1%9F%E8%A5%BF%E7%9C%81%E6%8C%AF%E5%85%B4%E6%9D%AF/" target="_self">
-          2022江西省振兴杯
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/10/03/CTF/2022%E6%B1%9F%E8%A5%BF%E7%9C%81%E6%8C%AF%E5%85%B4%E6%9D%AF/" target="_self">
-        <div>
-          crypto简单的RSA算法yafu分解n，得到p,q，然后进行解密 123456789101112import gmpy2from Crypto.Util.number import *c &#x3D; 127787005372346984201114973214509899116n &#x3D; 249875510135225835839025820066377585461p &#x3D; 1584922383377717
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-03 21:28" pubdate>
-              2022-10-03
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/">#流量分析</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/10/03/Github%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA%E9%97%AE%E9%A2%98/" target="_self">
-          Github图床搭建问题
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/10/03/Github%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA%E9%97%AE%E9%A2%98/" target="_self">
-        <div>
-          我所遇见的问题是这样的。使用PicGo+Github搭建图床，虽然PicGo上传图片成功了，但是在相册和网站上都无法显示，尝试过网上的一些方法（重复的文章真的多！），无一例外都没有效果。后经自己的猜想和实践，将问题解决了。  一开始PicGo上的Github配置我是按照网上配置的。（主要是改了我也不记得之前的配置了） 将上传成功的图片在浏览器中打开，其url为   但是在Github的仓库里，将图
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-03 11:03" pubdate>
-              2022-10-03
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%9B%BE%E5%BA%8A%E6%90%AD%E5%BB%BA/">#图床搭建</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/10/02/CTF/2022ByteCTF/" target="_self">
-          2022ByteCTF
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/10/02/CTF/2022ByteCTF/" target="_self">
-        <div>
-          2022ByteCTFCardShark123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-02 22:39" pubdate>
-              2022-10-02
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MT19937/">#MT19937</a>
-            
-              <a href="/tags/Paillier%E5%90%8C%E6%80%81%E5%8A%A0%E5%AF%86/">#Paillier同态加密</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/09/21/CTF/2022DASCTF%20X%20CBCTF%E4%B9%9D%E6%9C%88%E8%B5%9B/" target="_self">
-          2022 DASCTF X CBCTF九月赛
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/09/21/CTF/2022DASCTF%20X%20CBCTF%E4%B9%9D%E6%9C%88%E8%B5%9B/" target="_self">
-        <div>
-          DASCTF X CBCTF 2022九月挑战赛LittleRSA123456789101112131415161718192021222324252627import gmpy2from Crypto.Util.number import *import sympyimport randomfrom secret import flagm &#x3D; bytes_to_long(flag)p &#x3D; get
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-09-21 22:53" pubdate>
-              2022-09-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/RSA/">#RSA</a>
-            
-              <a href="/tags/Wiener-s-Attack/">#Wiener's Attack</a>
-            
-              <a href="/tags/Lattice/">#Lattice</a>
             
           </div>
         

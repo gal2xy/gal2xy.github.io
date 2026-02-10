@@ -1,0 +1,820 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="okhttp是什么OkHttp 是一个默认高效的 HTTP 客户端：  HTTP&#x2F;2 支持允许所有发送到同一主机的请求共享一个套接字（socket）。 连接池可以降低请求延迟（如果没有 HTTP&#x2F;2 的话）。 透明的GZIP可以缩小下载大小。 响应缓存完全避免网络重复请求。  okhttp的使用首先在Android项目中添加如下依赖包 1implementation(&amp;quot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="okhttp3学习笔记">
+<meta property="og:url" content="http://example.com/2025/12/21/okhttp3/okhttp3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="okhttp是什么OkHttp 是一个默认高效的 HTTP 客户端：  HTTP&#x2F;2 支持允许所有发送到同一主机的请求共享一个套接字（socket）。 连接池可以降低请求延迟（如果没有 HTTP&#x2F;2 的话）。 透明的GZIP可以缩小下载大小。 响应缓存完全避免网络重复请求。  okhttp的使用首先在Android项目中添加如下依赖包 1implementation(&amp;quot">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="e:/LearningLibrary/Android开发笔记/pic/9.okhttp/1.png">
+<meta property="article:published_time" content="2025-12-21T13:07:38.000Z">
+<meta property="article:modified_time" content="2026-02-09T09:07:21.926Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="okhttp3">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="e:/LearningLibrary/Android开发笔记/pic/9.okhttp/1.png">
+  
+  
+  
+  <title>okhttp3学习笔记 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="okhttp3学习笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-12-21 21:07" pubdate>
+          2025年12月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          113 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">okhttp3学习笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="okhttp是什么"><a href="#okhttp是什么" class="headerlink" title="okhttp是什么"></a>okhttp是什么</h1><p>OkHttp 是一个默认高效的 HTTP 客户端：</p>
+<ul>
+<li>HTTP&#x2F;2 支持允许所有发送到同一主机的请求共享一个套接字（socket）。</li>
+<li>连接池可以降低请求延迟（如果没有 HTTP&#x2F;2 的话）。</li>
+<li>透明的GZIP可以缩小下载大小。</li>
+<li>响应缓存完全避免网络重复请求。</li>
+</ul>
+<h1 id="okhttp的使用"><a href="#okhttp的使用" class="headerlink" title="okhttp的使用"></a>okhttp的使用</h1><p>首先在Android项目中添加如下依赖包</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">implementation</span><span class="hljs-params">(<span class="hljs-string">&quot;com.squareup.okhttp3:okhttp:3.14.9&quot;</span>)</span></span> <span class="hljs-comment">// 3.x最终稳定版</span><br></code></pre></td></tr></table></figure>
+
+<p>使用 OkHttp 发送一个请求通常分为三步：</p>
+<ol>
+<li>创建客户端 (OkHttpClient)</li>
+<li>构建请求 (Request)</li>
+<li>执行请求 (execute &#x2F; enqueue)</li>
+</ol>
+<h2 id="同步请求"><a href="#同步请求" class="headerlink" title="同步请求"></a>同步请求</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-comment">// get请求</span><br><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>();<br>String <span class="hljs-title function_">run</span><span class="hljs-params">(String url)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>  	<span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>      	.url(url)<br>      	.build();<br>	<span class="hljs-comment">// newCall 创建调用，execute 同步执行</span><br>  	<span class="hljs-keyword">try</span> (<span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute()) &#123;<br>    	<span class="hljs-keyword">return</span> response.body().string();<br>  	&#125;<br>&#125;<br><br><span class="hljs-comment">// Post请求</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">MediaType</span> <span class="hljs-variable">JSON</span> <span class="hljs-operator">=</span> MediaType.get(<span class="hljs-string">&quot;application/json; charset=utf-8&quot;</span>);<br><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>();<br>String <span class="hljs-title function_">post</span><span class="hljs-params">(String url, String json)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>  	<span class="hljs-type">RequestBody</span> <span class="hljs-variable">body</span> <span class="hljs-operator">=</span> RequestBody.create(json, JSON);<br>  	<span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>      	.url(url)<br>      	.post(body)<br>      	.build();<br><br>  	<span class="hljs-keyword">try</span> (<span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute()) &#123;<br>    	<span class="hljs-keyword">return</span> response.body().string();<br>  	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与get请求不同的是，post请求会将请求数据封装成json填入请求体中。</p>
+<h2 id="异步请求"><a href="#异步请求" class="headerlink" title="异步请求"></a>异步请求</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>        .url(<span class="hljs-string">&quot;http://publicobject.com/helloworld.txt&quot;</span>)<br>        .build();<br><br>    client.newCall(request).enqueue(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Callback</span>() &#123;<br>        <span class="hljs-meta">@Override</span> <br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onFailure</span><span class="hljs-params">(Call call, IOException e)</span> &#123;<br>            e.printStackTrace();<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span> <br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onResponse</span><span class="hljs-params">(Call call, Response response)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>            <span class="hljs-comment">// 注意：这里是在子线程回调</span><br>            <span class="hljs-keyword">if</span> (response.isSuccessful()) &#123;<br>            	System.out.println(response.body().string());<br>        	&#125;<br>        &#125;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同步请求使用的是<code>execute()</code>方法，而异步请求使用的是<code>enqueue()</code>方法。</p>
+<h1 id="okhttp的拦截器链"><a href="#okhttp的拦截器链" class="headerlink" title="okhttp的拦截器链"></a>okhttp的拦截器链</h1><h2 id="什么是拦截器"><a href="#什么是拦截器" class="headerlink" title="什么是拦截器"></a>什么是拦截器</h2><p>拦截器（Intercepetor）机制是okhttp的一大核心机制，可以对请求和响应进行监控和重写，以及请求重试呼叫。一个简单拦截器的实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggingInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Interceptor</span> &#123;<br>    <span class="hljs-meta">@Override</span> <br>    <span class="hljs-keyword">public</span> Response <span class="hljs-title function_">intercept</span><span class="hljs-params">(Interceptor.Chain chain)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-comment">// 获取请求实体</span><br>        <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> chain.request();<br><br>        <span class="hljs-type">long</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        logger.info(String.format(<span class="hljs-string">&quot;Sending request %s on %s%n%s&quot;</span>,<br>                                  request.url(), chain.connection(), request.headers()));<br><br>        <span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> chain.proceed(request);<br><br>        <span class="hljs-type">long</span> <span class="hljs-variable">t2</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        logger.info(String.format(<span class="hljs-string">&quot;Received response for %s in %.1fms%n%s&quot;</span>,<br>                                  response.request().url(), (t2 - t1) / <span class="hljs-number">1e6d</span>, response.headers()));<br><br>        <span class="hljs-keyword">return</span> response;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="拦截器的种类与注册"><a href="#拦截器的种类与注册" class="headerlink" title="拦截器的种类与注册"></a>拦截器的种类与注册</h2><p>okhttp中根据拦截器的注册方式不同，存在两种类型的拦截器：</p>
+<ul>
+<li><strong>应用拦截器</strong>：通过<code>addInterceptor()</code>注册拦截器。只会被调用一次（即使之后发生了 HTTP 重定向或重试）。通常用于添加全局公共参数、打印最终的应用层日志等。</li>
+<li><strong>网络拦截器</strong>：通过<code>addNetworkInterceptor()</code>注册拦截器。够观察到所有网络传输细节。如果发生了重定向，网络拦截器会被调用多次。能看到压缩后的数据（Header 中包含 Accept-Encoding: gzip）。通常用于监控真实的网络流量（抓包）、处理 Cookie。</li>
+</ul>
+<img src="E:\LearningLibrary\Android开发笔记\pic\9.okhttp\1.png" srcset="/img/loading.gif" lazyload style="zoom:50%;" />
+
+<p>应用拦截器的注册</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()<br>    .addInterceptor(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LoggingInterceptor</span>())<br>    .build();<br><br><span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>    .url(<span class="hljs-string">&quot;http://www.publicobject.com/helloworld.txt&quot;</span>)<br>    .header(<span class="hljs-string">&quot;User-Agent&quot;</span>, <span class="hljs-string">&quot;OkHttp Example&quot;</span>)<br>    .build();<br><br><span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br>response.body().close();<br></code></pre></td></tr></table></figure>
+
+<p>网络拦截器的注册</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()<br>    .addNetworkInterceptor(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LoggingInterceptor</span>())<br>    .build();<br><br><span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>    .url(<span class="hljs-string">&quot;http://www.publicobject.com/helloworld.txt&quot;</span>)<br>    .header(<span class="hljs-string">&quot;User-Agent&quot;</span>, <span class="hljs-string">&quot;OkHttp Example&quot;</span>)<br>    .build();<br><br><span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br>response.body().close();<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="拦截器链的源码分析"><a href="#拦截器链的源码分析" class="headerlink" title="拦截器链的源码分析"></a>拦截器链的源码分析</h2><p>从请求发起处出发</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br></code></pre></td></tr></table></figure>
+
+<p><code>newCall()</code>调用的是<code>OkHttpClient</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> Call <span class="hljs-title function_">newCall</span><span class="hljs-params">(Request request)</span> &#123;<br>    <span class="hljs-comment">// this指的是通过OkHttpClient创建的client实例</span><br>    <span class="hljs-keyword">return</span> RealCall.newRealCall(<span class="hljs-built_in">this</span>, request, <span class="hljs-literal">false</span> <span class="hljs-comment">/* for web socket */</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>返回的是<code>RealCall</code>类型对象，所以<code>execute()</code>的具体代码逻辑在<code>RealCall</code>类中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> Response <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-keyword">synchronized</span> (<span class="hljs-built_in">this</span>) &#123;<br>        <span class="hljs-keyword">if</span> (executed) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;Already Executed&quot;</span>);<br>        executed = <span class="hljs-literal">true</span>;<br>    &#125;<br>    transmitter.timeoutEnter();<br>    transmitter.callStart();<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 将此次Realcall加入到正在执行的异步请求队列中</span><br>        client.dispatcher().executed(<span class="hljs-built_in">this</span>);<br>        <span class="hljs-keyword">return</span> getResponseWithInterceptorChain();<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        client.dispatcher().finished(<span class="hljs-built_in">this</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>将创建的<code>Realcall</code>实例加入到<strong>正在执行的异步请求队列</strong>中。然后调用<code>getResponseWithInterceptorChain()</code>方法，该方法顾名思义，通过拦截链获取响应。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs Java">Response <span class="hljs-title function_">getResponseWithInterceptorChain</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    List&lt;Interceptor&gt; interceptors = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br>    <span class="hljs-comment">// 添加client实例中用户自定义的所有应用拦截器</span><br>    interceptors.addAll(client.interceptors());<br>    <span class="hljs-comment">// 添加 okhttp核心拦截器</span><br>    interceptors.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RetryAndFollowUpInterceptor</span>(client));<span class="hljs-comment">//重试与重定向拦截器</span><br>    interceptors.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BridgeInterceptor</span>(client.cookieJar()));<span class="hljs-comment">//请求桥接拦截器</span><br>    interceptors.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CacheInterceptor</span>(client.internalCache()));<span class="hljs-comment">//缓存处理拦截器</span><br>    interceptors.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConnectInterceptor</span>(client));<span class="hljs-comment">//网络连接拦截器</span><br>    <span class="hljs-comment">// 添加client实例中用户自定义的所有网络拦截器</span><br>    <span class="hljs-keyword">if</span> (!forWebSocket) &#123;<br>        interceptors.addAll(client.networkInterceptors());<br>    &#125;<br>    <span class="hljs-comment">//添加网络 i/o 拦截器，真正执行http请求的拦截器</span><br>    interceptors.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CallServerInterceptor</span>(forWebSocket));<br>	<br>    <span class="hljs-comment">//创建 RealInterceptorChain 拦截链</span><br>    Interceptor.<span class="hljs-type">Chain</span> <span class="hljs-variable">chain</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RealInterceptorChain</span>(interceptors, transmitter, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>,<br>                                                       originalRequest, <span class="hljs-built_in">this</span>, client.connectTimeoutMillis(),<br>                                                       client.readTimeoutMillis(), client.writeTimeoutMillis());<br><br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">calledNoMoreExchanges</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//通过拦截链处理请求，获取响应结果</span><br>        <span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> chain.proceed(originalRequest);<br>        <span class="hljs-keyword">if</span> (transmitter.isCanceled()) &#123;<br>            closeQuietly(response);<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IOException</span>(<span class="hljs-string">&quot;Canceled&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> response;<br>    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>        calledNoMoreExchanges = <span class="hljs-literal">true</span>;<br>        <span class="hljs-keyword">throw</span> transmitter.noMoreExchanges(e);<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (!calledNoMoreExchanges) &#123;<br>            transmitter.noMoreExchanges(<span class="hljs-literal">null</span>);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>首先是构建拦截器数组，先添加用户自定义的应用拦截器，其次okhttp的核心拦截器，然后是用户自定义的网络拦截器，最后是执行网络请求的拦截器。然后通过<code>RealInterceptorChain</code>创建拦截链，并指定处理请求的下一个拦截器（index指定）。之后通过<code>RealInterceptorChain</code>类的<code>proceed()</code>方法获取响应结果。该方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> Response <span class="hljs-title function_">proceed</span><span class="hljs-params">(Request request)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-keyword">return</span> proceed(request, transmitter, exchange);<br>&#125;<br><br><span class="hljs-keyword">public</span> Response <span class="hljs-title function_">proceed</span><span class="hljs-params">(Request request, Transmitter transmitter, <span class="hljs-meta">@Nullable</span> Exchange exchange)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>    <span class="hljs-comment">// index 当前拦截器的下标</span><br>    <span class="hljs-keyword">if</span> (index &gt;= interceptors.size()) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AssertionError</span>();<br><br>    calls++;<br><br>    <span class="hljs-comment">// If we already have a stream, confirm that the incoming request will use it.</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span>.exchange != <span class="hljs-literal">null</span> &amp;&amp; !<span class="hljs-built_in">this</span>.exchange.connection().supportsUrl(request.url())) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;network interceptor &quot;</span> + interceptors.get(index - <span class="hljs-number">1</span>)<br>                                        + <span class="hljs-string">&quot; must retain the same host and port&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// If we already have a stream, confirm that this is the only call to chain.proceed().</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span>.exchange != <span class="hljs-literal">null</span> &amp;&amp; calls &gt; <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;network interceptor &quot;</span> + interceptors.get(index - <span class="hljs-number">1</span>)<br>                                        + <span class="hljs-string">&quot; must call proceed() exactly once&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// 调用拦截链中下一个拦截器来处理请求</span><br>    <span class="hljs-type">RealInterceptorChain</span> <span class="hljs-variable">next</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RealInterceptorChain</span>(interceptors, transmitter, exchange,<br>                                                         index + <span class="hljs-number">1</span>, request, call, connectTimeout, readTimeout, writeTimeout);<br>    <span class="hljs-type">Interceptor</span> <span class="hljs-variable">interceptor</span> <span class="hljs-operator">=</span> interceptors.get(index);<br>    <span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> interceptor.intercept(next);<br><br>    <span class="hljs-comment">// Confirm that the next interceptor made its required call to chain.proceed().</span><br>    <span class="hljs-keyword">if</span> (exchange != <span class="hljs-literal">null</span> &amp;&amp; index + <span class="hljs-number">1</span> &lt; interceptors.size() &amp;&amp; next.calls != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">&quot;network interceptor &quot;</span> + interceptor<br>                                        + <span class="hljs-string">&quot; must call proceed() exactly once&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// Confirm that the intercepted response isn&#x27;t null.</span><br>    <span class="hljs-keyword">if</span> (response == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>(<span class="hljs-string">&quot;interceptor &quot;</span> + interceptor + <span class="hljs-string">&quot; returned null&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (response.body() == <span class="hljs-literal">null</span>) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<br>            <span class="hljs-string">&quot;interceptor &quot;</span> + interceptor + <span class="hljs-string">&quot; returned a response with no body&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> response;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>主要代码逻辑为通过<code>RealInterceptorChain</code>创建拦截器链，并指定处理请求的下一个拦截器。然后获取当前拦截器，调用<code>intercept</code>方法处理请求。</p>
+<p>由于拦截器都是实现自<code>Interceptor</code>接口类，并实现了<code>intercept</code>接口方法的具体代码逻辑，因此此处调用的<code>intercept</code>方法的具体代码逻辑需要视具体的拦截器而定。以我们自定义的<code>LoggingInterceptor</code>为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggingInterceptor</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Interceptor</span> &#123;<br>    <span class="hljs-meta">@Override</span> <br>    <span class="hljs-keyword">public</span> Response <span class="hljs-title function_">intercept</span><span class="hljs-params">(Interceptor.Chain chain)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-comment">// 获取请求实体</span><br>        <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> chain.request();<br><br>        <span class="hljs-type">long</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        logger.info(String.format(<span class="hljs-string">&quot;Sending request %s on %s%n%s&quot;</span>,<br>                                  request.url(), chain.connection(), request.headers()));<br><br>        <span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> chain.proceed(request);<br><br>        <span class="hljs-type">long</span> <span class="hljs-variable">t2</span> <span class="hljs-operator">=</span> System.nanoTime();<br>        logger.info(String.format(<span class="hljs-string">&quot;Received response for %s in %.1fms%n%s&quot;</span>,<br>                                  response.request().url(), (t2 - t1) / <span class="hljs-number">1e6d</span>, response.headers()));<br><br>        <span class="hljs-keyword">return</span> response;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>由于参数<code>chain</code>是<code>RealInterceptorChain</code>实例，因此<code>chain.proceed()</code>方法调用的还是<code>RealInterceptorChain</code>类中的<code>proceed</code>方法。之后的流程就类似了。</p>
+<h1 id="hook-okhttp"><a href="#hook-okhttp" class="headerlink" title="hook okhttp"></a>hook okhttp</h1><p>由于okhttp的特性，App一般只创建一个全局HttpClient实例进行复用。因此要想hook okhttp实现抓包，需要以spawn方式启动目标App。</p>
+<p>先来来看看HttpClient的创建过程，寻找hook点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()<br>    .addInterceptor(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LoggingInterceptor</span>())<br>    .build();<br></code></pre></td></tr></table></figure>
+
+<p>首先创建Builder类，添加拦截器，最后调用Builder.build方法，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-keyword">public</span> OkHttpClient <span class="hljs-title function_">build</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>(<span class="hljs-built_in">this</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最终调用的是OkHttpClient的构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Java">OkHttpClient(Builder builder) &#123;<br>    ...<br>    <span class="hljs-built_in">this</span>.interceptors = Util.immutableList(builder.interceptors);<br>    <span class="hljs-built_in">this</span>.networkInterceptors = Util.immutableList(builder.networkInterceptors);<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>把构造好的builder中的字段值挨个赋值给OkHttpClient的相应字段。</p>
+<p>考虑到拦截器传递给OkHttpClient时调用了<code>Util.immutableList()</code>方法会将其变为一个只读List，因此通过hook OkHttpClient.Builder类的<code>build()</code>方法，将自定义的拦截器添加到<code>build.interceptors</code>字段。</p>
+<p>在实际操作中需要注意：OkHttp 的 Response Body 是一个<strong>单向流（One-way Stream）</strong>，只能被读取一次。如果要在响应阶段打印 Body 且不影响 App 运行，必须使用 <code>source.peek()</code> 或者先 <code>clone() </code>一个 Buffer。</p>
+<p>以下是js版实现的自定义拦截器</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">hook_okhttp3</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">ByteString</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.android.okhttp.okio.ByteString&quot;</span>);<br>        <span class="hljs-comment">// var ByteString = Java.use(&quot;okio.ByteString&quot;);</span><br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">Buffer</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;okio.Buffer&#x27;</span>);         <br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">Interceptor</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;okhttp3.Interceptor&quot;</span>);<br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">MyInterceptor</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">registerClass</span>(&#123;<br>            <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;okhttp3.MyInterceptor&quot;</span>,<br>            <span class="hljs-attr">implements</span>: [<span class="hljs-title class_">Interceptor</span>],<br>            <span class="hljs-attr">methods</span>: &#123;<br>                <span class="hljs-comment">// 实现intercept接口，处理响应包数据</span><br>                <span class="hljs-attr">intercept</span>: <br>                    <span class="hljs-keyword">function</span>(<span class="hljs-params">chain</span>) &#123;<br>                        <span class="hljs-keyword">var</span> request = chain.<span class="hljs-title function_">request</span>();<br>                        <span class="hljs-comment">// 打印request信息</span><br>                        <span class="hljs-keyword">try</span> &#123;<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;--&gt; &quot;</span> + request.<span class="hljs-title function_">method</span>() + <span class="hljs-string">&quot; &quot;</span> + request.<span class="hljs-title function_">url</span>());<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Headers:\n&quot;</span> + request.<span class="hljs-title function_">headers</span>());<br>                            <br>                            <span class="hljs-keyword">var</span> requestBody = request.<span class="hljs-title function_">body</span>();<br>                            <span class="hljs-keyword">var</span> contentLength = requestBody ? requestBody.<span class="hljs-title function_">contentLength</span>() : <span class="hljs-number">0</span>;<br>                            <span class="hljs-keyword">if</span> (contentLength &gt; <span class="hljs-number">0</span>) &#123;<br>                                <span class="hljs-keyword">var</span> buffer = <span class="hljs-title class_">Buffer</span>.$new();<br>                                requestBody.<span class="hljs-title function_">writeTo</span>(buffer);<br><br>                                <span class="hljs-keyword">try</span> &#123;<br>                                    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;\nrequest body String:\n&quot;</span>, buffer.<span class="hljs-title function_">readString</span>(), <span class="hljs-string">&quot;\n&quot;</span>);<br>                                &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                                    <span class="hljs-keyword">try</span> &#123;<br>                                        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;\nrequest body ByteString:\n&quot;</span>, <span class="hljs-title class_">ByteString</span>.<span class="hljs-title function_">of</span>(buffer.<span class="hljs-title function_">readByteArray</span>()).<span class="hljs-title function_">hex</span>(), <span class="hljs-string">&quot;\n&quot;</span>);<br>                                    &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                                        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;error 1:&quot;</span>, error);<br>                                    &#125;<br>                                &#125;<br>                            &#125;<br>                        &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;error 2:&quot;</span>, error);<br>                        &#125;<br>                        <br>                        <span class="hljs-comment">// 执行请求，获取响应包</span><br>                        <span class="hljs-keyword">var</span> response = chain.<span class="hljs-title function_">proceed</span>(request);<br><br>                        <span class="hljs-comment">// 打印response</span><br>                        <span class="hljs-keyword">try</span> &#123;<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;&lt;-- &quot;</span> + response.<span class="hljs-title function_">code</span>() + <span class="hljs-string">&quot; &quot;</span> + response.<span class="hljs-title function_">message</span>() + <span class="hljs-string">&quot; &quot;</span> + response.<span class="hljs-title function_">request</span>().<span class="hljs-title function_">url</span>());<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Response Headers:\n&quot;</span> + response.<span class="hljs-title function_">headers</span>());<br><br>                            <span class="hljs-keyword">var</span> responseBody = response.<span class="hljs-title function_">body</span>();<br>                            <span class="hljs-keyword">var</span> contentLength = responseBody ? responseBody.<span class="hljs-title function_">contentLength</span>() : <span class="hljs-number">0</span>;<br>                            <span class="hljs-keyword">if</span> (contentLength &gt; <span class="hljs-number">0</span>) &#123;<br>                                <span class="hljs-keyword">var</span> source = responseBody.<span class="hljs-title function_">source</span>();<br>                                source.<span class="hljs-title function_">request</span>(<span class="hljs-number">9223372036854775807</span>); <span class="hljs-comment">// Long.MAX_VALUE</span><br>                                <span class="hljs-keyword">var</span> buffer = source.<span class="hljs-title function_">buffer</span>();<br>                                <span class="hljs-comment">// var buffer = source.getBuffer();</span><br>                                <span class="hljs-keyword">var</span> cloneBuffer = buffer.<span class="hljs-title function_">clone</span>();<br><br>                                <span class="hljs-keyword">var</span> <span class="hljs-title class_">ContentType</span> = response.<span class="hljs-title function_">headers</span>().<span class="hljs-title function_">get</span>(<span class="hljs-string">&quot;Content-Type&quot;</span>);<br>                                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;ContentType:&quot;</span>, <span class="hljs-title class_">ContentType</span>);<br>                                <span class="hljs-keyword">if</span> (<span class="hljs-title class_">ContentType</span>.<span class="hljs-title function_">indexOf</span>(<span class="hljs-string">&quot;video&quot;</span>) == -<span class="hljs-number">1</span>) &#123;<br>                                    <span class="hljs-keyword">if</span> (<span class="hljs-title class_">ContentType</span>.<span class="hljs-title function_">indexOf</span>(<span class="hljs-string">&quot;application&quot;</span>) == <span class="hljs-number">0</span>) &#123;<br>                                        <span class="hljs-keyword">if</span> (<span class="hljs-title class_">ContentType</span>.<span class="hljs-title function_">indexOf</span>(<span class="hljs-string">&quot;application/zip&quot;</span>) != <span class="hljs-number">0</span>) &#123;<br>                                            <span class="hljs-keyword">try</span> &#123;<br>                                                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;\nresponse.body StringClass\n&quot;</span>, cloneBuffer.<span class="hljs-title function_">readUtf8</span>(), <span class="hljs-string">&quot;\n&quot;</span>);<br>                                            &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                                                <span class="hljs-keyword">try</span> &#123;<br>                                                    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;\nresponse.body ByteString\n&quot;</span>, cloneBuffer.<span class="hljs-title function_">readByteString</span>().<span class="hljs-title function_">hex</span>(), <span class="hljs-string">&quot;\n&quot;</span>);<br>                                                &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                                                    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;error 4:&quot;</span>, error);<br>                                                &#125;<br>                                            &#125;<br>                                        &#125;<br>                                    &#125;<br><br>                                &#125;<br>                            &#125;<br><br>                        &#125; <span class="hljs-keyword">catch</span> (error) &#123;<br>                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;error 3:&quot;</span>, error);<br>                        &#125;<br>                        <span class="hljs-keyword">return</span> response;<br>                    &#125;<br>            &#125;<br>        &#125;);<br><br>        <span class="hljs-keyword">var</span> myInterceptor = <span class="hljs-title class_">MyInterceptor</span>.$new();<br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">Builder</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;okhttp3.OkHttpClient$Builder&quot;</span>);<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title class_">Builder</span>);<br>        <span class="hljs-title class_">Builder</span>.<span class="hljs-property">build</span>.<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) &#123;<br>            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">interceptors</span>().<span class="hljs-title function_">add</span>(myInterceptor);<br>            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;[+] MyInterceptor added to OkHttpClient builder&quot;</span>);<br>            <span class="hljs-comment">// this.networkInterceptors().add(myInterceptor);</span><br>            <span class="hljs-keyword">var</span> result = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">build</span>();<br>            <span class="hljs-keyword">return</span> result;<br>        &#125;;<br><br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;hook_okhttp3...&quot;</span>);<br>    &#125;);<br>&#125;<br><span class="hljs-title function_">hook_okhttp3</span>()<br></code></pre></td></tr></table></figure>
+
+<p>更简便的方法是通过Java实现自定义拦截器，因为Frida提供了如下API用于将DEX加载进内存，从而使用DEX中的方法和类</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Java</span>.</span></span><span class="hljs-keyword">open</span><span class="hljs-constructor">ClassFile(<span class="hljs-params">dexPath</span>)</span>.load<span class="hljs-literal">()</span>;<br></code></pre></td></tr></table></figure>
+
+<p>okhttp新增了HttpLoggingInterceptor类，用于监控网络请求，详细代码见<a target="_blank" rel="noopener" href="https://github.com/square/okhttp/blob/parent-3.12.0/okhttp-logging-interceptor/src/main/java/okhttp3/logging/HttpLoggingInterceptor.java">okhttp3&#x2F;logging&#x2F;HttpLoggingInterceptor</a>，稍作修改即可食用。对应的frida hook脚本如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">hook_okhttp3</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">perform</span>(<span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">openClassFile</span>(<span class="hljs-string">&quot;/data/local/tmp/okhttpLogging.dex&quot;</span>).<span class="hljs-title function_">load</span>();<br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">MyInterceptor</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;com.gal2xy.myokhttp.gal2xyLoggingInterceptor&quot;</span>);<br><br>        <span class="hljs-keyword">var</span> myInterceptor = <span class="hljs-title class_">MyInterceptor</span>.$new();<br>        <span class="hljs-keyword">var</span> <span class="hljs-title class_">Builder</span> = <span class="hljs-title class_">Java</span>.<span class="hljs-title function_">use</span>(<span class="hljs-string">&quot;okhttp3.OkHttpClient$Builder&quot;</span>);<br>        <span class="hljs-title class_">Builder</span>.<span class="hljs-property">build</span>.<span class="hljs-property">implementation</span> = <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">networkInterceptors</span>().<span class="hljs-title function_">add</span>(myInterceptor);<br>            <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">build</span>();<br>        &#125;;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;hook_okhttp3...&quot;</span>);<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>adb logcat -s gal2xyLoggingInterceptor</code>查看网络日志。</p>
+<p>然而！！！以上代码比较鸡肋，因为一旦okhttp方法名被混淆了，就起不了作用了，得去挨个找出方法名进行替换。不过github上有一个项目似乎实现了混淆okhttp库的frida拦截，详细见<a target="_blank" rel="noopener" href="https://github.com/siyujie/OkHttpLogger-Frida">OkHttpLogger-Frida</a>。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://square.github.io/okhttp/">Overview - OkHttp</a></p>
+<p><a target="_blank" rel="noopener" href="https://square.github.io/okhttp/features/interceptors/">Interceptors - OkHttp</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7151761448757264415">okhttp 应用之 Interceptors 拦截器，「实践 + 原理」一样都不少前言 okhttp 是什么？一款封装 - 掘金</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/MirrorCitrus/divetrace/blob/master/dive-open-source/%E7%BD%91%E7%BB%9C%E5%BA%93%EF%BC%9AOkHttp3%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB.md">https://github.com/MirrorCitrus/divetrace/blob/master/dive-open-source/网络库：OkHttp3源码阅读.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7527863756283035699">https://juejin.cn/post/7527863756283035699</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/CYRUS-STUDIO/frida-okhttp">https://github.com/CYRUS-STUDIO/frida-okhttp</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/siyujie/OkHttpLogger-Frida">https://github.com/siyujie/OkHttpLogger-Frida</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/square/okhttp/blob/parent-3.12.0/okhttp-logging-interceptor/src/main/java/okhttp3/logging/HttpLoggingInterceptor.java">https://github.com/square/okhttp/blob/parent-3.12.0/okhttp-logging-interceptor/src/main/java/okhttp3/logging/HttpLoggingInterceptor.java</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/okhttp3/" class="category-chain-item">okhttp3</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/okhttp3/">#okhttp3</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>okhttp3学习笔记</div>
+      <div>http://example.com/2025/12/21/okhttp3/okhttp3学习笔记/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年12月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/12/24/%E9%80%86%E5%90%91%E5%AE%9E%E6%88%98/%E7%BD%91%E6%98%93%E6%96%B0%E9%97%BBApp%E9%80%86%E5%90%91/" title="某易新闻App逆向">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">某易新闻App逆向</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/31/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/VMP%E5%85%A5%E9%97%A8%E2%80%94%E2%80%941.81%20Demo%E5%88%86%E6%9E%90/" title="VMP入门: VMP1.81 Demo分析">
+                        <span class="hidden-mobile">VMP入门: VMP1.81 Demo分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

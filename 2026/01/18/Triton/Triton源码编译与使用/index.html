@@ -1,0 +1,939 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、源码编译从pip下载的Triton版本比较老，有很多指令不支持，例如csinv。但是从最新源码来看，是支持该指令的  因此打算从源码编译新版本。 首先安装vcpkg 123git clone https:&#x2F;&#x2F;github.com&#x2F;microsoft&#x2F;vcpkg.gitcd vcpkg.\bootstrap-vcpkg.bat  下载Triton源码 1git clone https:&#x2F;&#x2F;git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Triton源码编译与使用">
+<meta property="og:url" content="http://example.com/2026/01/18/Triton/Triton%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、源码编译从pip下载的Triton版本比较老，有很多指令不支持，例如csinv。但是从最新源码来看，是支持该指令的  因此打算从源码编译新版本。 首先安装vcpkg 123git clone https:&#x2F;&#x2F;github.com&#x2F;microsoft&#x2F;vcpkg.gitcd vcpkg.\bootstrap-vcpkg.bat  下载Triton源码 1git clone https:&#x2F;&#x2F;git">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202602091652634.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202602091652566.png">
+<meta property="article:published_time" content="2026-01-18T07:21:44.000Z">
+<meta property="article:modified_time" content="2026-02-09T08:57:10.973Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Triton">
+<meta property="article:tag" content="污点分析">
+<meta property="article:tag" content="模拟执行">
+<meta property="article:tag" content="符号执行">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202602091652634.png">
+  
+  
+  
+  <title>Triton源码编译与使用 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Triton源码编译与使用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-01-18 15:21" pubdate>
+          2026年1月18日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          178 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Triton源码编译与使用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、源码编译"><a href="#一、源码编译" class="headerlink" title="一、源码编译"></a>一、源码编译</h1><p>从pip下载的Triton版本比较老，有很多指令不支持，例如<code>csinv</code>。但是从最新源码来看，是支持该指令的</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202602091652634.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此打算从源码编译新版本。</p>
+<p>首先安装vcpkg</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/microsoft/vcpkg.git<br>cd vcpkg<br>.\bootstrap-vcpkg.bat<br></code></pre></td></tr></table></figure>
+
+<p>下载Triton源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/JonathanSalwan/Triton.git<br></code></pre></td></tr></table></figure>
+
+<p>进入Triton所在文件，执行以下指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir build<br>cd build<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">请修改下方 -DCMAKE_TOOLCHAIN_FILE 为你实际的 vcpkg 路径</span><br>cmake -A x64<br>    -DPYTHON_BINDINGS=ON <br>    -DCMAKE_TOOLCHAIN_FILE=&quot;C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake&quot;<br>    # 如果有多个python环境，请指定目标python路径<br>    -DPYTHON_EXECUTABLE=&quot;C:/path/to/your/python.exe&quot;<br>    <br><br>cmake --build . --config Release --target install<br></code></pre></td></tr></table></figure>
+
+<p>编译成功的产物在<code>/build/src/libtriton/Release</code>目录下</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202602091652566.png" srcset="/img/loading.gif" lazyload></p>
+<p>在目标python的<code>\Lib\site-packages\</code>目录下，创建triton文件夹，将以上文件拖过来，同时创建<code>__init__.py</code>，添加如下内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 1. 导入二进制扩展中的所有内容到包命名空间</span><br><span class="hljs-keyword">from</span> .triton <span class="hljs-keyword">import</span> *<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此内容借助AI生成，适用于python 3.7.9版本。如有不对，可借助AI修复。</p>
+</blockquote>
+<p>最终目录结构如下</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus">site-packages/<br>└── triton/<br>    ├── __init__<span class="hljs-selector-class">.py</span><br>    ├── capstone<span class="hljs-selector-class">.dll</span><br>    ├── libz3<span class="hljs-selector-class">.dll</span><br>    ├── triton<span class="hljs-selector-class">.dll</span><br>    ├── triton<span class="hljs-selector-class">.exp</span><br>    ├── triton<span class="hljs-selector-class">.lib</span><br>    └── triton.pyd<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、基本用法"><a href="#二、基本用法" class="headerlink" title="二、基本用法"></a>二、基本用法</h1><p>在使用Triton的过程中，我们经常使用到TritonContext、Instruction、operandWrapper(immediate、memoryAccess、register)这三个对象的方法。</p>
+<h2 id="Triton模拟执行框架"><a href="#Triton模拟执行框架" class="headerlink" title="Triton模拟执行框架"></a>Triton模拟执行框架</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> triton <span class="hljs-keyword">import</span> *<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">[0907088b] 0x120a8624: &quot;add x9, x24, x8, lsl #1&quot; x24=0x122ca678 x8=0x29 =&gt; x9=0x122ca6ca</span><br><span class="hljs-string">[2a058079] 0x120a8628: &quot;ldrsh x10, [x9, #2]&quot; x10=0x3434 x9=0x122ca6ca =&gt; x10=0x70</span><br><span class="hljs-string">[29098079] 0x120a862c: &quot;ldrsh x9, [x9, #4]&quot; x9=0x122ca6ca =&gt; x9=0x0</span><br><span class="hljs-string">[6a6a6af8] 0x120a8630: &quot;ldr x10, [x19, x10]&quot; x19=0x126fa000 x10=0x70 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">[6b6a69f8] 0x120a8634: &quot;ldr x11, [x19, x9]&quot; x19=0x126fa000 x9=0x0 =&gt; x11=0xe4fff670</span><br><span class="hljs-string">[090d0011] 0x120a8638: &quot;add w9, w8, #3&quot; w8=0x29 =&gt; w9=0x2c</span><br><span class="hljs-string">[6a0100f9] 0x120a863c: &quot;str x10, [x11]&quot; x10=0xe4fff638 x11=0xe4fff670 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br>function = &#123;<br>    <span class="hljs-number">0x120a8624</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;0907088b&#x27;</span>),     <span class="hljs-comment"># add x9, x24, x8, lsl #1</span><br>    <span class="hljs-number">0x120a8628</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;2a058079&#x27;</span>),     <span class="hljs-comment"># ldrsh x10, [x9, #2]</span><br>    <span class="hljs-number">0x120a862c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;29098079&#x27;</span>),     <span class="hljs-comment"># ldrsh x9, [x9, #4]</span><br>    <span class="hljs-number">0x120a8630</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a6a6af8&#x27;</span>),     <span class="hljs-comment"># ldr x10, [x19, x10]</span><br>    <span class="hljs-number">0x120a8634</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6b6a69f8&#x27;</span>),     <span class="hljs-comment"># ldr x11, [x19, x9]</span><br>    <span class="hljs-number">0x120a8638</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;090d0011&#x27;</span>),     <span class="hljs-comment"># add w9, w8, #3</span><br>    <span class="hljs-number">0x120a863c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a0100f9&#x27;</span>)      <span class="hljs-comment"># str x10, [x11]</span><br>&#125;<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    <span class="hljs-comment"># 创建指定架构的TritonContext</span><br>    ctx = TritonContext(ARCH.AARCH64)<br>    <span class="hljs-comment"># 初始化相关寄存器</span><br>    ctx.setConcreteRegisterValue(ctx.registers.x8, <span class="hljs-number">0x29</span>)<br>    ctx.setConcreteRegisterValue(ctx.registers.x24, <span class="hljs-number">0x122ca678</span>)<br><br>    <span class="hljs-comment"># 初始化内存环境</span><br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.WORD), <span class="hljs-number">0x7000</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x126fa070</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff638</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff670</span>)<br>	<br>    <span class="hljs-comment"># 模拟执行</span><br>    pc = <span class="hljs-number">0x120a8624</span><br>    <span class="hljs-keyword">while</span> pc <span class="hljs-keyword">in</span> function:<br>        <span class="hljs-comment"># Build an instruction</span><br>        inst = Instruction(pc, function[pc])<br>        <span class="hljs-comment"># Process the instruction</span><br>        ctx.processing(inst)<br>        <span class="hljs-built_in">print</span>(inst.getDisassembly())<br>        pc = ctx.getConcreteRegisterValue(ctx.registers.pc)<br></code></pre></td></tr></table></figure>
+
+<p>然而这仅是最基础的模拟执行框架，如果对于存在系统调用的模拟执行（一般是dump后模拟执行的情况），则需要手动实现系统调用并修复PLT表，例子可见<code>src/examples/python/ctf-writeups/NorthSec-2018-MarsAnalytica/solve.py</code></p>
+<h2 id="operandWrapper"><a href="#operandWrapper" class="headerlink" title="operandWrapper"></a>operandWrapper</h2><p>操作数可分为立即数、寄存器、内存，这三类操作数在Triton中都包装成了<code>OperandWrapper</code>。源码见<code>/src/libtriton/arch/operandWrapper.cpp</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp">OperandWrapper::<span class="hljs-built_in">OperandWrapper</span>(<span class="hljs-type">const</span> triton::arch::Immediate&amp; imm) &#123;<br>    <span class="hljs-keyword">this</span>-&gt;imm  = imm;<br>    <span class="hljs-keyword">this</span>-&gt;type = triton::arch::OP_IMM;<br>&#125;<br>OperandWrapper::<span class="hljs-built_in">OperandWrapper</span>(<span class="hljs-type">const</span> triton::arch::MemoryAccess&amp; mem) &#123;<br>    <span class="hljs-keyword">this</span>-&gt;mem  = mem;<br>    <span class="hljs-keyword">this</span>-&gt;type = triton::arch::OP_MEM;<br>&#125;<br>OperandWrapper::<span class="hljs-built_in">OperandWrapper</span>(<span class="hljs-type">const</span> triton::arch::Register&amp; reg) &#123;<br>    <span class="hljs-keyword">this</span>-&gt;reg  = reg;<br>    <span class="hljs-keyword">this</span>-&gt;type = triton::arch::OP_REG;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于这三类操作数，它们都有<code>getType()</code>方法，以及其他的运算符重载方法（例如&#x3D;&#x3D;、!&#x3D;）。其中<code>getType()</code>方法经常会使用到，以获取操作数的类型。以下示例是判断汇编指令中的寄存器类型并打印具体的值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">for</span> op <span class="hljs-keyword">in</span> inst.getOperands():<br>    <span class="hljs-keyword">if</span> op.getType() == OPERAND.MEM:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;内存数: <span class="hljs-subst">&#123;op&#125;</span>, addr = <span class="hljs-subst">&#123;<span class="hljs-built_in">hex</span>(op.getAddress())&#125;</span>,value = <span class="hljs-subst">&#123;<span class="hljs-built_in">hex</span>(ctx.getConcreteMemoryValue(op))&#125;</span>&quot;</span>)<br>    <span class="hljs-keyword">elif</span> op.getType() == OPERAND.IMM:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;立即数: <span class="hljs-subst">&#123;op.getValue()&#125;</span>&quot;</span>)<br>    <span class="hljs-keyword">elif</span> op.getType() == OPERAND.REG:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;寄存器: <span class="hljs-subst">&#123;op&#125;</span>, <span class="hljs-subst">&#123;<span class="hljs-built_in">hex</span>(ctx.getConcreteRegisterValue(op))&#125;</span>&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="立即数类型"><a href="#立即数类型" class="headerlink" title="立即数类型"></a>立即数类型</h3><p>源码见<code>/src/libtriton/arch/immediate.cpp</code>。常用方法如下（基本上有set、get方法配对）：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">imm.getValue()	<span class="hljs-comment"># 获取立即数的值</span><br>imm.getSize()	<span class="hljs-comment"># 获取立即数的字节大小</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="内存数类型"><a href="#内存数类型" class="headerlink" title="内存数类型"></a>内存数类型</h3><p>源码见<code>src/libtriton/arch/memoryAccess.cpp</code>。常用方法如下（基本上有set、get方法配对）：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs py">mem.getAddress()	<span class="hljs-comment"># 获取内存数的地址</span><br>mem.getSize()		<span class="hljs-comment"># 获取内存数的字节大小</span><br><br>mem.getLeaAst()					<span class="hljs-comment"># 获取内存地址的符号表达式</span><br>mem.getSegmentRegister()		<span class="hljs-comment"># 获取内存操作数的段寄存器</span><br>mem.getBaseRegister()			<span class="hljs-comment"># 获取内存操作数的基址寄存器</span><br>mem.getIndexRegister()			<span class="hljs-comment"># 获取内存操作数的索引寄存器</span><br>mem.getScale()					<span class="hljs-comment"># 获取内存操作数中索引寄存器的乘数</span><br>mem.getDisplacement()			<span class="hljs-comment"># 获取用于计算内存地址的常量值偏移值</span><br></code></pre></td></tr></table></figure>
+
+<p>使用示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># [0a7be878] 0x120a7eec: &quot;ldrsh w10, [x24, x8, lsl #1]&quot;</span><br><span class="hljs-comment"># w10=0x5bb6 x24=0x122ca678 x8=0x2</span><br>regs_before = &#123;<br>    <span class="hljs-string">&#x27;w10&#x27;</span>: <span class="hljs-number">0x5bb6</span>,<br>    <span class="hljs-string">&#x27;x24&#x27;</span>: <span class="hljs-number">0x122ca678</span>,<br>    <span class="hljs-string">&#x27;x8&#x27;</span>: <span class="hljs-number">0x2</span><br>&#125;<br>ctx = TritonContext(ARCH.AARCH64)<br>ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)  <span class="hljs-comment"># AST展示风格改成伪代码风格</span><br>ins = Instruction(<span class="hljs-number">0x120a7eec</span>, <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;0a7be878&#x27;</span>))<br><span class="hljs-keyword">for</span> reg, value <span class="hljs-keyword">in</span> regs_before.items():<br>    ctx.setConcreteRegisterValue(<span class="hljs-built_in">getattr</span>(ctx.registers, reg), value)<br>    <span class="hljs-comment"># 要想获取内存地址的符号表达式，需要事先符号化寄存器变量</span><br>    ctx.symbolizeRegister(<span class="hljs-built_in">getattr</span>(ctx.registers, reg))<br><br>ctx.processing(ins)<br><br>mem = ins.getOperands()[<span class="hljs-number">1</span>]<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;指令: <span class="hljs-subst">&#123;ins.getDisassembly()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;内存地址表达式: <span class="hljs-subst">&#123;mem.getLeaAst()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;段寄存器: <span class="hljs-subst">&#123;mem.getSegmentRegister()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;基址寄存器: <span class="hljs-subst">&#123;mem.getBaseRegister()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;索引寄存器: <span class="hljs-subst">&#123;mem.getIndexRegister()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;乘数: <span class="hljs-subst">&#123;mem.getScale()&#125;</span>&#x27;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;常量偏移: <span class="hljs-subst">&#123;mem.getDisplacement()&#125;</span>&#x27;</span>)<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">指令: ldrsh w10, [x24, x8, lsl #1]</span><br><span class="hljs-string">内存地址表达式: ((x24_1 + ((x8_2 &lt;&lt; 0x1) * 0x1)) + 0x0)</span><br><span class="hljs-string">段寄存器: unknown:1 bv[0..0]</span><br><span class="hljs-string">基址寄存器: x24:64 bv[63..0]</span><br><span class="hljs-string">索引寄存器: x8:64 bv[63..0]</span><br><span class="hljs-string">乘数: 0x1:64 bv[63..0]</span><br><span class="hljs-string">常量偏移: 0x0:64 bv[63..0]</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="寄存器类型"><a href="#寄存器类型" class="headerlink" title="寄存器类型"></a>寄存器类型</h3><p>源码见<code>src/libtriton/arch/register.cpp</code>。常用方法如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs py">reg.getId()		<span class="hljs-comment"># 获取寄存器的id</span><br>reg.getSize()	<span class="hljs-comment"># 获取寄存器大小</span><br>reg.getName()	<span class="hljs-comment"># 获取寄存器名</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Instruction"><a href="#Instruction" class="headerlink" title="Instruction"></a>Instruction</h2><p>指令实现源码见<code>src/libtriton/arch/instruction.cpp</code>。</p>
+<h3 id="指令构造"><a href="#指令构造" class="headerlink" title="指令构造"></a>指令构造</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">ins = Instruction(<span class="hljs-number">0x120a66c4</span>, <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;e10301a9&#x27;</span>))	<span class="hljs-comment"># 指令地址, 机器码</span><br></code></pre></td></tr></table></figure>
+
+<p>在不执行<code>ctx.processing()</code>方法前，可调用的常见方法如下（基本上有set、get方法配对）：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">ins.getAddress()			<span class="hljs-comment"># 获取指令地址</span><br>ins.getNextAddress()		<span class="hljs-comment"># 获取指令执行后的地址(下一个指令的地址)</span><br>ins.getOpcode()				<span class="hljs-comment"># 设置指令机器码</span><br>ins.getSize()				<span class="hljs-comment"># 获取指令大小</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="指令语义解析"><a href="#指令语义解析" class="headerlink" title="指令语义解析"></a>指令语义解析</h3><p>以下指令在执行前，需要执行<code>ctx.processing()</code>以解析指令语义。常见方法如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python">ins.getDisassembly()			<span class="hljs-comment"># 获取汇编指令</span><br>ins.getType()					<span class="hljs-comment"># 获取指令类型, 例如OPCODE.AARCH64.ADD</span><br><br>ins.setTaint()					<span class="hljs-comment"># 设置指令为污点指令</span><br>ins.isTainted()					<span class="hljs-comment"># 判断是否是污点指令</span><br><br>ins.isBranch()					<span class="hljs-comment"># 是否是分支指令(改变控制流的指令)</span><br>ins.isControlFlow()				<span class="hljs-comment"># 是否是控制流指令,与isBranch()区别在于其包括RET、SVC等</span><br><br>ins.isMemoryRead()				<span class="hljs-comment"># 指令是否从内存读取数据</span><br>ins.isMemoryWrite()				<span class="hljs-comment"># 指令是否将数据写入内存</span><br>ins.getLoadAccess()				<span class="hljs-comment"># 获取指令执行过程中读取的内存对象</span><br>ins.getStoreAccess()			<span class="hljs-comment"># 获取指令执行过程中写入的内存对象</span><br>ins.getReadRegisters()			<span class="hljs-comment"># 获取指令执行过程中读取的寄存器对象</span><br>ins.getWrittenRegisters()		<span class="hljs-comment"># 获取指令执行过程中写入的寄存器对象</span><br>ins.getReadImmediates()			<span class="hljs-comment"># 获取指令执行过程中读取的常量, 例如add w0, w1, #5中的立即数</span><br><br>ins.getCodeCondition()		<span class="hljs-comment"># 获取指令的执行条件, 例如csel w2, w19, w0, hi; b.ge等指令</span><br>ins.setCodeCondition()		<span class="hljs-comment"># 设置指令的执行条件</span><br>ins.isConditionTaken()		<span class="hljs-comment"># 是否满足指令的执行条件</span><br><br>ins.getSymbolicExpressions()	<span class="hljs-comment"># 获取该指令产生的符号表达式</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><h4 id="解析指令执行条件"><a href="#解析指令执行条件" class="headerlink" title="解析指令执行条件"></a>解析指令执行条件</h4><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># [6a020054] 0x120a7ef4: &quot;b.ge #0x120a7f40&quot;</span><br>regs_before = &#123;<br>    <span class="hljs-string">&#x27;n&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;z&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;c&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&quot;v&quot;</span>: <span class="hljs-number">0</span><br>&#125;<br>ctx = TritonContext(ARCH.AARCH64)<br>ins = Instruction(<span class="hljs-number">0x120a7ef4</span>, <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a020054&#x27;</span>))<br><span class="hljs-keyword">for</span> reg, value <span class="hljs-keyword">in</span> regs_before.items():<br>    ctx.setConcreteRegisterValue(<span class="hljs-built_in">getattr</span>(ctx.registers, reg), value)<br>ctx.processing(ins)<br><br><span class="hljs-built_in">print</span>(ins.getDisassembly())<br><span class="hljs-built_in">print</span>(ins.getCodeCondition() == CONDITION.ARM.GE)<br><span class="hljs-built_in">print</span>(ins.isConditionTaken())<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">b.ge #0x4c</span><br><span class="hljs-string">True</span><br><span class="hljs-string">False	# 当v=1时为True</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="解析指令的读内存对象"><a href="#解析指令的读内存对象" class="headerlink" title="解析指令的读内存对象"></a>解析指令的读内存对象</h4><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># [2a058079] 0x120a843c: &quot;ldrsh x10, [x9, #2]&quot; x10=0x684b x9=0x122ca6c4 =&gt; x10=0x18</span><br>regs_before = &#123;<br>    <span class="hljs-string">&#x27;x10&#x27;</span>: <span class="hljs-number">0x684b</span>,<br>    <span class="hljs-string">&#x27;x9&#x27;</span>: <span class="hljs-number">0x122ca6c4</span><br>&#125;<br><br>ctx = TritonContext(ARCH.AARCH64)<br>ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)<br><br>ins = Instruction(<span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;2a058079&#x27;</span>))<br><span class="hljs-keyword">for</span> reg, value <span class="hljs-keyword">in</span> regs_before.items():<br>    ctx.setConcreteRegisterValue(<span class="hljs-built_in">getattr</span>(ctx.registers, reg), value)<br>ctx.setConcreteMemoryValue(<span class="hljs-number">0x122ca6c6</span>, <span class="hljs-number">0x18</span>)<br><br>ctx.processing(ins)<br><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> ins.isMemoryRead():<br>	<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The instruction is not load instruction&quot;</span>)<br>    <br>loadAccess = ins.getLoadAccess()<br><span class="hljs-built_in">print</span>(loadAccess)<br><br><span class="hljs-keyword">for</span> mem, expr <span class="hljs-keyword">in</span> loadAccess:<br>    addr = mem.getAddress()<br>    size = mem.getSize()<br>    value = ctx.getConcreteMemoryAreaValue(addr, size)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;memory address: <span class="hljs-subst">&#123;<span class="hljs-built_in">hex</span>(addr)&#125;</span>, size: <span class="hljs-subst">&#123;<span class="hljs-built_in">hex</span>(size)&#125;</span>, value: <span class="hljs-subst">&#123;value.<span class="hljs-built_in">hex</span>()&#125;</span>&quot;</span>)<span class="hljs-comment"># Triton中值是小端显示</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;memory expression: <span class="hljs-subst">&#123;expr&#125;</span>&quot;</span>)<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">[([@0x122ca6c6]:16 bv[15..0], concat(0x0, 0x18))]</span><br><span class="hljs-string">memory address: 0x122ca6c6, size: 0x2, value: 1800	</span><br><span class="hljs-string">memory expression: concat(0x0, 0x18)</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="解析指令产生的符号表达式"><a href="#解析指令产生的符号表达式" class="headerlink" title="解析指令产生的符号表达式"></a>解析指令产生的符号表达式</h4><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> triton <span class="hljs-keyword">import</span> *<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">[0907088b] 0x120a8624: &quot;add x9, x24, x8, lsl #1&quot; x24=0x122ca678 x8=0x29 =&gt; x9=0x122ca6ca</span><br><span class="hljs-string">[2a058079] 0x120a8628: &quot;ldrsh x10, [x9, #2]&quot; x10=0x3434 x9=0x122ca6ca =&gt; x10=0x70</span><br><span class="hljs-string">[29098079] 0x120a862c: &quot;ldrsh x9, [x9, #4]&quot; x9=0x122ca6ca =&gt; x9=0x0</span><br><span class="hljs-string">[6a6a6af8] 0x120a8630: &quot;ldr x10, [x19, x10]&quot; x19=0x126fa000 x10=0x70 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">[6b6a69f8] 0x120a8634: &quot;ldr x11, [x19, x9]&quot; x19=0x126fa000 x9=0x0 =&gt; x11=0xe4fff670</span><br><span class="hljs-string">[090d0011] 0x120a8638: &quot;add w9, w8, #3&quot; w8=0x29 =&gt; w9=0x2c</span><br><span class="hljs-string">[6a0100f9] 0x120a863c: &quot;str x10, [x11]&quot; x10=0xe4fff638 x11=0xe4fff670 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br>function = &#123;<br>    <span class="hljs-number">0x120a8624</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;0907088b&#x27;</span>),     <span class="hljs-comment"># add x9, x24, x8, lsl #1</span><br>    <span class="hljs-number">0x120a8628</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;2a058079&#x27;</span>),     <span class="hljs-comment"># ldrsh x10, [x9, #2]</span><br>    <span class="hljs-number">0x120a862c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;29098079&#x27;</span>),     <span class="hljs-comment"># ldrsh x9, [x9, #4]</span><br>    <span class="hljs-number">0x120a8630</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a6a6af8&#x27;</span>),     <span class="hljs-comment"># ldr x10, [x19, x10]</span><br>    <span class="hljs-number">0x120a8634</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6b6a69f8&#x27;</span>),     <span class="hljs-comment"># ldr x11, [x19, x9]</span><br>    <span class="hljs-number">0x120a8638</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;090d0011&#x27;</span>),     <span class="hljs-comment"># add w9, w8, #3</span><br>    <span class="hljs-number">0x120a863c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a0100f9&#x27;</span>)      <span class="hljs-comment"># str x10, [x11]</span><br>&#125;<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br><br>    <span class="hljs-comment"># 创建指定架构的TritonContext</span><br>    ctx = TritonContext(ARCH.AARCH64)<br>    <span class="hljs-comment"># 设置AST展示模式</span><br>    ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)<br><br>    <span class="hljs-comment"># 初始化相关寄存器</span><br>    ctx.setConcreteRegisterValue(ctx.registers.x8, <span class="hljs-number">0x29</span>)<br>    ctx.setConcreteRegisterValue(ctx.registers.x24, <span class="hljs-number">0x122ca678</span>)<br><br>    <span class="hljs-comment"># 初始化内存环境</span><br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.WORD), <span class="hljs-number">0x7000</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x126fa070</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff638</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff670</span>)<br><br>    pc = <span class="hljs-number">0x120a8624</span><br>    <span class="hljs-keyword">while</span> pc <span class="hljs-keyword">in</span> function:<br>        inst = Instruction(pc, function[pc])<br>        ctx.processing(inst)<br><br>        <span class="hljs-built_in">print</span>(inst)<br>        <span class="hljs-keyword">for</span> expr <span class="hljs-keyword">in</span> inst.getSymbolicExpressions():<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;\t&#x27;</span>, expr)<br>        pc = ctx.getConcreteRegisterValue(ctx.registers.pc)<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">0x120a8624: add x9, x24, x8, lsl #1</span><br><span class="hljs-string">	 x9_0 = (0x122ca678 + (0x29 &lt;&lt; 0x1)) ; ADD(S) operation</span><br><span class="hljs-string">	 pc_1 = 0x120a8628 ; Program Counter</span><br><span class="hljs-string">0x120a8628: ldrsh x10, [x9, #2]</span><br><span class="hljs-string">	 x10_2 = sx(0x30, concat(0xf6, 0x70)) ; LDRSH operation - LOAD access</span><br><span class="hljs-string">	 pc_3 = 0x120a862c ; Program Counter</span><br><span class="hljs-string">0x120a862c: ldrsh x9, [x9, #4]</span><br><span class="hljs-string">	 x9_4 = sx(0x30, concat(0xe4, 0xff)) ; LDRSH operation - LOAD access</span><br><span class="hljs-string">	 pc_5 = 0x120a8630 ; Program Counter</span><br><span class="hljs-string">0x120a8630: ldr x10, [x19, x10]</span><br><span class="hljs-string">	 x10_6 = concat(0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0) ; LDR operation - LOAD access</span><br><span class="hljs-string">	 pc_7 = 0x120a8634 ; Program Counter</span><br><span class="hljs-string">0x120a8634: ldr x11, [x19, x9]</span><br><span class="hljs-string">	 x11_8 = concat(0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0) ; LDR operation - LOAD access</span><br><span class="hljs-string">	 pc_9 = 0x120a8638 ; Program Counter</span><br><span class="hljs-string">0x120a8638: add w9, w8, #3</span><br><span class="hljs-string">	 x9_10 = (0x29 + 0x3) ; ADD(S) operation</span><br><span class="hljs-string">	 pc_11 = 0x120a863c ; Program Counter</span><br><span class="hljs-string">0x120a863c: str x10, [x11]</span><br><span class="hljs-string">	 @[0x7:8] = extract(63, 56, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x6:8] = extract(55, 48, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x5:8] = extract(47, 40, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x4:8] = extract(39, 32, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x3:8] = extract(31, 24, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x2:8] = extract(23, 16, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x1:8] = extract(15, 8, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x0:8] = extract(7, 0, x10_6) ; Byte reference - STR operation - STORE access</span><br><span class="hljs-string">	 @[0x0:64] = x10_6 ; Original memory access - STR operation - STORE access</span><br><span class="hljs-string">	 pc_21 = 0x120a8640 ; Program Counter</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>​	</p>
+<h2 id="TritonContext"><a href="#TritonContext" class="headerlink" title="TritonContext"></a>TritonContext</h2><p>源码见<code>src/libtriton/context/context.cpp</code></p>
+<h3 id="创建上下文"><a href="#创建上下文" class="headerlink" title="创建上下文"></a>创建上下文</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">ctx = TritonContext(ARCH.AARCH64)<span class="hljs-comment"># 架构为arm64</span><br></code></pre></td></tr></table></figure>
+
+<p>可支持的架构如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py">ARCH.AARCH64<br>ARCH.ARM32<br>ARCH.RV32<br>ARCH.RV64<br>ARCH.X86<br>ARCH.X86_64<br></code></pre></td></tr></table></figure>
+
+<h3 id="汇编指令获取"><a href="#汇编指令获取" class="headerlink" title="汇编指令获取"></a>汇编指令获取</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.disassembly(addr)	<span class="hljs-comment"># 获取指定地址的汇编指令</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="指令模拟执行"><a href="#指令模拟执行" class="headerlink" title="指令模拟执行"></a>指令模拟执行</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.processing(ins)		<span class="hljs-comment"># 执行指令, 获取指令语义</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="模式设置"><a href="#模式设置" class="headerlink" title="模式设置"></a>模式设置</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">ctxc.setMode(mode, <span class="hljs-literal">True</span>/<span class="hljs-literal">False</span>)		<span class="hljs-comment"># 设置mode状态</span><br>ctx.isModeEnabled(mode)				<span class="hljs-comment"># 判断mode是否开启</span><br>ctx.clearModes()					<span class="hljs-comment"># 关闭所有mode</span><br></code></pre></td></tr></table></figure>
+
+<p>其中可选的模式如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">模式</th>
+<th align="center">状态</th>
+<th align="center">注释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MODE.ALIGNED_MEMORY</td>
+<td align="center">默认关闭</td>
+<td align="center">开启内存对齐, 简化内存建模</td>
+</tr>
+<tr>
+<td align="center">MODE.AST_OPTIMIZATION</td>
+<td align="center">默认关闭</td>
+<td align="center">开启AST表达式优化</td>
+</tr>
+<tr>
+<td align="center">MODE.CONCRETIZE_UNDEFINED_REGISTERS</td>
+<td align="center">默认开启</td>
+<td align="center">读取未初始化寄存器时，自动具体化为一个常量（通常是 0）</td>
+</tr>
+<tr>
+<td align="center">MODE.CONSTANT_FOLDING</td>
+<td align="center">默认关闭</td>
+<td align="center">开启常量折叠, 如果表达式的结果是常量则简化</td>
+</tr>
+<tr>
+<td align="center">MODE.MEMORY_ARRAY</td>
+<td align="center">默认关闭</td>
+<td align="center">使用 SMT Array 模型表示内存</td>
+</tr>
+<tr>
+<td align="center">MODE.ONLY_ON_SYMBOLIZED</td>
+<td align="center">默认关闭</td>
+<td align="center">只有当操作数是符号的，才进行符号语义传播</td>
+</tr>
+<tr>
+<td align="center">MODE.ONLY_ON_TAINTED</td>
+<td align="center">默认关闭</td>
+<td align="center">只有操作数被污点标记，才传播污点</td>
+</tr>
+<tr>
+<td align="center">MODE.PC_TRACKING_SYMBOLIC</td>
+<td align="center">默认关闭</td>
+<td align="center">允许程序计数器（PC）符号化, 有利于br寄存器跳转分析</td>
+</tr>
+<tr>
+<td align="center">MODE.SYMBOLIZE_INDEX_ROTATION</td>
+<td align="center">默认关闭</td>
+<td align="center">当索引是符号时，仍允许移位操作（ROL&#x2F;ROR）</td>
+</tr>
+<tr>
+<td align="center">MODE.SYMBOLIZE_LOAD</td>
+<td align="center">默认关闭</td>
+<td align="center">允许 load 产生符号值</td>
+</tr>
+<tr>
+<td align="center">MODE.SYMBOLIZE_STORE</td>
+<td align="center">默认关闭</td>
+<td align="center">允许符号值写入内存</td>
+</tr>
+<tr>
+<td align="center">MODE.TAINT_THROUGH_POINTERS</td>
+<td align="center">默认关闭</td>
+<td align="center">允许污点通过指针间接传播</td>
+</tr>
+</tbody></table>
+<h3 id="AST展示风格设置"><a href="#AST展示风格设置" class="headerlink" title="AST展示风格设置"></a>AST展示风格设置</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.setAstRepresentationMode(mode)	<span class="hljs-comment"># 获取ast展示模式</span><br>ctx.getAstRepresentationMode()		<span class="hljs-comment"># 获取ast展示模式</span><br></code></pre></td></tr></table></figure>
+
+<p>可选的AST_REPRESENTATION有PYTHON、PCODE、SMT，这三种模式输出的表达式风格如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">ctx.setAstRepresentationMode(AST_REPRESENTATION.PYTHON)	<span class="hljs-comment"># 中缀表达式</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">0x121cc440: &quot;add x8, x8, #0x6d8&quot; x8=0x122e7000 =&gt; x8=0x122e76d8 </span><br><span class="hljs-string">[ref_34 = ((0x122e7000 + 0x6d8) &amp; 0xffffffffffffffff) # ADD(S) operation, ref_35 = 0x38 # Program Counter]</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)	<span class="hljs-comment"># 人类更易懂的伪代码</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">0x121cc440: &quot;add x8, x8, #0x6d8&quot; x8=0x122e7000 =&gt; x8=0x122e76d8 </span><br><span class="hljs-string">[x8_34 = (0x122e7000 + 0x6d8) ; ADD(S) operation, pc_35 = 0x38 ; Program Counter]</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>ctx.setAstRepresentationMode(AST_REPRESENTATION.SMT)	<span class="hljs-comment"># Lisp 风格（前缀表达式）</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">0x121cc440: &quot;add x8, x8, #0x6d8&quot; x8=0x122e7000 =&gt; x8=0x122e76d8 </span><br><span class="hljs-string">[(define-fun ref!34 () (_ BitVec 64) (bvadd (_ bv305033216 64) (_ bv1752 64))) ; ADD(S) operation, (define-fun ref!35 () (_ BitVec 64) (_ bv56 64)) ; Program Counter]</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="寄存器值设置与获取"><a href="#寄存器值设置与获取" class="headerlink" title="寄存器值设置与获取"></a>寄存器值设置与获取</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">ctx.getRegister()			<span class="hljs-comment"># 通过 id 或 name 获取寄存器对象</span><br>ctx.getAllRegisters()		<span class="hljs-comment"># 获取所有寄存器</span><br>ctx.getParentRegister(reg)	<span class="hljs-comment"># 获取指定寄存器的父寄存器, 例如 w0 -&gt; x0</span><br>ctx.setConcreteRegisterValue(reg, value)	<span class="hljs-comment"># reg的格式如ctx.registers.x1</span><br>ctx.getConcreteRegisterValue(reg)<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="内存值设置与获取"><a href="#内存值设置与获取" class="headerlink" title="内存值设置与获取"></a>内存值设置与获取</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 内存值设置</span><br>ctx.setConcreteMemoryValue(addr, value)		<span class="hljs-comment"># 值的长度必须是 1byte </span><br>ctx.setConcreteMemoryValue(mem, value)		<span class="hljs-comment"># 支持byte word dword qword大小。mem是MemoryAccess对象, 例如MemoryAccess(0x105E018, CPUSIZE.QWORD)</span><br>ctx.setConcreteMemoryAreaValue(addr, value)	<span class="hljs-comment"># 超长内存区域的值设置</span><br>ctx.setConcreteMemoryAreaValue(addr, value, size)<br><span class="hljs-comment"># 内存值获取</span><br>ctx.getConcreteMemoryValue(addr)<br>ctx.getConcreteMemoryValue(mem)<br>ctx.getConcreteMemoryAreaValue(addr, size)<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="自定义回调事件"><a href="#自定义回调事件" class="headerlink" title="自定义回调事件"></a>自定义回调事件</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.addCallback(<span class="hljs-built_in">type</span>, callback)		<span class="hljs-comment"># type 为回调事件, callback 为回调事件触发时执行的回调函数</span><br></code></pre></td></tr></table></figure>
+
+<p>Triton支持的回调事件类型如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py">CALLBACK.GET_CONCRETE_MEMORY_VALUE		<span class="hljs-comment"># 从内存中读取具体值时触发回调函数</span><br>CALLBACK.GET_CONCRETE_REGISTER_VALUE	<span class="hljs-comment"># 从寄存器中读取具体值时触发回调函数</span><br>CALLBACK.SET_CONCRETE_MEMORY_VALUE		<span class="hljs-comment"># 修改内存值时触发回调函数</span><br>CALLBACK.SET_CONCRETE_REGISTER_VALUE	<span class="hljs-comment"># 修改寄存器值时触发回调函数</span><br>CALLBACK.SYMBOLIC_SIMPLIFICATION		<span class="hljs-comment"># 符号表达式优化时触发，主要用于优化和去混淆</span><br></code></pre></td></tr></table></figure>
+
+<p>以下是一个通过<code>CALLBACK.SYMBOLIC_SIMPLIFICATION</code>来处理<code>MBA</code>（<code>Mixed Boolean-Arithmetic</code>）混淆的例子（更多<code>MBA</code>去混淆案例见<code>/src/examples/python/simplification.py</code>）。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> triton <span class="hljs-keyword">import</span> *<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">xor_1</span>(<span class="hljs-params">ctx, node</span>):<br>    <span class="hljs-comment"># 在运算符是xor的情况下, 如果ast的两个节点是相同的变量, 则返回值为0的ast node</span><br>    <span class="hljs-keyword">if</span> node.getType() == AST_NODE.BVXOR:<br>        <span class="hljs-keyword">if</span> node.getChildren()[<span class="hljs-number">0</span>].equalTo(node.getChildren()[<span class="hljs-number">1</span>]):<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;simplify expr by user rules&quot;</span>)<br>            <span class="hljs-keyword">return</span> ctx.getAstContext().bv(<span class="hljs-number">0</span>, node.getBitvectorSize())<br>    <span class="hljs-keyword">return</span> node<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br><br>    ctx = TritonContext()<br>    ctx.setArchitecture(ARCH.AARCH64)<br><br>    ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)<br><br>    <span class="hljs-comment"># 自定义简化规则</span><br>    ctx.addCallback(CALLBACK.SYMBOLIC_SIMPLIFICATION, xor_1)<br><br>    astCtxt = ctx.getAstContext()<br><br>    <span class="hljs-comment"># 创建ast node</span><br>    a = astCtxt.bv(<span class="hljs-number">1</span>, <span class="hljs-number">8</span>)<br><br>    c = a ^ a<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Expr: &#x27;</span>, c)<br>    c = ctx.simplify(c)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Simp: &#x27;</span>, c)<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">Expr:  (0x1 ^ 0x1)</span><br><span class="hljs-string">simplify expr by user rules</span><br><span class="hljs-string">Simp:  0x0</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="污点引擎"><a href="#污点引擎" class="headerlink" title="污点引擎"></a>污点引擎</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 设置污点源</span><br>ctx.setTaint(oprand, <span class="hljs-literal">True</span>/<span class="hljs-literal">False</span>)			<span class="hljs-comment"># True表示设置操作数为污点, False反之</span><br>ctx.setTaintMemory(mem, <span class="hljs-literal">True</span>/<span class="hljs-literal">False</span>)			<span class="hljs-comment"># 设置目标内存为污点</span><br>ctx.setTaintRegister(reg, <span class="hljs-literal">True</span>/<span class="hljs-literal">False</span>)		<span class="hljs-comment"># 设置目标寄存器为污点</span><br><span class="hljs-comment"># 污点传播</span><br>ctx.taintMemory(addr)				 <br>ctx.taintMemory(mem)<br>ctx.taintRegister(reg)<br>ctx.taintUnion(dst, src)					<span class="hljs-comment"># 污点保留并合并, 传播规则:dst = isTainted(dst) | isTainted(src)</span><br>ctx.taintAssignment(dst, src)				<span class="hljs-comment"># 赋值污点传播，传播规则: dst = isTainted(dst)</span><br><span class="hljs-comment"># 取消污点</span><br>ctx.untaintMemory(addr)<br>ctx.untaintMemory(mem)<br>ctx.untaintRegister(reg)<br><span class="hljs-comment"># 污点获取</span><br>ctx.getTaintedMemory()				<span class="hljs-comment"># 获取污点内存</span><br>ctx.getTaintedRegisters()			<span class="hljs-comment"># 获取污点寄存器</span><br><span class="hljs-comment"># 污点判断</span><br>ctx.isTainted(oprand)				<span class="hljs-comment"># 判断操作数是否被污染</span><br>ctx.isMemoryTainted(addr, size)		<span class="hljs-comment"># 判断内存是否被污染</span><br>ctx.isMemoryTainted(mem)			<br>ctx.isRegisterTainted(reg)			<span class="hljs-comment"># 判断寄存器是否被污染</span><br></code></pre></td></tr></table></figure>
+
+<p>以下是一个通过污点传播简化代码的例子。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">from</span> triton <span class="hljs-keyword">import</span> *<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">[0907088b] 0x120a8624: &quot;add x9, x24, x8, lsl #1&quot; x24=0x122ca678 x8=0x29 =&gt; x9=0x122ca6ca</span><br><span class="hljs-string">[2a058079] 0x120a8628: &quot;ldrsh x10, [x9, #2]&quot; x10=0x3434 x9=0x122ca6ca =&gt; x10=0x70</span><br><span class="hljs-string">[29098079] 0x120a862c: &quot;ldrsh x9, [x9, #4]&quot; x9=0x122ca6ca =&gt; x9=0x0</span><br><span class="hljs-string">[6a6a6af8] 0x120a8630: &quot;ldr x10, [x19, x10]&quot; x19=0x126fa000 x10=0x70 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">[6b6a69f8] 0x120a8634: &quot;ldr x11, [x19, x9]&quot; x19=0x126fa000 x9=0x0 =&gt; x11=0xe4fff670</span><br><span class="hljs-string">[090d0011] 0x120a8638: &quot;add w9, w8, #3&quot; w8=0x29 =&gt; w9=0x2c</span><br><span class="hljs-string">[6a0100f9] 0x120a863c: &quot;str x10, [x11]&quot; x10=0xe4fff638 x11=0xe4fff670 =&gt; x10=0xe4fff638</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br>function = &#123;<br>    <span class="hljs-number">0x120a8624</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;0907088b&#x27;</span>),     <span class="hljs-comment"># add x9, x24, x8, lsl #1</span><br>    <span class="hljs-number">0x120a8628</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;2a058079&#x27;</span>),     <span class="hljs-comment"># ldrsh x10, [x9, #2]</span><br>    <span class="hljs-number">0x120a862c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;29098079&#x27;</span>),     <span class="hljs-comment"># ldrsh x9, [x9, #4]</span><br>    <span class="hljs-number">0x120a8630</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a6a6af8&#x27;</span>),     <span class="hljs-comment"># ldr x10, [x19, x10]</span><br>    <span class="hljs-number">0x120a8634</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6b6a69f8&#x27;</span>),     <span class="hljs-comment"># ldr x11, [x19, x9]</span><br>    <span class="hljs-number">0x120a8638</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;090d0011&#x27;</span>),     <span class="hljs-comment"># add w9, w8, #3</span><br>    <span class="hljs-number">0x120a863c</span>: <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;6a0100f9&#x27;</span>)      <span class="hljs-comment"># str x10, [x11]</span><br>&#125;<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    <span class="hljs-comment"># 创建指定架构的TritonContext</span><br>    ctx = TritonContext(ARCH.AARCH64)<br>    <span class="hljs-comment"># 开启污点指针间接传播</span><br>    ctx.setMode(MODE.TAINT_THROUGH_POINTERS, <span class="hljs-literal">True</span>)<br>    <span class="hljs-comment"># 初始化相关寄存器</span><br>    ctx.setConcreteRegisterValue(ctx.registers.x8, <span class="hljs-number">0x29</span>)<br>    ctx.setConcreteRegisterValue(ctx.registers.x24, <span class="hljs-number">0x122ca678</span>)<br><br>    <span class="hljs-comment"># 初始化内存环境</span><br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.WORD), <span class="hljs-number">0x7000</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x126fa070</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff638</span>)<br>    ctx.setConcreteMemoryValue(MemoryAccess(<span class="hljs-number">0x122ca6cc</span>, CPUSIZE.QWORD), <span class="hljs-number">0xe4fff670</span>)<br><br>    <span class="hljs-comment"># 设置初始污点源</span><br>    ctx.taintRegister(ctx.registers.x8)<br><br>    pc = <span class="hljs-number">0x120a8624</span><br>    <span class="hljs-keyword">while</span> pc <span class="hljs-keyword">in</span> function:<br>        <span class="hljs-comment"># Build an instruction</span><br>        inst = Instruction(pc, function[pc])<br>        <span class="hljs-comment"># Process the instruction</span><br>        ctx.processing(inst)<br>        <span class="hljs-keyword">if</span> inst.isTainted():<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[tainted] %s&#x27;</span> % (<span class="hljs-built_in">str</span>(inst)))<br>        pc = ctx.getConcreteRegisterValue(ctx.registers.pc)<br><span class="hljs-string">&quot;&quot;&quot;允许污点通过指针间接传播</span><br><span class="hljs-string">[tainted] 0x120a8624: add x9, x24, x8, lsl #1</span><br><span class="hljs-string">[tainted] 0x120a8628: ldrsh x10, [x9, #2]</span><br><span class="hljs-string">[tainted] 0x120a862c: ldrsh x9, [x9, #4]</span><br><span class="hljs-string">[tainted] 0x120a8630: ldr x10, [x19, x10]</span><br><span class="hljs-string">[tainted] 0x120a8634: ldr x11, [x19, x9]</span><br><span class="hljs-string">[tainted] 0x120a8638: add w9, w8, #3</span><br><span class="hljs-string">[tainted] 0x120a863c: str x10, [x11]</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">&quot;&quot;&quot;不允许污点通过指针间接传播</span><br><span class="hljs-string">[tainted] 0x120a8624: add x9, x24, x8, lsl #1</span><br><span class="hljs-string">[tainted] 0x120a8638: add w9, w8, #3</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>其他例子可见<code>/src/examples/python/forward_tainting.py</code></p>
+<h2 id="符号引擎"><a href="#符号引擎" class="headerlink" title="符号引擎"></a>符号引擎</h2><h3 id="基本方法"><a href="#基本方法" class="headerlink" title="基本方法"></a>基本方法</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.symbolizeMemory(mem, alias)		<span class="hljs-comment"># 符号化内存对象, alias为可任取别名。返回值为SharedSymbolicVariable对象</span><br>ctx.symbolizeMemory(addr, size)		<span class="hljs-comment"># 将指定内存符号化，不返回符号化的对象</span><br>ctx.symbolizeRegister(reg, alias)	<span class="hljs-comment"># 符号化寄存器对象</span><br>ctx.getRegisterAst(oprand)			<span class="hljs-comment"># 获取寄存器的抽象语法树</span><br>ctx.getImmediateAst(imm)			<span class="hljs-comment"># 获取立即数的抽象语法树</span><br>ctx.getMemoryAst(mem)				<span class="hljs-comment"># 获取内存操作数的抽象语法树</span><br>ctx.getAstContext()					<span class="hljs-comment"># 获取抽象语法树</span><br>ctx.getSymbolicRegister(reg)		<span class="hljs-comment"># 获取寄存器的符号表达式</span><br>ctx.getSymbolicMemory(addr)			<span class="hljs-comment"># 获取内存的符号表达式</span><br><br>ctx.isMemorySymbolized(mem)			<span class="hljs-comment"># 是否符号化</span><br>ctx.isRegisterSymbolized(reg)		<span class="hljs-comment"># 是否符号化</span><br><br>ctx.concretizeAllMemory()	<span class="hljs-comment"># 去除所有内存地址对应的符号表达式</span><br>ctx.concretizeAllRegister()	<span class="hljs-comment"># 去除所有寄存器对应的符号表达式</span><br>ctx.concretizeMemory(mem)	<span class="hljs-comment"># 去除指定内存对应的符号表达式</span><br>ctx.concretizeMemory(addr)	<span class="hljs-comment"># 去除指定内存对应的符号表达式</span><br>ctx.concretizeRegister(reg)	<span class="hljs-comment"># 去除指定寄存器对应的符号表达式</span><br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.newSymbolicExpression(ast_node, comment)	<span class="hljs-comment"># 创建符号表达式</span><br>ctx.newSymbolicVariable(value, alias)			<span class="hljs-comment"># 创建符号变量</span><br>ctx.getConcreteVariableValue()	<span class="hljs-comment"># 获取符号变量的具体值</span><br>ctx.setConcreteVariableValue()	<span class="hljs-comment"># 设置符号变量的具体值</span><br><br>ctx.getSymbolicExpressions()				<span class="hljs-comment"># 获取ctx中的所有符号表达式</span><br>ctx.getSymbolicVariables()					<span class="hljs-comment"># 获取ctx中的所有符号变量</span><br>ctx.getSymbolicExpression(symExprId)		<span class="hljs-comment"># 获取符号表达式</span><br>ctx.getSymbolicVariable(symVarId)			<span class="hljs-comment"># 获取符号变量</span><br>ctx.getSymbolicVariable(symVarName)<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.simplify(ast_node)				<span class="hljs-comment"># 简化符号表达式</span><br>ctx.simplify(block)					<span class="hljs-comment"># 简化基本块, 可用于死代码消除</span><br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.getPathConstraints()		<span class="hljs-comment"># 获取执行过程中的分支约束条件</span><br>ctx.getPathPredicate()			<span class="hljs-comment"># 获取执行到当前状态时必须满足的约束条件</span><br>ctx.pushPathConstraint(constraint)	<span class="hljs-comment"># 设置约束条件</span><br>ctx.clearPathConstraints()			<span class="hljs-comment"># 清除所有约束条件</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="求解器引擎"><a href="#求解器引擎" class="headerlink" title="求解器引擎"></a>求解器引擎</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.setSolver(solver)			<span class="hljs-comment"># 设置求解器, 例如SOLVER.Z3</span><br>ctx.getSolver()					<span class="hljs-comment"># 获取求解器</span><br>ctx.getModels()					<span class="hljs-comment"># 获取求解结果</span><br>ctx.getModel()	<br></code></pre></td></tr></table></figure>
+
+<p>例子</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-comment"># 创建指定架构的TritonContext</span><br>ctx = TritonContext(ARCH.AARCH64)<br><span class="hljs-comment"># 设置AST展示模式</span><br>ctx.setAstRepresentationMode(AST_REPRESENTATION.PCODE)<br><br><span class="hljs-comment"># 初始化相关寄存器</span><br>ctx.setConcreteRegisterValue(ctx.registers.x8, <span class="hljs-number">0x29</span>)<br><br><span class="hljs-comment"># [0907088b] 0x120a8624: &quot;add x9, x24, x8, lsl #1&quot; x24=0x122ca678 x8=0x29 =&gt; x9=0x122ca6ca</span><br>inst = Instruction(<span class="hljs-number">0x120a8624</span>, <span class="hljs-built_in">bytes</span>.fromhex(<span class="hljs-string">&#x27;0907088b&#x27;</span>))<br><span class="hljs-comment"># 符号化待求解寄存器</span><br>x24 = ctx.symbolizeRegister(ctx.registers.x24, <span class="hljs-string">&#x27;x24&#x27;</span>)<br>ctx.processing(inst)<br><br>x9Ast = ctx.getRegisterAst(ctx.registers.x9)<br>c = x9Ast == <span class="hljs-number">0x122ca6ca</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;solve:&#x27;</span>, ctx.getModel(c)[<span class="hljs-number">0</span>])<br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">solve: x24:64 = 0x122ca678</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="常见示例"><a href="#常见示例" class="headerlink" title="常见示例"></a>常见示例</h3><h4 id="切片和优化（向后切片）"><a href="#切片和优化（向后切片）" class="headerlink" title="切片和优化（向后切片）"></a>切片和优化（向后切片）</h4><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">ctx.sliceExpressions(expr)	<span class="hljs-comment"># 提取给定表达式所依赖的所有表达式</span><br></code></pre></td></tr></table></figure>
+
+<p>例子见<code>src/examples/python/backward_slicing.py</code>。</p>
+<h4 id="死代码消除"><a href="#死代码消除" class="headerlink" title="死代码消除"></a>死代码消除</h4><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">ctx.simplify(ast_node, <span class="hljs-keyword">bool </span>usingSolver, <span class="hljs-keyword">bool </span>usingLLVM)<br>ctx.simplify(<span class="hljs-keyword">block, </span><span class="hljs-keyword">bool </span>padding)		<span class="hljs-comment"># block为基本块，padding为True表示用nop指令填充死代码，false反之</span><br></code></pre></td></tr></table></figure>
+
+<p>例子可参考：<code>src/examples/python/dead_store_elimination.py</code>和<code>src/examples/python/simplification.py</code></p>
+<h4 id="不透明谓词检测"><a href="#不透明谓词检测" class="headerlink" title="不透明谓词检测"></a>不透明谓词检测</h4><p>例子见<code>src/examples/python/proving_opaque_predicates.py</code></p>
+<h4 id="布尔运算混淆简化"><a href="#布尔运算混淆简化" class="headerlink" title="布尔运算混淆简化"></a>布尔运算混淆简化</h4><p>例子见<code>src/examples/python/simplification.py</code>、<code>src/examples/python/synthesizing_obfuscated_code.py</code>，以及<code>src/examples/python/synthesizing_obfuscated_expressions.py</code></p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://deepwiki.com/JonathanSalwan/Triton/">https://deepwiki.com/JonathanSalwan/Triton/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/JonathanSalwan/Triton/">https://github.com/JonathanSalwan/Triton/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Triton/" class="category-chain-item">Triton</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Triton/">#Triton</a>
+      
+        <a href="/tags/%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90/">#污点分析</a>
+      
+        <a href="/tags/%E6%A8%A1%E6%8B%9F%E6%89%A7%E8%A1%8C/">#模拟执行</a>
+      
+        <a href="/tags/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/">#符号执行</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Triton源码编译与使用</div>
+      <div>http://example.com/2026/01/18/Triton/Triton源码编译与使用/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年1月18日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/14/%E9%80%86%E5%90%91%E5%AE%9E%E6%88%98/%E9%97%B2%E9%B1%BCApp%E9%80%86%E5%90%91/" title="某鱼App逆向">
+                        <span class="hidden-mobile">某鱼App逆向</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

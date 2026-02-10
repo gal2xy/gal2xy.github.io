@@ -252,6 +252,378 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/11/20/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
+          dex文件加载流程(一)
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/20/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B(%E4%B8%80)/" target="_self">
+        <div>
+          dex文件加载系列文章链接：  PathClassLoader、DexClassLoader dex文件加载流程(一) dex文件加载流程(二) dex文件加载流程(三)  InMemoryDexClassLoader InMemoryDexClassLoader加载内存dex的流程    一、PathClassLoader和DexClassLoaderAndroid启动APP时，会加载dex文
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-20 21:11" pubdate>
+              2023-11-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+              <a href="/tags/dex/">#dex</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/11/17/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADdex%20odex%20oat%20vdex%20art%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%8C%BA%E5%88%AB/" target="_self">
+          Android中dex odex oat vdex art文件格式区别
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/17/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADdex%20odex%20oat%20vdex%20art%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%8C%BA%E5%88%AB/" target="_self">
+        <div>
+          1. dexdex是Android平台的可执行文件。java文件先编译成class文件（java字节码），再通过dx或d8工具转换成dex文件。 class文件时java虚拟机的可执行文件，与之相对的，dex文件是Dalvik虚拟机的可执行文件，dex文件中存放的自然就是Dalvik字节码。 Android应用安装包，即apk文件中就含有一个或多个dex文件，命名如下：  classes.dex
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-17 15:59" pubdate>
+              2023-11-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/11/17/Android%E5%AE%89%E5%85%A8/ODEX%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
+          ODEX文件格式解析
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/17/Android%E5%AE%89%E5%85%A8/ODEX%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
+        <div>
+          一、什么是odex文件1.1 定义odex文件是Android上的可执行文件。odex文件是由apk中的dex文件优化生成的，存放在cache&#x2F;dalvik-cache目录下或者与apk同一目录下，最后删除apk文件中的classes.dex文件。  注意！！！不要被文件后缀名骗了！ .dex后缀的文件可以是DEX文件或者OAT文件，.odex不再是ODEX文件（应该是Android 5
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-17 11:27" pubdate>
+              2023-11-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/odex/">#odex</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/11/10/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
+          dex文件格式解析
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/10/Android%E5%AE%89%E5%85%A8/dex%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/" target="_self">
+        <div>
+          一、dex文件中的数据结构1.1 数据类型   类型 含义    u1 表示1byte的无符号数   u2 表示2bytes的无符号数   u4 表示4bytes的无符号数   u8 表示8bytes的无符号数   sleb128 有符号LEB128，可变长度为1~5bytes   uleb128 无符号LEB128，可变长度为1~5bytes   uleb128p1 &#x3D;无符号LEB12
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-10 21:47" pubdate>
+              2023-11-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+              <a href="/tags/dex/">#dex</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/09/13/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Dalvik%E5%92%8CART%E8%99%9A%E6%8B%9F%E6%9C%BA/" target="_self">
+          Android中的Dalvik和ART虚拟机
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/13/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84Dalvik%E5%92%8CART%E8%99%9A%E6%8B%9F%E6%9C%BA/" target="_self">
+        <div>
+          DalvikDalvik虚拟机（Dalvik Virtual Machine），简称 DVM，是 Google 专门为 Android 平台开发的虚拟机，它运行在 Android 运行时库中。 DVM 与 JVM 的区别 架构不同 JVM基于栈架构，需要频繁地从栈上读写数据，因此需要更多的指令分派和内存访问次数，这样就会耗费不少 CPU 时间。 DVM基于寄存器架构，数据的访问通过寄存器间的直接传
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-13 22:40" pubdate>
+              2023-09-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android/">#Android</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/09/13/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/13%E6%97%A5%E6%8A%A5/" target="_self">
+          20230913日报
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/13/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/13%E6%97%A5%E6%8A%A5/" target="_self">
+        <div>
+          延续昨天的DVM和ART的学习笔记，然后又学习了apk的打包流程，之后是apk的安装流程源码分析，没想到这部分很长很长，可以把这部分分为3部分：  PackageInstaller应用的初始化，这部分在UI界面上体现就是我们常看到的安装确认界面，包含需要使用到的权限信息等。 PackageInstaller安装apk，这部分并不是真正的安装，而是创建一个注册一个InstallEventReceiv
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-13 22:28" pubdate>
+              2023-09-13
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/09/12/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/12%E6%97%A5%E6%8A%A5/" target="_self">
           20230912日报
         </a>
@@ -506,404 +878,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/09/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/09%E6%97%A5%E6%8A%A5/" target="_self">
-          20230909日报
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/09/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/09%E6%97%A5%E6%8A%A5/" target="_self">
-        <div>
-          今天上午帮同学搞个自动预约自习室座位的代码，等到晚上开抢时，效果不是很好，学校服务器太垃圾的，登录请求都需要好久！感觉连手动抢都比不过，确实需要进一步优化脚本。 下午写了些nssctf上的mobile专题，感觉上面的题目没啥质量啊，都是简单的题目，也就有一个题目提及到了加壳脱壳。apk的壳还没试过，这一点需要学习学习。 之后就是给科研打工，不过也好在发现了某小程序的越权行为，感觉只有挖到洞才是这孤
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-09 23:02" pubdate>
-              2023-09-09
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/08/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/08%E6%97%A5%E6%8A%A5/" target="_self">
-          20230908日报
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/08/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/08%E6%97%A5%E6%8A%A5/" target="_self">
-        <div>
-          今天是跟着书籍学习了 JNI 原理，写了相应的学习笔记。有一点我不满意的是，每次写这种类型的博客，我都会花上非常久的时间来完成，每次写得都咬文嚼字，总担心哪里写的不太对，想根据自己的心得写，但又怕是错误的，很是痛苦！ 我觉得这是一种病！作为初学者，写的学习笔记存在错误是可以理解的，等学习一段时间后，回过头来看，如果哪里写的不对，更改就行了，干嘛非得这样呢！ 直接把原本用于科研的时间给占用了。唉！
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-08 22:27" pubdate>
-              2023-09-08
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/07/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/07%E6%97%A5%E6%8A%A5/" target="_self">
-          20230907日报
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/07/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/07%E6%97%A5%E6%8A%A5/" target="_self">
-        <div>
-          今天在nssctf上写了一些mobile专栏的题目。都是一些比较简单的，有点意思的还得是[羊城杯 2021]Ez_android，因为这道题需要用到jadx动调，修改smali语言，这些知识虽然之前学过，但都差不多忘光了，因为那时连笔记都没有做（这个是需要反思的）。更有意思的是[SWPU 2019]easyapp这道题，native层实现加密函数， JNI动态注册该函数，无法动调（可能是手机版本问
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-07 22:44" pubdate>
-              2023-09-07
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/07/CTF/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
-          nssctf-mobile专题(一)
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/07/CTF/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
-        <div>
-          [CISCN 2022 东北]crackme_Android整个分析如下图所示：  很简单。就是将38bytes的flag去掉格式后，每4bytes一组进行md5加密，得到的结果组成一个字符串，并于已知字符串比较。所以我们只需要将已知字符串分好组拿到https:&#x2F;&#x2F;www.cmd5.org&#x2F;上解密即可。分组代码如下： 12345678md5string &#x3D; &amp;#x27;8393931a16db5a
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-07 22:36" pubdate>
-              2023-09-07
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-              <a href="/tags/Reverse/">#Reverse</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/06/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/06%E6%97%A5%E6%8A%A5/" target="_self">
-          20230906日报
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/06/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/06%E6%97%A5%E6%8A%A5/" target="_self">
-        <div>
-          刚到一部nexus6p手机，下了同样的版本刷机包，没刷机直接root，发现这手机有avb验证，在开机的时候会验证boot.img是否被修改，于是乎卡在启动界面进不去，fastboot半天，结果发现根本没进bootloader模式（本以为会向之前的手机一样直接在bootloader界面），还是靠汪佬发现的。后面尝试解avb锁，可惜连对应的文件都没有！索性放弃了。 之后就是将昨天晚上问汪佬的问题重新复
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-06 23:05" pubdate>
-              2023-09-06
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%97%A5%E6%8A%A5/" class="category-chain-item">日报</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E6%97%A5%E6%8A%A5/2023%E5%B9%B409%E6%9C%88/" class="category-chain-item">2023年09月</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%97%A5%E6%8A%A5/">#日报</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/06/Android%E5%AE%89%E5%85%A8/IDA%E5%8A%A8%E8%B0%83SO%E6%96%87%E4%BB%B6/" target="_self">
-          IDA动调SO文件
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/06/Android%E5%AE%89%E5%85%A8/IDA%E5%8A%A8%E8%B0%83SO%E6%96%87%E4%BB%B6/" target="_self">
-        <div>
-          步骤一：将 android_server 文件 push 到手机中并执行复制IDA目录下的\dbgsrv目录下的android_server和android_server64到真机中并执行： 12345678&#x2F;&#x2F;复制到真机中adb push android_server &#x2F;data&#x2F;local&#x2F;tmpadb push android_server64 &#x2F;data&#x2F;local&#x2F;tmp&#x2F;&#x2F;修改应用权限
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-06 19:49" pubdate>
-              2023-09-06
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Reverse/">#Reverse</a>
             
           </div>
         
