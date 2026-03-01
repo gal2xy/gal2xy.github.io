@@ -252,6 +252,67 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/09/04/CTF/WUSTCTF2020-funnyre/" target="_self">
+          WUSTCTF2020-funnyre
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/04/CTF/WUSTCTF2020-funnyre/" target="_self">
+        <div>
+          分析elf文件，__libc_start_main函数启动 main 函数，init 函数中执行了三个函数，但对我们要求解的flag无影响，影响的是byte_603049，对应main函数中最后的 puts(s) 中的 s 变量。（废话咯） 直接来看 main 函数，发现存在花指令，如下图所示：  第一处很明显，两个跳转都几乎是零距离跳转且第二个指令永假（根本不会执行），nop掉这两个指令。然后是
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-04 22:20" pubdate>
+              2023-09-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Reverse/" class="category-chain-item">Reverse</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Reverse/">#Reverse</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/09/04/CTF/%E5%AE%89%E6%B4%B5%E6%9D%AF2019-crakMe/" target="_self">
           安洵杯2019-crackMe
         </a>
@@ -794,67 +855,6 @@
               <a href="/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">#环境配置</a>
             
               <a href="/tags/Frida/">#Frida</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
-          Android开发学习笔记(八) —— 探究ContentProvider
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/08/12/Android%E5%AE%89%E5%85%A8/Android%E5%BC%80%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(%E5%85%AB)%20%E2%80%94%E2%80%94%20%E6%8E%A2%E7%A9%B6ContentProvider/" target="_self">
-        <div>
-          一、什么是ContentProvider1.1 概念内容提供器(Content Provider)是Android四大组件之一，主要用于在不同的应用程序之间实现数据共享的功能，它提供了一套完整的机制，允许一个程序访问另一个程序中的数据，同时还能保证被访数据的安全性。使用时需要在AndroidManifest..xml文件中进行声明。 不同于文件存储和SharedPreferences存储中的两种全
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-08-12 14:34" pubdate>
-              2023-08-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android%E5%BC%80%E5%8F%91/">#Android开发</a>
             
           </div>
         

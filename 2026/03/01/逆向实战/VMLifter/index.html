@@ -1,0 +1,808 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、前言之前有利用过Unidbg trace分析受虚拟机保护的App，整体下来给我的感觉就是从茫茫无际的汇编代码中找到与真实代码逻辑有关的运算指令，然后基于此不停向上追溯，才能艰辛的还原出一个算法来。更何况需要还原的算法还很多。 但这种重复性工作，AI是很擅长的，因此尝试过将原有指令轨迹（即使进行过污点分析，剩余的指令仍然很多）发送给大模型进行分析，然而文件过于庞大，要么网页版不支持大文件，要么分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VMLifter: 一个基于指令执行轨迹的语义提升工具">
+<meta property="og:url" content="http://example.com/2026/03/01/%E9%80%86%E5%90%91%E5%AE%9E%E6%88%98/VMLifter/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="一、前言之前有利用过Unidbg trace分析受虚拟机保护的App，整体下来给我的感觉就是从茫茫无际的汇编代码中找到与真实代码逻辑有关的运算指令，然后基于此不停向上追溯，才能艰辛的还原出一个算法来。更何况需要还原的算法还很多。 但这种重复性工作，AI是很擅长的，因此尝试过将原有指令轨迹（即使进行过污点分析，剩余的指令仍然很多）发送给大模型进行分析，然而文件过于庞大，要么网页版不支持大文件，要么分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603012048940.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603012049852.png">
+<meta property="article:published_time" content="2026-03-01T12:46:25.000Z">
+<meta property="article:modified_time" content="2026-03-01T12:54:31.341Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="语义提升">
+<meta property="article:tag" content="值依赖分析">
+<meta property="article:tag" content="虚拟机反混淆">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603012048940.png">
+  
+  
+  
+  <title>VMLifter: 一个基于指令执行轨迹的语义提升工具 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="VMLifter: 一个基于指令执行轨迹的语义提升工具"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-03-01 20:46" pubdate>
+          2026年3月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          136 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">VMLifter: 一个基于指令执行轨迹的语义提升工具</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>之前有利用过Unidbg trace分析受虚拟机保护的App，整体下来给我的感觉就是从茫茫无际的汇编代码中找到与真实代码逻辑有关的运算指令，然后基于此不停向上追溯，才能艰辛的还原出一个算法来。更何况需要还原的算法还很多。</p>
+<p>但这种重复性工作，AI是很擅长的，因此尝试过将原有指令轨迹（即使进行过污点分析，剩余的指令仍然很多）发送给大模型进行分析，然而文件过于庞大，要么网页版不支持大文件，要么分析时间过长，除此之外，分析结果不佳，token消耗量过大。</p>
+<p>因此，我考虑到ARM架构的load -store的内存访问架构，可以借助这一特征，对指令轨迹进行带值依赖的语义提升，将load-store的指令轨迹切片转换成表达式，从而在保存原有语义不变的情况下，将原有指令轨迹的行数压缩至几百行的表达式，最后再借助大模型还原算法。</p>
+<h1 id="二、VMLifter"><a href="#二、VMLifter" class="headerlink" title="二、VMLifter"></a>二、VMLifter</h1><p><strong>VMLifter</strong> 是一个基于指令执行轨迹的语义提升工具，专注于值依赖驱动的程序语义重建。该工具利用 ARM &#x2F; ARM64 的 Load–Store 架构特性，对轨迹进行以内存访问为边界的切片分析。每个切片随后被提升为表达式，并在值依赖分析的基础上进行表达式压缩，最终生成同时包含符号信息与具体数值的表达式。VMLifter 特别适合分析基于虚拟化的混淆（例如 VMP）。对于<strong>VMLifter</strong>生成的表达式结果，可以配合大模型进行分析。</p>
+<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/gal2xy/VMLifter">https://github.com/gal2xy/VMLifter</a></p>
+<h2 id="2-1-项目架构"><a href="#2-1-项目架构" class="headerlink" title="2.1 项目架构"></a>2.1 项目架构</h2><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-comment">--------VMLifter</span><br>	|<span class="hljs-comment">----example	案例</span><br>	|<span class="hljs-comment">----codeSlicing.py		load-store切片</span><br>	|<span class="hljs-comment">----opWrapper.py		表达式、变量封装</span><br>	|<span class="hljs-comment">----sliceTransform.py		表达式转换(语义提升)</span><br>	|<span class="hljs-comment">----unidbgTraceParser.py	unidbg trace格式解析</span><br></code></pre></td></tr></table></figure>
+
+<p>在<code>sliceTransform.py</code>中，我仅实现了部分指令的语义提升，对于未实现的指令语义，可参考已有的指令语义提升代码。</p>
+<h2 id="2-2-load-store代码切片"><a href="#2-2-load-store代码切片" class="headerlink" title="2.2 load-store代码切片"></a>2.2 load-store代码切片</h2><p>在ARM&#x2F;ARM64架构中，内存的访问只能通过Load、Store指令进行显示访问。因此，一个内存数据要想参与运算，必然通过Load指令加载至寄存器，然后所有的运算都发生在寄存器中，最后通过Store指令保存至内存中。</p>
+<p>对于受虚拟机保护的程序，我们可以将程序的内存环境分为：</p>
+<ul>
+<li>真实环境：真实环境中的数据只能在虚拟环境中进行运算操作，因此需要通过load指令先将真实环境中的数据加载到虚拟环境中。</li>
+<li>虚拟环境：在该环境中的操作不会影响到真实环境中的内存数据，只有通过store指令写入真实环境才能影响到。</li>
+</ul>
+<p>如此一来，那么任何数据要想进行加密等操作时，必然先要将待加密的数据加载到虚拟环境中，然后再在虚拟环境中进行运算操作，最后将加密数据存储到真实环境中。对于未存储到真实环境中的数据，即使它在虚拟环境中进行了一系列运算，也无法改变真实环境的数据（可能改变代码控制流）。因此，我们只需要关注前者，而后者可以忽略。</p>
+<p>真实环境中的数据的生命周期如下图所示</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603012048940.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此根据以上一套理论，我们对unidbg trace得到的汇编指令进行切片，每个代码切片都对应一个或多个真实环境中的数据进行运算操作。切片算法如下：</p>
+<ol>
+<li>寻找load指令，判断load指令中内存操作数的内存基址是否是虚拟栈基址。如果内存基址不是虚拟栈基址，跳转到步骤2，否则重复步骤1。</li>
+<li>寻找store指令，判断store指令中内存操作数的内存基址是否是虚拟栈基址。如果内存基址不是虚拟栈基址，意味着成功找到一个代码切片，将切片记录下来，回到步骤1，否则重复步骤2。</li>
+</ol>
+<h2 id="2-3-切片的表达式转换"><a href="#2-3-切片的表达式转换" class="headerlink" title="2.3 切片的表达式转换"></a>2.3 切片的表达式转换</h2><p>根据真实环境中的数据的生命周期示意图，我们可以将代码切片转换成运算表达式，其中操作数来自真实环境中，运算表达式结果存储回真实环境中（省略虚拟环境中的间接指令，例如store、load指令）。</p>
+<p>对于切片表达式转换，我们需要先对切片中的每条汇编指令进行表达式转换，然后再对最后一条表达式（根据切片算法可知必然是store指令）进行回溯，优化掉中间变量，使表达式的左右两端都只包含真实环境中的内存操作数变量。以下是一个切片表达式转换示例：</p>
+<blockquote>
+<p>在该例子中，虚拟栈基址为0x127090c0，同时为了方便跟踪，内存地址以表达式形式展示，不计算最终结果。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs assembly">// a fragment<br>0x121cc9dc: &quot;ldr w23, [x23]&quot; x23=0xe4ffdc84 =&gt; w23=0x2f                   // from memory<br>    w23_1 = mem[0xe4ffdc84]<br><br>0x121cc9e0: &quot;str w23, [x0, x26]&quot; w23=0x2f x0=0x127090c0 x26=0x74 =&gt; w23=0x2f<br>    vmstack[0x127090c0 + 0x74] = w23_1<br><br>0x121cc874: &quot;ldp w7, w23, [x0, #0x70]&quot; w7=0x67 w23=0x2e60 x0=0x127090c0 =&gt; w7=0x334b w23=0x2f<br>    w7_1 = vmstack[0x127090c0 + 0x70]<br>    w23_2 = vmstack[0x127090c0 + 0x74]<br><br>0x121cc878: &quot;mul w7, w7, w23&quot; w7=0x334b w23=0x2f =&gt; w7=0x96ac5            //Arithmetic operations<br>    w7_2 = w7_1 * w23_2<br><br>0x121cc87c: &quot;str w7, [x0, #0x78]&quot; w7=0x96ac5 x0=0x127090c0 =&gt; w7=0x96ac5<br>    vmstack[0x127090c0 + 0x78] = w7_2<br><br>0x121cc508: &quot;ldp x7, x23, [x0, #0x80]&quot; x7=0x71 x23=0x1564 x0=0x127090c0 =&gt; x7=0x1 x23=0x12709000<br>    x7_1 = vmstack[0x127090c0 + 0x80]<br>    x23_1 = vmstack[0x127090c0+  0x84]<br><br>0x121cc50c: &quot;add x7, x23, x7&quot; x23=0x12709000 x7=0x1 =&gt; x7=0x12709001      // Arithmetic operations<br>    x7_2 = x23_1 + x7_1<br><br>0x121cc510: &quot;str x7, [x0, #0x90]&quot; x7=0x12709001 x0=0x127090c0 =&gt; x7=0x12709001<br>    vmstack[0x127090c0 + 0x90] = x7_2<br><br>0x121cc6e8: &quot;ldr x7, [x0, #0x90]&quot; x0=0x127090c0 =&gt; x7=0x12709001<br>    x7_3 = vmstack[0x127090c0 + 0x90]<br><br>0x121cc6ec: &quot;ldrb w7, [x7]&quot; x7=0x12709001 =&gt; w7=0x61                      // from memory<br>    w7_3 = mem[0x12709001]<br><br>0x121cc6f0: &quot;strb w7, [x0, #0x98]&quot; w7=0x61 x0=0x127090c0 =&gt; w7=0x61<br>    vmstack[0x127090c0 + 0x98] = w7_3<br><br>0x121cc81c: &quot;ldrb w26, [x0, x26]&quot; x0=0x127090c0 x26=0x98 =&gt; w26=0x61<br>    w26_1 = vmstack[0x127090c0 + 0x98]<br><br>0x121cc820: &quot;str w26, [x0, x23]&quot; w26=0x61 x0=0x127090c0 x23=0x9c =&gt; w26=0x61<br>    vmstack[0x127090c0 + 0x9c] = w26_1<br><br>0x121cc98c: &quot;ldr w26, [x0, x26]&quot; x0=0x127090c0 x26=0x78 =&gt; w26=0x96ac5<br>    w26_2 = vmstack[0x127090c0 + 0x78]<br><br>0x121cc990: &quot;ldr w27, [x0, x27]&quot; x0=0x127090c0 x27=0x9c =&gt; w27=0x61<br>    w27_1 = vmstack[0x127090c0 + 0x9c]<br><br>0x121cc994: &quot;add w26, w27, w26&quot; w27=0x61 w26=0x96ac5 =&gt; w26=0x96b26       // Arithmetic operations  <br>    w26_3 = w27_1 + w26_2<br><br>0x121cc99c: &quot;str w26, [x0, x23]&quot; w26=0x96b26 x0=0x127090c0 x23=0xa0 =&gt; w26=0x96b26<br>    vmstack[0x127090c0 + 0xa0] = w26_3<br><br>0x121cc638: &quot;ldr w23, [x0, x23]&quot; x0=0x127090c0 x23=0xa0 =&gt; w23=0x96b26<br>    w23_3 = vmstack[0x127090c0 + 0xa0]<br><br>0x121cc640: &quot;str w23, [x26]&quot; w23=0x96b26 x26=0xe4ffdc74 =&gt; w23=0x96b26    // into memory<br>    mem[0xe4ffdc74] = w23_3                 <br></code></pre></td></tr></table></figure>
+
+<p>然后对最后一条指令的表达式进行回溯，得到只包含真实内存操作数的形式</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">mem<span class="hljs-string">[0xe4ffdc74]</span> = w23_3<br>                = vmstack<span class="hljs-string">[0x127090c0 + 0xa0]</span><br>                = w26_3<br>                = w27_1 + w26_2<br>                = vmstack<span class="hljs-string">[0x127090c0 + 0x9c]</span> + vmstack<span class="hljs-string">[0x127090c0 + 0x78]</span><br>                = w26_1 + w7_2<br>                = vmstack<span class="hljs-string">[0x127090c0 + 0x98]</span> + w7_1 * w23_2<br>                = w7_3 + vmstack<span class="hljs-string">[0x127090c0 + 0x70]</span> * vmstack<span class="hljs-string">[0x127090c0 + 0x74]</span><br>                = mem<span class="hljs-string">[0x12709001]</span> + 0x334b * w23_1		// can&#x27;t find def of vmstack<span class="hljs-string">[0x127090c0 + 0x70]</span>, use value<br>                = mem<span class="hljs-string">[0x12709001]</span> + 0x334b * mem<span class="hljs-string">[0xe4ffdc84]</span><br></code></pre></td></tr></table></figure>
+
+<p>最后再将值带入表达式</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">mem[<span class="hljs-number">0xe4ffdc74</span>] = mem[<span class="hljs-number">0x12709001</span>] + <span class="hljs-number">0x334b</span> * mem[<span class="hljs-number">0xe4ffdc84</span>]<br>                = <span class="hljs-number">0x61</span> + <span class="hljs-number">0x334b</span> * <span class="hljs-number">0x2f</span>                                                                          // can<span class="hljs-string">&#x27;t find def of mem[0xe4ffdc84], use value</span><br><span class="hljs-string">                = 0x96b26     </span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、案例"><a href="#三、案例" class="headerlink" title="三、案例"></a>三、案例</h1><p>案例的指令轨迹见项目的<code>/example</code>目录下。</p>
+<h2 id="sub-1cc3c0"><a href="#sub-1cc3c0" class="headerlink" title="sub_1cc3c0"></a>sub_1cc3c0</h2><p>该函数的手动分析结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">url = <span class="hljs-string">&quot;/api/v4/pdp/hot_sales/get?apm_fs=false&amp;apm_p=1.16&amp;apm_pid=shopee%2F%40shopee-rn%2Fproduct-page%2FPRODUCT_PAGE&amp;apm_ts=1734212512053&amp;item_id=27004928820&amp;limit=15&amp;offset=0&amp;shop_id=1205969633&quot;</span><br>key1 = <span class="hljs-number">0</span><br>const = <span class="hljs-number">0x334b</span><br>mod = <span class="hljs-number">0xffffffff</span> + <span class="hljs-number">1</span><br><span class="hljs-keyword">for</span> alp <span class="hljs-keyword">in</span> url:<br>    key1 = (key1*const) % mod<br>    key1 = (key1 + <span class="hljs-built_in">ord</span>(alp)) % mod<br>    <span class="hljs-comment"># print(hex(key1), hex(ord(alp)))</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">hex</span>(key1))<br></code></pre></td></tr></table></figure>
+
+<p><code>sub_1cc3c0.txt</code>为unidbg trace得到的指令轨迹，<code>sub_1cc3c0_expr.txt</code>为经过VMLifter得到的表达式结果，部分结果展示如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc80]_1 = mem[<span class="hljs-number">0</span>xe4ffdc70]_1 = <span class="hljs-number">0</span>x0 = <span class="hljs-number">0</span>x0<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc84]_1 = mem[<span class="hljs-number">0</span>xe4ffdc74]_1 = <span class="hljs-number">0</span>x0 = <span class="hljs-number">0</span>x0<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc74]_2 = ((mem[<span class="hljs-number">0</span>xe4ffdc7c]_1 * mem[<span class="hljs-number">0</span>xe4ffdc84]_1) + mem[<span class="hljs-number">0</span>x12709000]_0) = <span class="hljs-number">0</span>x334b * <span class="hljs-number">0</span>x0 + <span class="hljs-number">0</span>x2f = <span class="hljs-number">0</span>x2f<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc70]_2 = (mem[<span class="hljs-number">0</span>xe4ffdc80]_1 + <span class="hljs-number">0</span>x1) = <span class="hljs-number">0</span>x0 + <span class="hljs-number">0</span>x1 = <span class="hljs-number">0</span>x1<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc80]_2 = mem[<span class="hljs-number">0</span>xe4ffdc70]_2 = <span class="hljs-number">0</span>x1 = <span class="hljs-number">0</span>x1<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc84]_2 = mem[<span class="hljs-number">0</span>xe4ffdc74]_2 = <span class="hljs-number">0</span>x2f = <span class="hljs-number">0</span>x2f<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc74]_3 = ((mem[<span class="hljs-number">0</span>xe4ffdc7c]_1 * mem[<span class="hljs-number">0</span>xe4ffdc84]_2) + mem[<span class="hljs-number">0</span>x12709001]_0) = <span class="hljs-number">0</span>x334b * <span class="hljs-number">0</span>x2f + <span class="hljs-number">0</span>x61 = <span class="hljs-number">0</span>x96b26<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc70]_3 = (mem[<span class="hljs-number">0</span>xe4ffdc80]_2 + <span class="hljs-number">0</span>x1) = <span class="hljs-number">0</span>x1 + <span class="hljs-number">0</span>x1 = <span class="hljs-number">0</span>x2<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc80]_3 = mem[<span class="hljs-number">0</span>xe4ffdc70]_3 = <span class="hljs-number">0</span>x2 = <span class="hljs-number">0</span>x2<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc84]_3 = mem[<span class="hljs-number">0</span>xe4ffdc74]_3 = <span class="hljs-number">0</span>x96b26 = <span class="hljs-number">0</span>x96b26<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc74]_4 = ((mem[<span class="hljs-number">0</span>xe4ffdc7c]_1 * mem[<span class="hljs-number">0</span>xe4ffdc84]_3) + mem[<span class="hljs-number">0</span>x12709002]_0) = <span class="hljs-number">0</span>x334b * <span class="hljs-number">0</span>x96b26 + <span class="hljs-number">0</span>x70 = <span class="hljs-number">0</span>xe31af692<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc70]_4 = (mem[<span class="hljs-number">0</span>xe4ffdc80]_3 + <span class="hljs-number">0</span>x1) = <span class="hljs-number">0</span>x2 + <span class="hljs-number">0</span>x1 = <span class="hljs-number">0</span>x3<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc80]_4 = mem[<span class="hljs-number">0</span>xe4ffdc70]_4 = <span class="hljs-number">0</span>x3 = <span class="hljs-number">0</span>x3<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc84]_4 = mem[<span class="hljs-number">0</span>xe4ffdc74]_4 = <span class="hljs-number">0</span>xe31af692 = <span class="hljs-number">0</span>xe31af692<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc74]_5 = ((mem[<span class="hljs-number">0</span>xe4ffdc7c]_1 * mem[<span class="hljs-number">0</span>xe4ffdc84]_4) + mem[<span class="hljs-number">0</span>x12709003]_0) = <span class="hljs-number">0</span>x334b * <span class="hljs-number">0</span>xe31af692 + <span class="hljs-number">0</span>x69 = <span class="hljs-number">0</span>xe805532f<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc70]_5 = (mem[<span class="hljs-number">0</span>xe4ffdc80]_4 + <span class="hljs-number">0</span>x1) = <span class="hljs-number">0</span>x3 + <span class="hljs-number">0</span>x1 = <span class="hljs-number">0</span>x4<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc80]_5 = mem[<span class="hljs-number">0</span>xe4ffdc70]_5 = <span class="hljs-number">0</span>x4 = <span class="hljs-number">0</span>x4<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc84]_5 = mem[<span class="hljs-number">0</span>xe4ffdc74]_5 = <span class="hljs-number">0</span>xe805532f = <span class="hljs-number">0</span>xe805532f<br><span class="hljs-attribute">mem</span>[<span class="hljs-number">0</span>xe4ffdc74]_6 = ((mem[<span class="hljs-number">0</span>xe4ffdc7c]_1 * mem[<span class="hljs-number">0</span>xe4ffdc84]_5) + mem[<span class="hljs-number">0</span>x12709004]_0) = <span class="hljs-number">0</span>x334b * <span class="hljs-number">0</span>xe805532f + <span class="hljs-number">0</span>x2f = <span class="hljs-number">0</span>x921bbf4<br></code></pre></td></tr></table></figure>
+
+<p>将其投喂给AI，以下是与Gemini交互的内容：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">用户提问：<br>我所上传的文件中的内容为某一函数的VMP指令轨迹语义提升后表达式，请根据这些表达式，识别出参数生成算法，并还原成python代码。对于输入参数，完整展示参数的所有数据，如果参数是可打印的字符串，则将其显示为字符串。<br><br>Gemini回答：<br>根据您提供的 VMP 指令轨迹提升后的表达式，该函数实现了一个基于 <span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>线性同余或类似哈希迭代<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span> 的参数生成算法。<br><br><span class="hljs-comment">### 1. 算法识别与分析</span><br><br>通过观察表达式的迭代模式 ：<br><br><span class="hljs-symbol">*</span> <br><span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>初始状态<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>：`mem[0xe4ffdc84]_1` 为 `0x0`，乘数因子 `mem[0xe4ffdc7c]_1` 为 `0x334b` 。<br><br><br><span class="hljs-symbol">*</span> <br><span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>迭代公式<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>：`new_value = (multiplier <span class="hljs-symbol">*</span> old_value) + input_byte` 。<br><br><br><span class="hljs-symbol">*</span> <br><span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>输入来源<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>：算法按顺序读取位于 `mem[0x12709000]` 开始的内存序列（即参数字节流） 。<br><br><br><span class="hljs-symbol">*</span> <span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>迭代过程<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>：<br>1. <br>`0x334b <span class="hljs-symbol">*</span> 0x0 + 0x2f = 0x2f` <br><br><br>2. <br>`0x334b <span class="hljs-symbol">*</span> 0x2f + 0x61 = 0x96b26` <br><br><br>3. <br>`0x334b <span class="hljs-symbol">*</span> 0x96b26 + 0x70 = 0xe31af692` <br>...以此类推。<br><br><br><br><br><br>这是一种典型的字符串/序列哈希处理逻辑，其中 `0x334b` (13131) 是常用的哈希乘数。<br><br><span class="hljs-comment">### 2. 参数数据还原</span><br><br>根据 `mem[0x127090xx]` 地址处的偏移量，提取出的原始输入参数（字节序列）如下 ：<br><br>|<span class="hljs-string"> 地址偏移 </span>|<span class="hljs-string"> 十六进制值 </span>|<span class="hljs-string"> ASCII 字符 </span>|<br>|<span class="hljs-string"> --- </span>|<span class="hljs-string"> --- </span>|<span class="hljs-string"> --- </span>|<br>|<span class="hljs-string"> +0x00 </span>|<span class="hljs-string"> 0x2f </span>|<span class="hljs-string"> / </span>|<br>|<span class="hljs-string"> +0x01 </span>|<span class="hljs-string"> 0x61 </span>|<span class="hljs-string"> a </span>|<br>|<span class="hljs-string"> +0x02 </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x03 </span>|<span class="hljs-string"> 0x69 </span>|<span class="hljs-string"> i </span>|<br>|<span class="hljs-string"> +0x04 </span>|<span class="hljs-string"> 0x2f </span>|<span class="hljs-string"> / </span>|<br>|<span class="hljs-string"> +0x05 </span>|<span class="hljs-string"> 0x76 </span>|<span class="hljs-string"> v </span>|<br>|<span class="hljs-string"> +0x06 </span>|<span class="hljs-string"> 0x34 </span>|<span class="hljs-string"> 4 </span>|<br>|<span class="hljs-string"> +0x07 </span>|<span class="hljs-string"> 0x2f </span>|<span class="hljs-string"> / </span>|<br>|<span class="hljs-string"> +0x08 </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x09 </span>|<span class="hljs-string"> 0x64 </span>|<span class="hljs-string"> d </span>|<br>|<span class="hljs-string"> +0x0a </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x0b </span>|<span class="hljs-string"> 0x2f </span>|<span class="hljs-string"> / </span>|<br>|<span class="hljs-string"> +0x0c </span>|<span class="hljs-string"> 0x68 </span>|<span class="hljs-string"> h </span>|<br>|<span class="hljs-string"> +0x0d </span>|<span class="hljs-string"> 0x6f </span>|<span class="hljs-string"> o </span>|<br>|<span class="hljs-string"> +0x0e </span>|<span class="hljs-string"> 0x74 </span>|<span class="hljs-string"> t </span>|<br>|<span class="hljs-string"> +0x0f </span>|<span class="hljs-string"> 0x5f </span>|<span class="hljs-string"> _ </span>|<br>|<span class="hljs-string"> +0x10 </span>|<span class="hljs-string"> 0x73 </span>|<span class="hljs-string"> s </span>|<br>|<span class="hljs-string"> +0x11 </span>|<span class="hljs-string"> 0x61 </span>|<span class="hljs-string"> a </span>|<br>|<span class="hljs-string"> +0x12 </span>|<span class="hljs-string"> 0x6c </span>|<span class="hljs-string"> l </span>|<br>|<span class="hljs-string"> +0x13 </span>|<span class="hljs-string"> 0x65 </span>|<span class="hljs-string"> e </span>|<br>|<span class="hljs-string"> +0x14 </span>|<span class="hljs-string"> 0x73 </span>|<span class="hljs-string"> s </span>|<br>|<span class="hljs-string"> +0x15 </span>|<span class="hljs-string"> 0x2f </span>|<span class="hljs-string"> / </span>|<br>|<span class="hljs-string"> +0x16 </span>|<span class="hljs-string"> 0x67 </span>|<span class="hljs-string"> g </span>|<br>|<span class="hljs-string"> +0x17 </span>|<span class="hljs-string"> 0x65 </span>|<span class="hljs-string"> e </span>|<br>|<span class="hljs-string"> +0x18 </span>|<span class="hljs-string"> 0x74 </span>|<span class="hljs-string"> t </span>|<br>|<span class="hljs-string"> +0x19 </span>|<span class="hljs-string"> 0x3f </span>|<span class="hljs-string"> ? </span>|<br>|<span class="hljs-string"> +0x1a </span>|<span class="hljs-string"> 0x61 </span>|<span class="hljs-string"> a </span>|<br>|<span class="hljs-string"> +0x1b </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x1c </span>|<span class="hljs-string"> 0x6d </span>|<span class="hljs-string"> m </span>|<br>|<span class="hljs-string"> +0x1d </span>|<span class="hljs-string"> 0x5f </span>|<span class="hljs-string"> _ </span>|<br>|<span class="hljs-string"> +0x1e </span>|<span class="hljs-string"> 0x66 </span>|<span class="hljs-string"> f </span>|<br>|<span class="hljs-string"> +0x1f </span>|<span class="hljs-string"> 0x73 </span>|<span class="hljs-string"> s </span>|<br>|<span class="hljs-string"> +0x20 </span>|<span class="hljs-string"> 0x3d </span>|<span class="hljs-string"> = </span>|<br>|<span class="hljs-string"> +0x21 </span>|<span class="hljs-string"> 0x66 </span>|<span class="hljs-string"> f </span>|<br>|<span class="hljs-string"> +0x22 </span>|<span class="hljs-string"> 0x61 </span>|<span class="hljs-string"> a </span>|<br>|<span class="hljs-string"> +0x23 </span>|<span class="hljs-string"> 0x6c </span>|<span class="hljs-string"> l </span>|<br>|<span class="hljs-string"> +0x24 </span>|<span class="hljs-string"> 0x73 </span>|<span class="hljs-string"> s </span>|<br>|<span class="hljs-string"> +0x25 </span>|<span class="hljs-string"> 0x65 </span>|<span class="hljs-string"> e </span>|<br>|<span class="hljs-string"> +0x26 </span>|<span class="hljs-string"> 0x26 </span>|<span class="hljs-string"> &amp; </span>|<br>|<span class="hljs-string"> +0x27 </span>|<span class="hljs-string"> 0x61 </span>|<span class="hljs-string"> a </span>|<br>|<span class="hljs-string"> +0x28 </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x29 </span>|<span class="hljs-string"> 0x6d </span>|<span class="hljs-string"> m </span>|<br>|<span class="hljs-string"> +0x2a </span>|<span class="hljs-string"> 0x5f </span>|<span class="hljs-string"> _ </span>|<br>|<span class="hljs-string"> +0x2b </span>|<span class="hljs-string"> 0x70 </span>|<span class="hljs-string"> p </span>|<br>|<span class="hljs-string"> +0x2c </span>|<span class="hljs-string"> 0x3d </span>|<span class="hljs-string"> = </span>|<br>|<span class="hljs-string"> +0x2d </span>|<span class="hljs-string"> 0x31 </span>|<span class="hljs-string"> 1 </span>|<br>|<span class="hljs-string"> +0x2e </span>|<span class="hljs-string"> 0x2e </span>|<span class="hljs-string"> . </span>|<br>|<span class="hljs-string"> +0x2f </span>|<span class="hljs-string"> 0x31 </span>|<span class="hljs-string"> 1 </span>|<br><br><span class="hljs-symbol">*</span><span class="hljs-symbol">*</span>完整输入参数字符串：<span class="hljs-symbol">*</span><span class="hljs-symbol">*</span><br><br><br>`/api/v4/pdp/hot_sales/get?apm_fs=false&amp;apm_p=1.1` <br><br><span class="hljs-comment">### 3. Python 代码还原</span><br><br>```python<br>def vmp_parameter_algorithm(input_data):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    还原后的参数生成/哈希算法</span><br><span class="hljs-string">    :param input_data: 输入的字节列表或字符串</span><br><span class="hljs-string">    :return: 最终生成的计算值 (32位无符号整数)</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    if isinstance(input_data, str):<br>        input_bytes = input_data.encode(&#x27;ascii&#x27;)<br>    else:<br>        input_bytes = input_data<br><br>    multiplier = 0x334b  <span class="hljs-comment"># 13131</span><br>    current_value = 0x0<br>    <br>    for byte in input_bytes:<br>        <span class="hljs-comment"># 模拟表达式中的迭代过程: (multiplier * old_value) + current_byte</span><br>        <span class="hljs-comment"># 并保持在 32 位无符号整数范围内</span><br>        current_value = (multiplier <span class="hljs-symbol">*</span> current_value + byte) &amp; 0xFFFFFFFF<br>        <br>    return current_value<br><br><span class="hljs-comment"># 输入数据还原</span><br>raw_params = <span class="hljs-string">&quot;/api/v4/pdp/hot_sales/get?apm_fs=false&amp;apm_p=1.1&quot;</span><br>result = vmp_parameter_algorithm(raw_params)<br><br>print(f<span class="hljs-string">&quot;输入参数字符串: &#123;raw_params&#125;&quot;</span>)<br>print(f<span class="hljs-string">&quot;最终生成结果: &#123;hex(result)&#125;&quot;</span>)<br><br>```<br></code></pre></td></tr></table></figure>
+
+<p>从结果来看，算法成功还原了，但是对于我要求的完整展示参数数据，大模型并没有做到！如果想要得到更好的结果，可以优化提示词，或者增加示例分析。</p>
+<p>值得一提的是，VMLifter将108912行数据压缩至756行，后者对AI来说是可以接受的输入量。</p>
+<h2 id="sub-1de514"><a href="#sub-1de514" class="headerlink" title="sub_1de514"></a>sub_1de514</h2><p>该函数是base64加密，但密码表是自定义密码表。</p>
+<p>同样将VMLifter后的结果投喂给Gemini，交互过程如下：</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">用户提问：<br>我所上传的文件中的内容为某一函数的VMP指令轨迹语义提升后表达式，请利用值依赖分析，结合表达式中的运算关系和特殊值，猜测参数生成算法，并还原成python代码。<br><br>Gemini回答：<br>根据您提供的VMP指令轨迹语义提升表达式，这似乎是一个将特定内存数据（可能是查找表或原始序列）经过索引变换后，重新组合成新字符串（如Base64变体或自定义编码）的过程。<br><br>通过对表达式中值依赖关系和内存地址偏移的分析，以下是对该算法的推导与Python还原：<br><br>### <span class="hljs-number">1</span>. 核心逻辑分析<br><br>* **内存布局与自增步长**：<br>* 源数据（`mem[<span class="hljs-number">0</span>x122eabxx]`）被提取并写入目标缓冲区（`mem[<span class="hljs-number">0</span>x126e5140]`及后续）。<br><br><br>* 目标指针 `mem[<span class="hljs-number">0</span>xe4fff1d8]` 每轮增加 **<span class="hljs-number">4</span>**（`+<span class="hljs-number">1</span> +<span class="hljs-number">1</span> +<span class="hljs-number">1</span> +<span class="hljs-number">1</span>`），对应每次写入 <span class="hljs-number">4</span> 字节数据。<br><br><br>* 计数器 `mem[<span class="hljs-number">0</span>xe4fff1e0]` 每轮增加 **<span class="hljs-number">3</span>**（`0 -&gt; <span class="hljs-number">3</span> -&gt; <span class="hljs-number">6</span> -&gt; <span class="hljs-number">9</span> -&gt; <span class="hljs-number">0</span>xc -&gt; <span class="hljs-number">0</span>xf -&gt; <span class="hljs-number">0</span>x12`），这符合典型的 **<span class="hljs-number">3</span>字节转<span class="hljs-number">4</span>字节** 编码特征（如Base64）。<br><br><br><br><br>* **提取的数据序列（十六进制）**：<br>通过提取表达式中赋值给 `mem[<span class="hljs-number">0</span>x126e51xx]` 的值，可以得到以下原始字节流：<br><span class="hljs-number">1</span>. <br>`42 <span class="hljs-number">56</span> <span class="hljs-number">46</span> <span class="hljs-number">32</span>` (<span class="hljs-string">&quot;BVF2&quot;</span>) <br><br><br><span class="hljs-number">2</span>. <br>`67 <span class="hljs-number">51</span> <span class="hljs-number">38</span> <span class="hljs-number">4</span>E` (<span class="hljs-string">&quot;gQ8N&quot;</span>) <br><br><br><span class="hljs-number">3</span>. <br>`71 <span class="hljs-number">34</span> <span class="hljs-number">2</span>F <span class="hljs-number">37</span>` (<span class="hljs-string">&quot;q4/7&quot;</span>) <br><br><br><span class="hljs-number">4</span>. <br>`63 <span class="hljs-number">42</span> <span class="hljs-number">73</span> <span class="hljs-number">69</span>` (<span class="hljs-string">&quot;cBsi&quot;</span>) <br><br><br><span class="hljs-number">5</span>. <br>`52 <span class="hljs-number">6</span>D <span class="hljs-number">66</span> <span class="hljs-number">6</span>E` (<span class="hljs-string">&quot;Rmfn&quot;</span>) <br><br><br><span class="hljs-number">6</span>. <br>`46 <span class="hljs-number">74</span> <span class="hljs-number">2</span>F <span class="hljs-number">61</span>` (<span class="hljs-string">&quot;Ft/a&quot;</span>) <br><br><br><span class="hljs-number">7</span>. <br>`6B <span class="hljs-number">6</span>D <span class="hljs-number">2</span>F <span class="hljs-number">3</span>D` (<span class="hljs-string">&quot;km/=&quot;</span>) <br><br><br><br><br>* **位运算特征**：<br>表达式中出现了 `((mem[<span class="hljs-number">0</span>xe4fff56e]_0 &amp; <span class="hljs-number">0</span>x3) &lt;&lt; <span class="hljs-number">0</span>x4) = <span class="hljs-number">0</span>x30`。这是典型的位移操作，用于处理编码中的溢出位或填充位。<br><br><br><br>---<br><br>### <span class="hljs-number">2</span>. 算法猜测：自定义Base64/索引映射<br><br>轨迹显示程序正在从一个全局查找表中根据特定索引提取字符。最后出现的 `0x3d`（ASCII中的 `=`）强烈暗示这是一个类似 **Base64** 的编码过程，或者是通过一组混淆过的索引从映射表中重组字符串。<br><br>### <span class="hljs-number">3</span>. Python 代码还原<br><br>根据上述依赖关系，还原出的生成逻辑如下：<br><br>```python<br><span class="hljs-title">def recover_algorithm():</span><br>    # <span class="hljs-number">1</span>. 提取表达式中映射出的原始十六进制值 (Source Values)<br>    # 这些值来源于 mem[<span class="hljs-number">0</span>x122eabxx] 的映射<br>    raw_values = [<br><span class="hljs-built_in">        0x42,</span> <span class="hljs-number">0</span>x56, <span class="hljs-number">0</span>x46, <span class="hljs-number">0</span>x32,  # BVF2<br><span class="hljs-built_in">        0x67,</span> <span class="hljs-number">0</span>x51, <span class="hljs-number">0</span>x38, <span class="hljs-number">0</span>x4E,  # gQ8N<br><span class="hljs-built_in">        0x71,</span> <span class="hljs-number">0</span>x34, <span class="hljs-number">0</span>x2f, <span class="hljs-number">0</span>x37,  # q4/<span class="hljs-number">7</span><br><span class="hljs-built_in">        0x63,</span> <span class="hljs-number">0</span>x42, <span class="hljs-number">0</span>x73, <span class="hljs-number">0</span>x69,  # cBsi<br><span class="hljs-built_in">        0x52,</span> <span class="hljs-number">0</span>x6d, <span class="hljs-number">0</span>x66, <span class="hljs-number">0</span>x6e,  # Rmfn<br><span class="hljs-built_in">        0x46,</span> <span class="hljs-number">0</span>x74, <span class="hljs-number">0</span>x2f, <span class="hljs-number">0</span>x61,  # Ft/a<br><span class="hljs-built_in">        0x6b,</span> <span class="hljs-number">0</span>x6d, <span class="hljs-number">0</span>x2f, <span class="hljs-number">0</span>x3d   # km/=<br>    ]<br><br>    # <span class="hljs-number">2</span>. 将十六进制转化为字符序列<br>    # 根据 mem[<span class="hljs-number">0</span>x126e5140] 开始的连续写入逻辑<br>    reconstructed_str = <span class="hljs-string">&quot;&quot;</span>.join([chr(b) for b in raw_values])<br>    <br>    <span class="hljs-keyword">return</span> reconstructed_str<br><br># 模拟轨迹中的位运算处理 (示例)<br><span class="hljs-title">def process_bits(input_val):</span><br>    # 对应轨迹中的 mem[<span class="hljs-number">0</span>xe4fff1d4]_1= ((val &amp; <span class="hljs-number">0</span>x3) &lt;&lt; <span class="hljs-number">0</span>x4)<br>    <span class="hljs-keyword">return</span> (input_val &amp; <span class="hljs-number">0</span>x03) &lt;&lt; <span class="hljs-number">4</span><br><br>if __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    result = recover_algorithm()<br>    print(f<span class="hljs-string">&quot;还原的参数字符串: &#123;result&#125;&quot;</span>)<br>    <br>    # 验证位运算逻辑<br>    # 假设输入是轨迹中隐含的某个中间值，结果应为 <span class="hljs-number">0</span>x30<br>    example_val = <span class="hljs-number">0</span>x03 <br>    print(f<span class="hljs-string">&quot;位运算验证 (0x03 &amp; 0x3 &lt;&lt; 4): &#123;hex(process_bits(example_val))&#125;&quot;</span>)<br><br>```<br><br>### <span class="hljs-number">4</span>. 结论<br><br>该函数执行的是一种**基于查表的字符串重组算法**。它从内存地址 `0x122eabxx` 处根据某种步进逻辑（每组 <span class="hljs-number">3</span> 字节输入产生 <span class="hljs-number">4</span> 字节输出）提取字符，并存入目标缓冲区 `0x126e5140`。<br><br>**最终生成的参数片段为：**<br>`BVF2gQ8Nq4/<span class="hljs-number">7</span>cBsiRmfnFt/akm/=`<br><br>您是否需要我进一步分析这些字符提取的具体索引计算公式（即 `0x122eabxx` 的偏移规律）？<br><br><br><br><br>用户提问：<br>密码表的范围是多少？<br><br>Gemini回答：<br>根据您提供的 VMP 指令轨迹提升表达式，密码表（即源数据所在的内存区域）的范围可以通过分析 `mem[<span class="hljs-number">0</span>x122eabXX]` 的地址偏移来确定：<br><br>### <span class="hljs-number">1</span>. 内存地址范围分析<br><br>通过提取表达式中所有源内存地址，可以观察到其分布情况：<br><br>* <br>**起始地址**：已知最小的偏移量为 `mem[<span class="hljs-number">0</span>x122eab50]` 。<br><br><br>* <br>**结束地址**：已知最大的偏移量为 `mem[<span class="hljs-number">0</span>x122eab8e]` 。<br><br><br>* <br>**总跨度**：该算法在执行过程中访问了从 `0x122eab50` 到 `0x122eab8e` 之间的内存空间 。<br><br><br><br>### <span class="hljs-number">2</span>. 地址分布细节<br><br>轨迹中具体涉及到的地址偏移如下表所示：<br><br>| 地址偏移 (<span class="hljs-number">0</span>x122eabXX) | 对应数据 (Hex) | 引用位置 |<br>| --- | --- | --- |<br>| **<span class="hljs-number">0</span>x50** | &lt;br&gt;`0x73` (&#x27;s&#x27;) |  |<br>| **<span class="hljs-number">0</span>x5b** | &lt;br&gt;`0x46` (&#x27;F&#x27;) |  |<br>| **<span class="hljs-number">0</span>x60** | &lt;br&gt;`0x6b` (&#x27;k&#x27;) |  |<br>| **<span class="hljs-number">0</span>x64** | &lt;br&gt;`0x34` (&#x27;<span class="hljs-number">4</span>&#x27;) |  |<br>| **<span class="hljs-number">0</span>x68** | &lt;br&gt;`0x42` (&#x27;B&#x27;) |  |<br>| **<span class="hljs-number">0</span>x6b** | &lt;br&gt;`0x4e` (&#x27;N&#x27;) |  |<br>| **<span class="hljs-number">0</span>x6c** | &lt;br&gt;`0x51` (&#x27;Q&#x27;) |  |<br>| **<span class="hljs-number">0</span>x6d** | &lt;br&gt;`0x63` (&#x27;c&#x27;) |  |<br>| **<span class="hljs-number">0</span>x6f** | &lt;br&gt;`0x52` (&#x27;R&#x27;) |  |<br>| **<span class="hljs-number">0</span>x72** | &lt;br&gt;`0x56` (&#x27;V&#x27;) |  |<br>| **<span class="hljs-number">0</span>x74** | &lt;br&gt;`0x38` (&#x27;<span class="hljs-number">8</span>&#x27;) |  |<br>| **<span class="hljs-number">0</span>x7b** | &lt;br&gt;`0x61` (&#x27;a&#x27;) |  |<br>| **<span class="hljs-number">0</span>x7d** | &lt;br&gt;`0x66` (&#x27;f&#x27;) |  |<br>| **<span class="hljs-number">0</span>x7e** | &lt;br&gt;`0x67` (&#x27;g&#x27;) |  |<br>| **<span class="hljs-number">0</span>x7f** | &lt;br&gt;`0x69` (&#x27;i&#x27;) |  |<br>| **<span class="hljs-number">0</span>x82** | &lt;br&gt;`0x6d` (&#x27;m&#x27;) |  |<br>| **<span class="hljs-number">0</span>x83** | &lt;br&gt;`0x6e` (&#x27;n&#x27;) |  |<br>| **<span class="hljs-number">0</span>x84** | &lt;br&gt;`0x74` (&#x27;t&#x27;) |  |<br>| **<span class="hljs-number">0</span>x85** | &lt;br&gt;`0x71` (&#x27;q&#x27;) |  |<br>| **<span class="hljs-number">0</span>x8b** | &lt;br&gt;`0x32` (&#x27;<span class="hljs-number">2</span>&#x27;) |  |<br>| **<span class="hljs-number">0</span>x8c** | &lt;br&gt;`0x2f` (&#x27;/&#x27;) |  |<br>| **<span class="hljs-number">0</span>x8e** | &lt;br&gt;`0x37` (&#x27;<span class="hljs-number">7</span>&#x27;) |  |<br><br>### <span class="hljs-number">3</span>. 结论<br><br>在该片段中，密码表的有效访问范围至少为 **`0x122eab50` 至 `0x122eab8e**` 。这段空间包含了 Base64 变体编码所需的字符集（数字、大小写字母及特殊符号 `/`） 。<br><br>您是否需要我根据这些地址及其对应的值，完整还原出这张置换表的映射关系？<br></code></pre></td></tr></table></figure>
+
+<p>实际上base64的密码表确实是在<code>0x122eab50~0x122eab8e</code>处。</p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603012049852.png" srcset="/img/loading.gif" lazyload></p>
+<p>VMLifter将14912行数据压缩至71行。</p>
+<h2 id="sub-1d52d4"><a href="#sub-1d52d4" class="headerlink" title="sub_1d52d4"></a>sub_1d52d4</h2><p>RC4加密，对应部分是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># PRGA 阶段生成密钥流</span><br>i = j = <span class="hljs-number">0</span><br>rc4_cipher = []<br><span class="hljs-keyword">for</span> byte <span class="hljs-keyword">in</span> plain:<br>    i = (i + <span class="hljs-number">1</span>) % <span class="hljs-number">256</span><br>    j = (j + S[i]) % <span class="hljs-number">256</span><br>    S[i], S[j] = S[j], S[i]<br>    t = (S[i] + S[j]) % <span class="hljs-number">256</span><br>    key_i = S[t]<br>    <span class="hljs-comment"># 异或操作加密/解密</span><br>    rc4_cipher.append(byte ^ key_i)<br></code></pre></td></tr></table></figure>
+
+<p>同样将VMLifter后的结果投喂给Gemini，交互过程如下：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><code class="hljs markdown">用户提问：<br>我所上传的文件中的内容为某一函数的VMP指令轨迹语义提升后表达式，请利用值依赖分析，结合表达式中的运算关系和特殊值，猜测参数生成算法，并还原成python代码。<br><br>Gemini回答：<br>基于您提供的VMP指令轨迹提升表达式，通过对内存地址、循环步进以及运算逻辑的<span class="hljs-strong">**值依赖分析**</span>，可以推断出这是一个典型的<span class="hljs-strong">**流密码（Stream Cipher）**</span>或<span class="hljs-strong">**异或加解密**</span>算法的变体。<br><br>以下是详细的分析与Python代码还原：<br><br><span class="hljs-section">### 1. 核心逻辑分析</span><br><br>通过观察表达式的迭代过程，我们可以发现以下规律：<br><br><span class="hljs-bullet">*</span> <span class="hljs-strong">**循环计数与边界**</span>：<br><span class="hljs-bullet">*</span> <br><span class="hljs-code">`mem[0xe4ffdc3c]`</span> 初始化为 <span class="hljs-code">`0xc`</span>（12），并在每次迭代中减 1（<span class="hljs-code">`+ 0xffffffff`</span>） 。<br><br><br><span class="hljs-bullet">*</span> 轨迹记录了 12 次迭代，当该值为 <span class="hljs-code">`0x0`</span> 时，标志位 <span class="hljs-code">`mem[0x12716398]`</span> 变为 <span class="hljs-code">`0x0`</span> 停止循环 。<br><br><br><br><br><span class="hljs-bullet">*</span> <span class="hljs-strong">**输入与输出数据**</span>：<br><span class="hljs-bullet">*</span> <br><span class="hljs-strong">**原始数据（Plaintext/Ciphertext）**</span>：源地址从 <span class="hljs-code">`0xe4fff55c`</span> 开始，逐字节递增 。<br><br><br><span class="hljs-bullet">*</span> <br><span class="hljs-strong">**结果存储**</span>：目标地址从 <span class="hljs-code">`0xe4ffddc4`</span> 开始，逐字节递增存储计算结果 。<br><br><br><br><br><span class="hljs-bullet">*</span> <span class="hljs-strong">**转换运算**</span>：<br><span class="hljs-bullet">*</span> 每一轮的核心运算是：<span class="hljs-code">`结果 = 原始数据 ^ 密钥字节`</span> 。<br><br><br><span class="hljs-bullet">*</span> 例如第一轮：<span class="hljs-code">`mem[0xe4ffddc4]_1 = mem[0xe4fff55c]_0 ^ mem[0xe4ffde40]_0 = 0x4d`</span> 。<br><br><br><br><br><span class="hljs-bullet">*</span> <span class="hljs-strong">**密钥流生成逻辑（类似 RC4 调度）**</span>：<br><span class="hljs-bullet">*</span> <br><span class="hljs-code">`mem[0xe4ffdc70]`</span>（索引 $i$）：每轮加 1 并对 <span class="hljs-code">`0x100`</span> 取模（即 $i = (i + 1) \pmod&#123;256&#125;$） 。<br><br><br><span class="hljs-bullet">*</span> <br><span class="hljs-code">`mem[0xe4ffdc6c]`</span>（索引 $j$）：依赖于前一轮的 $j$ 值加上一个内存数组（可能是 S 盒或 Key 序列）中的值，并对 <span class="hljs-code">`0x100`</span> 取模 。<br><br><br><span class="hljs-bullet">*</span> 公式为：$j = (j + \text&#123;mem&#125;[\text&#123;base&#125; + i]) \pmod&#123;256&#125;$ 。<br><br><br><br><br><br>---<br><br><span class="hljs-section">### 2. 参数还原与算法猜想</span><br><br>该算法高度疑似 <span class="hljs-strong">**RC4 的一部分**</span> 或其变体。在每一轮中，它提取一个字节进行异或。<br><br>| 元素 | 内存地址 (Base/Initial) | 初始值/步进 |<br>| --- | --- | --- |<br>| <span class="hljs-strong">**待处理数据**</span> | <span class="hljs-code">`0xe4fff55c`</span> | 长度为 12 字节 <br><br> |<br>| <span class="hljs-strong">**结果缓冲**</span> | <span class="hljs-code">`0xe4ffddc4`</span> | - |<br>| <span class="hljs-strong">**密钥/变换序列**</span> | <span class="hljs-code">`0xe4ffde40`</span> 等 (非连续查找) | 动态寻址 |<br>| <span class="hljs-strong">**索引 i**</span> | <span class="hljs-code">`mem[0xe4ffdc70]`</span> | <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span></span>$0 \to 1 \to 2 \dots$ <br><br> |<br>| <span class="hljs-strong">**索引 j**</span> | <span class="hljs-code">`mem[0xe4ffdc6c]`</span> | 累加求和 <br><br> |<br><br>---<br><br><span class="hljs-section">### 3. Python 代码还原</span><br><br>根据上述逻辑，还原出的生成算法如下：<br><br><span class="hljs-code">```python</span><br><span class="hljs-code">def vmp_param_algorithm(input_data, key_stream_base):</span><br><span class="hljs-code">    &quot;&quot;&quot;</span><br><span class="hljs-code">    还原后的异或变换算法</span><br><span class="hljs-code">    :param input_data: 原始字节列表 (从 0xe4fff55c 开始的数据)</span><br><span class="hljs-code">    :param key_stream_base: 轨迹中对应的密钥流字节序列</span><br><span class="hljs-code">    :return: 处理后的结果</span><br><span class="hljs-code">    &quot;&quot;&quot;</span><br><span class="hljs-code">    output = []</span><br><span class="hljs-code">    </span><br><span class="hljs-code">    # 初始状态</span><br><span class="hljs-code">    i = 0</span><br><span class="hljs-code">    j = 0</span><br><span class="hljs-code">    </span><br><span class="hljs-code">    # 根据轨迹，循环执行 12 次 (0xc)</span><br><span class="hljs-code">    for idx in range(len(input_data)):</span><br><span class="hljs-code">        # 1. 更新索引 i (mem[0xe4ffdc38])</span><br><span class="hljs-code">        i = (i + 1) % 256</span><br><span class="hljs-code">        </span><br><span class="hljs-code">        # 2. 更新索引 j (mem[0xe4ffdc34])</span><br><span class="hljs-code">        # 注意：这里的 s_box_val 对应轨迹中 mem[0xe4ffddd9 + offset] 等地址的值</span><br><span class="hljs-code">        s_box_val = key_stream_base[idx]</span><br><span class="hljs-code">        j = (j + s_box_val) % 256</span><br><span class="hljs-code">        </span><br><span class="hljs-code">        # 3. 获取当前轮次的异或密钥字节 (轨迹中直接给出了 XOR 后的结果)</span><br><span class="hljs-code">        # 轨迹显示结果是 input_data[idx] ^ 某个特定地址的值</span><br><span class="hljs-code">        # 我们根据轨迹中提供的 0x4d, 0x6f, 0xd9... 推算</span><br><span class="hljs-code">        xor_key = [</span><br><span class="hljs-code">            0x4d ^ input_data[0], 0x6f ^ input_data[1], 0xd9 ^ input_data[2],</span><br><span class="hljs-code">            0x42 ^ input_data[3], 0x70 ^ input_data[4], 0xd2 ^ input_data[5],</span><br><span class="hljs-code">            0xce ^ input_data[6], 0x9a ^ input_data[7], 0x71 ^ input_data[8],</span><br><span class="hljs-code">            0x4b ^ input_data[9], 0xf5 ^ input_data[10], 0xaf ^ input_data[11]</span><br><span class="hljs-code">        ]</span><br><span class="hljs-code">        </span><br><span class="hljs-code">        result_byte = input_data[idx] ^ xor_key[idx]</span><br><span class="hljs-code">        output.append(hex(result_byte))</span><br><span class="hljs-code">        </span><br><span class="hljs-code">    return output</span><br><span class="hljs-code"></span><br><span class="hljs-code"># 模拟输入数据 (根据轨迹中的 XOR 结果逆向出的原始值或占位符)</span><br><span class="hljs-code"># 轨迹示例：mem[0xe4fff55c]_0 ^ mem[0xe4ffde40]_0 = 0x4d</span><br><span class="hljs-code"># 假设我们要还原轨迹中的结果序列</span><br><span class="hljs-code">results = [0x4d, 0x6f, 0xd9, 0x42, 0x70, 0xd2, 0xce, 0x9a, 0x71, 0x4b, 0xf5, 0xaf]</span><br><span class="hljs-code">print(f&quot;还原的计算序列: &#123;[hex(x) for x in results]&#125;&quot;)</span><br><span class="hljs-code"></span><br><span class="hljs-code">```</span><br><br><span class="hljs-section">### 4. 总结</span><br><br>该指令轨迹展示了一个<span class="hljs-strong">**基于索引变换的流式字节异或过程**</span>。其特征在于使用两个计数器（<span class="hljs-code">`i`</span> 和 <span class="hljs-code">`j`</span>）来控制状态转换，并从内存池中提取密钥字节与原始数据进行位异或（XOR） 。<br><br><span class="hljs-strong">**您是否需要我进一步分析 `0xe4ffde40` 之后密钥池的生成逻辑，或者对特定的 S 盒变换进行逆向？**</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，Gemini成功的猜测出了该算法是RC4！并且VMLifter将23720行数据压缩至163行。</p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>该工具原本是想进一步做语义提升的，比如识别数据、循环等，但考虑到用AI做这些工作的话更加快速且普适性强，所以就做到这一步就没进行后续的功能开发。而且该工具是想做成一个Timeless Debugger的小功能，尝试使用unidbg trace的结果做TD，发现unidbg trace没有记录系统函数调用（如memcpy等） ，造成数据缺漏，导致快照不完整。因此后续先打算基于QBDI搞一个自定义trace。最后总结一下该工具的优缺点：</p>
+<ul>
+<li><p>优点：</p>
+<ol>
+<li>能够对trace得到的指令轨迹进行带有值依赖的语义提升。</li>
+<li>能够减少大模型的token消耗量。</li>
+</ol>
+</li>
+<li><p>缺点：</p>
+<ol>
+<li>目前仅支持单个函数的指令轨迹的语义提升。因此，对于部分算法的密钥生成等，需要另寻目标函数重复相同操作。</li>
+<li>该工具仅能追踪并还原出代码的数据流，无法追踪并还原出代码的控制流。</li>
+</ol>
+</li>
+</ul>
+<h1 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h1><p><a target="_blank" rel="noopener" href="https://faculty.ist.psu.edu/wu/papers/vmhunt-ccs18.pdf">VMHunt: A Verifiable Approach to Partially-Virtualized Binary Code Simplification(pdf)</a></p>
+<p><a target="_blank" rel="noopener" href="https://shell-storm.org/talks/DIMVA2018-deobfuscation-salwan-bardin-potet.pdf">Symbolic deobfuscation: from virtualized code back to the original(pdf)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www2.cs.arizona.edu/people/debray/Publications/ccs-unvirtualize.pdf">Deobfuscation of Virtualization-Obfuscated Software(pdf)</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/JonathanSalwan/Triton">https://github.com/JonathanSalwan/Triton</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/zhkl0228/unidbg">https://github.com/zhkl0228/unidbg</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android%E9%80%86%E5%90%91%E5%AE%9E%E6%88%98/" class="category-chain-item">Android逆向实战</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AF%AD%E4%B9%89%E6%8F%90%E5%8D%87/">#语义提升</a>
+      
+        <a href="/tags/%E5%80%BC%E4%BE%9D%E8%B5%96%E5%88%86%E6%9E%90/">#值依赖分析</a>
+      
+        <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%8D%E6%B7%B7%E6%B7%86/">#虚拟机反混淆</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>VMLifter: 一个基于指令执行轨迹的语义提升工具</div>
+      <div>http://example.com/2026/03/01/逆向实战/VMLifter/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年3月1日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/18/Triton/Triton%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="Triton源码编译与使用">
+                        <span class="hidden-mobile">Triton源码编译与使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
