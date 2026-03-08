@@ -23,13 +23,13 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="okhttp是什么OkHttp 是一个默认高效的 HTTP 客户端：  HTTP&#x2F;2 支持允许所有发送到同一主机的请求共享一个套接字（socket）。 连接池可以降低请求延迟（如果没有 HTTP&#x2F;2 的话）。 透明的GZIP可以缩小下载大小。 响应缓存完全避免网络重复请求。  okhttp的使用首先在Android项目中添加如下依赖包 1implementation(&amp;quot">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="e:/LearningLibrary/Android开发笔记/pic/9.okhttp/1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603081514635.png">
 <meta property="article:published_time" content="2025-12-21T13:07:38.000Z">
-<meta property="article:modified_time" content="2026-02-09T09:07:21.926Z">
+<meta property="article:modified_time" content="2026-03-08T07:14:48.794Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="okhttp3">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="e:/LearningLibrary/Android开发笔记/pic/9.okhttp/1.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603081514635.png">
   
   
   
@@ -349,7 +349,7 @@
 <li><strong>应用拦截器</strong>：通过<code>addInterceptor()</code>注册拦截器。只会被调用一次（即使之后发生了 HTTP 重定向或重试）。通常用于添加全局公共参数、打印最终的应用层日志等。</li>
 <li><strong>网络拦截器</strong>：通过<code>addNetworkInterceptor()</code>注册拦截器。够观察到所有网络传输细节。如果发生了重定向，网络拦截器会被调用多次。能看到压缩后的数据（Header 中包含 Accept-Encoding: gzip）。通常用于监控真实的网络流量（抓包）、处理 Cookie。</li>
 </ul>
-<img src="E:\LearningLibrary\Android开发笔记\pic\9.okhttp\1.png" srcset="/img/loading.gif" lazyload style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603081514635.png" srcset="/img/loading.gif" lazyload style="zoom:50%;" />
 
 <p>应用拦截器的注册</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs Java"><span class="hljs-type">OkHttpClient</span> <span class="hljs-variable">client</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()<br>    .addInterceptor(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LoggingInterceptor</span>())<br>    .build();<br><br><span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>.Builder()<br>    .url(<span class="hljs-string">&quot;http://www.publicobject.com/helloworld.txt&quot;</span>)<br>    .header(<span class="hljs-string">&quot;User-Agent&quot;</span>, <span class="hljs-string">&quot;OkHttp Example&quot;</span>)<br>    .build();<br><br><span class="hljs-type">Response</span> <span class="hljs-variable">response</span> <span class="hljs-operator">=</span> client.newCall(request).execute();<br>response.body().close();<br></code></pre></td></tr></table></figure>
