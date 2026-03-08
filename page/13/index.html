@@ -252,6 +252,69 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2022/06/28/CTF/Ez_Pager_Tiper/" target="_self">
+          SUSCTF - Ez_Pager_Tiper
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2022/06/28/CTF/Ez_Pager_Tiper/" target="_self">
+        <div>
+          Ez_Pager_Tiper分析magic_box中的代码，测试发现malicious_magic中的now &#x3D; (-magic &amp; magic)的值取决于magic二进制末尾0的个数，即$now &#x3D; 2^{二进制末尾0的个数}$，进而每次执行该函数，magic的二进制中最后一个1改为0，故confusion函数中的循环次数为magic二进制中的1的个数。 再来看看confusi
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-06-28 12:11" pubdate>
+              2022-06-28
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Crypto/">#Crypto</a>
+            
+              <a href="/tags/%E6%B5%81%E5%AF%86%E7%A0%81/">#流密码</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2022/06/26/CTF/ACTF2022/" target="_self">
           ACTF2022
         </a>
@@ -759,67 +822,6 @@
 
           </div>
         
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2022/03/22/CTF/Copperstudy/" target="_self">
-          Copperstudy
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2022/03/22/CTF/Copperstudy/" target="_self">
-        <div>
-          最近遇到一个很不错的题【强网杯2019 Copperstudy】，里面包含大多数Coppersmith攻击，故以此题来分析其中出现的不同情况的攻击方式。  Coppersmith 可以用于求多项式的小根，经常用于 RSA 攻击中“已知某些二进制位，求剩余位”这一类问题。  d0:hash爆破1234567891011121314151617def d0(hashstr,str):    for
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-03-22 20:57" pubdate>
-              2022-03-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Crypto/" class="category-chain-item">Crypto</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Coppersmith/">#Coppersmith</a>
-            
-          </div>
         
       </div>
     </article>
