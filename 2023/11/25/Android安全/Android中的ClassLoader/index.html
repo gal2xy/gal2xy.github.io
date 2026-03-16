@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="gla2xy&#39;s blog">
 <meta property="og:description" content="一、ClassLoader的类型java中的ClassLoader和Android中的ClassLoader并不完全相同，因为java的可执行文件为class文件，而Android的可执行文件为dex文件，他们所加载的文件不同，因而所使用的ClassLoader也不相同。 Android中的ClassLoader分为两种类型，分别如下：  系统类加载器：BootClassLoader、PathCl">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="e:/LearningLibrary/逆向/Android基础知识/pic/19.Android中的ClassLoader/a.drawio.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603162111217.png">
 <meta property="article:published_time" content="2023-11-25T07:17:41.000Z">
-<meta property="article:modified_time" content="2023-11-27T09:53:01.478Z">
+<meta property="article:modified_time" content="2026-03-16T13:11:58.561Z">
 <meta property="article:author" content="gla2xy">
 <meta property="article:tag" content="Android源码解析">
 <meta property="article:tag" content="ClassLoader">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="e:/LearningLibrary/逆向/Android基础知识/pic/19.Android中的ClassLoader/a.drawio.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603162111217.png">
   
   
   
@@ -355,7 +355,7 @@
 <p>可见SystemClassLoader对应的是PathClassLoader。</p>
 <p>从ClassLoader的代码中可以看出，每创建一个ClassLoader实例，都需要一个现有的ClassLoader实例作为新创建的实例的Parent，这样一来，所有的ClassLoader之间的关联就像一棵树一样，这也是ClassLoader的 双亲代理模型的特点。</p>
 <h1 id="二、ClassLoader的继承关系"><a href="#二、ClassLoader的继承关系" class="headerlink" title="二、ClassLoader的继承关系"></a>二、ClassLoader的继承关系</h1><p>它们之间的继承关系如下图所示：</p>
-<p><img src="E:\LearningLibrary\逆向\Android基础知识\pic\19.Android中的ClassLoader\a.drawio.png" srcset="/img/loading.gif" lazyload alt="a.drawio"></p>
+<p><img src="https://raw.githubusercontent.com/gal2xy/blog_img/main/img/202603162111217.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li>ClassLoader：它是一个抽象类，其中定义了ClassLoader的主要功能。</li>
 <li>BootClassLoader：它是ClassLoader的内部类，并继承自ClassLoader，用来在Android系统启动时预加载常用类。</li>
