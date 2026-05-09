@@ -252,6 +252,132 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/11/27/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADApplication%E7%9A%84%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/" target="_self">
+          Android中Application的创建流程
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/27/Android%E5%AE%89%E5%85%A8/Android%E4%B8%ADApplication%E7%9A%84%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B/" target="_self">
+        <div>
+          一、前言System进程和App进程都运行着一个或多个App，每个App都会有一个对应的Application对象(该对象跟LoadedApk一一对应)。下面分别解析以下两种进程创建Application的过程：  System Server进程 App进程  二、System Server进程在Android系统启动流程一文中，讲到过Zygote通过回调函数进入到System Server阶段，
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-27 17:50" pubdate>
+              2023-11-27
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Application/">#Application</a>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/11/25/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84ClassLoader/" target="_self">
+          Android中的ClassLoader
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/11/25/Android%E5%AE%89%E5%85%A8/Android%E4%B8%AD%E7%9A%84ClassLoader/" target="_self">
+        <div>
+          一、ClassLoader的类型java中的ClassLoader和Android中的ClassLoader并不完全相同，因为java的可执行文件为class文件，而Android的可执行文件为dex文件，他们所加载的文件不同，因而所使用的ClassLoader也不相同。 Android中的ClassLoader分为两种类型，分别如下：  系统类加载器：BootClassLoader、PathCl
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-25 15:17" pubdate>
+              2023-11-25
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Android/" class="category-chain-item">Android</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Android%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">#Android源码解析</a>
+            
+              <a href="/tags/ClassLoader/">#ClassLoader</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/11/23/Android%E5%AE%89%E5%85%A8/java%E5%8F%8D%E5%B0%84%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0/" target="_self">
           java反射技术学习
         </a>
@@ -730,134 +856,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Android/">#Android</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/12/Android%E5%AE%89%E5%85%A8/smali%E8%AF%AD%E6%B3%95%E6%91%98%E5%BD%95/" target="_self">
-          smali语法学习
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/12/Android%E5%AE%89%E5%85%A8/smali%E8%AF%AD%E6%B3%95%E6%91%98%E5%BD%95/" target="_self">
-        <div>
-          一、类型Dalvik 字节码只有两种类型，基本类型和引用类型。Dalvik 使用这两种类型来表示 Java 语言的全部类型，除了对象与数组属于引用对象外，其他的 Java 类型都是基本类型。    语法 含义    V void，只用于返回值类型   Z boolean   B byte   S short   C char   I int   J long   F float   D doubl
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-12 21:03" pubdate>
-              2023-09-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-              <a href="/tags/smali/">#smali</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/09/07/CTF/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
-          nssctf-mobile专题(一)
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/07/CTF/nssctf-mobile%E4%B8%93%E9%A2%98(%E4%B8%80)/" target="_self">
-        <div>
-          [CISCN 2022 东北]crackme_Android整个分析如下图所示：  很简单。就是将38bytes的flag去掉格式后，每4bytes一组进行md5加密，得到的结果组成一个字符串，并于已知字符串比较。所以我们只需要将已知字符串分好组拿到https:&#x2F;&#x2F;www.cmd5.org&#x2F;上解密即可。分组代码如下： 12345678md5string &#x3D; &amp;#x27;8393931a16db5a
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-07 22:36" pubdate>
-              2023-09-07
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Android/" class="category-chain-item">Android</a>
-  
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Android/">#Android</a>
-            
-              <a href="/tags/Reverse/">#Reverse</a>
             
           </div>
         

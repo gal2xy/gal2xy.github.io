@@ -1,0 +1,843 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="gla2xy">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文分析的是frida-core源码，其中很多关键代码使用vala语言编写，再借助编译器转换成C语言代码。frida-core 封装了跨平台通信、进程管理和注入逻辑，包含如下关键模块：  frida-server：运行在目标设备（如安卓、iOS）上，负责接收来自 PC 端的指令。 frida-agent：注入到目标App的一个共享库，负责与frida-server通信，执行hook工作。 frid">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Frida源码分析之frida-core篇">
+<meta property="og:url" content="http://example.com/2026/05/09/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8Bfrida-core%E7%AF%87/index.html">
+<meta property="og:site_name" content="gla2xy&#39;s blog">
+<meta property="og:description" content="本文分析的是frida-core源码，其中很多关键代码使用vala语言编写，再借助编译器转换成C语言代码。frida-core 封装了跨平台通信、进程管理和注入逻辑，包含如下关键模块：  frida-server：运行在目标设备（如安卓、iOS）上，负责接收来自 PC 端的指令。 frida-agent：注入到目标App的一个共享库，负责与frida-server通信，执行hook工作。 frid">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-09T06:37:21.000Z">
+<meta property="article:modified_time" content="2026-05-09T06:37:30.197Z">
+<meta property="article:author" content="gla2xy">
+<meta property="article:tag" content="Frida 源码分析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Frida源码分析之frida-core篇 - gla2xy&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"y4ByOj1FL3SFodYp7tlkfLna-gzGzoHsz","app_key":"7E1eIfDTBkJaMJkiQI0jToXE","server_url":null,"path":"window.location.pathname","ignore_local":true}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>gal2xy&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Frida源码分析之frida-core篇"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        gla2xy
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-09 14:37" pubdate>
+          2026年5月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          27k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          222 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Frida源码分析之frida-core篇</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文分析的是<code>frida-core</code>源码，其中很多关键代码使用vala语言编写，再借助编译器转换成C语言代码。<code>frida-core</code> 封装了跨平台通信、进程管理和注入逻辑，包含如下关键模块：</p>
+<ul>
+<li><code>frida-server</code>：运行在目标设备（如安卓、iOS）上，负责接收来自 PC 端的指令。</li>
+<li><code>frida-agent</code>：注入到目标App的一个共享库，负责与<code>frida-server</code>通信，执行hook工作。</li>
+<li><code>frida-gadget</code>：一个共享库。在无法获取 Root 权限的情况下，通过将此库集成到 App 中来实现自注入。</li>
+</ul>
+<h1 id="frida-server"><a href="#frida-server" class="headerlink" title="frida-server"></a>frida-server</h1><p>frida-server的启动入口在<code>server/server.vala</code>文件中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">(string[] args)</span> </span>&#123;<br>    <span class="hljs-comment">//初始化运行环境	</span><br>    Environment.<span class="hljs-built_in">init</span> ();<br><br>    ...<br><br>    Environment.<span class="hljs-built_in">configure</span> ();<br><br>    ...<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">run_application</span> (device_id, endpoint_params, options, on_ready);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>解析参数，初始化运行环境，最终调用<code>run_application()</code>启动<code>frida-server</code>。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">run_application</span> <span class="hljs-params">(string? device_id, EndpointParameters endpoint_params, ControlServiceOptions options, ReadyHandler on_ready)</span> </span>&#123;<br>	<span class="hljs-comment">//设置临时目录，这个目录用于存放 Frida 运行时需要落地的临时二进制、资源等文件。</span><br>    TemporaryDirectory.<span class="hljs-built_in">always_use</span> ((directory != null) ? directory : DEFAULT_DIRECTORY);<br>    TemporaryDirectory.<span class="hljs-built_in">use_sysroot</span> (options.sysroot);<br>	<span class="hljs-comment">// 创建frida-server的application</span><br>    application = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Application</span> (device_id, endpoint_params, options);<br><br>    ...<br><br>	<span class="hljs-keyword">return</span> application.<span class="hljs-built_in">run</span> ();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>设置临时目录，用于存放 Frida 运行时需要落地的临时二进制、资源等文件，默认目录名为<code>re.frida.server</code>。然后创建<code>Application</code>对象并调用其<code>run()</code>方法。</p>
+<p><code>Application</code>的定义在 <code>server/server.vala</code> 265行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title">run</span> <span class="hljs-params">()</span> </span>&#123;<br>    Idle.<span class="hljs-built_in">add</span> (() =&gt; &#123;<br>        start.<span class="hljs-built_in">begin</span> ();<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;);<br><br>    exit_code = <span class="hljs-number">0</span>;<br><br>    loop.<span class="hljs-built_in">run</span> ();<br><br>    <span class="hljs-keyword">return</span> exit_code;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>先把“启动服务”的异步任务投递到 GLib 主循环，然后进入主循环，让主循环去调度并驱动这个任务。因此真正启动服务的逻辑不在 <code>run()</code> 里，而是在它调度的 <code>start()</code> 方法里：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> async <span class="hljs-type">void</span> <span class="hljs-title">start</span> <span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span> (device_id != null &amp;&amp; device_id != <span class="hljs-string">&quot;local&quot;</span>) &#123;<span class="hljs-comment">// 非本地设备</span><br>            <span class="hljs-comment">// 创建设备管理对象</span><br>            manager = <span class="hljs-keyword">new</span> DeviceManager.<span class="hljs-built_in">with_nonlocal_backends_only</span> ();<br>			<span class="hljs-comment">// 查找设备，监听设备丢失事件</span><br>            var device = yield manager.<span class="hljs-built_in">get_device_by_id</span> (device_id, <span class="hljs-number">0</span>, io_cancellable);<br>            device.lost.<span class="hljs-built_in">connect</span> (on_device_lost);<br>			<span class="hljs-comment">// 基于指定设备创建控制服务</span><br>            service = yield <span class="hljs-keyword">new</span> ControlService.<span class="hljs-built_in">with_device</span> (device, endpoint_params, options);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">// 创建一个直接服务当前机器/当前进程环境的 ControlService</span><br>            service = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ControlService</span> (endpoint_params, options);<br>        &#125;<br>		<span class="hljs-comment">// ControlService的start方法</span><br>        yield service.<span class="hljs-built_in">start</span> (io_cancellable);<br>    &#125; <br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里如果<code>frida-server</code>启动时没有指定<code>--device</code>，就会调用<code>new ControlService()</code>创建<code>ControlService</code>实例，并调用它的<code>start()</code>方法。该类定义在 <code>src/control-service.vala</code> 中，<code>ControlService</code>的初始化函数如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ControlService</span> <span class="hljs-params">(EndpointParameters endpoint_params, ControlServiceOptions? options = null)</span> throws Error </span>&#123;<br><span class="hljs-meta">#<span class="hljs-keyword">if</span> HAVE_LOCAL_BACKEND</span><br>    ControlServiceOptions opts = (options != null) ? options : <span class="hljs-keyword">new</span> <span class="hljs-built_in">ControlServiceOptions</span> ();<br><br>    HostSession session;<br>    <span class="hljs-comment">//...</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> LINUX</span><br>	<span class="hljs-comment">// 创建临时目录</span><br>    var tempdir = <span class="hljs-keyword">new</span> <span class="hljs-built_in">TemporaryDirectory</span> ();<br>    <span class="hljs-comment">// 创建 LinuxHostSession</span><br>    session = <span class="hljs-keyword">new</span> <span class="hljs-built_in">LinuxHostSession</span> (<span class="hljs-keyword">new</span> <span class="hljs-built_in">LinuxHelperProcess</span> (tempdir), tempdir, opts.report_crashes);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	<span class="hljs-comment">//...</span><br>    <span class="hljs-built_in">Object</span> (<br>        endpoint_params: endpoint_params,<br>        options: opts<br>    );<br>	<span class="hljs-comment">// 把HostSession注册到ControlService中，并连接各种信号。</span><br>    <span class="hljs-built_in">assign_session</span> (session, <span class="hljs-keyword">new</span> <span class="hljs-built_in">PrecreatedLocalHostSessionProvider</span> ((LocalHostSession) session));<br>	<span class="hljs-comment">//...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>创建临时目录，接着创建<code>LinuxHostSession</code>并调用<code>assign_session()</code>把它注册到<code>ControlService</code>中，以及连接各种信号。<code>LinuxHostSession</code> 是本地 Frida 功能的核心入口之一，提供了应用枚举、进程枚举、进程注入、进程启动等功能。</p>
+<p>现在回到<code>ControlService.start()</code>方法中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async <span class="hljs-type">void</span> <span class="hljs-title">start</span> <span class="hljs-params">(Cancellable? cancellable = null)</span> throws Error, IOError </span>&#123;<br>	<span class="hljs-keyword">if</span> (state != STOPPED)<br>    	<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">INVALID_OPERATION</span> (<span class="hljs-string">&quot;Invalid operation&quot;</span>);<br>    state = STARTING;<br><br>    main_context = MainContext.<span class="hljs-built_in">ref_thread_default</span> ();<br>    <span class="hljs-comment">// 此处的service是WebService</span><br>	<span class="hljs-comment">// 监听 WebService 的新连接</span><br>    <span class="hljs-comment">// 当有 Frida 客户端连接到 server 时，会触发 incoming 信号，然后调用 on_server_connection 处理连接。</span><br>    service.incoming.<span class="hljs-built_in">connect</span> (on_server_connection);<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 让 frida-server 开始监听控制端口，并准备接收客户端 WebSocket/DBus 连接</span><br>        yield service.<span class="hljs-built_in">start</span> (cancellable);<br><br>        <span class="hljs-keyword">if</span> (options.enable_preload) &#123;<br>            var base_host_session = host_session as LocalHostSession;<br>            <span class="hljs-keyword">if</span> (base_host_session != null)<br>                base_host_session.preload.<span class="hljs-built_in">begin</span> (io_cancellable);<br>        &#125;<br><br>        state = STARTED;<br>    &#125; finally &#123;<br>        <span class="hljs-keyword">if</span> (state != STARTED)<br>            state = STOPPED;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>此处的<code>service</code>是<code>WebService</code>，这里给 <code>WebService.incoming</code> 信号绑定 <code>on_server_connection()</code>函数。当有 Frida 客户端连接到 <code>frida-server</code>时，会调用该绑定函数。接下来通过<code>service.start()</code>启动<code>WebService</code>，该函数定义在<code>lib\base\socket.vala</code> 237行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async <span class="hljs-type">void</span> <span class="hljs-title">start</span> <span class="hljs-params">(Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    frida_context = MainContext.<span class="hljs-built_in">ref_thread_default</span> ();<br>    dbus_context = yield <span class="hljs-built_in">get_dbus_context</span> ();<span class="hljs-comment">//获取 DBus 线程上下文</span><br><br>    cancellable.<span class="hljs-built_in">set_error_if_cancelled</span> ();<br>	<br>    var start_request = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;SocketAddress&gt; ();<br>    <span class="hljs-built_in">schedule_on_dbus_thread</span> (() =&gt; &#123;<br>        <span class="hljs-comment">// 把真正的启动逻辑调度到 DBus 线程执行</span><br>        handle_start_request.<span class="hljs-built_in">begin</span> (start_request, cancellable);<br>        <span class="hljs-keyword">return</span> Source.REMOVE;<br>    &#125;);<br>	<span class="hljs-comment">// 保存监听地址</span><br>    _listen_address = yield start_request.future.<span class="hljs-built_in">wait_async</span> (cancellable);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>handle_start_request()</code>会继续调用 <code>do_start()</code>，里面会解析监听地址，默认情况下是<code>127.0.0.1:27042</code>，之后<code>WebService</code> 内部的 <code>ConnectionHandler</code> 会创建 Soup server，并注册 WebSocket 路径 <code>/ws</code>，客户端脸上 <code>/ws</code>后，触发<code>incoming</code>信号，回调之前注册的<code>on_server_connection()</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-type">void</span> <span class="hljs-title">on_server_connection</span> <span class="hljs-params">(IOStream connection, SocketAddress remote_address, DynamicInterface? dynamic_iface)</span> </span>&#123;<br>	<span class="hljs-comment">//...</span><br>    ConnectionHandler handler;<br>    unowned string iface_name = dynamic_iface?.name;<br>    <span class="hljs-keyword">if</span> (iface_name != null) &#123;<br>        handler = dynamic_interface_handlers[iface_name];<br>        <span class="hljs-keyword">if</span> (handler == null) &#123;<br>            handler = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConnectionHandler</span> (<span class="hljs-keyword">this</span>, dynamic_iface);<br>            dynamic_interface_handlers[iface_name] = handler;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        handler = main_handler;<br>    &#125;<br><br>    handler.handle_server_connection.<span class="hljs-built_in">begin</span> (connection);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里视情况选择不同的<code>ConnectionHandler</code>，然后调用<code>handle_server_connection()</code>启动该连接的 DBus&#x2F;认证处理流程。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async <span class="hljs-type">void</span> <span class="hljs-title">handle_server_connection</span> <span class="hljs-params">(IOStream raw_connection)</span> throws GLib.Error </span>&#123;<br>    <span class="hljs-comment">// 把IOStream包装成DBus通信</span><br>    var connection = yield <span class="hljs-keyword">new</span> <span class="hljs-built_in">DBusConnection</span> (raw_connection, null, DELAY_MESSAGE_PROCESSING, null,<br>                                               io_cancellable);<br>    connection.on_closed.<span class="hljs-built_in">connect</span> (on_connection_closed);<br>	<span class="hljs-comment">// 根据有无鉴权选择不同的Channel</span><br>    AuthenticationService? auth_service = parent.endpoint_params.auth_service;<br>    peers[connection] = (auth_service != null)<br>        ? (Peer) <span class="hljs-keyword">new</span> <span class="hljs-built_in">AuthenticationChannel</span> (<span class="hljs-keyword">this</span>, connection, auth_service)<br>        : (Peer) <span class="hljs-keyword">new</span> <span class="hljs-built_in">ControlChannel</span> (<span class="hljs-keyword">this</span>, connection);<br>	<span class="hljs-comment">// 启动 DBus 消息处理</span><br>    connection.<span class="hljs-built_in">start_message_processing</span> ();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>把<code>IOStream</code>包装成<code>DBusConnection</code>。有鉴权的情况下（比如说配置了token参数）创建<code>AuthenticationChannel</code>，只有认证成功后才能升级为<code>ControlChannel</code>，无鉴权的情况下创建<code>ControlChannel</code>，能直接调用 <code>HostSession</code> 的 <code>spawn/attach/kill/...</code> 等方法。</p>
+<h1 id="进程注入"><a href="#进程注入" class="headerlink" title="进程注入"></a>进程注入</h1><p><code>frida-server</code>启动之后，接下来就是<code>spawn/attach</code>模式附加到目标进程中。<code>spawn</code>模式下启动目标程序后，并没有进行agent的注入，反而是后续调用<code>attach</code>进行注入的。这部分可以参考<code>frida-tools</code>项目，在<code>\frida_tools\application.py</code> 607行处：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">elif</span> target_type == <span class="hljs-string">&quot;file&quot;</span>:<br>    argv = target_value<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> self._quiet:<br>    	self._update_status(<span class="hljs-string">f&quot;Spawning `<span class="hljs-subst">&#123;<span class="hljs-string">&#x27; &#x27;</span>.join(argv)&#125;</span>`...&quot;</span>)<br><br>	aux_kwargs = &#123;&#125;<br>    <span class="hljs-keyword">if</span> self._aux <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>    	aux_kwargs = <span class="hljs-built_in">dict</span>([parse_typed_option(o) <span class="hljs-keyword">for</span> o <span class="hljs-keyword">in</span> self._aux])<br>	<span class="hljs-comment"># spawn获取pid</span><br>    self._spawned_pid = self._device.spawn(argv, stdio=self._stdio, **aux_kwargs)<br>    self._spawned_argv = argv<br>    attach_target = self._spawned_pid<br><span class="hljs-keyword">else</span>:<br>	attach_target = target_value<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(attach_target, numbers.Number):<br>        <span class="hljs-comment"># attach获取pid</span><br>    	attach_target = self._device.get_process(attach_target).pid<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> self._quiet:<br>    	self._update_status(<span class="hljs-string">&quot;Attaching...&quot;</span>)<br>spawning = <span class="hljs-literal">False</span><br><span class="hljs-comment"># 调用_attach</span><br>self._attach(attach_target)<br></code></pre></td></tr></table></figure>
+
+<p>他们最终都是通过<code>perform_attach_to()</code>函数实现<code>frida-agent</code>注入的，代码路径在<code>src\linux\linux-host-session.vala</code> 387行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> async Future&lt;IOStream&gt; <span class="hljs-title">perform_attach_to</span> <span class="hljs-params">(uint pid, HashTable&lt;string, Variant&gt; options,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                             Cancellable? cancellable, out Object? transport)</span> throws Error, IOError </span>&#123;<br>    uint id;<br>    string entrypoint = <span class="hljs-string">&quot;frida_agent_main&quot;</span>;<br>    string parameters = <span class="hljs-built_in">make_agent_parameters</span> (pid, <span class="hljs-string">&quot;&quot;</span>, options);<br>    AgentFeatures features = CONTROL_CHANNEL;<br>    var linjector = (Linjector) injector;<br>    <span class="hljs-comment">// frida-agent注入</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> HAVE_EMBEDDED_ASSETS</span><br>    id = yield linjector.<span class="hljs-built_in">inject_library_resource</span> (pid, agent, entrypoint, parameters, features, cancellable);<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    id = yield linjector.<span class="hljs-built_in">inject_library_file_with_template</span> (pid, <span class="hljs-built_in">PathTemplate</span> (Config.FRIDA_AGENT_PATH), entrypoint,<br>                                                            parameters, features, cancellable);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    injectee_by_pid[pid] = id;<br><br>    var stream_request = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;IOStream&gt; ();<br>    IOStream stream = yield linjector.<span class="hljs-built_in">request_control_channel</span> (id, cancellable);<br>    stream_request.<span class="hljs-built_in">resolve</span> (stream);<br><br>    transport = null;<br><br>    <span class="hljs-keyword">return</span> stream_request.future;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>先解释一下<code>HAVE_EMBEDDED_ASSETS</code>宏定义，当它为真时，在编译时 Frida 时会将<code>frida-agent.so</code>嵌入到 <code>frida-core</code>中，然后在运行时将内置的 agent 释放出来并使用，这部分在<code>src\linux\linux-host-session.vala</code> 62行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">if</span> HAVE_EMBEDDED_ASSETS</span><br>	var blob32 = Frida.Data.Agent.<span class="hljs-built_in">get_frida_agent_32_so_blob</span> ();<br>	var blob64 = Frida.Data.Agent.<span class="hljs-built_in">get_frida_agent_64_so_blob</span> ();<br>	var emulated_arm = Frida.Data.Agent.<span class="hljs-built_in">get_frida_agent_arm_so_blob</span> ();<br>	var emulated_arm64 = Frida.Data.Agent.<span class="hljs-built_in">get_frida_agent_arm64_so_blob</span> ();<br>	agent = <span class="hljs-keyword">new</span> <span class="hljs-built_in">AgentDescriptor</span> (<span class="hljs-built_in">PathTemplate</span> (<span class="hljs-string">&quot;frida-agent-&lt;arch&gt;.so&quot;</span>),<br>				<span class="hljs-keyword">new</span> Bytes.<span class="hljs-built_in">static</span> (blob32.data),<br>				<span class="hljs-keyword">new</span> Bytes.<span class="hljs-built_in">static</span> (blob64.data),<br>				<span class="hljs-keyword">new</span> AgentResource[] &#123;<br>					<span class="hljs-keyword">new</span> <span class="hljs-built_in">AgentResource</span> (<span class="hljs-string">&quot;frida-agent-arm.so&quot;</span>, <span class="hljs-keyword">new</span> Bytes.<span class="hljs-built_in">static</span> (emulated_arm.data), tempdir),<br>					<span class="hljs-keyword">new</span> <span class="hljs-built_in">AgentResource</span> (<span class="hljs-string">&quot;frida-agent-arm64.so&quot;</span>, <span class="hljs-keyword">new</span> Bytes.<span class="hljs-built_in">static</span> (emulated_arm64.data), tempdir),<br>				&#125;,<br>				AgentMode.INSTANCED,<br>				tempdir);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>回到<code>perform_attach_to()</code>函数中，它的代码逻辑是通过 <code>Linjector</code> 注入 <code>frida-agent.so</code>，注入成功后通过 <code>request_control_channel()</code> 获取与目标进程内 agent 通信的 <code>IOStream</code>。根据<code>HAVE_EMBEDDED_ASSETS</code>宏定义，调用了<code>Linjector</code>的不同方法，具体如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// src\linux\linjector.vala L84</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> async uint <span class="hljs-title">inject_library_resource</span> <span class="hljs-params">(uint pid, AgentDescriptor agent, string entrypoint, string data,</span></span><br><span class="hljs-params"><span class="hljs-function">                                           AgentFeatures features, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>	<span class="hljs-comment">// 系统支持memfd（匿名内存文件）</span><br>    <span class="hljs-keyword">if</span> (MemoryFileDescriptor.<span class="hljs-built_in">is_supported</span> ()) &#123;    <br>        <span class="hljs-comment">// 优先走内存文件描述符方式。memfd 可以创建一个匿名内存文件，不需要把 .so 真正落地到普通磁盘路径。</span><br>        unowned string arch_name = <span class="hljs-built_in">arch_name_from_pid</span> (pid);<br>        <span class="hljs-comment">// 根据架构构建agent名称并从内嵌资源中查找</span><br>        string name = agent.name_template.<span class="hljs-built_in">expand</span> (arch_name);<br>        AgentResource? resource = agent.resources.<span class="hljs-built_in">first_match</span> (r =&gt; r.name == name);<br>        <span class="hljs-keyword">if</span> (resource == null) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">NOT_SUPPORTED</span> (<span class="hljs-string">&quot;Unable to handle %s-bit processes due to build configuration&quot;</span>,<br>                                           arch_name);<br>        &#125;<br>        <span class="hljs-comment">// 把内嵌 agent 资源转换成 memfd，然后交给 inject_library_fd() 注入目标进程。</span><br>        <span class="hljs-keyword">return</span> yield <span class="hljs-built_in">inject_library_fd</span> (pid, resource.<span class="hljs-built_in">get_memfd</span> (), entrypoint, data, features, cancellable);<br>    &#125;<br>	<span class="hljs-comment">// 系统不支持memfd</span><br>    <span class="hljs-built_in">ensure_tempdir_prepared</span> ();<span class="hljs-comment">//准备临时目录</span><br>    <span class="hljs-comment">// 与HAVE_EMBEDDED_ASSETS为false的情况相同</span><br>    <span class="hljs-comment">// 通过 agent.get_path_template() 把内嵌 agent 写成临时 .so 文件，再按文件路径方式注入。</span><br>    <span class="hljs-keyword">return</span> yield <span class="hljs-built_in">inject_library_file_with_template</span> (pid, agent.<span class="hljs-built_in">get_path_template</span> (), entrypoint, data, features,<br>                                                    cancellable);<br>&#125;<br><span class="hljs-comment">// src\linux\linjector.vala L48</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> async uint <span class="hljs-title">inject_library_file_with_template</span> <span class="hljs-params">(uint pid, PathTemplate path_template, string entrypoint, string data,</span></span><br><span class="hljs-params"><span class="hljs-function">                                                     AgentFeatures features, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    string path = path_template.<span class="hljs-built_in">expand</span> (<span class="hljs-built_in">arch_name_from_pid</span> (pid));<br>    <span class="hljs-comment">// 打开agent文件</span><br>    <span class="hljs-type">int</span> fd = Posix.<span class="hljs-built_in">open</span> (path, Posix.O_RDONLY);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>)<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">INVALID_ARGUMENT</span> (<span class="hljs-string">&quot;Unable to open library: %s&quot;</span>, <span class="hljs-built_in">strerror</span> (errno));<br>    var library_so = <span class="hljs-keyword">new</span> <span class="hljs-built_in">UnixInputStream</span> (fd, <span class="hljs-literal">true</span>);<br>	<span class="hljs-comment">// 最终调用inject_library_fd()</span><br>    <span class="hljs-keyword">return</span> yield <span class="hljs-built_in">inject_library_fd</span> (pid, library_so, entrypoint, data, features, cancellable);<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+
+<p>最终调用的都是<code>inject_library_fd</code>函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async uint <span class="hljs-title">inject_library_fd</span> <span class="hljs-params">(uint pid, UnixInputStream library_so, string entrypoint, string data,</span></span><br><span class="hljs-params"><span class="hljs-function">                                     AgentFeatures features, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    uint id = next_injectee_id++;<br>    yield helper.<span class="hljs-built_in">inject_library</span> (pid, library_so, entrypoint, data, features, id, cancellable);<br><br>    pid_by_id[id] = pid;<br><br>    <span class="hljs-keyword">return</span> id;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用的是helper的<code>inject_library()</code>方法，代码位于<code>src\linux\frida-helper-backend.vala</code> 300行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async <span class="hljs-type">void</span> <span class="hljs-title">inject_library</span> <span class="hljs-params">(uint pid, UnixInputStream library_so, string entrypoint, string data,</span></span><br><span class="hljs-params"><span class="hljs-function">                                  AgentFeatures features, uint id, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    var spec = <span class="hljs-keyword">new</span> <span class="hljs-built_in">InjectSpec</span> (library_so, entrypoint, data, features, id);<br>    var task = <span class="hljs-keyword">new</span> <span class="hljs-built_in">InjectTask</span> (<span class="hljs-keyword">this</span>, spec);<br>    RemoteAgent agent = yield <span class="hljs-built_in">perform</span> (task, pid, cancellable);<br>    <span class="hljs-built_in">take_agent</span> (agent);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>perform()</code>函数最终调用的是<code>InjectTask</code>对象的<code>run()</code>方法</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async RemoteAgent <span class="hljs-title">run</span> <span class="hljs-params">(uint pid, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    PausedSyscallSession? pss = backend.paused_syscalls[pid];<br>    <span class="hljs-keyword">if</span> (pss != null)<br>        yield pss.<span class="hljs-built_in">interrupt</span> (cancellable);<br>   	<span class="hljs-comment">// 重点</span><br>    var session = yield InjectSession.<span class="hljs-built_in">open</span> (pid, cancellable);<br>    RemoteAgent agent = yield session.<span class="hljs-built_in">inject</span> (spec, cancellable);<br>    <span class="hljs-keyword">if</span> (session.was_group_stopped)<br>        backend.suspended_by_inject[pid] = session;<br>    <span class="hljs-keyword">else</span><br>        session.<span class="hljs-built_in">close</span> ();<br>    <span class="hljs-keyword">return</span> agent;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>InjectSession.open()</code> 会通过 <code>ptrace</code> attach 到目标进程并保存寄存器状态。然后 <code>session.inject()</code> 才是真正做注入工作的。</p>
+<p><code>InjectSession.open()</code>调用链：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs livescript">InjectSession.open<span class="hljs-function"><span class="hljs-params">(pid)</span></span><br><span class="hljs-function">	-&gt;</span> SeizeSession.init_async<span class="hljs-function"><span class="hljs-params">()</span></span><br><span class="hljs-function">		-&gt;</span> ptrace<span class="hljs-function"><span class="hljs-params">(SEIZE/ATTACH)</span></span><br><span class="hljs-function">        -&gt;</span> 中断/等待目标线程停止<br>        -&gt; get_regs(&amp;saved_regs)<br></code></pre></td></tr></table></figure>
+
+<p><code>InjectSession.inject()</code>代码位于<code>src\linux\frida-helper-backend.vala</code> 880行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> async RemoteAgent <span class="hljs-title">inject</span> <span class="hljs-params">(InjectSpec spec, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>    string fallback_address = <span class="hljs-built_in">make_fallback_address</span> ();<br>    <span class="hljs-comment">// 计算要写入目标进程的内存布局</span><br>    LoaderLayout loader_layout = <span class="hljs-built_in">compute_loader_layout</span> (spec, fallback_address);<br>	<span class="hljs-comment">// 在目标进程里分配一块可执行内存</span><br>    BootstrapResult bootstrap_result = yield <span class="hljs-built_in">bootstrap</span> (loader_layout.size, cancellable);<br>    uint64 loader_base = (uintptr) bootstrap_result.context.allocation_base;<span class="hljs-comment">// 远程调用入口</span><br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 取出 Frida 预编译的 loader 机器码，对应的是 src/linux/helpers/loader.c 编译出来的小型加载器</span><br>        unowned uint8[] loader_code = Frida.Data.HelperBackend.<span class="hljs-built_in">get_loader_bin_blob</span> ().data;<br>        <span class="hljs-comment">// 把 loader 写进目标进程内存</span><br>        <span class="hljs-built_in">write_memory</span> (loader_base, loader_code);<br>        <span class="hljs-built_in">maybe_fixup_helper_code</span> (loader_base, loader_code);<span class="hljs-comment">// 做架构相关修正，例如重定位</span><br>		<span class="hljs-comment">// 构造loader的上下文（运行参数）</span><br>        var loader_ctx = <span class="hljs-built_in">HelperLoaderContext</span> ();<br>        loader_ctx.ctrlfds = bootstrap_result.context.ctrlfds;<br>        loader_ctx.agent_entrypoint = (string *) (loader_base + loader_layout.agent_entrypoint_offset);<br>        loader_ctx.agent_data = (string *) (loader_base + loader_layout.agent_data_offset);<br>        loader_ctx.fallback_address = (string *) (loader_base + loader_layout.fallback_address_offset);<br>        loader_ctx.libc = (HelperLibcApi *) (loader_base + loader_layout.libc_api_offset);<br>        <span class="hljs-comment">// 相关值写入</span><br>        <span class="hljs-built_in">write_memory</span> (loader_base + loader_layout.ctx_offset, (uint8[]) &amp;loader_ctx);<br>        <span class="hljs-built_in">write_memory</span> (loader_base + loader_layout.libc_api_offset, (uint8[]) &amp;bootstrap_result.libc);<br>        <span class="hljs-built_in">write_memory_string</span> (loader_base + loader_layout.agent_entrypoint_offset, spec.entrypoint);<br>        <span class="hljs-built_in">write_memory_string</span> (loader_base + loader_layout.agent_data_offset, spec.data);<br>        <span class="hljs-built_in">write_memory_string</span> (loader_base + loader_layout.fallback_address_offset, fallback_address);<br>		<span class="hljs-comment">// 远程执行loader</span><br>        <span class="hljs-keyword">return</span> yield <span class="hljs-built_in">launch_loader</span> (FROM_SCRATCH, spec, bootstrap_result, null, fallback_address, loader_layout,<br>                                    cancellable);<br>    &#125;<br>    <span class="hljs-comment">//...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注入loader到目标进程中，然后通过<code>launch_loader</code>远程启动它，让它完成 <code>frida-agent</code>的加载和入口调用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> async RemoteAgent <span class="hljs-title">launch_loader</span> <span class="hljs-params">(LoaderLaunch launch, InjectSpec spec, BootstrapResult bres, UnixConnection? agent_ctrl, string fallback_address, LoaderLayout loader_layout, Cancellable? cancellable)</span> throws Error, IOError </span>&#123;<br>	<span class="hljs-comment">// 与 helper建立通信连接</span><br>    Future&lt;RemoteAgent&gt; future_agent =<br>        <span class="hljs-built_in">establish_connection</span> (launch, spec, bres, agent_ctrl, fallback_address, cancellable);<br>	<span class="hljs-comment">// 构造 loader 调用环境</span><br>    uint64 loader_base = (uintptr) bres.context.allocation_base;<span class="hljs-comment">// loader入口地址</span><br>    GPRegs regs = saved_regs;<span class="hljs-comment">//被ptrace stop时保存的目标进程寄存器</span><br>    regs.stack_pointer = bres.allocated_stack.stack_root;<span class="hljs-comment">//更改栈指针指向新分配的栈</span><br>    var call_builder = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RemoteCallBuilder</span> (loader_base, regs);<span class="hljs-comment">// 构建远程调用构建器, 从loader_base开始执行</span><br>    call_builder.<span class="hljs-built_in">add_argument</span> (loader_base + loader_layout.ctx_offset);<span class="hljs-comment">// 添加参数，类型为HelperLoaderContext*</span><br>    RemoteCall loader_call = call_builder.<span class="hljs-built_in">build</span> (<span class="hljs-keyword">this</span>);<span class="hljs-comment">// 构建远程调用</span><br>    RemoteCallResult loader_result = yield loader_call.<span class="hljs-built_in">execute</span> (cancellable);<span class="hljs-comment">// 执行远程调用</span><br>    <span class="hljs-comment">// ...</span><br><br>    var establish_cancellable = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Cancellable</span> ();<br>    var main_context = MainContext.<span class="hljs-built_in">get_thread_default</span> ();<br><br>    var timeout_source = <span class="hljs-keyword">new</span> TimeoutSource.<span class="hljs-built_in">seconds</span> (<span class="hljs-number">5</span>);<br>    timeout_source.<span class="hljs-built_in">set_callback</span> (() =&gt; &#123;<br>        establish_cancellable.<span class="hljs-built_in">cancel</span> ();<br>        <span class="hljs-keyword">return</span> Source.REMOVE;<br>    &#125;);<br>    timeout_source.<span class="hljs-built_in">attach</span> (main_context);<br><br>    var cancel_source = <span class="hljs-keyword">new</span> <span class="hljs-built_in">CancellableSource</span> (cancellable);<br>    cancel_source.<span class="hljs-built_in">set_callback</span> (() =&gt; &#123;<br>        establish_cancellable.<span class="hljs-built_in">cancel</span> ();<br>        <span class="hljs-keyword">return</span> Source.REMOVE;<br>    &#125;);<br>    cancel_source.<span class="hljs-built_in">attach</span> (main_context);<br><br>    RemoteAgent agent = null;<br>    <span class="hljs-keyword">try</span> &#123;<br>        agent = yield future_agent.<span class="hljs-built_in">wait_async</span> (establish_cancellable);<br>    &#125;<br>    <span class="hljs-comment">// ...</span><br><br>    agent.<span class="hljs-built_in">ack</span> ();<span class="hljs-comment">//发送 ACK，允许 loader 进入 agent main</span><br><br>    <span class="hljs-keyword">return</span> agent;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>构造loader入口函数的远程调用，让目标进程自己执行 loader 代码。之后的代码逻辑就是在<code>src\linux\helpers\loader.c</code>中，入口是<code>frida_load()</code>，里面通过线程启动<code>frida_main()</code>方法，在后者中，通过<code>dlopen()</code> 加载 agent，通过 <code>dlsym()</code> 找到 <code>frida_agent_main</code>，最后调用 agent 入口函数。</p>
+<h1 id="frida-agent"><a href="#frida-agent" class="headerlink" title="frida-agent"></a>frida-agent</h1><p>在上节中， <code>perform_attach_to()</code>函数指定了注入动态库后执行的函数符号为 <code>frida_agent_main</code>，该函数的定义在 <code>lib/agent/agent.vala</code> 中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-type">void</span> <span class="hljs-title">main</span> <span class="hljs-params">(string agent_parameters, ref Frida.UnloadPolicy unload_policy, <span class="hljs-type">void</span> * injector_state)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (Runner.shared_instance == null)<span class="hljs-comment">// Runner.shared_instance初始化为null</span><br>        Runner.<span class="hljs-built_in">create_and_run</span> (agent_parameters, ref unload_policy, injector_state);<br>    <span class="hljs-keyword">else</span><br>        Runner.<span class="hljs-built_in">resume_after_transition</span> (ref unload_policy, injector_state);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>首次启动时调用<code>Runner.create_and_run()</code>初始化agent并运行。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">create_and_run</span> <span class="hljs-params">(string agent_parameters, ref Frida.UnloadPolicy unload_policy,</span></span><br><span class="hljs-params"><span class="hljs-function">                                   <span class="hljs-type">void</span> * opaque_injector_state)</span> </span>&#123;<br>    <span class="hljs-comment">// 初始化 agent 运行环境</span><br>    Environment._init ();<br><br>    &#123;<br>        Gum.MemoryRange? mapped_range = null;<br>		<span class="hljs-comment">//...</span><br>        <br>        <span class="hljs-keyword">if</span> (cached_agent_path == null) &#123;<br>            <span class="hljs-comment">// 找出当前 agent.so 在目标进程中的内存范围和路径，进行缓存</span><br>            cached_agent_range = <span class="hljs-built_in">detect_own_range_and_path</span> (mapped_range, out cached_agent_path);<br>            Gum.Cloak.<span class="hljs-built_in">add_range</span> (cached_agent_range);<br>        &#125;<br>		<span class="hljs-comment">// 获取文件描述符表</span><br>        var fdt_padder = FileDescriptorTablePadder.<span class="hljs-built_in">obtain</span> ();<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> LINUX || FREEBSD</span><br>        var injector_state = (PosixInjectorState *) opaque_injector_state;<br>        <span class="hljs-keyword">if</span> (injector_state != null) &#123;<br>            fdt_padder.<span class="hljs-built_in">move_descriptor_if_needed</span> (ref injector_state.fifo_fd);<br>            Gum.Cloak.<span class="hljs-built_in">add_file_descriptor</span> (injector_state.fifo_fd);<br>        &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> LINUX</span><br>        var linjector_state = (LinuxInjectorState *) opaque_injector_state;<br>        string? agent_parameters_with_transport_uri = null;<br>        <span class="hljs-keyword">if</span> (linjector_state != null) &#123;<br>            <span class="hljs-type">int</span> agent_ctrlfd = linjector_state-&gt;agent_ctrlfd;<br>            <span class="hljs-comment">//-1表示所有权已经转移给agent</span><br>            linjector_state-&gt;agent_ctrlfd = <span class="hljs-number">-1</span>;<br><br>            fdt_padder.<span class="hljs-built_in">move_descriptor_if_needed</span> (ref agent_ctrlfd);<br>			<span class="hljs-comment">//构建参数，后面 Runner.start() 会解析它，用这个 fd 建立 DBus 通信</span><br>            agent_parameters_with_transport_uri = <span class="hljs-string">&quot;socket:%d%s&quot;</span>.<span class="hljs-built_in">printf</span> (agent_ctrlfd, agent_parameters);<br>            agent_parameters = agent_parameters_with_transport_uri;<br>        &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br>        var ignore_scope = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThreadIgnoreScope</span> (FRIDA_THREAD);<br>		<span class="hljs-comment">// 创建全局单例Runner</span><br>        shared_instance = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Runner</span> (agent_parameters, cached_agent_path, cached_agent_range);<br><br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 启动Runner</span><br>            shared_instance.<span class="hljs-built_in">run</span> ((owned) fdt_padder);<br>        &#125; <span class="hljs-built_in">catch</span> (Error e) &#123;<br>            GLib.<span class="hljs-built_in">info</span> (<span class="hljs-string">&quot;Unable to start agent: %s&quot;</span>, e.message);<br>        &#125;<br>		<span class="hljs-comment">//...</span><br>        ignore_scope = null;<br>    &#125;<br><br>    Environment._deinit ();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>初始化 agent 环境，构建资源标识符<code>uri</code>为 <code>socket:&lt;fd&gt;&lt;parameters&gt;</code> 格式，然后创建全局单例 <code>Runner</code>，并调用<code>run()</code>方法启动。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-type">void</span> <span class="hljs-title">run</span> <span class="hljs-params">(owned FileDescriptorTablePadder padder)</span> throws Error </span>&#123;<br>    main_context.<span class="hljs-built_in">push_thread_default</span> ();<br>	<span class="hljs-comment">// 调用自身的start()方法</span><br>    start.<span class="hljs-built_in">begin</span> ((owned) padder);<br>	<span class="hljs-comment">// 开启主循环阻塞，处理事件</span><br>    main_loop.<span class="hljs-built_in">run</span> ();<br><br>    main_context.<span class="hljs-built_in">pop_thread_default</span> ();<br><br>    <span class="hljs-keyword">if</span> (start_error != null)<br>        <span class="hljs-keyword">throw</span> start_error;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>启动异步函数 <code>start()</code>，该函数负责真正初始化agent。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> async <span class="hljs-type">void</span> <span class="hljs-title">start</span> <span class="hljs-params">(owned FileDescriptorTablePadder padder)</span> </span>&#123;<br>	<span class="hljs-comment">// agent_parameters的格式为 &quot;socket:%d%s&quot;</span><br>    string[] tokens = agent_parameters.<span class="hljs-built_in">split</span> (<span class="hljs-string">&quot;|&quot;</span>);<br>    unowned string transport_uri = tokens[<span class="hljs-number">0</span>]; <span class="hljs-comment">// socket:&lt;fd&gt;，例如socket:123</span><br>    <span class="hljs-type">bool</span> enable_exceptor = <span class="hljs-literal">true</span>;<span class="hljs-comment">// 异常处理/异常拦截相关能力</span><br>    <br>    <span class="hljs-type">bool</span> enable_exit_monitor = <span class="hljs-literal">true</span>;<span class="hljs-comment">// 监控进程退出、exec 等终止行为</span><br>    <span class="hljs-type">bool</span> enable_thread_suspend_monitor = <span class="hljs-literal">true</span>;<span class="hljs-comment">// 监控线程挂起相关行为</span><br>    <span class="hljs-type">bool</span> enable_unwind_sitter = <span class="hljs-literal">true</span>;<span class="hljs-comment">// 栈回溯/异常恢复辅助相关组件</span><br>    <span class="hljs-comment">// 遍历启动参数，设置启动选项</span><br>    foreach (unowned string option in tokens[<span class="hljs-number">1</span>:]) &#123;<br>        <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;eternal&quot;</span>)<br>            <span class="hljs-built_in">ensure_eternalized</span> ();<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;sticky&quot;</span>)<br>            stop_thread_on_unload = <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;exceptor:off&quot;</span>)<br>            enable_exceptor = <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;exit-monitor:off&quot;</span>)<br>            enable_exit_monitor = <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;thread-suspend-monitor:off&quot;</span>)<br>            enable_thread_suspend_monitor = <span class="hljs-literal">false</span>;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (option == <span class="hljs-string">&quot;unwind-sitter:off&quot;</span>)<br>            enable_unwind_sitter = <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!enable_exceptor)<br>        Gum.Exceptor.<span class="hljs-built_in">disable</span> ();<br>	<span class="hljs-comment">// 根据启动选项，初始化相关组件</span><br>    &#123;<br>        var interceptor = Gum.Interceptor.<span class="hljs-built_in">obtain</span> ();<br>        interceptor.<span class="hljs-built_in">begin_transaction</span> ();<br><br>        <span class="hljs-keyword">if</span> (enable_exit_monitor)<br>            exit_monitor = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ExitMonitor</span> (<span class="hljs-keyword">this</span>, main_context);<br><br>        <span class="hljs-keyword">if</span> (enable_thread_suspend_monitor)<br>            thread_suspend_monitor = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThreadSuspendMonitor</span> (<span class="hljs-keyword">this</span>);<br><br>        <span class="hljs-keyword">if</span> (enable_unwind_sitter)<br>            unwind_sitter = <span class="hljs-keyword">new</span> <span class="hljs-built_in">UnwindSitter</span> (<span class="hljs-keyword">this</span>);<br><br>        <span class="hljs-keyword">this</span>.interceptor = interceptor;<br>        <span class="hljs-keyword">this</span>.exceptor = Gum.Exceptor.<span class="hljs-built_in">obtain</span> ();<br><br>        interceptor.<span class="hljs-built_in">end_transaction</span> ();<br>    &#125;<br>	<span class="hljs-comment">// 用传入的 Unix socket fd 建立通信连接</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-function">yield <span class="hljs-title">setup_connection_with_transport_uri</span> <span class="hljs-params">(transport_uri)</span></span>;<br>    &#125; <span class="hljs-built_in">catch</span> (Error e) &#123;<br>        start_error = e;<br>        main_loop.<span class="hljs-built_in">quit</span> ();<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    Gum.ScriptBackend.<span class="hljs-built_in">get_scheduler</span> ().<span class="hljs-built_in">push_job_on_js_thread</span> (Priority.DEFAULT, () =&gt; &#123;<br>        <span class="hljs-built_in">schedule_idle</span> (start.callback);<br>    &#125;);<br>    yield;<br><br>    padder = null;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>解析 agent 启动参数，启用&#x2F;禁用关键监控组件，调用<code>setup_connection_with_transport_uri()</code>函数建立与 <code>frida-server</code> 的 DBus 通信连接，最后切换到 JS 线程完成一次调度同步，确保JS 线程已经初始化到可用状态。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> async <span class="hljs-type">void</span> <span class="hljs-title">setup_connection_with_transport_uri</span> <span class="hljs-params">(string transport_uri)</span> throws Error </span>&#123;<br>    IOStream stream;<span class="hljs-comment">// 双向输入输出流。后续 DBusConnection 会基于这个流进行通信</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span> (transport_uri.<span class="hljs-built_in">has_prefix</span> (<span class="hljs-string">&quot;socket:&quot;</span>)) &#123;<br>            <span class="hljs-comment">// 取出文件描述符fd，建立socket通信</span><br>            var socket = <span class="hljs-keyword">new</span> Socket.<span class="hljs-built_in">from_fd</span> (<span class="hljs-type">int</span>.<span class="hljs-built_in">parse</span> (transport_uri[<span class="hljs-number">7</span>:]));<br>            stream = SocketConnection.<span class="hljs-built_in">factory_create_connection</span> (socket);<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (transport_uri.<span class="hljs-built_in">has_prefix</span> (<span class="hljs-string">&quot;pipe:&quot;</span>)) &#123;<br>            stream = yield Pipe.<span class="hljs-built_in">open</span> (transport_uri, null).<span class="hljs-built_in">wait_async</span> (null);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">INVALID_ARGUMENT</span> (<span class="hljs-string">&quot;Invalid transport URI: %s&quot;</span>, transport_uri);<br>        &#125;<br>    &#125; <span class="hljs-built_in">catch</span> (GLib.Error e) &#123;<br>        <span class="hljs-keyword">if</span> (e is Error)<br>            <span class="hljs-keyword">throw</span> (Error) e;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">TRANSPORT</span> (<span class="hljs-string">&quot;%s&quot;</span>, e.message);<br>    &#125;<br>	<span class="hljs-comment">// 基于stream创建DBusConnection</span><br>    <span class="hljs-function">yield <span class="hljs-title">setup_connection_with_stream</span> <span class="hljs-params">(stream)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Android 上主要走 <code>socket:&lt;fd&gt;</code> 分支，把注入阶段传入的 Unix socket fd 包装成 <code>IOStream</code>通信流，然后再交给 <code>setup_connection_with_stream()</code> 用于建立 DBus 通信。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">private</span> async <span class="hljs-type">void</span> <span class="hljs-title">setup_connection_with_stream</span> <span class="hljs-params">(IOStream stream)</span> throws Error </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 用传入的 IOStream 建立一条 DBus 连接</span><br>        connection = yield <span class="hljs-keyword">new</span> <span class="hljs-built_in">DBusConnection</span> (stream, null, AUTHENTICATION_CLIENT | DELAY_MESSAGE_PROCESSING);<br>        connection.on_closed.<span class="hljs-built_in">connect</span> (on_connection_closed);<span class="hljs-comment">// 注册关闭回调</span><br>        filter_id = connection.<span class="hljs-built_in">add_filter</span> (on_connection_message); <span class="hljs-comment">// 给 DBus 消息加过滤器</span><br>		<span class="hljs-comment">// 注册 AgentSessionprovider。注册后，宿主端就可以通过 DBus 调用 agent 的方法</span><br>        AgentSessionProvider provider = <span class="hljs-keyword">this</span>;<br>        registration_id = connection.<span class="hljs-built_in">register_object</span> (ObjectPath.AGENT_SESSION_PROVIDER, provider);<br>		<span class="hljs-comment">// 获取宿主端 controller proxy。这个 controller 是 agent 反向调用 frida-server/helper 的接口</span><br>        controller = yield connection.<span class="hljs-built_in">get_proxy</span> (null, ObjectPath.AGENT_CONTROLLER, DO_NOT_LOAD_PROPERTIES, null);<br>		<span class="hljs-comment">// 开始处理 DBus 消息</span><br>        connection.<span class="hljs-built_in">start_message_processing</span> ();<br>    &#125; <span class="hljs-built_in">catch</span> (GLib.Error e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">TRANSPORT</span> (<span class="hljs-string">&quot;%s&quot;</span>, e.message);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>基于 <code>IOStream</code>  建立 DBus 通道。然后把当前 <code>Runner</code> 注册成 <code>AgentSessionProvider</code>，这样<code>frida-server</code>就可以通过 DBus 通信调用 agent 的方法。之后通过 DBus 通信获取<code>frida-server</code>的<code>AgentController</code>代理，这样<code>frida-agent</code>也同样可以通过 DBus 通信反向调用<code>frida-server</code>的方法。</p>
+<h1 id="frida-gadget"><a href="#frida-gadget" class="headerlink" title="frida-gadget"></a>frida-gadget</h1><p>Frida的Gadget是一个共享库，用于免root注入hook脚本。frida持久化是借助<code>frida-gadget</code>来进行的，主要方式有App重打包、源码定制等，详细分析可见<a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-268256-1.htm">[原创]小菜花的frida-gadget持久化方案汇总</a>。</p>
+<p><code>frida-gadget</code>的入口函数在<code>lib\gadget\gadget.vala</code> 379行处。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-type">void</span> <span class="hljs-title">load</span> <span class="hljs-params">(Gum.MemoryRange? mapped_range, string? config_data, <span class="hljs-type">int</span> * result)</span> </span>&#123;<br>    <span class="hljs-comment">// ...</span><br>    <br>    <span class="hljs-comment">// Location 包含当前可执行文件名、Gadget 路径、模块内存范围，以及 asset 目录解析能力。后续脚本路径、证书路径、配置路径都会基于它解析相对路径。</span><br>    location = <span class="hljs-built_in">detect_location</span> (mapped_range);<br>	<span class="hljs-comment">// 读取gadget配置文件</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        config = (config_data != null)<br>            ? <span class="hljs-built_in">parse_config</span> (config_data)<br>            : <span class="hljs-built_in">load_config</span> (location);<br>    &#125; <span class="hljs-built_in">catch</span> (Error e) &#123;<br>        <span class="hljs-built_in">log_warning</span> (e.message);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">// 把配置里的策略下发给 Gum</span><br>    Gum.Process.<span class="hljs-built_in">set_teardown_requirement</span> (config.teardown);<br>    Gum.Process.<span class="hljs-built_in">set_code_signing_policy</span> (config.code_signing);<br><br>    Gum.Cloak.<span class="hljs-built_in">add_range</span> (location.range);<br><br>    interceptor = Gum.Interceptor.<span class="hljs-built_in">obtain</span> ();<br>    interceptor.<span class="hljs-built_in">begin_transaction</span> ();<br>	<span class="hljs-comment">// ...</span><br><br>    exceptor = Gum.Exceptor.<span class="hljs-built_in">obtain</span> ();<br>	<span class="hljs-comment">// 根据配置文件选择交互方式</span><br>    <span class="hljs-keyword">try</span> &#123;<br>        var interaction = config.interaction;<br>        <span class="hljs-keyword">if</span> (interaction is ScriptInteraction) &#123;<br>            controller = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ScriptRunner</span> (config, location);<span class="hljs-comment">// 加载单个 JS/bytecode 脚本，启动成功后自动 Frida.Gadget.resume()</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (interaction is ScriptDirectoryInteraction) &#123;<br>            controller = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ScriptDirectoryRunner</span> (config, location);<span class="hljs-comment">// 扫描目录里的 .js，按每个脚本旁边的配置过滤当前进程，启动成功后自动 resume</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (interaction is ListenInteraction) &#123;<br>            controller = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ControlServer</span> (config, location);<span class="hljs-comment">// 在目标进程内启动 Frida control server，外部 frida-tools 可以 attach 到这个进程</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (interaction is ConnectInteraction) &#123;<br>            controller = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ClusterClient</span> (config, location);<span class="hljs-comment">//主动连接 portal/cluster，由远端通过信号决定 resume/kill。</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error.<span class="hljs-built_in">NOT_SUPPORTED</span> (<span class="hljs-string">&quot;Invalid interaction specified&quot;</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">// ...</span><br>    interceptor.<span class="hljs-built_in">end_transaction</span> ();<br><br>    <span class="hljs-keyword">if</span> (controller == null)<br>        <span class="hljs-keyword">return</span>;<br><br>    wait_for_resume_needed = <span class="hljs-literal">true</span>;<br><br>    var listen_interaction = config.interaction as ListenInteraction;<br>    <span class="hljs-keyword">if</span> (listen_interaction != null &amp;&amp; listen_interaction.on_load == ListenInteraction.LoadBehavior.RESUME) &#123;<br>        wait_for_resume_needed = <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!wait_for_resume_needed)<br>        <span class="hljs-built_in">resume</span> ();<br>	<span class="hljs-comment">// 完成初始化并进入主循环处理后续消息事件</span><br>    <span class="hljs-keyword">if</span> (wait_for_resume_needed &amp;&amp; Environment.<span class="hljs-built_in">can_block_at_load_time</span> ()) &#123;<br>        var scheduler = Gum.ScriptBackend.<span class="hljs-built_in">get_scheduler</span> ();<br><br>        scheduler.<span class="hljs-built_in">disable_background_thread</span> ();<br><br>        wait_for_resume_context = scheduler.<span class="hljs-built_in">get_js_context</span> ();<br><br>        var ignore_scope = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ThreadIgnoreScope</span> (APPLICATION_THREAD);<br><br>        <span class="hljs-built_in">start</span> (request);<br>		<br>        var loop = <span class="hljs-keyword">new</span> <span class="hljs-built_in">MainLoop</span> (wait_for_resume_context, <span class="hljs-literal">true</span>);<br>        wait_for_resume_loop = loop;<br><br>        wait_for_resume_context.<span class="hljs-built_in">push_thread_default</span> ();<br>        loop.<span class="hljs-built_in">run</span> ();<br>        wait_for_resume_context.<span class="hljs-built_in">pop_thread_default</span> ();<br><br>        scheduler.<span class="hljs-built_in">enable_background_thread</span> ();<br><br>        ignore_scope = null;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">start</span> (request);<br>    &#125;<br>	<span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>参考<a target="_blank" rel="noopener" href="https://frida.re/docs/gadget/">官方文档</a>，gadget 启动时会去指定路径搜索配置文件，该配置文件应与gadget二进制文件同名，但文件扩展名为<code>.config</code>。然后根据配置文件的<code>interaction</code>字段进入不同的交互模式，可用的交互方式有：</p>
+<ol>
+<li><p><strong>Listen模式</strong></p>
+<p>默认的交互方式。配置文件最低要求如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;interaction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;listen&quot;</span><span class="hljs-punctuation">,</span>	<br>    <span class="hljs-attr">&quot;address&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;127.0.0.1&quot;</span><span class="hljs-punctuation">,</span>		<span class="hljs-comment">// ip	</span><br>    <span class="hljs-attr">&quot;port&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">27042</span><span class="hljs-punctuation">,</span>				<span class="hljs-comment">// 端口</span><br>    <span class="hljs-attr">&quot;on_port_conflict&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;fail&quot;</span><span class="hljs-punctuation">,</span>	<span class="hljs-comment">// 端口冲突时的操作</span><br>    <span class="hljs-attr">&quot;on_load&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;wait&quot;</span>		<span class="hljs-comment">// gadget加载后的操作</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Connect模式</strong></p>
+<p>连接到指定<code>ip:port</code>处的<code>frida-portal</code> ，并成为其进程集群中的一个节点。配置文件最低要求如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;interaction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;connect&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;address&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;127.0.0.1&quot;</span><span class="hljs-punctuation">,</span>	<span class="hljs-comment">// Portal集群所在主机</span><br>    <span class="hljs-attr">&quot;port&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">27052</span>			<span class="hljs-comment">// Portal集群接口的暴露位置</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Script模式</strong></p>
+<p>gadget启动后，在目标App执行前加载指定 JS 脚本。配置文件最低要求如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;interaction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;script&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/oleavr/explore.js&quot;</span>	<span class="hljs-comment">// JS 文件路径</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>ScriptDirectory模式</strong></p>
+<p>gadget启动后，在目标App执行前从指定目录中加载 JS 脚本。与gadget二进制文件同名的配置文件最低要求如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;interaction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;script-directory&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/usr/local/frida/scripts&quot;</span>	<span class="hljs-comment">//  JS文件所在目录路径</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>该目录下的每个 JS 脚本都可以配置一个同名的<code>.json</code>文件，用于决定相应 JS 脚本是否加载（比如仅在特定程序启动时才加载）。例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;filter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;executables&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Twitter&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>		<span class="hljs-comment">// 可执行文件名是Twitter</span><br>    <span class="hljs-attr">&quot;bundles&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;com.twitter.twitter-mac&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 捆绑包标识符是com.twitter.twitter-mac（App包名）</span><br>    <span class="hljs-attr">&quot;objc_classes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Twitter&quot;</span><span class="hljs-punctuation">]</span>				<span class="hljs-comment">// 加载了一个名为 的 Objective-C 类Twitter</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>当应用程序满足如上任意一个条件时，才会加载相应 JS 脚本。</p>
+</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>frida-server</code> 负责在目标设备上启动控制服务，监听来自 PC 端 Frida 客户端的连接，并通过 <code>ControlService</code>、<code>WebService</code>、<code>DBusConnection</code> 等组件把外部操作转换成对本地 <code>HostSession</code> 的调用。客户端执行 <code>spawn</code>、<code>attach</code>、<code>kill</code> 等操作时，最终都会进入对应平台的 <code>HostSession</code> 实现。</p>
+<p>在 Linux&#x2F;Android 场景下，真正的注入流程主要由 <code>LinuxHostSession</code>、<code>Linjector</code> 和 <code>frida-helper-backend</code> 完成。<code>attach</code> 时 Frida 会选择合适的 <code>frida-agent.so</code>，通过文件路径或内嵌资源方式交给 injector，再由 helper 使用 <code>ptrace</code> 控制目标进程，写入 loader 代码并初始化运行环境，远程执行 loader，最终在目标进程中使用 <code>dlopen()</code> 加载 agent 并调用 <code>frida_agent_main</code>。</p>
+<p><code>frida-agent</code> 被加载后会初始化自身运行环境，建立与 <code>frida-server</code> 的通信通道，并把自身注册为 <code>AgentSessionProvider</code>。之后 PC 端加载脚本、发送消息、调用 RPC 等操作，都会通过这条 DBus 通道转发到目标进程内的 agent，由 agent 调用 Gum&#x2F;JS 引擎完成实际 Hook 逻辑。</p>
+<p><code>frida-gadget</code> 不依赖 <code>frida-server</code> 主动注入，而是作为共享库提前集成到目标 App 中。gadget 启动时读取同目录下的同名 <code>.config</code> 配置文件，用户可以自定义配置文件，实现特定应用的批量持久化Hook功能。</p>
+<hr>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://evilpan.com/2022/04/09/frida-core/">Frida Internal - Part 2: 核心组件 frida-core - 有价值炮灰</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-278533.htm">[原创] Frida-Core 源代码速通笔记</a></p>
+<p><a target="_blank" rel="noopener" href="https://binhack.readthedocs.io/zh/latest/os/linux/syscall/ptrace.html">https://binhack.readthedocs.io/zh/latest/os/linux/syscall/ptrace.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://frida.re/docs/gadget/">https://frida.re/docs/gadget/</a></p>
+<p><a target="_blank" rel="noopener" href="https://lief.re/doc/latest/tutorials/09_frida_lief.html">https://lief.re/doc/latest/tutorials/09_frida_lief.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-268256-1.htm">[原创]小菜花的frida-gadget持久化方案汇总</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Frida-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#Frida 源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Frida源码分析之frida-core篇</div>
+      <div>http://example.com/2026/05/09/Frida Hook/Frida源码分析之frida-core篇/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>gla2xy</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月9日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/30/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BJava%20Hook%E5%8E%9F%E7%90%86%E7%AF%87/" title="Frida源码分析之Java Hook原理篇">
+                        <span class="hidden-mobile">Frida源码分析之Java Hook原理篇</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

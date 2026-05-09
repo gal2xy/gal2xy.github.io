@@ -252,13 +252,137 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2026/04/10/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BHook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
-          Frida源码分析之Hook原理篇
+        <a href="/2026/05/09/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8Bfrida-core%E7%AF%87/" target="_self">
+          Frida源码分析之frida-core篇
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/10/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BHook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/09/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8Bfrida-core%E7%AF%87/" target="_self">
+        <div>
+          本文分析的是frida-core源码，其中很多关键代码使用vala语言编写，再借助编译器转换成C语言代码。frida-core 封装了跨平台通信、进程管理和注入逻辑，包含如下关键模块：  frida-server：运行在目标设备（如安卓、iOS）上，负责接收来自 PC 端的指令。 frida-agent：注入到目标App的一个共享库，负责与frida-server通信，执行hook工作。 frid
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-05-09 14:37" pubdate>
+              2026-05-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Frida-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#Frida 源码分析</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/04/30/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BJava%20Hook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
+          Frida源码分析之Java Hook原理篇
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/30/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BJava%20Hook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
+        <div>
+          根据官方文档，Frida 17之后的版本中， GumJs 运行时不再捆绑 bridges（例如 frida-java-bridge、frida-objc-bridge, frida-swift-bridge）。因此这篇Java Hook原理分析参考的项目源码在frida-java-bridge中。 以如下例子进行原理分析 1234567var Adapter &#x3D; Java.use(targetCl
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-04-30 21:00" pubdate>
+              2026-04-30
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Frida/" class="category-chain-item">Frida</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Frida-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#Frida 源码分析</a>
+            
+              <a href="/tags/Hook%E5%8E%9F%E7%90%86/">#Hook原理</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/04/10/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BNative%20Hook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
+          Frida源码分析之Native Hook原理篇
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/10/Frida%20Hook/Frida%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E4%B9%8BNative%20Hook%E5%8E%9F%E7%90%86%E7%AF%87/" target="_self">
         <div>
           frida-gum简介Frida Gum 是一个底层代码插桩库，可在多个平台和架构上提供动态二进制插桩功能。它支持通过函数钩子（fun hooking GumInterceptor）、指令级跟踪（include-level tracing GumStalker）、内存访问监控（memory access monitoring GumMemoryAccessMonitor）和代码生成来运行时操作本地
         </div>
@@ -729,132 +853,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/okhttp3/">#okhttp3</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2025/08/04/LLVM%20and%20OLLVM/Automatic%20deobfuscation%20of%20virtualized%20binaries%20with%20LLVM/" target="_self">
-          [翻译] Automatic deobfuscation of virtualized binaries with LLVM
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/08/04/LLVM%20and%20OLLVM/Automatic%20deobfuscation%20of%20virtualized%20binaries%20with%20LLVM/" target="_self">
-        <div>
-          文章出处：https:&#x2F;&#x2F;blog.thalium.re&#x2F;posts&#x2F;misc&#x2F;llvm-powered-devirtualization&#x2F;internship-report.pdf 介绍​		国际混淆 C 语言代码大赛（International Obfuscated C Code Contest）创立于四十年前。其灵感源自一段故意编写得极其晦涩、远超一般“糟糕编程”的代码——“这不仅仅是糟糕的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-08-04 15:03" pubdate>
-              2025-08-04
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/LLVM-and-OLLVM/" class="category-chain-item">LLVM and OLLVM</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/VMP/">#VMP</a>
-            
-              <a href="/tags/deobfuscation/">#deobfuscation</a>
-            
-              <a href="/tags/LLVM-Lift/">#LLVM Lift</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2025/03/31/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/VMP%E5%85%A5%E9%97%A8%E2%80%94%E2%80%941.81%20Demo%E5%88%86%E6%9E%90/" target="_self">
-          VMP入门: VMP1.81 Demo分析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/03/31/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/VMP%E5%85%A5%E9%97%A8%E2%80%94%E2%80%941.81%20Demo%E5%88%86%E6%9E%90/" target="_self">
-        <div>
-          一、前言本文主要是通过分析VMProtect 1.81 Demo版加密后的程序，讲述VMP的基本结构，并尝试分析虚拟代码的功能以及虚拟代码还原。 二、虚拟机结构虚拟机保护技术是将程序的可执行代码转化为自定义的中间操作码（一字节或多字节），用以保护源程序不被逆向和篡改，这些中间操作码通过虚拟机解释执行，实现程序原来的功能。在这种情况下，如果要逆向程序，就需要对整个虚拟机结构进行逆向，理解程序功能，还
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2025-03-31 20:10" pubdate>
-              2025-03-31
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%8A%A0%E5%A3%B3%E4%B8%8E%E8%84%B1%E5%A3%B3/" class="category-chain-item">加壳与脱壳</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/VMP/">#VMP</a>
             
           </div>
         
